@@ -1,0 +1,146 @@
+{
+  "audit_id": "policy-current-20261017",
+  "observed_from_utc": "2026-10-17T04:21:13Z",
+  "observed_through_utc": "2026-10-17T04:21:45Z",
+  "observed_date_local": "2026-10-17",
+  "timezone": "Asia/Shanghai",
+  "scope": "Official public terms and robots only. No course-page reads, platform API calls, playback, credentials, policy changes, or historical report edits.",
+  "method_limits": {
+    "allowed_operations": 8,
+    "operations_used": 7,
+    "distinct_requested_urls": 4,
+    "official_domain_search_queries": 1,
+    "initial_url_reads": 4,
+    "cached_result_reference_reads": 2,
+    "actual_origin_http_request_count": null,
+    "actual_origin_http_statuses": null,
+    "note": "web.run supplies retrieved/indexed text and crawl labels, not raw origin traces. Search returned incidental unrelated hits; none was opened or used.",
+    "browser_evidence_in_this_report": false
+  },
+  "operations": [
+    {
+      "n": 1,
+      "kind": "open",
+      "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+      "result": "title only; 0 body lines; crawl label today"
+    },
+    {
+      "n": 2,
+      "kind": "open",
+      "url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+      "result": "193 readable body lines; crawl label today"
+    },
+    {
+      "n": 3,
+      "kind": "open",
+      "url": "https://www.bilibili.com/robots.txt",
+      "result": "3 readable lines; crawl label today"
+    },
+    {
+      "n": 4,
+      "kind": "open",
+      "url": "https://www.icourse163.org/robots.txt",
+      "result": "Internal Error; origin status unknown"
+    },
+    {
+      "n": 5,
+      "kind": "official_domain_search",
+      "query": "site:bilibili.com/blackboard/protocal/licence.html \"5.6\" \"自动\"",
+      "domains": [
+        "bilibili.com"
+      ],
+      "used_source_url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+      "result": "official agreement indexed text; crawl label 3 weeks ago"
+    },
+    {
+      "n": 6,
+      "kind": "read_existing_result_reference",
+      "source_operation": 3,
+      "result": "robots rules exposed"
+    },
+    {
+      "n": 7,
+      "kind": "read_existing_result_reference",
+      "source_operation": 4,
+      "result": "URL cannot be opened (non-retryable error); no extra platform URL requested"
+    }
+  ],
+  "bilibili": {
+    "terms_url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+    "document_updated": "2025-04-30",
+    "document_effective": "2025-05-07",
+    "text_basis": "official URL search-index text, crawled 3 weeks ago; direct open title-only",
+    "current_origin_body_verified": false,
+    "explicit_403_or_captcha_observed": false,
+    "section": "5.6(3)",
+    "short_quotes": [
+      "事先明确书面许可",
+      "自动程序、脚本、软件",
+      "任何理由"
+    ],
+    "interpretation": "The clause expressly names automated acquisition of platform service/content/data and requires prior explicit written permission. A background metadata/catalog collector fits the expressly described automated method; no public-metadata, low-frequency, noncommercial, or anonymous exception is stated in this paragraph. This is a textual scope assessment, not an independently determined legal enforceability opinion.",
+    "related_sections": [
+      "1.1 includes the website among services",
+      "1.5 includes nonregistered users"
+    ],
+    "unknowns": [
+      "Any separate permission granted to this project",
+      "Whether a newer unindexed version exists until the parent's current browser capture is checked"
+    ],
+    "robots_url": "https://www.bilibili.com/robots.txt",
+    "robots_rules": [
+      "User-agent: *",
+      "Disallow: /medialist/detail/",
+      "Disallow: /index.html"
+    ],
+    "robots_conclusion": "The retrieved rules do not disallow every /video/ URL. They do not waive the separate explicit-permission term.",
+    "current_code_status": "explicit_permission_required",
+    "current_code_guard": "site_policy_blocked",
+    "code_guard_is_observed_http_refusal": false
+  },
+  "icourse163": {
+    "terms_url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+    "document_updated": "2021-07-16",
+    "document_effective": "2021-07-16",
+    "text_basis": "readable official terms in web.open; crawl label today",
+    "current_origin_http_status": null,
+    "explicit_403_or_captcha_observed": false,
+    "clauses": [
+      {
+        "section": "3.1",
+        "short_quote": "可浏览",
+        "meaning": "Course-information browsing is described separately from course watching/study, for which account login is requested."
+      },
+      {
+        "section": "5.2.7",
+        "short_quotes": [
+          "未经书面许可",
+          "第三方工具、服务接入"
+        ],
+        "meaning": "The named conduct is using plugins, add-ons, or other third-party tools/services to connect to the platform and related systems without written permission. The sentence does not restrict itself to third-party login. It also does not expressly name robots, crawlers, automated collection, or anonymous public HTML metadata."
+      },
+      {
+        "section": "8.6",
+        "meaning": "Reuse of site content remains subject to its intellectual-property clause; ordinary browse access is not a blanket content-republication permission."
+      }
+    ],
+    "conclusion": "Do not describe 5.2.7 as a categorical ban on human browsing or as only a login restriction. Applying its tools/services integration language to a bounded anonymous public-HTML metadata reader remains a scope interpretation; these clauses alone do not establish an explicit crawler prohibition or an express automated-aggregation grant.",
+    "robots_url": "https://www.icourse163.org/robots.txt",
+    "robots_result": "tool Internal Error; existing-result read reports non-retryable error",
+    "robots_origin_http_status": null,
+    "robots_rules_verified": false,
+    "robots_conclusion": "This result proves neither HTTP 403/CAPTCHA nor HTTP 404 nor a robots disallow rule.",
+    "current_code_status": "unreviewed_permission_scope",
+    "current_code_guard": "policy_unreviewed",
+    "code_guard_is_observed_http_refusal": false
+  },
+  "recommendations": [
+    "Retain a precise distinction between pre-request application policy and actual platform refusal.",
+    "For Bilibili, cite section 5.6(3), document dates, and the indexed-versus-live evidence boundary; do not claim robots prohibits all videos.",
+    "For MOOC, record permission scope as unresolved rather than inventing a whole-site public-browsing ban or narrowing the clause to login only.",
+    "Keep browser-visible catalogs, backend network acquisition, extraction, and playback verification as separate evidence.",
+    "Do not represent this report as a completed input-to-catalog live acceptance."
+  ],
+  "production_changes_made": false,
+  "historical_reports_modified": false
+}

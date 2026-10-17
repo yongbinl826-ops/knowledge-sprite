@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-13",
+  "purpose": "One bounded feasibility probe of an official MIT OCW discovery route, not a course-search acceptance rerun",
+  "entry_url": "https://ocw.mit.edu/search/",
+  "probe_topic": "eigenvectors",
+  "budgets": {
+    "target_http_including_robots_html_xml_redirects": 4,
+    "doh_http": 12,
+    "total_actual_http": 16,
+    "concurrency": 1,
+    "retries": 0,
+    "deadline_seconds": 75,
+    "target_response_max_bytes": 2000000,
+    "robots_response_max_bytes": 256000,
+    "sitemap_response_max_bytes": 500000,
+    "doh_response_max_bytes": 65536
+  },
+  "transport": "Existing Fetcher.fetch and PinnedHTTPClient; fresh public A/AAAA validation by existing fixed Cloudflare DoH resolver; TLS hostname and pinned public IP; trust_env=false; no browser or JS execution",
+  "selection_rule": [
+    "Start only from entry_url, letting Fetcher retrieve and enforce same-origin robots first.",
+    "Stop on HTTP/access/DNS/timeout/size error; no replacement path or repeated failed request.",
+    "Parse returned HTML offline for actual course links, public GET search forms and structured declarations; never guess an API or request script assets.",
+    "If a same-origin public GET search form exposes a named search input, issue at most one eigenvectors query using that observed action and parameter. Do not reuse held-out topics.",
+    "Otherwise, if robots actually declares a same-origin sitemap URL, fetch only the first declared sitemap once, subject to robots and remaining budget. Do not recursively follow sitemap indexes or guess sitemap paths.",
+    "Do not fetch discovered course pages or media, follow unreviewed third-party endpoints, seed results, modify production code/configuration, or access SQLite."
+  ],
+  "stop_at_any_budget": true,
+  "rerun_failed_probe": false,
+  "doh_budget_authorization": "Parent explicitly clarified: at most 4 target HTTP plus at most 12 separately recorded DoH HTTP, at most 16 actual HTTP total, all sequential.",
+  "output": "mit-discovery-probe.json with request UTC/status/error/body-read/hash/truncation evidence and separate counts; successful raw target bodies retained alongside it"
+}

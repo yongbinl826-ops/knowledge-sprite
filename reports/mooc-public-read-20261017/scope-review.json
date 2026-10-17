@@ -1,0 +1,66 @@
+{
+  "reviewed_at": "2026-10-17",
+  "scope": "Read-only scope review; no course request, credential use, private API access, or production code change.",
+  "network_requests": {
+    "used": 2,
+    "maximum": 4,
+    "operations": [
+      {
+        "method": "web.open",
+        "url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+        "result": "Current official terms returned; version 2021-07-16; origin HTTP status not supplied",
+        "origin_http_status": null
+      },
+      {
+        "method": "anonymous GET",
+        "url": "https://www.icourse163.org/robots.txt",
+        "origin_http_status": 404
+      }
+    ]
+  },
+  "terms": {
+    "source_url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+    "updated_at": "2021-07-16",
+    "effective_at": "2021-07-16",
+    "current_verification": "Web tool current official terms compared with same-day normal-browser capture.",
+    "prior_same_day_capture": "reports/platform-live-chain-20261017/mooc-terms-visible.txt",
+    "body_sha256": "409e4fc235f373cb896d135e7f981f25634f33102760a3bb66ecd1b5959a021b",
+    "current_origin_http_status": null,
+    "sections": {
+      "3.1": "Distinguishes browsing course information from watching/studying after login; not a blanket grant for every automated use.",
+      "5.2.7": "Restricts unapproved plugins/add-ons/third-party tools or services connecting to the platform and related systems. It does not expressly name anonymous public course HTML GET, robots, crawlers, or metadata aggregation. Do not narrow to login only or inflate into an explicit universal scraping prohibition.",
+      "8.6": "Content ownership and reuse restrictions remain relevant; public metadata reading does not grant a license to redistribute course materials or media."
+    }
+  },
+  "robots": {
+    "url": "https://www.icourse163.org/robots.txt",
+    "http_status": 404,
+    "started_at": "2026-10-17T04:44:45.036003+00:00",
+    "finished_at": "2026-10-17T04:44:47.498772+00:00",
+    "anonymous": true,
+    "redirected": false,
+    "body_bytes": 169,
+    "body_sha256": "91fe1bb2ce31dfa39896c9a04ee23274a7e9dd0ad1fc91ec191e8b7307f652f2",
+    "raw_body_file": "mooc-robots-response.txt",
+    "request_metadata_file": "mooc-robots-http.json"
+  },
+  "findings": {
+    "explicit_universal_public_html_prohibition_established": false,
+    "explicit_blanket_automation_permission_established": false,
+    "robots_disallow_established": false,
+    "terms_scope_for_third_party_aggregators": "unknown",
+    "recommended_application_verdict": "scoped_public_course_html_read",
+    "verdict_meaning": "Permit only the bounded anonymous public course-page read below. Retain unresolved scope as a disclosure instead of an observed site prohibition. This is an implementation judgment, not platform-granted written authorization."
+  },
+  "recommended_guards": [
+    "HTTPS only; exact icourse163.org or www.icourse163.org hosts; default HTTPS port; public /course/<institution>-<numeric id> route must fully match.",
+    "Anonymous GET of public document and robots.txt only; no Cookie, Authorization, session/account tokens, POST, login, learn, lesson, or private API.",
+    "Do not silently discard identity-changing query arguments. Allow only reviewed public query forms; otherwise classify out of scope. Explicit tracking normalization may remain.",
+    "Re-check every redirect before the next request; only canonical targets still inside the reviewed public course-page scope. Stop at login, API, private, unreviewed host/path targets.",
+    "Keep robots enforcement, DNS/public-IP guards, identifiable UA, byte/time/retry/detail budgets, serial/per-host spacing, and host-stop for 403/CAPTCHA.",
+    "Keep MOOC JavaScript execution and subresource fetching disabled. Extract only fresh document response public metadata and visible curriculum structure. No learning API/media reverse engineering.",
+    "Stop for 401/403/429/CAPTCHA/login/paywall/access-denied content, including HTTP 200 challenge pages. Do not report application gates as source HTTP errors.",
+    "Label text as public course outline. Keep missing lesson/video URLs, durations, start positions, and playback unknown. Preserve source URL, fetch time, response hash, and extraction provenance."
+  ],
+  "bilibili": "Keep separately evidenced explicit written-permission restriction under 5.6(3) and 1.5 unchanged."
+}

@@ -1,0 +1,923 @@
+{
+  "started_at": "2026-10-13T10:57:42.887036+00:00",
+  "scope": "offline parser/selector comparison only, not fetch success or course coverage",
+  "python": "3.13.5 (main, Jun 12 2025, 12:42:35) [MSC v.1943 64 bit (AMD64)]",
+  "executable": "C:\\Users\\xiaoer\\AppData\\Local\\Temp\\knowledge-sprite-selector-eval-6deaa4dfce054431ad2c856a417ab655\\Scripts\\python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "dependencies": {
+    "beautifulsoup4": "4.15.0",
+    "cssselect": "1.6.0",
+    "lxml": "6.1.3",
+    "orjson": "3.13.0",
+    "scrapling": "0.4.15",
+    "soupsieve": "3.0.3",
+    "tld": "0.13.2",
+    "typing_extensions": "4.16.0",
+    "w3lib": "2.5.0"
+  },
+  "manifest_sha256": "80928ef581358a63a00447a5bfe50c8c9df9cda8b586e72cc4365aa7ff6fd089",
+  "script_sha256": "62220a330af455245e410650f525a51f02c4fe95894fdba5ed083fe275867d9b",
+  "source_count": 2,
+  "course_family_count": 1,
+  "warmups_per_parser_per_document": 1,
+  "timed_repeats": 7,
+  "timing_scope": "new DOM parse plus identical field selection and playlist JSON decoding; excludes imports, disk reading and input hashing",
+  "contract": [
+    {
+      "field": "document_title",
+      "css": "title",
+      "attribute": null,
+      "text_normalization": "collapse whitespace"
+    },
+    {
+      "field": "meta_title",
+      "css": "meta[property=\"og:title\"]",
+      "attribute": "content",
+      "text_normalization": null
+    },
+    {
+      "field": "meta_description",
+      "css": "meta[name=\"description\"]",
+      "attribute": "content",
+      "text_normalization": null
+    },
+    {
+      "field": "meta_og_description",
+      "css": "meta[property=\"og:description\"]",
+      "attribute": "content",
+      "text_normalization": null
+    },
+    {
+      "field": "html_language",
+      "css": "html",
+      "attribute": "lang",
+      "text_normalization": null
+    },
+    {
+      "field": "mit_course_heading",
+      "css": "#course-banner h1",
+      "attribute": null,
+      "text_normalization": "collapse whitespace"
+    },
+    {
+      "field": "mit_course_instructor_names",
+      "css": ".course-info-instructor",
+      "attribute": null,
+      "text_normalization": "collapse whitespace"
+    },
+    {
+      "field": "mit_chapter_description",
+      "css": ".video-page .description",
+      "attribute": null,
+      "text_normalization": "collapse whitespace"
+    },
+    {
+      "field": "mit_catalog_titles",
+      "css": "main#course-content-section .video-gallery-card .video-title",
+      "attribute": null,
+      "text_normalization": "collapse whitespace"
+    },
+    {
+      "field": "mit_catalog_hrefs",
+      "css": "main#course-content-section .video-gallery-card a.video-link[href]",
+      "attribute": "href",
+      "text_normalization": null
+    },
+    {
+      "field": "archive_player_args",
+      "css": "play-av[args][playlist]",
+      "attribute": "args",
+      "text_normalization": null
+    },
+    {
+      "field": "archive_playlist",
+      "css": "play-av[args][playlist]",
+      "attribute": "playlist",
+      "text_normalization": null
+    }
+  ],
+  "parser_configuration": {
+    "beautifulsoup": {
+      "parser": "html.parser"
+    },
+    "scrapling": {
+      "adaptive": false,
+      "huge_tree": false,
+      "encoding": "utf-8"
+    }
+  },
+  "network_control": "No URL loaders or fetchers invoked; Python socket/DNS/subprocess audit events forbidden. This is not an OS egress sandbox or a transport-equivalence test.",
+  "documents": [
+    {
+      "file": "reports/catalog-probe-mit-final-revision-20261013-source-1.html",
+      "url": "https://ocw.mit.edu/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/",
+      "role": "course_home",
+      "sha256": "9c1858679bee19f7ccb41d57c6c0b10bf74313deba084afd9b0326f7d280229e",
+      "bytes": 54152,
+      "hash_verified": true,
+      "equivalent": true,
+      "different_fields": [],
+      "measurements": {
+        "beautifulsoup": {
+          "times_ms": [
+            14.3028,
+            13.9544,
+            15.5043,
+            14.5045,
+            14.2513,
+            13.9168,
+            13.8616
+          ],
+          "output_hashes": [
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677"
+          ],
+          "median_ms": 14.2513,
+          "min_ms": 13.8616,
+          "max_ms": 15.5043,
+          "repeat_outputs_stable": true
+        },
+        "scrapling": {
+          "times_ms": [
+            2.1795,
+            1.7501,
+            2.0516,
+            1.8839,
+            2.126,
+            1.8391,
+            1.9762
+          ],
+          "output_hashes": [
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677",
+            "a7616de92eddf2a19b5417721b49d99cd5e88b5e8b8a67b5e186600049f96677"
+          ],
+          "median_ms": 1.9762,
+          "min_ms": 1.7501,
+          "max_ms": 2.1795,
+          "repeat_outputs_stable": true
+        }
+      },
+      "outputs": {
+        "beautifulsoup": {
+          "document_title": [
+            "Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_title": [
+            "Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_description": [
+            "This course introduces students to the principles of computation. Upon completion of 6.001, students should be able to explain and apply the basic methods from programming languages to analyze computational systems, and to generate computational solutions to abstract problems. Substantial weekly programming assignments are an integral part of the course. This course is worth 4 Engineering Design Points.\n"
+          ],
+          "meta_og_description": [
+            "This course introduces students to the principles of computation. Upon completion of 6.001, students should be able to explain and apply the basic methods from programming languages to analyze computational systems, and to generate computational solutions to abstract problems. Substantial weekly programming assignments are an integral part of the course. This course is worth 4 Engineering Design Points.\n"
+          ],
+          "html_language": [
+            "en"
+          ],
+          "mit_course_heading": [
+            "Structure and Interpretation of Computer Programs"
+          ],
+          "mit_course_instructor_names": [
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell",
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell"
+          ],
+          "mit_chapter_description": [],
+          "mit_catalog_titles": [],
+          "mit_catalog_hrefs": [],
+          "archive_player_args": [],
+          "archive_playlist": [],
+          "archive_playlist_titles": []
+        },
+        "scrapling": {
+          "document_title": [
+            "Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_title": [
+            "Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_description": [
+            "This course introduces students to the principles of computation. Upon completion of 6.001, students should be able to explain and apply the basic methods from programming languages to analyze computational systems, and to generate computational solutions to abstract problems. Substantial weekly programming assignments are an integral part of the course. This course is worth 4 Engineering Design Points.\n"
+          ],
+          "meta_og_description": [
+            "This course introduces students to the principles of computation. Upon completion of 6.001, students should be able to explain and apply the basic methods from programming languages to analyze computational systems, and to generate computational solutions to abstract problems. Substantial weekly programming assignments are an integral part of the course. This course is worth 4 Engineering Design Points.\n"
+          ],
+          "html_language": [
+            "en"
+          ],
+          "mit_course_heading": [
+            "Structure and Interpretation of Computer Programs"
+          ],
+          "mit_course_instructor_names": [
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell",
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell"
+          ],
+          "mit_chapter_description": [],
+          "mit_catalog_titles": [],
+          "mit_catalog_hrefs": [],
+          "archive_player_args": [],
+          "archive_playlist": [],
+          "archive_playlist_titles": []
+        }
+      },
+      "field_counts": {
+        "beautifulsoup": {
+          "document_title": 1,
+          "meta_title": 1,
+          "meta_description": 1,
+          "meta_og_description": 1,
+          "html_language": 1,
+          "mit_course_heading": 1,
+          "mit_course_instructor_names": 6,
+          "mit_chapter_description": 0,
+          "mit_catalog_titles": 0,
+          "mit_catalog_hrefs": 0,
+          "archive_player_args": 0,
+          "archive_playlist": 0,
+          "archive_playlist_titles": 0
+        },
+        "scrapling": {
+          "document_title": 1,
+          "meta_title": 1,
+          "meta_description": 1,
+          "meta_og_description": 1,
+          "html_language": 1,
+          "mit_course_heading": 1,
+          "mit_course_instructor_names": 6,
+          "mit_chapter_description": 0,
+          "mit_catalog_titles": 0,
+          "mit_catalog_hrefs": 0,
+          "archive_player_args": 0,
+          "archive_playlist": 0,
+          "archive_playlist_titles": 0
+        }
+      }
+    },
+    {
+      "file": "reports/catalog-probe-mit-final-revision-20261013-source-2.html",
+      "url": "https://ocw.mit.edu/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/video_galleries/video-lectures/",
+      "role": "video_catalog",
+      "sha256": "c153754a1ee84eaefaf000c77f6df7a540fd6e3d0f9cc74d8f5bb57933e8e819",
+      "bytes": 67180,
+      "hash_verified": true,
+      "equivalent": true,
+      "different_fields": [],
+      "measurements": {
+        "beautifulsoup": {
+          "times_ms": [
+            21.7289,
+            18.2331,
+            18.0178,
+            18.5763,
+            21.0489,
+            17.868,
+            17.618
+          ],
+          "output_hashes": [
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1"
+          ],
+          "median_ms": 18.2331,
+          "min_ms": 17.618,
+          "max_ms": 21.7289,
+          "repeat_outputs_stable": true
+        },
+        "scrapling": {
+          "times_ms": [
+            3.3058,
+            2.7313,
+            3.1778,
+            2.9315,
+            3.011,
+            2.7521,
+            2.8908
+          ],
+          "output_hashes": [
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1",
+            "054b20def4e695391e8cea2c6f869ae9c2c1379a0956167056023d7c0b627cf1"
+          ],
+          "median_ms": 2.9315,
+          "min_ms": 2.7313,
+          "max_ms": 3.3058,
+          "repeat_outputs_stable": true
+        }
+      },
+      "outputs": {
+        "beautifulsoup": {
+          "document_title": [
+            "Video Lectures | Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_title": [
+            "Video Lectures | Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_description": [
+            "MIT OpenCourseWare is a web based publication of virtually all MIT course content. OCW is open and available to the world and is a permanent MIT activity"
+          ],
+          "meta_og_description": [
+            "MIT OpenCourseWare is a web based publication of virtually all MIT course content. OCW is open and available to the world and is a permanent MIT activity"
+          ],
+          "html_language": [
+            "en"
+          ],
+          "mit_course_heading": [
+            "Structure and Interpretation of Computer Programs"
+          ],
+          "mit_course_instructor_names": [
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell",
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell"
+          ],
+          "mit_chapter_description": [],
+          "mit_catalog_titles": [
+            "1A: Overview and Introduction to Lisp",
+            "1B: Procedures and Processes; Substitution Model",
+            "2A: Higher-order Procedures",
+            "2B: Compound Data",
+            "3A: Henderson Escher Example",
+            "3B: Symbolic Differentiation; Quotation",
+            "4A: Pattern Matching and Rule-based Substitution",
+            "4B: Generic Operators",
+            "5A: Assignment, State, and Side-effects",
+            "5B: Computational Objects",
+            "6A: Streams, Part 1",
+            "6B: Streams, Part 2",
+            "7A: Metacircular Evaluator, Part 1",
+            "7B: Metacircular Evaluator, Part 2",
+            "8A: Logic Programming, Part 1",
+            "8B: Logic Programming, Part 2",
+            "9A: Register Machines",
+            "9B: Explicit-control Evaluator",
+            "10A: Compilation",
+            "10B: Storage Allocation and Garbage Collection"
+          ],
+          "mit_catalog_hrefs": [
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/1a-overview-and-introduction-to-lisp/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/1b-procedures-and-processes-substitution-model/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/2a-higher-order-procedures/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/2b-compound-data/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/3a-henderson-escher-example/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/3b-symbolic-differentiation-quotation/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/4a-pattern-matching-and-rule-based-substitution/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/4b-generic-operators/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/5a-assignment-state-and-side-effects/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/5b-computational-objects/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/6a-streams-part-1/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/6b-streams-part-2/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/7a-metacircular-evaluator-part-1/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/7b-metacircular-evaluator-part-2/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/8a-logic-programming-part-1/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/8b-logic-programming-part-2/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/9a-register-machines/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/9b-explicit-control-evaluator/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/10a-compilation/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/10b-storage-allocation-and-garbage-collection/"
+          ],
+          "archive_player_args": [],
+          "archive_playlist": [],
+          "archive_playlist_titles": []
+        },
+        "scrapling": {
+          "document_title": [
+            "Video Lectures | Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_title": [
+            "Video Lectures | Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_description": [
+            "MIT OpenCourseWare is a web based publication of virtually all MIT course content. OCW is open and available to the world and is a permanent MIT activity"
+          ],
+          "meta_og_description": [
+            "MIT OpenCourseWare is a web based publication of virtually all MIT course content. OCW is open and available to the world and is a permanent MIT activity"
+          ],
+          "html_language": [
+            "en"
+          ],
+          "mit_course_heading": [
+            "Structure and Interpretation of Computer Programs"
+          ],
+          "mit_course_instructor_names": [
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell",
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell"
+          ],
+          "mit_chapter_description": [],
+          "mit_catalog_titles": [
+            "1A: Overview and Introduction to Lisp",
+            "1B: Procedures and Processes; Substitution Model",
+            "2A: Higher-order Procedures",
+            "2B: Compound Data",
+            "3A: Henderson Escher Example",
+            "3B: Symbolic Differentiation; Quotation",
+            "4A: Pattern Matching and Rule-based Substitution",
+            "4B: Generic Operators",
+            "5A: Assignment, State, and Side-effects",
+            "5B: Computational Objects",
+            "6A: Streams, Part 1",
+            "6B: Streams, Part 2",
+            "7A: Metacircular Evaluator, Part 1",
+            "7B: Metacircular Evaluator, Part 2",
+            "8A: Logic Programming, Part 1",
+            "8B: Logic Programming, Part 2",
+            "9A: Register Machines",
+            "9B: Explicit-control Evaluator",
+            "10A: Compilation",
+            "10B: Storage Allocation and Garbage Collection"
+          ],
+          "mit_catalog_hrefs": [
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/1a-overview-and-introduction-to-lisp/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/1b-procedures-and-processes-substitution-model/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/2a-higher-order-procedures/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/2b-compound-data/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/3a-henderson-escher-example/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/3b-symbolic-differentiation-quotation/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/4a-pattern-matching-and-rule-based-substitution/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/4b-generic-operators/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/5a-assignment-state-and-side-effects/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/5b-computational-objects/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/6a-streams-part-1/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/6b-streams-part-2/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/7a-metacircular-evaluator-part-1/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/7b-metacircular-evaluator-part-2/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/8a-logic-programming-part-1/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/8b-logic-programming-part-2/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/9a-register-machines/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/9b-explicit-control-evaluator/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/10a-compilation/",
+            "/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/10b-storage-allocation-and-garbage-collection/"
+          ],
+          "archive_player_args": [],
+          "archive_playlist": [],
+          "archive_playlist_titles": []
+        }
+      },
+      "field_counts": {
+        "beautifulsoup": {
+          "document_title": 1,
+          "meta_title": 1,
+          "meta_description": 1,
+          "meta_og_description": 1,
+          "html_language": 1,
+          "mit_course_heading": 1,
+          "mit_course_instructor_names": 6,
+          "mit_chapter_description": 0,
+          "mit_catalog_titles": 20,
+          "mit_catalog_hrefs": 20,
+          "archive_player_args": 0,
+          "archive_playlist": 0,
+          "archive_playlist_titles": 0
+        },
+        "scrapling": {
+          "document_title": 1,
+          "meta_title": 1,
+          "meta_description": 1,
+          "meta_og_description": 1,
+          "html_language": 1,
+          "mit_course_heading": 1,
+          "mit_course_instructor_names": 6,
+          "mit_chapter_description": 0,
+          "mit_catalog_titles": 20,
+          "mit_catalog_hrefs": 20,
+          "archive_player_args": 0,
+          "archive_playlist": 0,
+          "archive_playlist_titles": 0
+        }
+      }
+    },
+    {
+      "file": "reports/catalog-probe-mit-final-revision-20261013-source-3.html",
+      "url": "https://ocw.mit.edu/courses/6-001-structure-and-interpretation-of-computer-programs-spring-2005/resources/1a-overview-and-introduction-to-lisp/",
+      "role": "video_chapter",
+      "sha256": "f23fd0175dcd1caeb8e9be1478faed97bec7629ec5b23fded4da7bb5d8cd3c14",
+      "bytes": 62894,
+      "hash_verified": true,
+      "equivalent": true,
+      "different_fields": [],
+      "measurements": {
+        "beautifulsoup": {
+          "times_ms": [
+            17.8281,
+            15.4306,
+            15.363,
+            15.393,
+            15.6201,
+            18.5672,
+            15.3162
+          ],
+          "output_hashes": [
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60"
+          ],
+          "median_ms": 15.4306,
+          "min_ms": 15.3162,
+          "max_ms": 18.5672,
+          "repeat_outputs_stable": true
+        },
+        "scrapling": {
+          "times_ms": [
+            2.3991,
+            2.2055,
+            2.2615,
+            2.0689,
+            2.3913,
+            2.1835,
+            2.547
+          ],
+          "output_hashes": [
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60",
+            "203cebea3004fb49fa49f2ff20bc69d7bf22ade27c442000373af58be15c7d60"
+          ],
+          "median_ms": 2.2615,
+          "min_ms": 2.0689,
+          "max_ms": 2.547,
+          "repeat_outputs_stable": true
+        }
+      },
+      "outputs": {
+        "beautifulsoup": {
+          "document_title": [
+            "1A: Overview and Introduction to Lisp | Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_title": [
+            "1A: Overview and Introduction to Lisp | Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_description": [
+            "MIT OpenCourseWare is a web based publication of virtually all MIT course content. OCW is open and available to the world and is a permanent MIT activity"
+          ],
+          "meta_og_description": [
+            "MIT OpenCourseWare is a web based publication of virtually all MIT course content. OCW is open and available to the world and is a permanent MIT activity"
+          ],
+          "html_language": [
+            "en"
+          ],
+          "mit_course_heading": [
+            "Structure and Interpretation of Computer Programs"
+          ],
+          "mit_course_instructor_names": [
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell",
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell"
+          ],
+          "mit_chapter_description": [
+            "Topics covered : Overview and Introduction to Lisp Instructors: Hal Abelson and Gerald Jay Sussman Subtitles for this course are provided through the generous assistance of Henry Baker, Hoofar Pourzand, Heather Wood, Aleksejs Truhans, Steven Edwards, George Menhorn, and Mahendra Kumar."
+          ],
+          "mit_catalog_titles": [],
+          "mit_catalog_hrefs": [],
+          "archive_player_args": [],
+          "archive_playlist": [],
+          "archive_playlist_titles": []
+        },
+        "scrapling": {
+          "document_title": [
+            "1A: Overview and Introduction to Lisp | Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_title": [
+            "1A: Overview and Introduction to Lisp | Structure and Interpretation of Computer Programs | Electrical Engineering and Computer Science | MIT OpenCourseWare"
+          ],
+          "meta_description": [
+            "MIT OpenCourseWare is a web based publication of virtually all MIT course content. OCW is open and available to the world and is a permanent MIT activity"
+          ],
+          "meta_og_description": [
+            "MIT OpenCourseWare is a web based publication of virtually all MIT course content. OCW is open and available to the world and is a permanent MIT activity"
+          ],
+          "html_language": [
+            "en"
+          ],
+          "mit_course_heading": [
+            "Structure and Interpretation of Computer Programs"
+          ],
+          "mit_course_instructor_names": [
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell",
+            "Prof. Eric Grimson",
+            "Prof. Peter Szolovits",
+            "Prof. Trevor Darrell"
+          ],
+          "mit_chapter_description": [
+            "Topics covered : Overview and Introduction to Lisp Instructors: Hal Abelson and Gerald Jay Sussman Subtitles for this course are provided through the generous assistance of Henry Baker, Hoofar Pourzand, Heather Wood, Aleksejs Truhans, Steven Edwards, George Menhorn, and Mahendra Kumar."
+          ],
+          "mit_catalog_titles": [],
+          "mit_catalog_hrefs": [],
+          "archive_player_args": [],
+          "archive_playlist": [],
+          "archive_playlist_titles": []
+        }
+      },
+      "field_counts": {
+        "beautifulsoup": {
+          "document_title": 1,
+          "meta_title": 1,
+          "meta_description": 1,
+          "meta_og_description": 1,
+          "html_language": 1,
+          "mit_course_heading": 1,
+          "mit_course_instructor_names": 6,
+          "mit_chapter_description": 1,
+          "mit_catalog_titles": 0,
+          "mit_catalog_hrefs": 0,
+          "archive_player_args": 0,
+          "archive_playlist": 0,
+          "archive_playlist_titles": 0
+        },
+        "scrapling": {
+          "document_title": 1,
+          "meta_title": 1,
+          "meta_description": 1,
+          "meta_og_description": 1,
+          "html_language": 1,
+          "mit_course_heading": 1,
+          "mit_course_instructor_names": 6,
+          "mit_chapter_description": 1,
+          "mit_catalog_titles": 0,
+          "mit_catalog_hrefs": 0,
+          "archive_player_args": 0,
+          "archive_playlist": 0,
+          "archive_playlist_titles": 0
+        }
+      }
+    },
+    {
+      "file": "reports/catalog-probe-archive-20261013-after-source.html",
+      "url": "https://archive.org/details/MIT_Structure_of_Computer_Programs_1986",
+      "role": "video_collection",
+      "sha256": "03f179ccf513e358348cf114557e0f1352513f273fc7c4cd5efc003cdb2bc9a8",
+      "bytes": 241777,
+      "hash_verified": true,
+      "equivalent": true,
+      "different_fields": [],
+      "measurements": {
+        "beautifulsoup": {
+          "times_ms": [
+            37.8627,
+            37.7936,
+            40.128,
+            36.9317,
+            35.9491,
+            40.1163,
+            37.5763
+          ],
+          "output_hashes": [
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58"
+          ],
+          "median_ms": 37.7936,
+          "min_ms": 35.9491,
+          "max_ms": 40.128,
+          "repeat_outputs_stable": true
+        },
+        "scrapling": {
+          "times_ms": [
+            5.3388,
+            5.1945,
+            5.438,
+            4.8395,
+            5.0819,
+            4.7784,
+            5.8986
+          ],
+          "output_hashes": [
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58",
+            "9cfbcfd5f2b7cc83aeaa8731ad4f26c8507c2f80f15bfb48182086f49da3dc58"
+          ],
+          "median_ms": 5.1945,
+          "min_ms": 4.7784,
+          "max_ms": 5.8986,
+          "repeat_outputs_stable": true
+        }
+      },
+      "outputs": {
+        "beautifulsoup": {
+          "document_title": [
+            "MIT OCW - 6.001 Structure and Interpretation of Computer Programs : MIT : Free Download, Borrow, and Streaming : Internet Archive",
+            "Hamburger icon",
+            "Internet Archive logo",
+            "Web icon",
+            "Texts icon",
+            "Video icon",
+            "Audio icon",
+            "Software icon",
+            "Images icon",
+            "Donate icon",
+            "Ellipses icon",
+            "Donate icon",
+            "User icon",
+            "Upload icon",
+            "Search icon",
+            "Search icon",
+            "Donate icon"
+          ],
+          "meta_title": [
+            "MIT OCW - 6.001 Structure and Interpretation of Computer Programs : MIT : Free Download, Borrow, and Streaming : Internet Archive"
+          ],
+          "meta_description": [
+            "This course introduces students to the principles of computation. Upon completion of 6.001, students should be able to explain and apply the basic methods from..."
+          ],
+          "meta_og_description": [
+            "This course introduces students to the principles of computation. Upon completion of 6.001, students should be able to explain and apply the basic methods from..."
+          ],
+          "html_language": [
+            "en"
+          ],
+          "mit_course_heading": [],
+          "mit_course_instructor_names": [],
+          "mit_chapter_description": [],
+          "mit_catalog_titles": [],
+          "mit_catalog_hrefs": [],
+          "archive_player_args": [
+            "{\"start\":0,\"embed\":null,\"so\":false,\"autoplay\":false,\"width\":0,\"height\":0,\"list_height\":0,\"audio\":false,\"responsive\":true,\"identifier\":\"MIT_Structure_of_Computer_Programs_1986\",\"collection\":\"mit_ocw\",\"collections\":[\"mit_ocw\",\"culturalandacademicfilms\"],\"hide_list\":false}"
+          ],
+          "archive_playlist": [
+            "[{\"title\":\"Lecture 10A: Compilation (old quarter screen original)\",\"orig\":\"Lec10a.mpg\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2FLec10a_000346.jpg\",\"duration\":2743,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/Lec10a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"712\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/Lec10a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"594\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/Lec10a_000346.jpg?vtt=vtt.vtt\"}]},{\"title\":\"Lecture 10A: Compilation\",\"orig\":\"lec10a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec10a_000401.jpg\",\"duration\":\"2743.04\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec10a_000401.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 10B: Storage Allocation and Garbage Collection\",\"orig\":\"lec10b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec10b_000523.jpg\",\"duration\":3533,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec10b_000523.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 1A: Overview and Introduction to Lisp\",\"orig\":\"lec1a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec1a_000640.jpg\",\"duration\":\"4375.02\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec1a_000640.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 1B: Procedures and Processes; Substitution Model\",\"orig\":\"lec1b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec1b_000512.jpg\",\"duration\":\"3501.27\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec1b_000512.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 2A: Higher-order Procedures\",\"orig\":\"lec2a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec2a_000543.jpg\",\"duration\":\"3680.49\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec2a_000543.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 2B: Compound Data\",\"orig\":\"lec2b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec2b_000680.jpg\",\"duration\":\"4606.49\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec2b_000680.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 3A: Henderson Escher Example\",\"orig\":\"lec3a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec3a_000666.jpg\",\"duration\":\"4524.16\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec3a_000666.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 3B: Symbolic Differentiation; Quotation\",\"orig\":\"lec3b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec3b_000388.jpg\",\"duration\":\"2641.15\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec3b_000388.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 4A: Pattern Matching and Rule-based Substitution\",\"orig\":\"lec4a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec4a_000560.jpg\",\"duration\":3790,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec4a_000560.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 4B: Generic Operators\",\"orig\":\"lec4b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec4b_000738.jpg\",\"duration\":\"5017.49\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec4b_000738.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 5A: Assignment, State, and Side-effects\",\"orig\":\"lec5a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec5a_000664.jpg\",\"duration\":4520,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec5a_000664.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 5B: Computational Objects\",\"orig\":\"lec5b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec5b_000574.jpg\",\"duration\":3871,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec5b_000574.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 6A: Streams, Part 1\",\"orig\":\"lec6a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec6a_000590.jpg\",\"duration\":\"4016.02\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec6a_000590.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 6B: Streams, Part 2\",\"orig\":\"lec6b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec6b_000557.jpg\",\"duration\":3781,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec6b_000557.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 7A: Metacircular Evaluator, Part 1\",\"orig\":\"lec7a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec7a_000749.jpg\",\"duration\":\"5077.18\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec7a_000749.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 7B: Metacircular Evaluator, Part 2\",\"orig\":\"lec7b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec7b_000530.jpg\",\"duration\":3606,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec7b_000530.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 8A: Logic Programming, Part 1\",\"orig\":\"lec8a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec8a_000368.jpg\",\"duration\":2505,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec8a_000368.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 8B: Logic Programming, Part 2\",\"orig\":\"lec8b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec8b_000605.jpg\",\"duration\":\"4124.1\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec8b_000605.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 9A: Register Machines\",\"orig\":\"lec9a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec9a_000634.jpg\",\"duration\":4316,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec9a_000634.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 9B: Explicit-control Evaluator\",\"orig\":\"lec9b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec9b_000627.jpg\",\"duration\":4243,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec9b_000627.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]}]"
+          ],
+          "archive_playlist_titles": [
+            [
+              "Lecture 10A: Compilation (old quarter screen original)",
+              "Lecture 10A: Compilation",
+              "Lecture 10B: Storage Allocation and Garbage Collection",
+              "Lecture 1A: Overview and Introduction to Lisp",
+              "Lecture 1B: Procedures and Processes; Substitution Model",
+              "Lecture 2A: Higher-order Procedures",
+              "Lecture 2B: Compound Data",
+              "Lecture 3A: Henderson Escher Example",
+              "Lecture 3B: Symbolic Differentiation; Quotation",
+              "Lecture 4A: Pattern Matching and Rule-based Substitution",
+              "Lecture 4B: Generic Operators",
+              "Lecture 5A: Assignment, State, and Side-effects",
+              "Lecture 5B: Computational Objects",
+              "Lecture 6A: Streams, Part 1",
+              "Lecture 6B: Streams, Part 2",
+              "Lecture 7A: Metacircular Evaluator, Part 1",
+              "Lecture 7B: Metacircular Evaluator, Part 2",
+              "Lecture 8A: Logic Programming, Part 1",
+              "Lecture 8B: Logic Programming, Part 2",
+              "Lecture 9A: Register Machines",
+              "Lecture 9B: Explicit-control Evaluator"
+            ]
+          ]
+        },
+        "scrapling": {
+          "document_title": [
+            "MIT OCW - 6.001 Structure and Interpretation of Computer Programs : MIT : Free Download, Borrow, and Streaming : Internet Archive",
+            "Hamburger icon",
+            "Internet Archive logo",
+            "Web icon",
+            "Texts icon",
+            "Video icon",
+            "Audio icon",
+            "Software icon",
+            "Images icon",
+            "Donate icon",
+            "Ellipses icon",
+            "Donate icon",
+            "User icon",
+            "Upload icon",
+            "Search icon",
+            "Search icon",
+            "Donate icon"
+          ],
+          "meta_title": [
+            "MIT OCW - 6.001 Structure and Interpretation of Computer Programs : MIT : Free Download, Borrow, and Streaming : Internet Archive"
+          ],
+          "meta_description": [
+            "This course introduces students to the principles of computation. Upon completion of 6.001, students should be able to explain and apply the basic methods from..."
+          ],
+          "meta_og_description": [
+            "This course introduces students to the principles of computation. Upon completion of 6.001, students should be able to explain and apply the basic methods from..."
+          ],
+          "html_language": [
+            "en"
+          ],
+          "mit_course_heading": [],
+          "mit_course_instructor_names": [],
+          "mit_chapter_description": [],
+          "mit_catalog_titles": [],
+          "mit_catalog_hrefs": [],
+          "archive_player_args": [
+            "{\"start\":0,\"embed\":null,\"so\":false,\"autoplay\":false,\"width\":0,\"height\":0,\"list_height\":0,\"audio\":false,\"responsive\":true,\"identifier\":\"MIT_Structure_of_Computer_Programs_1986\",\"collection\":\"mit_ocw\",\"collections\":[\"mit_ocw\",\"culturalandacademicfilms\"],\"hide_list\":false}"
+          ],
+          "archive_playlist": [
+            "[{\"title\":\"Lecture 10A: Compilation (old quarter screen original)\",\"orig\":\"Lec10a.mpg\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2FLec10a_000346.jpg\",\"duration\":2743,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/Lec10a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"712\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/Lec10a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"594\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/Lec10a_000346.jpg?vtt=vtt.vtt\"}]},{\"title\":\"Lecture 10A: Compilation\",\"orig\":\"lec10a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec10a_000401.jpg\",\"duration\":\"2743.04\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec10a_000401.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 10B: Storage Allocation and Garbage Collection\",\"orig\":\"lec10b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec10b_000523.jpg\",\"duration\":3533,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec10b_000523.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec10b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 1A: Overview and Introduction to Lisp\",\"orig\":\"lec1a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec1a_000640.jpg\",\"duration\":\"4375.02\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec1a_000640.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 1B: Procedures and Processes; Substitution Model\",\"orig\":\"lec1b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec1b_000512.jpg\",\"duration\":\"3501.27\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec1b_000512.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec1b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 2A: Higher-order Procedures\",\"orig\":\"lec2a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec2a_000543.jpg\",\"duration\":\"3680.49\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec2a_000543.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 2B: Compound Data\",\"orig\":\"lec2b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec2b_000680.jpg\",\"duration\":\"4606.49\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec2b_000680.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec2b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 3A: Henderson Escher Example\",\"orig\":\"lec3a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec3a_000666.jpg\",\"duration\":\"4524.16\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec3a_000666.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 3B: Symbolic Differentiation; Quotation\",\"orig\":\"lec3b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec3b_000388.jpg\",\"duration\":\"2641.15\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec3b_000388.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec3b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 4A: Pattern Matching and Rule-based Substitution\",\"orig\":\"lec4a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec4a_000560.jpg\",\"duration\":3790,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec4a_000560.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 4B: Generic Operators\",\"orig\":\"lec4b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec4b_000738.jpg\",\"duration\":\"5017.49\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec4b_000738.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec4b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 5A: Assignment, State, and Side-effects\",\"orig\":\"lec5a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec5a_000664.jpg\",\"duration\":4520,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec5a_000664.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 5B: Computational Objects\",\"orig\":\"lec5b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec5b_000574.jpg\",\"duration\":3871,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec5b_000574.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec5b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 6A: Streams, Part 1\",\"orig\":\"lec6a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec6a_000590.jpg\",\"duration\":\"4016.02\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec6a_000590.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 6B: Streams, Part 2\",\"orig\":\"lec6b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec6b_000557.jpg\",\"duration\":3781,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec6b_000557.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec6b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 7A: Metacircular Evaluator, Part 1\",\"orig\":\"lec7a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec7a_000749.jpg\",\"duration\":\"5077.18\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec7a_000749.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 7B: Metacircular Evaluator, Part 2\",\"orig\":\"lec7b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec7b_000530.jpg\",\"duration\":3606,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec7b_000530.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec7b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 8A: Logic Programming, Part 1\",\"orig\":\"lec8a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec8a_000368.jpg\",\"duration\":2505,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec8a_000368.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 8B: Logic Programming, Part 2\",\"orig\":\"lec8b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec8b_000605.jpg\",\"duration\":\"4124.1\",\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec8b_000605.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec8b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 9A: Register Machines\",\"orig\":\"lec9a.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec9a_000634.jpg\",\"duration\":4316,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9a.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9a.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec9a_000634.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9a.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]},{\"title\":\"Lecture 9B: Explicit-control Evaluator\",\"orig\":\"lec9b.mp4\",\"image\":\"/download/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs%2Flec9b_000627.jpg\",\"duration\":4243,\"sources\":[{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9b.mp4\",\"type\":\"mp4\",\"height\":\"360\",\"width\":\"476\",\"label\":\"360p\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9b.ogv\",\"type\":\"ogg\",\"height\":\"300\",\"width\":\"396\",\"label\":\"300p\"}],\"tracks\":[{\"kind\":\"thumbnails\",\"file\":\"/stream/MIT_Structure_of_Computer_Programs_1986/MIT_Structure_of_Computer_Programs_1986.thumbs/lec9b_000627.jpg?vtt=vtt.vtt\"},{\"file\":\"/download/MIT_Structure_of_Computer_Programs_1986/lec9b.srt\",\"label\":\"en\",\"kind\":\"subtitles\"}]}]"
+          ],
+          "archive_playlist_titles": [
+            [
+              "Lecture 10A: Compilation (old quarter screen original)",
+              "Lecture 10A: Compilation",
+              "Lecture 10B: Storage Allocation and Garbage Collection",
+              "Lecture 1A: Overview and Introduction to Lisp",
+              "Lecture 1B: Procedures and Processes; Substitution Model",
+              "Lecture 2A: Higher-order Procedures",
+              "Lecture 2B: Compound Data",
+              "Lecture 3A: Henderson Escher Example",
+              "Lecture 3B: Symbolic Differentiation; Quotation",
+              "Lecture 4A: Pattern Matching and Rule-based Substitution",
+              "Lecture 4B: Generic Operators",
+              "Lecture 5A: Assignment, State, and Side-effects",
+              "Lecture 5B: Computational Objects",
+              "Lecture 6A: Streams, Part 1",
+              "Lecture 6B: Streams, Part 2",
+              "Lecture 7A: Metacircular Evaluator, Part 1",
+              "Lecture 7B: Metacircular Evaluator, Part 2",
+              "Lecture 8A: Logic Programming, Part 1",
+              "Lecture 8B: Logic Programming, Part 2",
+              "Lecture 9A: Register Machines",
+              "Lecture 9B: Explicit-control Evaluator"
+            ]
+          ]
+        }
+      },
+      "field_counts": {
+        "beautifulsoup": {
+          "document_title": 17,
+          "meta_title": 1,
+          "meta_description": 1,
+          "meta_og_description": 1,
+          "html_language": 1,
+          "mit_course_heading": 0,
+          "mit_course_instructor_names": 0,
+          "mit_chapter_description": 0,
+          "mit_catalog_titles": 0,
+          "mit_catalog_hrefs": 0,
+          "archive_player_args": 1,
+          "archive_playlist": 1,
+          "archive_playlist_titles": 1
+        },
+        "scrapling": {
+          "document_title": 17,
+          "meta_title": 1,
+          "meta_description": 1,
+          "meta_og_description": 1,
+          "html_language": 1,
+          "mit_course_heading": 0,
+          "mit_course_instructor_names": 0,
+          "mit_chapter_description": 0,
+          "mit_catalog_titles": 0,
+          "mit_catalog_hrefs": 0,
+          "archive_player_args": 1,
+          "archive_playlist": 1,
+          "archive_playlist_titles": 1
+        }
+      }
+    }
+  ],
+  "network_attempts": [],
+  "all_equivalent": true,
+  "all_repeats_stable": true,
+  "new_nonempty_fields": 0,
+  "finished_at": "2026-10-13T10:57:43.777973+00:00"
+}

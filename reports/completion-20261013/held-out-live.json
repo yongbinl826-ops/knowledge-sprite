@@ -1,0 +1,4397 @@
+{
+  "started_at": "2026-10-13T13:42:31.904524+00:00",
+  "mode": "live",
+  "plan": {
+    "cases": [
+      {
+        "knowledge_points": [
+          "Bayes theorem conditional probability",
+          "plate tectonics",
+          "supply demand elasticity"
+        ],
+        "language": "en",
+        "preferred_platforms": []
+      },
+      {
+        "knowledge_points": [
+          "二分查找"
+        ],
+        "language": "zh",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163"
+        ]
+      }
+    ],
+    "per_job_max_search_requests": 12,
+    "per_job_max_detail_pages": 12,
+    "per_job_deadline_seconds": 240,
+    "total_max_search_requests": 24,
+    "total_max_detail_pages": 24,
+    "concurrency": 1,
+    "rerun_failed_cases": false,
+    "note": "No held-out topic is used in adapter development; preserve query outcomes, cache provenance, failures and unknown course identity."
+  },
+  "source_hashes_before": {
+    "backend/app/__init__.py": "15a60366b3bc7e11073b251ebe3de20d4630e45c6ffdaab43087128909631a40",
+    "backend/app/config.py": "83fefe4ceb79208360f13a4118107a76a037d37a8396082149c28ab41e1581b5",
+    "backend/app/db.py": "08609e3ddcc6f52c78a570c28808ca325ee0d4dfa1badf2041321b9c29ab5e0e",
+    "backend/app/extractor.py": "ef868b07ce4b12b07f879ed1b19b08a269a74aec0e8a703f76c9bf266370422e",
+    "backend/app/fetcher.py": "9e91407f9c322175c3e8f10840ec05bcbfdc783a62cd1b52bbf3de22946965d0",
+    "backend/app/llm.py": "97f31edfb4c630184b0033c01fc657a7cda0a2f65042b15e5002344caf9580a0",
+    "backend/app/main.py": "de20321660752cdf6a30a2e248591d6da0963cac1e96b79eb7b5659d12431fe5",
+    "backend/app/models.py": "ff870173929eeb2839a0d79531570eaec0c0aa0315e469b8aebedbfa07f7adc2",
+    "backend/app/providers.py": "dac5585e8f3cbff67b4beb645735205c634a6f709278ec64783a39aff9ef89ac",
+    "backend/app/queries.py": "4201fd3cdbaffa4e6223c2b5437a84a7acbbfda5b38625883b713ca433dab67d",
+    "backend/app/ranking.py": "7f8e64c0a576a40f2d7ac92a8bf7159591c72526414178742587410e0e2dffa9",
+    "backend/app/resource_identity.py": "c7fae602e7a74852be002ce2c140c8347a5982f2061b4007bc7fa61dfc04a755",
+    "backend/app/service.py": "ac3298b92dc43f9d2732da53fcf7a6a0098eb8e9dee9aea8321bed24d5649804",
+    "backend/app/source_adapters/__init__.py": "c82e0021b699140a411bde5a5a9413bf9192a871d4342d8c38ae8acecc73c783",
+    "backend/app/source_adapters/archive.py": "ddbbeb108ce42321b53713233f8b6c1ef15719e0a3917f8d18950bf2f1ae27fd",
+    "backend/app/source_adapters/base.py": "28640f96adabbe3c117f5d93d2621193c810a582c0d47163749a6dcb42084100",
+    "backend/app/source_adapters/mit_ocw.py": "ef643e23c30d9a6ad15250332b35f62b814f3da03ba0ef5e7dba89debbf092b7",
+    "backend/app/url_utils.py": "11aee8e21efd59ba8fe8ee5a1f2b3e9ec8212a7ab4ec25ba34b4ce452aa26a56",
+    "frontend/package-lock.json": "8e21925e5459df56e7015d4fde56d08d3387e854e38ff0f6310e5f63ce7ef097",
+    "frontend/src/api.ts": "5f58ba17939736c158699525f8c7af99f1398a9f027b7ddd59d18655594e870e",
+    "frontend/src/App.tsx": "9905e5365a1e5a6e35963269efadfe62bba6de71ab649b8bd47b3b306e880426",
+    "frontend/src/components/CapabilitiesFooter.tsx": "16651ae3c96782716510c70ebef782a48c814024706e9b7886bea31fc3a57533",
+    "frontend/src/components/Icons.tsx": "2b2e6cbe51346705bf32a83fe3fd097fb4ab0a0e10890397145232b2c1ad17ee",
+    "frontend/src/components/ResourceCard.tsx": "92bf4383946cca532748f997902fe0d99765cd1c259a58858a4607bf58ec93ce",
+    "frontend/src/components/ResultsPanel.tsx": "8253f478cb6d623a7b6f008ec732b03eb707c1e03e2bd054113348c9f3c6b803",
+    "frontend/src/components/SearchForm.tsx": "22992b65e0edf8bce15e40484ecc3570459d0ee8ff98e9f1ddb0c82991dd81f7",
+    "frontend/src/identity.ts": "28bf22cb53050b15bf5cbdb3bae328032bfb1e5c295c0bd0fa026d486cc4c448",
+    "frontend/src/main.tsx": "5222f4e4eb930b55f72a5b0d6771a58c9e82e8adba571bb5712bcc5a7e697054",
+    "frontend/src/pendingCreation.ts": "50b19c14cde3f5c7e897f1288c1bc1ea3228b9796e36072f8513d2a9e08875a4",
+    "frontend/src/styles.css": "c482fd0405e30e165700cf39ea38e7bc4a601fd027da797494381f0217086b16",
+    "frontend/src/types.ts": "5c6c06b179baeb2ad6d05c8274150e9215450c9939004283626150f15e748401",
+    "frontend/src/useSearch.ts": "9507dcf0f937f3de82f4c1b5b74a4f7aab99ee4c95e8ac75c20caaeb01a3b970",
+    "uv.lock": "39438947bbcefdd07d23adc0724025a9c82c673d617923f1363f859ce0fd4a7c"
+  },
+  "jobs": [
+    {
+      "case_index": 0,
+      "request": {
+        "knowledge_points": [
+          "Bayes theorem conditional probability",
+          "plate tectonics",
+          "supply demand elasticity"
+        ],
+        "language": "en",
+        "preferred_platforms": [],
+        "student_level": "beginner"
+      },
+      "submitted_at": "2026-10-13T13:42:32.130249+00:00",
+      "idempotency_key": "heldout-309ab942-6c3d-449e-b1c2-1ce1cc81e860",
+      "snapshots": [
+        {
+          "observed_at": "2026-10-13T13:42:32.348444+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 0,
+            "search_requests": 1,
+            "search_successes": 0,
+            "search_failures": 0,
+            "candidates_discovered": 0,
+            "resources_discovered": 0,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:36.374823+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 0,
+            "search_requests": 2,
+            "search_successes": 0,
+            "search_failures": 0,
+            "candidates_discovered": 0,
+            "resources_discovered": 0,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:38.395183+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 1,
+            "search_requests": 3,
+            "search_successes": 1,
+            "search_failures": 0,
+            "candidates_discovered": 6,
+            "resources_discovered": 6,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:40.411571+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 1,
+            "search_requests": 4,
+            "search_successes": 1,
+            "search_failures": 0,
+            "candidates_discovered": 6,
+            "resources_discovered": 6,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:42.422765+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 2,
+            "search_requests": 5,
+            "search_successes": 2,
+            "search_failures": 0,
+            "candidates_discovered": 12,
+            "resources_discovered": 12,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:44.441846+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 2,
+            "search_requests": 6,
+            "search_successes": 2,
+            "search_failures": 0,
+            "candidates_discovered": 12,
+            "resources_discovered": 12,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:46.458037+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 3,
+            "search_requests": 7,
+            "search_successes": 3,
+            "search_failures": 0,
+            "candidates_discovered": 18,
+            "resources_discovered": 18,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:48.478849+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 4,
+            "search_requests": 8,
+            "search_successes": 4,
+            "search_failures": 0,
+            "candidates_discovered": 24,
+            "resources_discovered": 24,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:50.501056+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 5,
+            "search_requests": 9,
+            "search_successes": 5,
+            "search_failures": 0,
+            "candidates_discovered": 30,
+            "resources_discovered": 24,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:52.518313+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 6,
+            "search_requests": 10,
+            "search_successes": 6,
+            "search_failures": 0,
+            "candidates_discovered": 36,
+            "resources_discovered": 25,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:54.528453+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 7,
+            "search_requests": 11,
+            "search_successes": 7,
+            "search_failures": 0,
+            "candidates_discovered": 36,
+            "resources_discovered": 25,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:56.540818+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 8,
+            "search_requests": 12,
+            "search_successes": 8,
+            "search_failures": 0,
+            "candidates_discovered": 36,
+            "resources_discovered": 25,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:42:58.554727+00:00",
+          "status": "partial",
+          "phase": "done",
+          "progress": {
+            "queries_planned": 9,
+            "queries_completed": 9,
+            "search_requests": 12,
+            "search_successes": 9,
+            "search_failures": 0,
+            "candidates_discovered": 36,
+            "resources_discovered": 25,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        }
+      ],
+      "create_response": {
+        "job_id": "4682587d-f925-4219-8448-b3175c91937e",
+        "status": "queued",
+        "reused": false
+      },
+      "job_id": "4682587d-f925-4219-8448-b3175c91937e",
+      "last_job": {
+        "job_id": "4682587d-f925-4219-8448-b3175c91937e",
+        "status": "partial",
+        "phase": "done",
+        "created_at": "2026-10-13T13:42:32.133441+00:00",
+        "updated_at": "2026-10-13T13:42:57.805739+00:00",
+        "request": {
+          "knowledge_points": [
+            "Bayes theorem conditional probability",
+            "plate tectonics",
+            "supply demand elasticity"
+          ],
+          "student_level": "beginner",
+          "language": "en",
+          "project_context": "",
+          "technical_version": "",
+          "preferred_platforms": []
+        },
+        "knowledge_points": [
+          {
+            "knowledge_point_id": "0f2b31c4-306a-4a2f-8155-abfc083c7a42",
+            "text": "Bayes theorem conditional probability"
+          },
+          {
+            "knowledge_point_id": "50699565-7938-4fcb-bab2-e24cd7691a80",
+            "text": "plate tectonics"
+          },
+          {
+            "knowledge_point_id": "d094f1a1-38e3-47d9-ab3f-2a6aecd34d62",
+            "text": "supply demand elasticity"
+          }
+        ],
+        "progress": {
+          "queries_planned": 9,
+          "queries_completed": 9,
+          "search_requests": 12,
+          "search_successes": 9,
+          "search_failures": 0,
+          "candidates_discovered": 36,
+          "resources_discovered": 25,
+          "details_attempted": 0,
+          "details_completed": 0,
+          "details_cached": 0,
+          "cache_hits": 0,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0
+        },
+        "budgets": {
+          "max_search_requests": 12,
+          "max_detail_pages": 12,
+          "deadline_seconds": 240
+        },
+        "warnings": [
+          "SearXNG 部分上游引擎未完成查询；已保留成功来源的结果，搜索范围受限",
+          "25 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "25 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "errors": [],
+        "fetch_diagnostics": {
+          "available": true,
+          "started_at": "2026-10-13T13:42:32.135778+00:00",
+          "finished_at": "2026-10-13T13:42:57.805733+00:00",
+          "counts_delta": {},
+          "events": [],
+          "truncated": false,
+          "scope": "target HTML+robots only; DoH HTTP uncounted"
+        }
+      },
+      "final_job": {
+        "job_id": "4682587d-f925-4219-8448-b3175c91937e",
+        "status": "partial",
+        "phase": "done",
+        "created_at": "2026-10-13T13:42:32.133441+00:00",
+        "updated_at": "2026-10-13T13:42:57.805739+00:00",
+        "request": {
+          "knowledge_points": [
+            "Bayes theorem conditional probability",
+            "plate tectonics",
+            "supply demand elasticity"
+          ],
+          "student_level": "beginner",
+          "language": "en",
+          "project_context": "",
+          "technical_version": "",
+          "preferred_platforms": []
+        },
+        "knowledge_points": [
+          {
+            "knowledge_point_id": "0f2b31c4-306a-4a2f-8155-abfc083c7a42",
+            "text": "Bayes theorem conditional probability"
+          },
+          {
+            "knowledge_point_id": "50699565-7938-4fcb-bab2-e24cd7691a80",
+            "text": "plate tectonics"
+          },
+          {
+            "knowledge_point_id": "d094f1a1-38e3-47d9-ab3f-2a6aecd34d62",
+            "text": "supply demand elasticity"
+          }
+        ],
+        "progress": {
+          "queries_planned": 9,
+          "queries_completed": 9,
+          "search_requests": 12,
+          "search_successes": 9,
+          "search_failures": 0,
+          "candidates_discovered": 36,
+          "resources_discovered": 25,
+          "details_attempted": 0,
+          "details_completed": 0,
+          "details_cached": 0,
+          "cache_hits": 0,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0
+        },
+        "budgets": {
+          "max_search_requests": 12,
+          "max_detail_pages": 12,
+          "deadline_seconds": 240
+        },
+        "warnings": [
+          "SearXNG 部分上游引擎未完成查询；已保留成功来源的结果，搜索范围受限",
+          "25 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "25 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "errors": [],
+        "fetch_diagnostics": {
+          "available": true,
+          "started_at": "2026-10-13T13:42:32.135778+00:00",
+          "finished_at": "2026-10-13T13:42:57.805733+00:00",
+          "counts_delta": {},
+          "events": [],
+          "truncated": false,
+          "scope": "target HTML+robots only; DoH HTTP uncounted"
+        }
+      },
+      "elapsed_seconds": 26.418,
+      "results": {
+        "job_id": "4682587d-f925-4219-8448-b3175c91937e",
+        "status": "partial",
+        "groups": [
+          {
+            "knowledge_point_id": "0f2b31c4-306a-4a2f-8155-abfc083c7a42",
+            "text": "Bayes theorem conditional probability",
+            "total_matches": 0,
+            "items": [],
+            "platform_items": {}
+          },
+          {
+            "knowledge_point_id": "50699565-7938-4fcb-bab2-e24cd7691a80",
+            "text": "plate tectonics",
+            "total_matches": 0,
+            "items": [],
+            "platform_items": {}
+          },
+          {
+            "knowledge_point_id": "d094f1a1-38e3-47d9-ab3f-2a6aecd34d62",
+            "text": "supply demand elasticity",
+            "total_matches": 0,
+            "items": [],
+            "platform_items": {}
+          }
+        ],
+        "warnings": [
+          "SearXNG 部分上游引擎未完成查询；已保留成功来源的结果，搜索范围受限",
+          "25 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "25 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "search_attempts": [
+          {
+            "knowledge_point_id": "0f2b31c4-306a-4a2f-8155-abfc083c7a42",
+            "query": "Bayes theorem conditional probability beginner video tutorial",
+            "domain_filters": [],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 6,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:32.137255+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [
+              {
+                "code": "upstream_engine_failed",
+                "engine": "duckduckgo videos",
+                "reason_code": "timeout",
+                "reason": "timeout",
+                "message": "上游搜索超时"
+              }
+            ],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:32.137924+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "duckduckgo videos",
+                "http_status": 200,
+                "response_bytes": 219,
+                "elapsed_seconds": 2.489,
+                "upstream_warnings": [
+                  {
+                    "code": "upstream_engine_failed",
+                    "engine": "duckduckgo videos",
+                    "reason_code": "timeout",
+                    "reason": "timeout",
+                    "message": "上游搜索超时"
+                  }
+                ],
+                "raw_candidate_count": 0,
+                "candidate_count": 0,
+                "fallback": false,
+                "filter_counts": {},
+                "candidate_trace": [],
+                "candidate_trace_omitted": 0
+              },
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:34.628313+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 6382,
+                "elapsed_seconds": 3.397,
+                "upstream_warnings": [],
+                "raw_candidate_count": 7,
+                "candidate_count": 6,
+                "fallback": true,
+                "filter_counts": {
+                  "accepted": 6,
+                  "limit_reached": 1
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://jfeii.or.jp/pdf/lecture/05.pdf",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "ff450f066a9fd776d49b2e04e8412b6b74c32231a9dcd954098f39db3e29d52b"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://www.senjusp.com/hubfs/243272908/files/libs/202204291447144759.pdf",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "9e010d79726ae27ff1cfbb517ca908960f99d0cf9e9611d1aeee306ce41581d9"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://www.senjusp.com/hubfs/243272908/files/libs/202204291420154695.pdf",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "3b6e230459d8e7ce5713be86cb3f98b7e1347572ea78efc41f232cef458433df"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://lexcard.jp/law/358M50000008002/article/6",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "b6721c7039201103e9f26bc998a8c3add72784f48940812179031cd551edcc17"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://www.yamatoprotec.co.jp/products/yavs-100a-2/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "b0a0a36f718e3d7b38b6be81ea3ed68c617723ad373825192446d8539fd43e20"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "accepted",
+                    "url": "https://www.itachibori.co.jp/wp-content/uploads/2025/11/PV100N2_torisetu.pdf",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "efea9679f9e543c0babc46a20bb666f7bb709dabd230909c9da371ced7264a67"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "limit_reached",
+                    "url": "https://www.nohmi.co.jp/shoka01/007/rqim34000000145u-att/TN20079R2.pdf",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "d30735f214c36e162934d55e350f20f7d437085d412749987ba46db5902ed062"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "50699565-7938-4fcb-bab2-e24cd7691a80",
+            "query": "plate tectonics beginner video tutorial",
+            "domain_filters": [],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 6,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:38.049822+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [
+              {
+                "code": "upstream_engine_failed",
+                "engine": "duckduckgo videos",
+                "reason_code": "unknown",
+                "reason": "unknown",
+                "message": "上游失败，具体原因未识别"
+              }
+            ],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:38.050698+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "duckduckgo videos",
+                "http_status": 200,
+                "response_bytes": 208,
+                "elapsed_seconds": 0.323,
+                "upstream_warnings": [
+                  {
+                    "code": "upstream_engine_failed",
+                    "engine": "duckduckgo videos",
+                    "reason_code": "unknown",
+                    "reason": "unknown",
+                    "message": "上游失败，具体原因未识别"
+                  }
+                ],
+                "raw_candidate_count": 0,
+                "candidate_count": 0,
+                "fallback": false,
+                "filter_counts": {},
+                "candidate_trace": [],
+                "candidate_trace_omitted": 0
+              },
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:39.065276+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 6152,
+                "elapsed_seconds": 1.747,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 6,
+                "fallback": true,
+                "filter_counts": {
+                  "accepted": 6,
+                  "limit_reached": 4
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://www.merriam-webster.com/dictionary/plate",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "14a2483d7916e9631f9874614aa35195eb738f4f3f8a8cdae643793b0aaabdb4"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://www.target.com/c/plates-dinnerware-dining-entertaining-kitchen/-/N-4ykli",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "7bbd65daa0c81ee26ecf0c83c5e8bfbfc743192f98cc0c601e2e8a97cea9d9de"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://dictionary.cambridge.org/dictionary/english/plate",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "4b223ec8910c56df42f44101fefd66c8c60e07d154fb06468f7618c6adfc87d5"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://en.wikipedia.org/wiki/Plate_(dishware)",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "97672cebcfe721ca97e4a1ebb26cc788854a4e56a7cc9c84ccca5615828ec773"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://en.wikipedia.org/wiki/Plate",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "6eadcae2ad280aaebf4f1fcd5617975711861bb6be0b6f7ce0c342ccc3071e70"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "accepted",
+                    "url": "https://www.platestowe.com/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "29fa0f2f0cc0772bc604578d42552f80994eac0fac221335d8ac03a9db21c0c9"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "limit_reached",
+                    "url": "https://www.macys.com/shop/home/kitchen-dining/dining-entertaining/dinnerware/Dinnerware_type/Plates",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "be4a9478e1e0da7cf47ccd91bee3f4ba9ad72ef4e09346dcf820ed169e3d12b4"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "limit_reached",
+                    "url": "https://www.crateandbarrel.com/dining-and-entertaining/dinner-plates/1",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "99cb2e6e85c3d85bd00b618433d6777f0002fbf6dbbb8b0dc0d43b0b34ae7ec1"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "limit_reached",
+                    "url": "https://www.amazon.com/plate-set/s",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "1f4987e529f5fec768b837f763aa85a2751e8d0093d3d8aab54c96885e8e2c49"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "limit_reached",
+                    "url": "https://www.ikea.com/us/en/cat/plates-18861/",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "2fd49717f13f2d99206e982b29154b9e5679180e016a39f110f654919415b04d"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "d094f1a1-38e3-47d9-ab3f-2a6aecd34d62",
+            "query": "supply demand elasticity beginner video tutorial",
+            "domain_filters": [],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 6,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:40.824189+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [
+              {
+                "code": "upstream_engine_failed",
+                "engine": "duckduckgo videos",
+                "reason_code": "timeout",
+                "reason": "timeout",
+                "message": "上游搜索超时"
+              }
+            ],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:40.824603+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "duckduckgo videos",
+                "http_status": 200,
+                "response_bytes": 206,
+                "elapsed_seconds": 2.346,
+                "upstream_warnings": [
+                  {
+                    "code": "upstream_engine_failed",
+                    "engine": "duckduckgo videos",
+                    "reason_code": "timeout",
+                    "reason": "timeout",
+                    "message": "上游搜索超时"
+                  }
+                ],
+                "raw_candidate_count": 0,
+                "candidate_count": 0,
+                "fallback": false,
+                "filter_counts": {},
+                "candidate_trace": [],
+                "candidate_trace_omitted": 0
+              },
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:43.171838+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 6121,
+                "elapsed_seconds": 1.724,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 6,
+                "fallback": true,
+                "filter_counts": {
+                  "accepted": 6,
+                  "limit_reached": 4
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://www.merriam-webster.com/dictionary/supply",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "20626a5f1ceec1e4d21bcd52227be6a7fce274c1801f4605cf454db5026128a9"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://en.m.wikipedia.org/wiki/Supply_(economics)",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "34b880e5777cd6ece7ac4a1639ad952bab6b4269f676ce8f3fcc2d594390c061"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://www.supplyhouse.com/",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "d3ef99961cf1b4f203c0d71a5fdee8baaadcb101e9072638b9f83cb965fffd32"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://www.investopedia.com/terms/s/supply.asp",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "fc8dd47311b7e8dd1e099a901a9352e6d6352a0a9c33e925d53de000899ee821"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://en.m.wikipedia.org/wiki/Supply_and_demand",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "c827c3a2cebea7354b8587bf6855998b2fb3a969b5c06edfdcc605a545bc5a80"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "accepted",
+                    "url": "https://www.restaurantsupply.com/pages/new-york-queens-restaurant-supply-store",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "2299ca50309731215afe1eb2665f12170496b2248c635181dae9c337794ca7f4"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "limit_reached",
+                    "url": "https://dictionary.cambridge.org/dictionary/english/supply",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "042314dd02499c9eff131bdbddc12ef7d0358972b86ac5b8f9d042aeeef825c1"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "limit_reached",
+                    "url": "https://www.merriam-webster.com/dictionary/supply%20and%20demand",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "739930b9795070b7d7533a0d424dfd35fc499a710d88629feac9e71a8e19ea7d"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "limit_reached",
+                    "url": "https://www.yelp.com/search",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "316cb96bc748da8f0bcc2921f5019fb7d9b222f546687be09ea83c6551970f60"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "limit_reached",
+                    "url": "https://www.dictionary.com/browse/supply",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "ddd8358b9a12963e138d62b717a92d5e736a3c8312952069f2acef775e81709c"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "0f2b31c4-306a-4a2f-8155-abfc083c7a42",
+            "query": "Bayes theorem conditional probability course lesson",
+            "domain_filters": [],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 6,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:44.909886+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:44.910426+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 7483,
+                "elapsed_seconds": 2.337,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 6,
+                "fallback": false,
+                "filter_counts": {
+                  "accepted": 6,
+                  "limit_reached": 4
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://forums.xfinity.com/conversations/email/xfinity-email-inbox/6144b8a516396f362680fe27",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "6bb04b237358fc03501a8aa6d0ff6dd4cb3c83eab78ca0d5941932c58a065625"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://forums.xfinity.com/conversations/email/error-the-provided-login-data-to-access-mail-server-imapcomcastnet-seem-to-be-wrong-please-correct-them/669a8b0af51e6b50438d3b6d",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "564de4b9c7fb40b7346df06b47a2573be58026073e18a130f2bf3e7ad41effb3"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://forums.xfinity.com/conversations/email/email-not-syncing/693accea99d8a9637105ab6a",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "074b269e3cb3b56a0f0c17af2c7826c5c669bcd1773c58078e0099efc02d227d"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://forums.xfinity.com/conversations/email/apple-device-email-clients-not-working-with-comcastnet-accounts/6913dbb2ed2c3f53707a1ee9",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "ba7fd0d4b915c3ebc6b034b3f800692323b9cd2bd085b89e2fc24208bfeaa72c"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://forums.xfinity.com/conversations/email/logging-into-comcastemail/673e4d244a88b419cd9c36ea",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "971a0bef3da37b2b525d0311dc2c54d3342329834f48200e69237fba89a7dce1"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "accepted",
+                    "url": "https://forums.xfinity.com/conversations/email/unable-to-access-comcast-email-accounts-using-outlook/67929bce551ed96de74cdac6",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "e38668a8476586c16e6e1005aa08a0e26ea18b78921a5d8b4ff2e3ab52079bb3"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "limit_reached",
+                    "url": "https://forums.xfinity.com/conversations/email/how-to-get-away-from-yahoo-i-hate-yahoo/69e25a5e92ac7d2bff566c25",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "fa64e53784a587002073c5ca7eecb58bb6cbc24a422d513b1aacd473e02b1729"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "limit_reached",
+                    "url": "https://forums.xfinity.com/conversations/email/thunderbird-access-to-comcast-email-no-longer-working/67d3ff9d67ee1e66466f803d",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "e0e175892eef53ceddca69a6c09827d75b572b5cfb0625728f307b54c788dc75"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "limit_reached",
+                    "url": "https://forums.xfinity.com/conversations/email/how-do-i-convert-current-xfinity-email-from-imap-to-pst/685c4f29b1199a46572e98bc",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "c5a1e76f8bb19c33016802ae983d172cbce26175bcb596feb2ddab5e591a18a8"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "limit_reached",
+                    "url": "https://forums.xfinity.com/conversations/email/comcastnet-email-is-going-away/66ba58731466ce252a8892fe",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "c671adf48010f070d55629904a957c8e32594f855bd3cdef3cd63ad88601ca97"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "50699565-7938-4fcb-bab2-e24cd7691a80",
+            "query": "plate tectonics course lesson",
+            "domain_filters": [],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 6,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:47.259556+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:47.260003+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 6142,
+                "elapsed_seconds": 1.968,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 6,
+                "fallback": false,
+                "filter_counts": {
+                  "accepted": 6,
+                  "limit_reached": 4
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://www.merriam-webster.com/dictionary/plate",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "14a2483d7916e9631f9874614aa35195eb738f4f3f8a8cdae643793b0aaabdb4"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://www.target.com/c/plates-dinnerware-dining-entertaining-kitchen/-/N-4ykli",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "7bbd65daa0c81ee26ecf0c83c5e8bfbfc743192f98cc0c601e2e8a97cea9d9de"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://dictionary.cambridge.org/dictionary/english/plate",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "4b223ec8910c56df42f44101fefd66c8c60e07d154fb06468f7618c6adfc87d5"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://en.wikipedia.org/wiki/Plate_(dishware)",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "97672cebcfe721ca97e4a1ebb26cc788854a4e56a7cc9c84ccca5615828ec773"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://en.wikipedia.org/wiki/Plate",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "6eadcae2ad280aaebf4f1fcd5617975711861bb6be0b6f7ce0c342ccc3071e70"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "accepted",
+                    "url": "https://www.platestowe.com/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "29fa0f2f0cc0772bc604578d42552f80994eac0fac221335d8ac03a9db21c0c9"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "limit_reached",
+                    "url": "https://www.macys.com/shop/home/kitchen-dining/dining-entertaining/dinnerware/Dinnerware_type/Plates",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "d53a3f09829d10d79aee508005a2b1d16d289cd9ab437a6093c4f082e54e3fb0"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "limit_reached",
+                    "url": "https://www.crateandbarrel.com/dining-and-entertaining/dinner-plates/1",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "f5613f35a81ec1f3a93fb246b44336e68ee770f770a43978a15d1180f6023ae0"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "limit_reached",
+                    "url": "https://www.amazon.com/plate-set/s",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "1f4987e529f5fec768b837f763aa85a2751e8d0093d3d8aab54c96885e8e2c49"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "limit_reached",
+                    "url": "https://www.ikea.com/us/en/cat/plates-18861/",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "22af264f54b69ca5d0fceab854126b003c15c8e1eab182643dfae2ca9b7d02d7"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "d094f1a1-38e3-47d9-ab3f-2a6aecd34d62",
+            "query": "supply demand elasticity course lesson",
+            "domain_filters": [],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 6,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:49.236094+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:49.236479+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 6111,
+                "elapsed_seconds": 2.538,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 6,
+                "fallback": false,
+                "filter_counts": {
+                  "accepted": 6,
+                  "limit_reached": 4
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://www.merriam-webster.com/dictionary/supply",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "20626a5f1ceec1e4d21bcd52227be6a7fce274c1801f4605cf454db5026128a9"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://en.m.wikipedia.org/wiki/Supply_(economics)",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "34b880e5777cd6ece7ac4a1639ad952bab6b4269f676ce8f3fcc2d594390c061"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://www.supplyhouse.com/",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "2aeb10b97750dd3e88306b2f742d848438f755506ede8ed29e58377b5c2e5fe5"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://www.investopedia.com/terms/s/supply.asp",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "fc8dd47311b7e8dd1e099a901a9352e6d6352a0a9c33e925d53de000899ee821"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://en.m.wikipedia.org/wiki/Supply_and_demand",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "c827c3a2cebea7354b8587bf6855998b2fb3a969b5c06edfdcc605a545bc5a80"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "accepted",
+                    "url": "https://www.restaurantsupply.com/pages/new-york-queens-restaurant-supply-store",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "2299ca50309731215afe1eb2665f12170496b2248c635181dae9c337794ca7f4"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "limit_reached",
+                    "url": "https://dictionary.cambridge.org/dictionary/english/supply",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "042314dd02499c9eff131bdbddc12ef7d0358972b86ac5b8f9d042aeeef825c1"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "limit_reached",
+                    "url": "https://www.merriam-webster.com/dictionary/supply%20and%20demand",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "739930b9795070b7d7533a0d424dfd35fc499a710d88629feac9e71a8e19ea7d"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "limit_reached",
+                    "url": "https://www.yelp.com/search",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "d0da87b0e106616c52ce512978c9f7f2592034fb0a8534ffcd20072ae9b96103"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "limit_reached",
+                    "url": "https://www.dictionary.com/browse/supply",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "ddd8358b9a12963e138d62b717a92d5e736a3c8312952069f2acef775e81709c"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "0f2b31c4-306a-4a2f-8155-abfc083c7a42",
+            "query": "(site:ocw.mit.edu OR site:open.edu) Bayes theorem conditional probability course lesson",
+            "domain_filters": [
+              "ocw.mit.edu",
+              "open.edu"
+            ],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 0,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:51.786426+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:51.787195+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 5519,
+                "elapsed_seconds": 1.982,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 0,
+                "fallback": false,
+                "filter_counts": {
+                  "domain_mismatch": 10
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.pandora.com/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "b06937b3f19088a9c99b143a6a4c999fb6571ce7221452148ae5068b68218d9e"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.pandora.com/login.vm",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "4e3a9477c61ec03657eccd879e13b301770a3e0e52537f3d5d36689eba6d8874"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "domain_mismatch",
+                    "url": "https://amp.pandora.com/login",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "21ecd5eef63761c96649859b7bdd0cd1d15d96479425a1a318695e21a3cab06a"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "domain_mismatch",
+                    "url": "https://tv.pandora.com/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "a1c38401ec8ab6671d5b21319ad7233c67e24731f591d72d5bc8e9743c6e4a9b"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "domain_mismatch",
+                    "url": "https://community.pandora.com/t5/Account/How-to-Log-into-My-Account/td-p/103304",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "a31f3113d46366b1a6fa81574605ff364ae6f0ee16a8ff47d4b10fb5a6d9fdda"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "domain_mismatch",
+                    "url": "https://help.pandora.com/s/",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "765d0c3bceac4a48cf0b533f6652f84a4e6c7ef53b0572dc009e79a18af63f6f"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "domain_mismatch",
+                    "url": "https://developer.pandora.com/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "66ff171fd5fc6ccf23cdf65494fff337ebed1e87389626074d9da286007ed7be"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "domain_mismatch",
+                    "url": "https://community.pandora.com/t5/Subscriptions/bd-p/subs",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "3da1ac7ed8dd1207a4df5c3d58e23b960d5b26c4c9c01ab3d0ca6867920433ec"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.pandora.com/desktop",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "b81384f01bd5011b579dbb464dd2efb643cf7b08858959651c7d8b52908666c5"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.pandora.com/browse",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "7a8ceea56c6cbf3dcccdbdcb39ca892ad9e063b53a1c38ee43392811fa94e28c"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "50699565-7938-4fcb-bab2-e24cd7691a80",
+            "query": "(site:ocw.mit.edu OR site:open.edu) plate tectonics course lesson",
+            "domain_filters": [
+              "ocw.mit.edu",
+              "open.edu"
+            ],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 0,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:53.772681+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:53.773129+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 6178,
+                "elapsed_seconds": 2.214,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 0,
+                "fallback": false,
+                "filter_counts": {
+                  "domain_mismatch": 10
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.merriam-webster.com/dictionary/plate",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "14a2483d7916e9631f9874614aa35195eb738f4f3f8a8cdae643793b0aaabdb4"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.target.com/c/plates-dinnerware-dining-entertaining-kitchen/-/N-4ykli",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "7bbd65daa0c81ee26ecf0c83c5e8bfbfc743192f98cc0c601e2e8a97cea9d9de"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "domain_mismatch",
+                    "url": "https://dictionary.cambridge.org/dictionary/english/plate",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "4b223ec8910c56df42f44101fefd66c8c60e07d154fb06468f7618c6adfc87d5"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "domain_mismatch",
+                    "url": "https://en.wikipedia.org/wiki/Plate_(dishware)",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "97672cebcfe721ca97e4a1ebb26cc788854a4e56a7cc9c84ccca5615828ec773"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "domain_mismatch",
+                    "url": "https://en.wikipedia.org/wiki/Plate",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "6eadcae2ad280aaebf4f1fcd5617975711861bb6be0b6f7ce0c342ccc3071e70"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.platestowe.com/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "29fa0f2f0cc0772bc604578d42552f80994eac0fac221335d8ac03a9db21c0c9"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.macys.com/shop/home/kitchen-dining/dining-entertaining/dinnerware/Dinnerware_type/Plates",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "9a255d60e6cd35752178725db638cbf9b133487244401b29ec2d5e96d214ae0a"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.crateandbarrel.com/dining-and-entertaining/dinner-plates/1",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "2eceff8c7d01c364e26006b5a2f4148af4199c1823712da1025c6e7e3f6cbde6"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.amazon.com/plate-set/s",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "1f4987e529f5fec768b837f763aa85a2751e8d0093d3d8aab54c96885e8e2c49"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.ikea.com/us/en/cat/plates-18861/",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "157e8a85ca77a8f8a6ab805914de68da8dc301546ff3eda804fb85ce3aeff3cf"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "d094f1a1-38e3-47d9-ab3f-2a6aecd34d62",
+            "query": "(site:ocw.mit.edu OR site:open.edu) supply demand elasticity course lesson",
+            "domain_filters": [
+              "ocw.mit.edu",
+              "open.edu"
+            ],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 0,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:55.990795+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:55.991372+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 6147,
+                "elapsed_seconds": 1.804,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 0,
+                "fallback": false,
+                "filter_counts": {
+                  "domain_mismatch": 10
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.merriam-webster.com/dictionary/supply",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "20626a5f1ceec1e4d21bcd52227be6a7fce274c1801f4605cf454db5026128a9"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "domain_mismatch",
+                    "url": "https://en.m.wikipedia.org/wiki/Supply_(economics)",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "34b880e5777cd6ece7ac4a1639ad952bab6b4269f676ce8f3fcc2d594390c061"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.supplyhouse.com/",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "5f9ade730aa44d20c82725b64f4144f786d2ac321b80b2fb0084b5418cefee7e"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.investopedia.com/terms/s/supply.asp",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "fc8dd47311b7e8dd1e099a901a9352e6d6352a0a9c33e925d53de000899ee821"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "domain_mismatch",
+                    "url": "https://en.m.wikipedia.org/wiki/Supply_and_demand",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "c827c3a2cebea7354b8587bf6855998b2fb3a969b5c06edfdcc605a545bc5a80"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.restaurantsupply.com/pages/new-york-queens-restaurant-supply-store",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "2299ca50309731215afe1eb2665f12170496b2248c635181dae9c337794ca7f4"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "domain_mismatch",
+                    "url": "https://dictionary.cambridge.org/dictionary/english/supply",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "042314dd02499c9eff131bdbddc12ef7d0358972b86ac5b8f9d042aeeef825c1"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.merriam-webster.com/dictionary/supply%20and%20demand",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "739930b9795070b7d7533a0d424dfd35fc499a710d88629feac9e71a8e19ea7d"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.yelp.com/search",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "dab5388313de36d9460abf7691792d0299d51c3b7d62638eeb4b513eda7a2a7c"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.dictionary.com/browse/supply",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "ddd8358b9a12963e138d62b717a92d5e736a3c8312952069f2acef775e81709c"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          }
+        ],
+        "identity_summary": {
+          "resource_records": 0,
+          "identified_course_families": 0,
+          "identified_course_offerings": 0,
+          "identified_lessons": 0,
+          "unknown_course_family_resources": 0,
+          "unknown_offering_resources": 0,
+          "unknown_identity_resources": 0,
+          "scope": "observed_source_scoped_identities_not_global_course_deduplication"
+        }
+      },
+      "terminal_replay_response": {
+        "job_id": "4682587d-f925-4219-8448-b3175c91937e",
+        "status": "partial",
+        "reused": true
+      }
+    },
+    {
+      "case_index": 1,
+      "request": {
+        "knowledge_points": [
+          "二分查找"
+        ],
+        "language": "zh",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163"
+        ],
+        "student_level": "beginner"
+      },
+      "submitted_at": "2026-10-13T13:42:58.588079+00:00",
+      "idempotency_key": "heldout-691ddf98-1021-4dfd-94f3-03ffeef238a8",
+      "snapshots": [
+        {
+          "observed_at": "2026-10-13T13:42:58.827494+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 5,
+            "queries_completed": 0,
+            "search_requests": 1,
+            "search_successes": 0,
+            "search_failures": 0,
+            "candidates_discovered": 0,
+            "resources_discovered": 0,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:43:02.850553+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 5,
+            "queries_completed": 1,
+            "search_requests": 2,
+            "search_successes": 1,
+            "search_failures": 0,
+            "candidates_discovered": 6,
+            "resources_discovered": 6,
+            "details_attempted": 0,
+            "details_completed": 0,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:43:04.862510+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 5,
+            "queries_completed": 2,
+            "search_requests": 3,
+            "search_successes": 2,
+            "search_failures": 0,
+            "candidates_discovered": 12,
+            "resources_discovered": 12,
+            "details_attempted": 1,
+            "details_completed": 1,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:43:08.898301+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 5,
+            "queries_completed": 3,
+            "search_requests": 4,
+            "search_successes": 3,
+            "search_failures": 0,
+            "candidates_discovered": 18,
+            "resources_discovered": 15,
+            "details_attempted": 2,
+            "details_completed": 2,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:43:10.919525+00:00",
+          "status": "running",
+          "phase": "searching",
+          "progress": {
+            "queries_planned": 5,
+            "queries_completed": 4,
+            "search_requests": 5,
+            "search_successes": 4,
+            "search_failures": 0,
+            "candidates_discovered": 23,
+            "resources_discovered": 20,
+            "details_attempted": 3,
+            "details_completed": 3,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        },
+        {
+          "observed_at": "2026-10-13T13:43:12.931330+00:00",
+          "status": "completed",
+          "phase": "done",
+          "progress": {
+            "queries_planned": 5,
+            "queries_completed": 5,
+            "search_requests": 5,
+            "search_successes": 5,
+            "search_failures": 0,
+            "candidates_discovered": 23,
+            "resources_discovered": 20,
+            "details_attempted": 9,
+            "details_completed": 9,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0
+          }
+        }
+      ],
+      "create_response": {
+        "job_id": "a75c3934-622c-4333-bc8b-ccc448f0add4",
+        "status": "queued",
+        "reused": false
+      },
+      "job_id": "a75c3934-622c-4333-bc8b-ccc448f0add4",
+      "last_job": {
+        "job_id": "a75c3934-622c-4333-bc8b-ccc448f0add4",
+        "status": "completed",
+        "phase": "done",
+        "created_at": "2026-10-13T13:42:58.591190+00:00",
+        "updated_at": "2026-10-13T13:43:12.329034+00:00",
+        "request": {
+          "knowledge_points": [
+            "二分查找"
+          ],
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163"
+          ]
+        },
+        "knowledge_points": [
+          {
+            "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+            "text": "二分查找"
+          }
+        ],
+        "progress": {
+          "queries_planned": 5,
+          "queries_completed": 5,
+          "search_requests": 5,
+          "search_successes": 5,
+          "search_failures": 0,
+          "candidates_discovered": 23,
+          "resources_discovered": 20,
+          "details_attempted": 9,
+          "details_completed": 9,
+          "details_cached": 0,
+          "cache_hits": 0,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0
+        },
+        "budgets": {
+          "max_search_requests": 12,
+          "max_detail_pages": 12,
+          "deadline_seconds": 240
+        },
+        "warnings": [
+          "20 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "6 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "errors": [],
+        "fetch_diagnostics": {
+          "available": true,
+          "started_at": "2026-10-13T13:42:58.593398+00:00",
+          "finished_at": "2026-10-13T13:43:12.329021+00:00",
+          "counts_delta": {},
+          "events": [],
+          "truncated": false,
+          "scope": "target HTML+robots only; DoH HTTP uncounted"
+        }
+      },
+      "final_job": {
+        "job_id": "a75c3934-622c-4333-bc8b-ccc448f0add4",
+        "status": "completed",
+        "phase": "done",
+        "created_at": "2026-10-13T13:42:58.591190+00:00",
+        "updated_at": "2026-10-13T13:43:12.329034+00:00",
+        "request": {
+          "knowledge_points": [
+            "二分查找"
+          ],
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163"
+          ]
+        },
+        "knowledge_points": [
+          {
+            "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+            "text": "二分查找"
+          }
+        ],
+        "progress": {
+          "queries_planned": 5,
+          "queries_completed": 5,
+          "search_requests": 5,
+          "search_successes": 5,
+          "search_failures": 0,
+          "candidates_discovered": 23,
+          "resources_discovered": 20,
+          "details_attempted": 9,
+          "details_completed": 9,
+          "details_cached": 0,
+          "cache_hits": 0,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0
+        },
+        "budgets": {
+          "max_search_requests": 12,
+          "max_detail_pages": 12,
+          "deadline_seconds": 240
+        },
+        "warnings": [
+          "20 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "6 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "errors": [],
+        "fetch_diagnostics": {
+          "available": true,
+          "started_at": "2026-10-13T13:42:58.593398+00:00",
+          "finished_at": "2026-10-13T13:43:12.329021+00:00",
+          "counts_delta": {},
+          "events": [],
+          "truncated": false,
+          "scope": "target HTML+robots only; DoH HTTP uncounted"
+        }
+      },
+      "elapsed_seconds": 14.335,
+      "results": {
+        "job_id": "a75c3934-622c-4333-bc8b-ccc448f0add4",
+        "status": "completed",
+        "groups": [
+          {
+            "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+            "text": "二分查找",
+            "total_matches": 9,
+            "items": [
+              {
+                "resource": {
+                  "resource_id": "res_024351bc8d5e37b68e8939e2",
+                  "title": "二分查找基础",
+                  "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                  "canonical_url": "https://www.bilibili.com/video/BV1wBYi6fEaD/",
+                  "resolved_url": null,
+                  "platform": "bilibili",
+                  "resource_type": "video",
+                  "video_evidence_status": "search_discovered",
+                  "author": null,
+                  "author_role": null,
+                  "parent_course_url": null,
+                  "course_identity": {
+                    "status": "partial",
+                    "family_id": null,
+                    "offering_id": null,
+                    "lesson_id": null,
+                    "family_url": null,
+                    "offering_url": null,
+                    "role": "video",
+                    "basis": "unknown",
+                    "source_url": "https://www.bilibili.com/video/BV1wBYi6fEaD/",
+                    "evidence_ids": [
+                      "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81"
+                    ],
+                    "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                  },
+                  "description": "二分查找基础, 视频播放量 38、弹幕量 0、点赞数 0、投硬币枚数 0、收藏人数 3、转发人数 0, 视频作者 跟着狮狮学编程, 作者简介 ，相关视频：6小时速通CSP初赛，leetcode hot 100 思路讲解，C++基础算法之贪心算法，其他类贪心，Leetcode入门和常见的算法套路-python ...",
+                  "language": null,
+                  "duration_seconds": null,
+                  "published_at": null,
+                  "discovered_at": "2026-10-13T13:43:02.256260+00:00",
+                  "fetched_at": null,
+                  "fetch_status": "site_policy_blocked",
+                  "metadata_evidence_level": "search",
+                  "requires_login": null,
+                  "requires_payment": null,
+                  "requires_enrollment": null,
+                  "chapters": [],
+                  "catalog_kind": null,
+                  "catalog_fetch_status": null,
+                  "field_provenance": {
+                    "title": {
+                      "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144"
+                    },
+                    "url": {
+                      "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144"
+                    },
+                    "description": {
+                      "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144"
+                    },
+                    "resource_type": {
+                      "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                      "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                    },
+                    "video_evidence_status": {
+                      "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                      "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                    },
+                    "fetch_status": {
+                      "evidence_id": "ev_b0f6a87c-db3f-4794-8017-fc2b385c9752",
+                      "source": "official_policy_review",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                    }
+                  },
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "playback_verified": false
+                },
+                "match": {
+                  "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                  "resource_id": "res_024351bc8d5e37b68e8939e2",
+                  "ranking_score": 83.0,
+                  "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                  "matched_evidence_ids": [
+                    "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                    "ev_7c636717-26dd-4eb0-a450-450f271be3a9"
+                  ],
+                  "coverage_basis": [
+                    "title",
+                    "snippet"
+                  ]
+                },
+                "evidence": [
+                  {
+                    "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                    "candidate_id": "21f30c4987eada1ff6277799",
+                    "kind": "search",
+                    "source": "searxng",
+                    "source_engines": [
+                      "duckduckgo videos"
+                    ],
+                    "type_source": "search_template",
+                    "resource_type_hint": "video",
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "query": "二分查找 入门 视频教程",
+                    "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                    "title": "二分查找基础",
+                    "snippet": "二分查找基础, 视频播放量 38、弹幕量 0、点赞数 0、投硬币枚数 0、收藏人数 3、转发人数 0, 视频作者 跟着狮狮学编程, 作者简介 ，相关视频：6小时速通CSP初赛，leetcode hot 100 思路讲解，C++基础算法之贪心算法，其他类贪心，Leetcode入门和常见的算法套路-python ...",
+                    "observed_at": "2026-10-13T13:43:02.256260+00:00",
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  },
+                  {
+                    "id": "ev_08c215592785456e3b52",
+                    "evidence_id": "ev_b0f6a87c-db3f-4794-8017-fc2b385c9752",
+                    "kind": "site_policy",
+                    "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                    "source": "official_policy_review",
+                    "field": "fetch_status",
+                    "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                    "reviewed_at": "2026-10-13",
+                    "terms_date": null,
+                    "policy_status": "explicit_permission_required",
+                    "observed_at": null,
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  },
+                  {
+                    "evidence_id": "ev_7c636717-26dd-4eb0-a450-450f271be3a9",
+                    "candidate_id": "c65ce753ec88d3d7080a287a",
+                    "kind": "search",
+                    "source": "searxng",
+                    "source_engines": [
+                      "duckduckgo videos"
+                    ],
+                    "type_source": "search_template",
+                    "resource_type_hint": "video",
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "query": "site:bilibili.com/video 二分查找 视频教程",
+                    "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                    "title": "二分查找基础",
+                    "snippet": "二分查找基础, 视频播放量 38、弹幕量 0、点赞数 0、投硬币枚数 0、收藏人数 3、转发人数 0, 视频作者 跟着狮狮学编程, 作者简介 ，相关视频：6小时速通CSP初赛，leetcode hot 100 思路讲解，C++基础算法之贪心算法，其他类贪心，Leetcode入门和常见的算法套路-python ...",
+                    "observed_at": "2026-10-13T13:43:07.674644+00:00",
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  }
+                ]
+              },
+              {
+                "resource": {
+                  "resource_id": "res_949925874aaf6b92c7faa463",
+                  "title": "搞定二分查找从入门到进阶一个视频搞定 搞定边界条件定义",
+                  "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473",
+                  "canonical_url": "https://www.bilibili.com/video/BV1X5fwY7Ets/",
+                  "resolved_url": null,
+                  "platform": "bilibili",
+                  "resource_type": "video",
+                  "video_evidence_status": "search_discovered",
+                  "author": null,
+                  "author_role": null,
+                  "parent_course_url": null,
+                  "course_identity": {
+                    "status": "partial",
+                    "family_id": null,
+                    "offering_id": null,
+                    "lesson_id": null,
+                    "family_url": null,
+                    "offering_url": null,
+                    "role": "video",
+                    "basis": "unknown",
+                    "source_url": "https://www.bilibili.com/video/BV1X5fwY7Ets/",
+                    "evidence_ids": [
+                      "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0"
+                    ],
+                    "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                  },
+                  "description": "献给10000粉丝的贺礼",
+                  "language": null,
+                  "duration_seconds": null,
+                  "published_at": null,
+                  "discovered_at": "2026-10-13T13:43:02.256221+00:00",
+                  "fetched_at": null,
+                  "fetch_status": "site_policy_blocked",
+                  "metadata_evidence_level": "search",
+                  "requires_login": null,
+                  "requires_payment": null,
+                  "requires_enrollment": null,
+                  "chapters": [],
+                  "catalog_kind": null,
+                  "catalog_fetch_status": null,
+                  "field_provenance": {
+                    "title": {
+                      "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473"
+                    },
+                    "url": {
+                      "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473"
+                    },
+                    "description": {
+                      "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473"
+                    },
+                    "resource_type": {
+                      "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473",
+                      "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                    },
+                    "video_evidence_status": {
+                      "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473",
+                      "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                    },
+                    "fetch_status": {
+                      "evidence_id": "ev_dd940303-dbbe-4c45-a7f8-337597a7e6b1",
+                      "source": "official_policy_review",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                    }
+                  },
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "playback_verified": false
+                },
+                "match": {
+                  "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                  "resource_id": "res_949925874aaf6b92c7faa463",
+                  "ranking_score": 83.0,
+                  "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                  "matched_evidence_ids": [
+                    "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0"
+                  ],
+                  "coverage_basis": [
+                    "title"
+                  ]
+                },
+                "evidence": [
+                  {
+                    "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                    "candidate_id": "bbda435008e33d1707407bbd",
+                    "kind": "search",
+                    "source": "searxng",
+                    "source_engines": [
+                      "duckduckgo videos"
+                    ],
+                    "type_source": "search_template",
+                    "resource_type_hint": "video",
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "query": "二分查找 入门 视频教程",
+                    "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473",
+                    "title": "搞定二分查找从入门到进阶一个视频搞定 搞定边界条件定义",
+                    "snippet": "献给10000粉丝的贺礼",
+                    "observed_at": "2026-10-13T13:43:02.256221+00:00",
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  },
+                  {
+                    "id": "ev_08c215592785456e3b52",
+                    "evidence_id": "ev_dd940303-dbbe-4c45-a7f8-337597a7e6b1",
+                    "kind": "site_policy",
+                    "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                    "source": "official_policy_review",
+                    "field": "fetch_status",
+                    "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                    "reviewed_at": "2026-10-13",
+                    "terms_date": null,
+                    "policy_status": "explicit_permission_required",
+                    "observed_at": null,
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  }
+                ]
+              },
+              {
+                "resource": {
+                  "resource_id": "res_eef26add1af106ad0c9ddf52",
+                  "title": "英雄算法零基础100讲(第65讲)二分查找(一)入门",
+                  "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966",
+                  "canonical_url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/",
+                  "resolved_url": null,
+                  "platform": "bilibili",
+                  "resource_type": "video",
+                  "video_evidence_status": "search_discovered",
+                  "author": null,
+                  "author_role": null,
+                  "parent_course_url": null,
+                  "course_identity": {
+                    "status": "partial",
+                    "family_id": null,
+                    "offering_id": null,
+                    "lesson_id": null,
+                    "family_url": null,
+                    "offering_url": null,
+                    "role": "video",
+                    "basis": "unknown",
+                    "source_url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/",
+                    "evidence_ids": [
+                      "ev_68ba8636-1b77-4e85-b920-bf4722caea4a"
+                    ],
+                    "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                  },
+                  "description": "[直播].[英雄哪里出来(319521269)].[ACM金牌凌晨0500直播刷题100天].[2022-04-10].[04_36].[20220409165",
+                  "language": null,
+                  "duration_seconds": null,
+                  "published_at": null,
+                  "discovered_at": "2026-10-13T13:43:02.256061+00:00",
+                  "fetched_at": null,
+                  "fetch_status": "site_policy_blocked",
+                  "metadata_evidence_level": "search",
+                  "requires_login": null,
+                  "requires_payment": null,
+                  "requires_enrollment": null,
+                  "chapters": [],
+                  "catalog_kind": null,
+                  "catalog_fetch_status": null,
+                  "field_provenance": {
+                    "title": {
+                      "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966"
+                    },
+                    "url": {
+                      "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966"
+                    },
+                    "description": {
+                      "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966"
+                    },
+                    "resource_type": {
+                      "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966",
+                      "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                    },
+                    "video_evidence_status": {
+                      "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966",
+                      "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                    },
+                    "fetch_status": {
+                      "evidence_id": "ev_88843073-07fc-4826-bfc0-04531491736a",
+                      "source": "official_policy_review",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                    }
+                  },
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "playback_verified": false
+                },
+                "match": {
+                  "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                  "resource_id": "res_eef26add1af106ad0c9ddf52",
+                  "ranking_score": 83.0,
+                  "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                  "matched_evidence_ids": [
+                    "ev_68ba8636-1b77-4e85-b920-bf4722caea4a"
+                  ],
+                  "coverage_basis": [
+                    "title"
+                  ]
+                },
+                "evidence": [
+                  {
+                    "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                    "candidate_id": "74ad8e41dfe11b28c67a9f74",
+                    "kind": "search",
+                    "source": "searxng",
+                    "source_engines": [
+                      "duckduckgo videos"
+                    ],
+                    "type_source": "search_template",
+                    "resource_type_hint": "video",
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "query": "二分查找 入门 视频教程",
+                    "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966",
+                    "title": "英雄算法零基础100讲(第65讲)二分查找(一)入门",
+                    "snippet": "[直播].[英雄哪里出来(319521269)].[ACM金牌凌晨0500直播刷题100天].[2022-04-10].[04_36].[20220409165",
+                    "observed_at": "2026-10-13T13:43:02.256061+00:00",
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  },
+                  {
+                    "id": "ev_08c215592785456e3b52",
+                    "evidence_id": "ev_88843073-07fc-4826-bfc0-04531491736a",
+                    "kind": "site_policy",
+                    "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                    "source": "official_policy_review",
+                    "field": "fetch_status",
+                    "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                    "reviewed_at": "2026-10-13",
+                    "terms_date": null,
+                    "policy_status": "explicit_permission_required",
+                    "observed_at": null,
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  }
+                ]
+              },
+              {
+                "resource": {
+                  "resource_id": "res_754216178fd2afdc1d0d776a",
+                  "title": "如何迅速的找到东西？用\"算法\"提升思维!二分查找法",
+                  "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370",
+                  "canonical_url": "https://www.bilibili.com/video/BV1db411U7Cp/",
+                  "resolved_url": null,
+                  "platform": "bilibili",
+                  "resource_type": "video",
+                  "video_evidence_status": "search_discovered",
+                  "author": null,
+                  "author_role": null,
+                  "parent_course_url": null,
+                  "course_identity": {
+                    "status": "partial",
+                    "family_id": null,
+                    "offering_id": null,
+                    "lesson_id": null,
+                    "family_url": null,
+                    "offering_url": null,
+                    "role": "video",
+                    "basis": "unknown",
+                    "source_url": "https://www.bilibili.com/video/BV1db411U7Cp/",
+                    "evidence_ids": [
+                      "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa"
+                    ],
+                    "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                  },
+                  "description": "通过简单趣味的动画讲解，和你一起了解\"二分查找法\"，在学习计算机知识的同时，用算法思维让工作生活变得更有效率",
+                  "language": null,
+                  "duration_seconds": null,
+                  "published_at": null,
+                  "discovered_at": "2026-10-13T13:43:07.674474+00:00",
+                  "fetched_at": null,
+                  "fetch_status": "site_policy_blocked",
+                  "metadata_evidence_level": "search",
+                  "requires_login": null,
+                  "requires_payment": null,
+                  "requires_enrollment": null,
+                  "chapters": [],
+                  "catalog_kind": null,
+                  "catalog_fetch_status": null,
+                  "field_provenance": {
+                    "title": {
+                      "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370"
+                    },
+                    "url": {
+                      "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370"
+                    },
+                    "description": {
+                      "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370"
+                    },
+                    "resource_type": {
+                      "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370",
+                      "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                    },
+                    "video_evidence_status": {
+                      "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370",
+                      "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                    },
+                    "fetch_status": {
+                      "evidence_id": "ev_5a438575-d594-4211-ba44-040ea179b28b",
+                      "source": "official_policy_review",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                    }
+                  },
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "playback_verified": false
+                },
+                "match": {
+                  "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                  "resource_id": "res_754216178fd2afdc1d0d776a",
+                  "ranking_score": 80.0,
+                  "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                  "matched_evidence_ids": [
+                    "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa"
+                  ],
+                  "coverage_basis": [
+                    "title",
+                    "snippet"
+                  ]
+                },
+                "evidence": [
+                  {
+                    "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                    "candidate_id": "46d58ff622c37b666d0c3306",
+                    "kind": "search",
+                    "source": "searxng",
+                    "source_engines": [
+                      "duckduckgo videos"
+                    ],
+                    "type_source": "search_template",
+                    "resource_type_hint": "video",
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "query": "site:bilibili.com/video 二分查找 视频教程",
+                    "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370",
+                    "title": "如何迅速的找到东西？用\"算法\"提升思维!二分查找法",
+                    "snippet": "通过简单趣味的动画讲解，和你一起了解\"二分查找法\"，在学习计算机知识的同时，用算法思维让工作生活变得更有效率",
+                    "observed_at": "2026-10-13T13:43:07.674474+00:00",
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  },
+                  {
+                    "id": "ev_08c215592785456e3b52",
+                    "evidence_id": "ev_5a438575-d594-4211-ba44-040ea179b28b",
+                    "kind": "site_policy",
+                    "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                    "source": "official_policy_review",
+                    "field": "fetch_status",
+                    "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                    "reviewed_at": "2026-10-13",
+                    "terms_date": null,
+                    "policy_status": "explicit_permission_required",
+                    "observed_at": null,
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  }
+                ]
+              },
+              {
+                "resource": {
+                  "resource_id": "res_98918d20716a68f014c9d857",
+                  "title": "5分钟学会：二分查找",
+                  "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639",
+                  "canonical_url": "https://www.bilibili.com/video/BV1w8411L7v9/",
+                  "resolved_url": null,
+                  "platform": "bilibili",
+                  "resource_type": "video",
+                  "video_evidence_status": "search_discovered",
+                  "author": null,
+                  "author_role": null,
+                  "parent_course_url": null,
+                  "course_identity": {
+                    "status": "partial",
+                    "family_id": null,
+                    "offering_id": null,
+                    "lesson_id": null,
+                    "family_url": null,
+                    "offering_url": null,
+                    "role": "video",
+                    "basis": "unknown",
+                    "source_url": "https://www.bilibili.com/video/BV1w8411L7v9/",
+                    "evidence_ids": [
+                      "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d"
+                    ],
+                    "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                  },
+                  "description": "5分钟学会：二分查找 ... 简单学编程",
+                  "language": null,
+                  "duration_seconds": null,
+                  "published_at": null,
+                  "discovered_at": "2026-10-13T13:43:07.674590+00:00",
+                  "fetched_at": null,
+                  "fetch_status": "site_policy_blocked",
+                  "metadata_evidence_level": "search",
+                  "requires_login": null,
+                  "requires_payment": null,
+                  "requires_enrollment": null,
+                  "chapters": [],
+                  "catalog_kind": null,
+                  "catalog_fetch_status": null,
+                  "field_provenance": {
+                    "title": {
+                      "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639"
+                    },
+                    "url": {
+                      "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639"
+                    },
+                    "description": {
+                      "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                      "source": "search",
+                      "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639"
+                    },
+                    "resource_type": {
+                      "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639",
+                      "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                    },
+                    "video_evidence_status": {
+                      "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                      "source": "url_pattern",
+                      "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639",
+                      "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                    },
+                    "fetch_status": {
+                      "evidence_id": "ev_9a497ee0-ef73-41f7-b2aa-1bcd5721afc9",
+                      "source": "official_policy_review",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                    }
+                  },
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "playback_verified": false
+                },
+                "match": {
+                  "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                  "resource_id": "res_98918d20716a68f014c9d857",
+                  "ranking_score": 80.0,
+                  "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                  "matched_evidence_ids": [
+                    "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d"
+                  ],
+                  "coverage_basis": [
+                    "title",
+                    "snippet"
+                  ]
+                },
+                "evidence": [
+                  {
+                    "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                    "candidate_id": "588f09b34bc0384423fa1a1d",
+                    "kind": "search",
+                    "source": "searxng",
+                    "source_engines": [
+                      "duckduckgo videos"
+                    ],
+                    "type_source": "search_template",
+                    "resource_type_hint": "video",
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "query": "site:bilibili.com/video 二分查找 视频教程",
+                    "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639",
+                    "title": "5分钟学会：二分查找",
+                    "snippet": "5分钟学会：二分查找 ... 简单学编程",
+                    "observed_at": "2026-10-13T13:43:07.674590+00:00",
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  },
+                  {
+                    "id": "ev_08c215592785456e3b52",
+                    "evidence_id": "ev_9a497ee0-ef73-41f7-b2aa-1bcd5721afc9",
+                    "kind": "site_policy",
+                    "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                    "source": "official_policy_review",
+                    "field": "fetch_status",
+                    "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                    "reviewed_at": "2026-10-13",
+                    "terms_date": null,
+                    "policy_status": "explicit_permission_required",
+                    "observed_at": null,
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    }
+                  }
+                ]
+              }
+            ],
+            "platform_items": {
+              "bilibili": [
+                {
+                  "resource": {
+                    "resource_id": "res_024351bc8d5e37b68e8939e2",
+                    "title": "二分查找基础",
+                    "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                    "canonical_url": "https://www.bilibili.com/video/BV1wBYi6fEaD/",
+                    "resolved_url": null,
+                    "platform": "bilibili",
+                    "resource_type": "video",
+                    "video_evidence_status": "search_discovered",
+                    "author": null,
+                    "author_role": null,
+                    "parent_course_url": null,
+                    "course_identity": {
+                      "status": "partial",
+                      "family_id": null,
+                      "offering_id": null,
+                      "lesson_id": null,
+                      "family_url": null,
+                      "offering_url": null,
+                      "role": "video",
+                      "basis": "unknown",
+                      "source_url": "https://www.bilibili.com/video/BV1wBYi6fEaD/",
+                      "evidence_ids": [
+                        "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81"
+                      ],
+                      "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                    },
+                    "description": "二分查找基础, 视频播放量 38、弹幕量 0、点赞数 0、投硬币枚数 0、收藏人数 3、转发人数 0, 视频作者 跟着狮狮学编程, 作者简介 ，相关视频：6小时速通CSP初赛，leetcode hot 100 思路讲解，C++基础算法之贪心算法，其他类贪心，Leetcode入门和常见的算法套路-python ...",
+                    "language": null,
+                    "duration_seconds": null,
+                    "published_at": null,
+                    "discovered_at": "2026-10-13T13:43:02.256260+00:00",
+                    "fetched_at": null,
+                    "fetch_status": "site_policy_blocked",
+                    "metadata_evidence_level": "search",
+                    "requires_login": null,
+                    "requires_payment": null,
+                    "requires_enrollment": null,
+                    "chapters": [],
+                    "catalog_kind": null,
+                    "catalog_fetch_status": null,
+                    "field_provenance": {
+                      "title": {
+                        "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144"
+                      },
+                      "url": {
+                        "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144"
+                      },
+                      "description": {
+                        "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144"
+                      },
+                      "resource_type": {
+                        "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                        "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                      },
+                      "video_evidence_status": {
+                        "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                        "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                      },
+                      "fetch_status": {
+                        "evidence_id": "ev_b0f6a87c-db3f-4794-8017-fc2b385c9752",
+                        "source": "official_policy_review",
+                        "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                      }
+                    },
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    },
+                    "playback_verified": false
+                  },
+                  "match": {
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "resource_id": "res_024351bc8d5e37b68e8939e2",
+                    "ranking_score": 83.0,
+                    "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                    "matched_evidence_ids": [
+                      "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                      "ev_7c636717-26dd-4eb0-a450-450f271be3a9"
+                    ],
+                    "coverage_basis": [
+                      "title",
+                      "snippet"
+                    ]
+                  },
+                  "evidence": [
+                    {
+                      "evidence_id": "ev_56c5f73e-b10e-44e0-89cc-716d5a569d81",
+                      "candidate_id": "21f30c4987eada1ff6277799",
+                      "kind": "search",
+                      "source": "searxng",
+                      "source_engines": [
+                        "duckduckgo videos"
+                      ],
+                      "type_source": "search_template",
+                      "resource_type_hint": "video",
+                      "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                      "query": "二分查找 入门 视频教程",
+                      "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                      "title": "二分查找基础",
+                      "snippet": "二分查找基础, 视频播放量 38、弹幕量 0、点赞数 0、投硬币枚数 0、收藏人数 3、转发人数 0, 视频作者 跟着狮狮学编程, 作者简介 ，相关视频：6小时速通CSP初赛，leetcode hot 100 思路讲解，C++基础算法之贪心算法，其他类贪心，Leetcode入门和常见的算法套路-python ...",
+                      "observed_at": "2026-10-13T13:43:02.256260+00:00",
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    },
+                    {
+                      "id": "ev_08c215592785456e3b52",
+                      "evidence_id": "ev_b0f6a87c-db3f-4794-8017-fc2b385c9752",
+                      "kind": "site_policy",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                      "source": "official_policy_review",
+                      "field": "fetch_status",
+                      "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                      "reviewed_at": "2026-10-13",
+                      "terms_date": null,
+                      "policy_status": "explicit_permission_required",
+                      "observed_at": null,
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    },
+                    {
+                      "evidence_id": "ev_7c636717-26dd-4eb0-a450-450f271be3a9",
+                      "candidate_id": "c65ce753ec88d3d7080a287a",
+                      "kind": "search",
+                      "source": "searxng",
+                      "source_engines": [
+                        "duckduckgo videos"
+                      ],
+                      "type_source": "search_template",
+                      "resource_type_hint": "video",
+                      "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                      "query": "site:bilibili.com/video 二分查找 视频教程",
+                      "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/?uid=425631774259693666456144",
+                      "title": "二分查找基础",
+                      "snippet": "二分查找基础, 视频播放量 38、弹幕量 0、点赞数 0、投硬币枚数 0、收藏人数 3、转发人数 0, 视频作者 跟着狮狮学编程, 作者简介 ，相关视频：6小时速通CSP初赛，leetcode hot 100 思路讲解，C++基础算法之贪心算法，其他类贪心，Leetcode入门和常见的算法套路-python ...",
+                      "observed_at": "2026-10-13T13:43:07.674644+00:00",
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    }
+                  ]
+                },
+                {
+                  "resource": {
+                    "resource_id": "res_949925874aaf6b92c7faa463",
+                    "title": "搞定二分查找从入门到进阶一个视频搞定 搞定边界条件定义",
+                    "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473",
+                    "canonical_url": "https://www.bilibili.com/video/BV1X5fwY7Ets/",
+                    "resolved_url": null,
+                    "platform": "bilibili",
+                    "resource_type": "video",
+                    "video_evidence_status": "search_discovered",
+                    "author": null,
+                    "author_role": null,
+                    "parent_course_url": null,
+                    "course_identity": {
+                      "status": "partial",
+                      "family_id": null,
+                      "offering_id": null,
+                      "lesson_id": null,
+                      "family_url": null,
+                      "offering_url": null,
+                      "role": "video",
+                      "basis": "unknown",
+                      "source_url": "https://www.bilibili.com/video/BV1X5fwY7Ets/",
+                      "evidence_ids": [
+                        "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0"
+                      ],
+                      "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                    },
+                    "description": "献给10000粉丝的贺礼",
+                    "language": null,
+                    "duration_seconds": null,
+                    "published_at": null,
+                    "discovered_at": "2026-10-13T13:43:02.256221+00:00",
+                    "fetched_at": null,
+                    "fetch_status": "site_policy_blocked",
+                    "metadata_evidence_level": "search",
+                    "requires_login": null,
+                    "requires_payment": null,
+                    "requires_enrollment": null,
+                    "chapters": [],
+                    "catalog_kind": null,
+                    "catalog_fetch_status": null,
+                    "field_provenance": {
+                      "title": {
+                        "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473"
+                      },
+                      "url": {
+                        "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473"
+                      },
+                      "description": {
+                        "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473"
+                      },
+                      "resource_type": {
+                        "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473",
+                        "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                      },
+                      "video_evidence_status": {
+                        "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473",
+                        "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                      },
+                      "fetch_status": {
+                        "evidence_id": "ev_dd940303-dbbe-4c45-a7f8-337597a7e6b1",
+                        "source": "official_policy_review",
+                        "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                      }
+                    },
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    },
+                    "playback_verified": false
+                  },
+                  "match": {
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "resource_id": "res_949925874aaf6b92c7faa463",
+                    "ranking_score": 83.0,
+                    "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                    "matched_evidence_ids": [
+                      "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0"
+                    ],
+                    "coverage_basis": [
+                      "title"
+                    ]
+                  },
+                  "evidence": [
+                    {
+                      "evidence_id": "ev_ca9333de-40d0-4e44-9873-6ecea94e5fc0",
+                      "candidate_id": "bbda435008e33d1707407bbd",
+                      "kind": "search",
+                      "source": "searxng",
+                      "source_engines": [
+                        "duckduckgo videos"
+                      ],
+                      "type_source": "search_template",
+                      "resource_type_hint": "video",
+                      "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                      "query": "二分查找 入门 视频教程",
+                      "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/?uid=425631583566775937457473",
+                      "title": "搞定二分查找从入门到进阶一个视频搞定 搞定边界条件定义",
+                      "snippet": "献给10000粉丝的贺礼",
+                      "observed_at": "2026-10-13T13:43:02.256221+00:00",
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    },
+                    {
+                      "id": "ev_08c215592785456e3b52",
+                      "evidence_id": "ev_dd940303-dbbe-4c45-a7f8-337597a7e6b1",
+                      "kind": "site_policy",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                      "source": "official_policy_review",
+                      "field": "fetch_status",
+                      "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                      "reviewed_at": "2026-10-13",
+                      "terms_date": null,
+                      "policy_status": "explicit_permission_required",
+                      "observed_at": null,
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    }
+                  ]
+                },
+                {
+                  "resource": {
+                    "resource_id": "res_eef26add1af106ad0c9ddf52",
+                    "title": "英雄算法零基础100讲(第65讲)二分查找(一)入门",
+                    "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966",
+                    "canonical_url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/",
+                    "resolved_url": null,
+                    "platform": "bilibili",
+                    "resource_type": "video",
+                    "video_evidence_status": "search_discovered",
+                    "author": null,
+                    "author_role": null,
+                    "parent_course_url": null,
+                    "course_identity": {
+                      "status": "partial",
+                      "family_id": null,
+                      "offering_id": null,
+                      "lesson_id": null,
+                      "family_url": null,
+                      "offering_url": null,
+                      "role": "video",
+                      "basis": "unknown",
+                      "source_url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/",
+                      "evidence_ids": [
+                        "ev_68ba8636-1b77-4e85-b920-bf4722caea4a"
+                      ],
+                      "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                    },
+                    "description": "[直播].[英雄哪里出来(319521269)].[ACM金牌凌晨0500直播刷题100天].[2022-04-10].[04_36].[20220409165",
+                    "language": null,
+                    "duration_seconds": null,
+                    "published_at": null,
+                    "discovered_at": "2026-10-13T13:43:02.256061+00:00",
+                    "fetched_at": null,
+                    "fetch_status": "site_policy_blocked",
+                    "metadata_evidence_level": "search",
+                    "requires_login": null,
+                    "requires_payment": null,
+                    "requires_enrollment": null,
+                    "chapters": [],
+                    "catalog_kind": null,
+                    "catalog_fetch_status": null,
+                    "field_provenance": {
+                      "title": {
+                        "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966"
+                      },
+                      "url": {
+                        "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966"
+                      },
+                      "description": {
+                        "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966"
+                      },
+                      "resource_type": {
+                        "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966",
+                        "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                      },
+                      "video_evidence_status": {
+                        "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966",
+                        "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                      },
+                      "fetch_status": {
+                        "evidence_id": "ev_88843073-07fc-4826-bfc0-04531491736a",
+                        "source": "official_policy_review",
+                        "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                      }
+                    },
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    },
+                    "playback_verified": false
+                  },
+                  "match": {
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "resource_id": "res_eef26add1af106ad0c9ddf52",
+                    "ranking_score": 83.0,
+                    "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                    "matched_evidence_ids": [
+                      "ev_68ba8636-1b77-4e85-b920-bf4722caea4a"
+                    ],
+                    "coverage_basis": [
+                      "title"
+                    ]
+                  },
+                  "evidence": [
+                    {
+                      "evidence_id": "ev_68ba8636-1b77-4e85-b920-bf4722caea4a",
+                      "candidate_id": "74ad8e41dfe11b28c67a9f74",
+                      "kind": "search",
+                      "source": "searxng",
+                      "source_engines": [
+                        "duckduckgo videos"
+                      ],
+                      "type_source": "search_template",
+                      "resource_type_hint": "video",
+                      "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                      "query": "二分查找 入门 视频教程",
+                      "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/?uid=425631475934793165375966",
+                      "title": "英雄算法零基础100讲(第65讲)二分查找(一)入门",
+                      "snippet": "[直播].[英雄哪里出来(319521269)].[ACM金牌凌晨0500直播刷题100天].[2022-04-10].[04_36].[20220409165",
+                      "observed_at": "2026-10-13T13:43:02.256061+00:00",
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    },
+                    {
+                      "id": "ev_08c215592785456e3b52",
+                      "evidence_id": "ev_88843073-07fc-4826-bfc0-04531491736a",
+                      "kind": "site_policy",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                      "source": "official_policy_review",
+                      "field": "fetch_status",
+                      "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                      "reviewed_at": "2026-10-13",
+                      "terms_date": null,
+                      "policy_status": "explicit_permission_required",
+                      "observed_at": null,
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    }
+                  ]
+                },
+                {
+                  "resource": {
+                    "resource_id": "res_754216178fd2afdc1d0d776a",
+                    "title": "如何迅速的找到东西？用\"算法\"提升思维!二分查找法",
+                    "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370",
+                    "canonical_url": "https://www.bilibili.com/video/BV1db411U7Cp/",
+                    "resolved_url": null,
+                    "platform": "bilibili",
+                    "resource_type": "video",
+                    "video_evidence_status": "search_discovered",
+                    "author": null,
+                    "author_role": null,
+                    "parent_course_url": null,
+                    "course_identity": {
+                      "status": "partial",
+                      "family_id": null,
+                      "offering_id": null,
+                      "lesson_id": null,
+                      "family_url": null,
+                      "offering_url": null,
+                      "role": "video",
+                      "basis": "unknown",
+                      "source_url": "https://www.bilibili.com/video/BV1db411U7Cp/",
+                      "evidence_ids": [
+                        "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa"
+                      ],
+                      "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                    },
+                    "description": "通过简单趣味的动画讲解，和你一起了解\"二分查找法\"，在学习计算机知识的同时，用算法思维让工作生活变得更有效率",
+                    "language": null,
+                    "duration_seconds": null,
+                    "published_at": null,
+                    "discovered_at": "2026-10-13T13:43:07.674474+00:00",
+                    "fetched_at": null,
+                    "fetch_status": "site_policy_blocked",
+                    "metadata_evidence_level": "search",
+                    "requires_login": null,
+                    "requires_payment": null,
+                    "requires_enrollment": null,
+                    "chapters": [],
+                    "catalog_kind": null,
+                    "catalog_fetch_status": null,
+                    "field_provenance": {
+                      "title": {
+                        "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370"
+                      },
+                      "url": {
+                        "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370"
+                      },
+                      "description": {
+                        "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370"
+                      },
+                      "resource_type": {
+                        "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370",
+                        "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                      },
+                      "video_evidence_status": {
+                        "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370",
+                        "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                      },
+                      "fetch_status": {
+                        "evidence_id": "ev_5a438575-d594-4211-ba44-040ea179b28b",
+                        "source": "official_policy_review",
+                        "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                      }
+                    },
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    },
+                    "playback_verified": false
+                  },
+                  "match": {
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "resource_id": "res_754216178fd2afdc1d0d776a",
+                    "ranking_score": 80.0,
+                    "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                    "matched_evidence_ids": [
+                      "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa"
+                    ],
+                    "coverage_basis": [
+                      "title",
+                      "snippet"
+                    ]
+                  },
+                  "evidence": [
+                    {
+                      "evidence_id": "ev_2a769787-63f9-4bc0-b834-1e393d15d6aa",
+                      "candidate_id": "46d58ff622c37b666d0c3306",
+                      "kind": "search",
+                      "source": "searxng",
+                      "source_engines": [
+                        "duckduckgo videos"
+                      ],
+                      "type_source": "search_template",
+                      "resource_type_hint": "video",
+                      "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                      "query": "site:bilibili.com/video 二分查找 视频教程",
+                      "url": "https://www.bilibili.com/video/BV1db411U7Cp/?uid=425631646234313155374370",
+                      "title": "如何迅速的找到东西？用\"算法\"提升思维!二分查找法",
+                      "snippet": "通过简单趣味的动画讲解，和你一起了解\"二分查找法\"，在学习计算机知识的同时，用算法思维让工作生活变得更有效率",
+                      "observed_at": "2026-10-13T13:43:07.674474+00:00",
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    },
+                    {
+                      "id": "ev_08c215592785456e3b52",
+                      "evidence_id": "ev_5a438575-d594-4211-ba44-040ea179b28b",
+                      "kind": "site_policy",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                      "source": "official_policy_review",
+                      "field": "fetch_status",
+                      "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                      "reviewed_at": "2026-10-13",
+                      "terms_date": null,
+                      "policy_status": "explicit_permission_required",
+                      "observed_at": null,
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    }
+                  ]
+                },
+                {
+                  "resource": {
+                    "resource_id": "res_98918d20716a68f014c9d857",
+                    "title": "5分钟学会：二分查找",
+                    "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639",
+                    "canonical_url": "https://www.bilibili.com/video/BV1w8411L7v9/",
+                    "resolved_url": null,
+                    "platform": "bilibili",
+                    "resource_type": "video",
+                    "video_evidence_status": "search_discovered",
+                    "author": null,
+                    "author_role": null,
+                    "parent_course_url": null,
+                    "course_identity": {
+                      "status": "partial",
+                      "family_id": null,
+                      "offering_id": null,
+                      "lesson_id": null,
+                      "family_url": null,
+                      "offering_url": null,
+                      "role": "video",
+                      "basis": "unknown",
+                      "source_url": "https://www.bilibili.com/video/BV1w8411L7v9/",
+                      "evidence_ids": [
+                        "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d"
+                      ],
+                      "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                    },
+                    "description": "5分钟学会：二分查找 ... 简单学编程",
+                    "language": null,
+                    "duration_seconds": null,
+                    "published_at": null,
+                    "discovered_at": "2026-10-13T13:43:07.674590+00:00",
+                    "fetched_at": null,
+                    "fetch_status": "site_policy_blocked",
+                    "metadata_evidence_level": "search",
+                    "requires_login": null,
+                    "requires_payment": null,
+                    "requires_enrollment": null,
+                    "chapters": [],
+                    "catalog_kind": null,
+                    "catalog_fetch_status": null,
+                    "field_provenance": {
+                      "title": {
+                        "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639"
+                      },
+                      "url": {
+                        "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639"
+                      },
+                      "description": {
+                        "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                        "source": "search",
+                        "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639"
+                      },
+                      "resource_type": {
+                        "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639",
+                        "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                      },
+                      "video_evidence_status": {
+                        "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                        "source": "url_pattern",
+                        "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639",
+                        "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                      },
+                      "fetch_status": {
+                        "evidence_id": "ev_9a497ee0-ef73-41f7-b2aa-1bcd5721afc9",
+                        "source": "official_policy_review",
+                        "url": "https://www.bilibili.com/blackboard/protocal/licence.html"
+                      }
+                    },
+                    "cache": {
+                      "hit": false,
+                      "cached_at": null,
+                      "stale": false
+                    },
+                    "playback_verified": false
+                  },
+                  "match": {
+                    "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                    "resource_id": "res_98918d20716a68f014c9d857",
+                    "ranking_score": 80.0,
+                    "recommendation_reason": "根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。",
+                    "matched_evidence_ids": [
+                      "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d"
+                    ],
+                    "coverage_basis": [
+                      "title",
+                      "snippet"
+                    ]
+                  },
+                  "evidence": [
+                    {
+                      "evidence_id": "ev_655f74c4-e17c-4ddf-ac33-6fb24bdfea3d",
+                      "candidate_id": "588f09b34bc0384423fa1a1d",
+                      "kind": "search",
+                      "source": "searxng",
+                      "source_engines": [
+                        "duckduckgo videos"
+                      ],
+                      "type_source": "search_template",
+                      "resource_type_hint": "video",
+                      "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+                      "query": "site:bilibili.com/video 二分查找 视频教程",
+                      "url": "https://www.bilibili.com/video/BV1w8411L7v9/?uid=42563177383431314C377639",
+                      "title": "5分钟学会：二分查找",
+                      "snippet": "5分钟学会：二分查找 ... 简单学编程",
+                      "observed_at": "2026-10-13T13:43:07.674590+00:00",
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    },
+                    {
+                      "id": "ev_08c215592785456e3b52",
+                      "evidence_id": "ev_9a497ee0-ef73-41f7-b2aa-1bcd5721afc9",
+                      "kind": "site_policy",
+                      "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+                      "source": "official_policy_review",
+                      "field": "fetch_status",
+                      "text": "官方用户使用协议第5.6(3)条要求自动获取平台服务、内容或数据前取得明确书面许可；本项目未取得该许可。",
+                      "reviewed_at": "2026-10-13",
+                      "terms_date": null,
+                      "policy_status": "explicit_permission_required",
+                      "observed_at": null,
+                      "cache": {
+                        "hit": false,
+                        "cached_at": null,
+                        "stale": false
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "warnings": [
+          "20 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "6 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "search_attempts": [
+          {
+            "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+            "query": "二分查找 入门 视频教程",
+            "domain_filters": [],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 6,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:42:58.594840+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:42:58.595274+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "duckduckgo videos",
+                "http_status": 200,
+                "response_bytes": 72493,
+                "elapsed_seconds": 3.66,
+                "upstream_warnings": [],
+                "raw_candidate_count": 58,
+                "candidate_count": 6,
+                "fallback": false,
+                "filter_counts": {
+                  "accepted": 6,
+                  "limit_reached": 52
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1uKcbexEte/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "b6a4cbb495007dc6be5de3c9a57ce73ef81abe4ddecb94ba0817ec51d1208081"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1GY4y1e7Yf/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "7747393930ae9210874d67d353d63ecc55f691ba2afa649c9777dcc57b2e79a6"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1LJ411X76n/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "0c32abb315763bab380cfb9c29c8e09848161208254bc26f5ec10da12367b94d"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1Ng4y1q7E3/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "b04bdf0c1f2cfaa58cbd0635c53db61875fffcc8da5d3186edeeaf5ad8079838"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "2a06cc96d115d77511b457c0f0c43a7868c326f3c6909caf0267f0de655b9926"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "cc9791a01864f1309c17801a41e945ad26f94c2d688b22bad5788607f9fd6b79"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1joeH6VEat/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "bd87556b1adc424ca77f45c1ec6f01132fd91156fecfe2917ddfb74740574693"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1S1Ec6KEtQ/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "c9c4ba908b34fb8491476bcb2ff6e735e608dbc7095c87701b55da2f1e701137"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1D8896jEQn/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "9017d82d263436f32ad845ff295e3ba1cdd4e42f6482232feffdd81f7b8294b4"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1HsujemEgQ/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "99251fd6daec1c499613f6567e48cc2a37afad5a0ba2ed7d2c5cff167f30997d"
+                  },
+                  {
+                    "index": 10,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1F7dVByEGJ/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "6acee378e70a7a2d3bd42610a26271cd90d0cddc74fabcb7de1530a08b37f9ea"
+                  },
+                  {
+                    "index": 11,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV18c411W7kW/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "d8106a595475ebaf1d4a4620f366d16d3d8656e9120f45f1997656cb3465076e"
+                  },
+                  {
+                    "index": 12,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1LsTi67ENm/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "633aca683676440b2a8e388ab33d8a329c58985c7cb4d220ed6e40b708926ff8"
+                  },
+                  {
+                    "index": 13,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1CVvDefEpA/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "9153d0108731b6dec6ae5db27599c0688d79d0aea9d6617179c97bb51bc12969"
+                  },
+                  {
+                    "index": 14,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1qdCFYmERC/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "8c25da26ac3e5fb5d4ab50f911ed9970c23bf63d806df9bdb2c0a84c2c26d62b"
+                  },
+                  {
+                    "index": 15,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1vtgV6oErg/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "96898bfdd44a46cdf803bd77bbdbfb911cfb422ab5fd2695b05c79a24251fd44"
+                  },
+                  {
+                    "index": 16,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1H7411n79u/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "6e8b41721761a09220911e4e5fab224ca4a82f0730655cba8894b0e736957201"
+                  },
+                  {
+                    "index": 17,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV11Rhe6HEYQ/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "fb758e0da021be9151a285caf5f7096f06f65ab3d5e0c1f0f0a12beb41b26958"
+                  },
+                  {
+                    "index": 18,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1QZ421T78t/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "797a16d9e9a4d3f348f3fd621a3295aa7030530a83bd3aa1329beb557d96400b"
+                  },
+                  {
+                    "index": 19,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1Z6Ne6rEuu/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "f5beb0738c142c8a409cf1977dea1a31f5b30ef117c05bd5fbee3711d97922b5"
+                  }
+                ],
+                "candidate_trace_omitted": 38
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+            "query": "二分查找 课程 教学",
+            "domain_filters": [],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 6,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:43:02.275396+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:43:02.275828+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 6657,
+                "elapsed_seconds": 1.727,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 6,
+                "fallback": false,
+                "filter_counts": {
+                  "accepted": 6,
+                  "limit_reached": 4
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://support.google.com/maps/answer/6291838",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "a8c64c3c4700f56c668f63eadf6c8c671d50b6fd0175fe31731cff7ae8cf9675"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://support.google.com/maps/answer/144349",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "36e901efb977f8c7dffff792a13f0842d350ecc511dc44bc16fa70c72271f411"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://webapps.stackexchange.com/questions/90918/google-maps-how-do-i-start-a-route-that-ive-saved-to-my-maps",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "a41a47c1bc70bf541cabde2305b7e4a3da34da73160ef451e57d8425ab7cf301"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://webapps.stackexchange.com/questions/4438/create-a-google-maps-link-to-a-specific-location",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "757d40754d17898597581290e403c35a816ca75b85ab1e39c027dd908909162e"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://support.google.com/maps/community",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "45a2b89e8d64a59a6aed979f15760cd726f8f3a827726ad5a8e2c7e8cc1115e3"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "accepted",
+                    "url": "https://support.google.com/maps/answer/2839911",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "17b08756d35bf65cf3cc17e0af20fdca4541c1422490d30c84986d07d03076fd"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "limit_reached",
+                    "url": "https://support.google.com/maps/answer/6041199",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "b3701640c0e0df47d9b5e7e1522eaad126f6fd6aae35142f79333de2c72cd2c9"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "limit_reached",
+                    "url": "https://support.google.com/websearch/answer/179386",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "9984291d350038f63bd489662031daeb44f752fbb4517e4ae22518280e99939f"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "limit_reached",
+                    "url": "https://support.google.com/maps/answer/6194894",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "9d36f35dc01c0419cdc43b98e55cb107304fe15040f7e5f44c368eb163eaca9e"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "limit_reached",
+                    "url": "https://support.google.com/maps/answer/7566112",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "de34ad4af3127cbe4074caab541296e4227190e34ff28202bac772ba1130a002"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+            "query": "site:bilibili.com/video 二分查找 视频教程",
+            "domain_filters": [
+              "bilibili.com"
+            ],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 6,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:43:04.015463+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:43:04.019827+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "duckduckgo videos",
+                "http_status": 200,
+                "response_bytes": 72357,
+                "elapsed_seconds": 3.654,
+                "upstream_warnings": [],
+                "raw_candidate_count": 59,
+                "candidate_count": 6,
+                "fallback": false,
+                "filter_counts": {
+                  "accepted": 6,
+                  "limit_reached": 53
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1fA4y1o715/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "cf74b2d95a7b102e510f8b6975649a21325a1c7ada449d1be9aaba069e1a3174"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1LJ411X76n/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "0c32abb315763bab380cfb9c29c8e09848161208254bc26f5ec10da12367b94d"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1db411U7Cp/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "a3d5c6c7f6ed24c4b93e58fae86957da5e21390b3068bed76608c9e8aa1965f7"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1Ng4y1q7E3/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "b04bdf0c1f2cfaa58cbd0635c53db61875fffcc8da5d3186edeeaf5ad8079838"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1w8411L7v9/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "59eb4bbf54264db9a61863f1d9816eb57adeaddbdc4260703320e872e956f0d9"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "accepted",
+                    "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "cc9791a01864f1309c17801a41e945ad26f94c2d688b22bad5788607f9fd6b79"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1E3hG6VEGj/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "080602929197e62b656e9a6f7f10d41b061e4a64a53c4f1e20f5ac95989d1b97"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1VfSFB2EBr/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "50d5c9c311b46f64dd2e09d794992f1466ffb59119cd535ab6a1b3217670424b"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "2a06cc96d115d77511b457c0f0c43a7868c326f3c6909caf0267f0de655b9926"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1F7dVByEGJ/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "6acee378e70a7a2d3bd42610a26271cd90d0cddc74fabcb7de1530a08b37f9ea"
+                  },
+                  {
+                    "index": 10,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1kHhi6XEYT/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "582bfb0accdf30e683d55016b8fb886bd89fb9c9ccfbcad4665af4a9eac1190d"
+                  },
+                  {
+                    "index": 11,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1Rn8GzHE1p/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "b2af7d2878e8f50071bfecc10e55bdc19e867872c35b67d9efcf8dd62c2d2b02"
+                  },
+                  {
+                    "index": 12,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1CihxzkE9t/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "bf4d84499b676cb23fd68a1ec4cf06f16e616302b0186b5518e7ca9759da1287"
+                  },
+                  {
+                    "index": 13,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1Sw2WBwEQF/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "baed577e0475d106b58169a71cb1ea0a52c05811323af381afa9dacf2f0685e6"
+                  },
+                  {
+                    "index": 14,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV11Rhe6HEYQ/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "fb758e0da021be9151a285caf5f7096f06f65ab3d5e0c1f0f0a12beb41b26958"
+                  },
+                  {
+                    "index": 15,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1csReBiEpH/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "c74fee92a6dae677d4bea4fabf69696e185f30b8e7a916715587926ed4bdef3b"
+                  },
+                  {
+                    "index": 16,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1n7411B7JD/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "ccbd9e7fec17ca9770d7620614d0f50b3032a7918509ef4983208000e8300bb8"
+                  },
+                  {
+                    "index": 17,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1RVMKzjEh2/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "9f46975feba29e121209b64b7f91817b840c3bbb88d9fad1de623f802c217047"
+                  },
+                  {
+                    "index": 18,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1HsujemEgQ/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "99251fd6daec1c499613f6567e48cc2a37afad5a0ba2ed7d2c5cff167f30997d"
+                  },
+                  {
+                    "index": 19,
+                    "reason": "limit_reached",
+                    "url": "https://www.bilibili.com/video/BV1Z6Ne6rEuu/",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "f5beb0738c142c8a409cf1977dea1a31f5b30ef117c05bd5fbee3711d97922b5"
+                  }
+                ],
+                "candidate_trace_omitted": 39
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+            "query": "site:icourse163.org 二分查找 视频教程",
+            "domain_filters": [
+              "icourse163.org"
+            ],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 5,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:43:07.690323+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:43:07.693253+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "duckduckgo videos",
+                "http_status": 200,
+                "response_bytes": 6658,
+                "elapsed_seconds": 2.505,
+                "upstream_warnings": [],
+                "raw_candidate_count": 5,
+                "candidate_count": 5,
+                "fallback": false,
+                "filter_counts": {
+                  "accepted": 5
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "accepted",
+                    "url": "https://www.icourse163.org/course/WHU-29001",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "2cde5dfbcfff239c767a3f7bf3561cfc4bfcffb2345577b00f8f19723013d236"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "accepted",
+                    "url": "https://www.icourse163.org/course/JIANGNAN-1207113825",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "8abd8d5548be6ad9b3daf902ac88871b9aec7faf7ba098ad3e85a3805a37d46a"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "accepted",
+                    "url": "https://www.icourse163.org/course/ECUST-1002575003",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "32b1fa08ff1205700d2bcd9eca5ce07f33efa11d1ce6789dd5c95bbcf4235639"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "accepted",
+                    "url": "https://www.icourse163.org/course/BUAA-1449777166",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "52fdcb517056f6012ebb6434c2b3b7bf5101c1d88c6aa353d969f8174730572a"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "accepted",
+                    "url": "https://www.icourse163.org/course/TJU-1003019001",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "605ef23644777c7bd0d6181c5ca676a77c2cf5351859052e522a7799c81ec2c1"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          },
+          {
+            "knowledge_point_id": "7cae6d92-a88f-4edf-8c42-b15f759ee705",
+            "query": "(site:ocw.mit.edu OR site:open.edu) 二分查找 课程 教学",
+            "domain_filters": [
+              "ocw.mit.edu",
+              "open.edu"
+            ],
+            "provider": "searxng",
+            "status": "completed",
+            "candidate_count": 0,
+            "cache_hit": false,
+            "cached_at": null,
+            "stale": false,
+            "error_code": null,
+            "executed_at": "2026-10-13T13:43:10.217515+00:00",
+            "network_attempted": true,
+            "upstream_warnings": [],
+            "provider_requests": [
+              {
+                "provider": "searxng",
+                "started_at": "2026-10-13T13:43:10.220812+00:00",
+                "retry_index": 0,
+                "status": "completed",
+                "engines_requested": "bing",
+                "http_status": 200,
+                "response_bytes": 6893,
+                "elapsed_seconds": 2.044,
+                "upstream_warnings": [],
+                "raw_candidate_count": 10,
+                "candidate_count": 0,
+                "fallback": false,
+                "filter_counts": {
+                  "domain_mismatch": 10
+                },
+                "candidate_trace": [
+                  {
+                    "index": 0,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.backmarket.com/en-us",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "fc81d39591bbfa0342f853c7858ad8a5ed369e5b11f5b6596c31c743d28c7ead"
+                  },
+                  {
+                    "index": 1,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.backmarket.com/en-us/l/iphone/e8724fea-197e-4815-85ce-21b8068020cc",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "2191cbe62e7de64108df7dd24e750e8fcba5743e4f6ddecfea78b7eeccbf6320"
+                  },
+                  {
+                    "index": 2,
+                    "reason": "domain_mismatch",
+                    "url": "https://help.backmarket.com/hc/en-us/categories/4403407816722-Contact-and-support",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "fb2a18393e6a751795ff276dc8b7166bdcb81e6bc66c97e58b195c95ebaf173d"
+                  },
+                  {
+                    "index": 3,
+                    "reason": "domain_mismatch",
+                    "url": "https://help.backmarket.com/hc/es/articles/360014698640--C%C3%B3mo-devolver-un-producto-comprado-en-Back-Market",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "b67c7aeae03399200e886125f885ba91a400236668f577df91b31cfbd2bd0c28"
+                  },
+                  {
+                    "index": 4,
+                    "reason": "domain_mismatch",
+                    "url": "https://pro.backmarket.com/contact",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "abe5f349a6f52cf68f0747556a851aa3416a00e23d71674a563b298a49be9ca5"
+                  },
+                  {
+                    "index": 5,
+                    "reason": "domain_mismatch",
+                    "url": "https://pro.backmarket.com/pages/return-instructions",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "34c2e983324c00b068bbc0034aae4ed167e16b3394d3b7827ff8cae72af91e7f"
+                  },
+                  {
+                    "index": 6,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.backmarket.com/en-us/l/apple-ipad/f78ae8f5-4611-4ad0-b2ad-ced07765b847",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "7b29c0d9ab0c472eeeb526a92932ce4288c04ecc5e48c161325403f36a84586f"
+                  },
+                  {
+                    "index": 7,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.backmarket.com/en-us/l/watches/4ee50ebd-1eb4-4436-a797-80828ce28cc5",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "d9e8661bd1455fc6c32f0db4c3afbe6021d00e711319f77f3d92980e272d14a2"
+                  },
+                  {
+                    "index": 8,
+                    "reason": "domain_mismatch",
+                    "url": "https://www.backmarket.com/en-us/l/smartphones/0744fd27-8605-465d-8691-3b6dffda5969",
+                    "url_truncated": false,
+                    "query_redacted": true,
+                    "url_sha256": "ebfba6dbac61e7c234c332553d0a7b872083b8ddeb4eaa22e3fc4738153b3fd6"
+                  },
+                  {
+                    "index": 9,
+                    "reason": "domain_mismatch",
+                    "url": "https://help.backmarket.com/hc/es/categories/4403407816722-Contacto-y-ayuda",
+                    "url_truncated": false,
+                    "query_redacted": false,
+                    "url_sha256": "af9afa75d03fafdd3bd11c779232de82a6b1c3198a955124fdfe1fc984623050"
+                  }
+                ],
+                "candidate_trace_omitted": 0
+              }
+            ],
+            "cache_origin_requests": [],
+            "cache_origin_warnings": []
+          }
+        ],
+        "identity_summary": {
+          "resource_records": 5,
+          "identified_course_families": 0,
+          "identified_course_offerings": 0,
+          "identified_lessons": 0,
+          "unknown_course_family_resources": 5,
+          "unknown_offering_resources": 0,
+          "unknown_identity_resources": 0,
+          "scope": "observed_source_scoped_identities_not_global_course_deduplication"
+        }
+      },
+      "terminal_replay_response": {
+        "job_id": "a75c3934-622c-4333-bc8b-ccc448f0add4",
+        "status": "completed",
+        "reused": true
+      }
+    }
+  ],
+  "errors": [],
+  "boundaries": [
+    "Two frozen cases; no replacement or retry of failed cases",
+    "Real API requests; no fixtures, seeded URLs, browser fallback or media requests",
+    "HTTP counts distinguish search, target HTML/robots, and uncounted DoH",
+    "Course family is source-scoped; unknown identity is not an independent-course claim",
+    "Automated metadata and catalog evidence do not verify playback"
+  ],
+  "capabilities_before": {
+    "mode": "live",
+    "search": {
+      "name": "searxng",
+      "status": "configured",
+      "message": "已配置，尚未验证真实搜索",
+      "selected_provider": "searxng",
+      "providers": [
+        {
+          "name": "searxng",
+          "status": "configured",
+          "message": "已配置，尚未验证真实搜索"
+        },
+        {
+          "name": "tavily",
+          "status": "unconfigured",
+          "message": "尚未配置"
+        }
+      ]
+    },
+    "llm": {
+      "status": "unconfigured",
+      "message": "模型未启用或配置不完整，使用规则查询与排序"
+    },
+    "fetch": {
+      "status": "available",
+      "message": "公开元信息；独立站点策略与 robots 检查，受限时仅保留搜索证据",
+      "browser_fallback": false,
+      "stopped_hosts": [
+        "open.edu"
+      ]
+    },
+    "platforms": [
+      {
+        "id": "bilibili",
+        "name": "B站",
+        "discovery": "search",
+        "metadata": "site_policy_blocked",
+        "playback": "unknown",
+        "policy_status": "explicit_permission_required",
+        "source_url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+        "reviewed_at": "2026-10-13"
+      },
+      {
+        "id": "icourse163",
+        "name": "中国大学 MOOC",
+        "discovery": "search",
+        "metadata": "policy_unreviewed",
+        "playback": "unknown",
+        "policy_status": "unreviewed_permission_scope",
+        "source_url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+        "reviewed_at": "2026-10-13"
+      },
+      {
+        "id": "xuetangx",
+        "name": "学堂在线",
+        "discovery": "search",
+        "metadata": "site_policy_blocked",
+        "playback": "unknown",
+        "policy_status": "explicit_scraping_prohibition",
+        "source_url": "https://www.xuetangx.com/app/protocol",
+        "reviewed_at": "2026-10-13"
+      },
+      {
+        "id": "other",
+        "name": "其他公开网站",
+        "discovery": "search",
+        "metadata": "public_metadata_when_allowed",
+        "playback": "unknown",
+        "policy_status": "per_site_check_required",
+        "source_url": null,
+        "reviewed_at": null
+      }
+    ],
+    "limits": {
+      "max_knowledge_points": 5,
+      "max_results_per_point": 5,
+      "max_search_requests": 12,
+      "max_detail_pages": 12,
+      "global_concurrency": 1,
+      "per_host_concurrency": 1
+    },
+    "deployment": {
+      "local_only": true,
+      "authentication": false
+    }
+  },
+  "capabilities_after": {
+    "mode": "live",
+    "search": {
+      "name": "searxng",
+      "status": "available",
+      "message": "最近一次搜索请求成功",
+      "selected_provider": "searxng",
+      "providers": [
+        {
+          "name": "searxng",
+          "status": "available",
+          "message": "最近一次搜索请求成功"
+        },
+        {
+          "name": "tavily",
+          "status": "unconfigured",
+          "message": "尚未配置"
+        }
+      ]
+    },
+    "llm": {
+      "status": "unconfigured",
+      "message": "模型未启用或配置不完整，使用规则查询与排序"
+    },
+    "fetch": {
+      "status": "available",
+      "message": "公开元信息；独立站点策略与 robots 检查，受限时仅保留搜索证据",
+      "browser_fallback": false,
+      "stopped_hosts": [
+        "open.edu"
+      ]
+    },
+    "platforms": [
+      {
+        "id": "bilibili",
+        "name": "B站",
+        "discovery": "search",
+        "metadata": "site_policy_blocked",
+        "playback": "unknown",
+        "policy_status": "explicit_permission_required",
+        "source_url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+        "reviewed_at": "2026-10-13"
+      },
+      {
+        "id": "icourse163",
+        "name": "中国大学 MOOC",
+        "discovery": "search",
+        "metadata": "policy_unreviewed",
+        "playback": "unknown",
+        "policy_status": "unreviewed_permission_scope",
+        "source_url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+        "reviewed_at": "2026-10-13"
+      },
+      {
+        "id": "xuetangx",
+        "name": "学堂在线",
+        "discovery": "search",
+        "metadata": "site_policy_blocked",
+        "playback": "unknown",
+        "policy_status": "explicit_scraping_prohibition",
+        "source_url": "https://www.xuetangx.com/app/protocol",
+        "reviewed_at": "2026-10-13"
+      },
+      {
+        "id": "other",
+        "name": "其他公开网站",
+        "discovery": "search",
+        "metadata": "public_metadata_when_allowed",
+        "playback": "unknown",
+        "policy_status": "per_site_check_required",
+        "source_url": null,
+        "reviewed_at": null
+      }
+    ],
+    "limits": {
+      "max_knowledge_points": 5,
+      "max_results_per_point": 5,
+      "max_search_requests": 12,
+      "max_detail_pages": 12,
+      "global_concurrency": 1,
+      "per_host_concurrency": 1
+    },
+    "deployment": {
+      "local_only": true,
+      "authentication": false
+    }
+  },
+  "summary": {
+    "completed_cases": 2,
+    "actual_search_http": 17,
+    "search_cache_hits": 0,
+    "displayed_resources_including_platform_filters": 5,
+    "displayed_fetch_statuses": {
+      "site_policy_blocked": 5
+    },
+    "displayed_platforms": {
+      "bilibili": 5
+    },
+    "displayed_source_families": 0,
+    "displayed_identity_unknown_or_partial": 5,
+    "displayed_catalog_rows": 0,
+    "playback_verified": false
+  },
+  "source_hashes_after": {
+    "backend/app/__init__.py": "15a60366b3bc7e11073b251ebe3de20d4630e45c6ffdaab43087128909631a40",
+    "backend/app/config.py": "83fefe4ceb79208360f13a4118107a76a037d37a8396082149c28ab41e1581b5",
+    "backend/app/db.py": "08609e3ddcc6f52c78a570c28808ca325ee0d4dfa1badf2041321b9c29ab5e0e",
+    "backend/app/extractor.py": "ef868b07ce4b12b07f879ed1b19b08a269a74aec0e8a703f76c9bf266370422e",
+    "backend/app/fetcher.py": "9e91407f9c322175c3e8f10840ec05bcbfdc783a62cd1b52bbf3de22946965d0",
+    "backend/app/llm.py": "97f31edfb4c630184b0033c01fc657a7cda0a2f65042b15e5002344caf9580a0",
+    "backend/app/main.py": "de20321660752cdf6a30a2e248591d6da0963cac1e96b79eb7b5659d12431fe5",
+    "backend/app/models.py": "ff870173929eeb2839a0d79531570eaec0c0aa0315e469b8aebedbfa07f7adc2",
+    "backend/app/providers.py": "dac5585e8f3cbff67b4beb645735205c634a6f709278ec64783a39aff9ef89ac",
+    "backend/app/queries.py": "4201fd3cdbaffa4e6223c2b5437a84a7acbbfda5b38625883b713ca433dab67d",
+    "backend/app/ranking.py": "7f8e64c0a576a40f2d7ac92a8bf7159591c72526414178742587410e0e2dffa9",
+    "backend/app/resource_identity.py": "c7fae602e7a74852be002ce2c140c8347a5982f2061b4007bc7fa61dfc04a755",
+    "backend/app/service.py": "ac3298b92dc43f9d2732da53fcf7a6a0098eb8e9dee9aea8321bed24d5649804",
+    "backend/app/source_adapters/__init__.py": "c82e0021b699140a411bde5a5a9413bf9192a871d4342d8c38ae8acecc73c783",
+    "backend/app/source_adapters/archive.py": "ddbbeb108ce42321b53713233f8b6c1ef15719e0a3917f8d18950bf2f1ae27fd",
+    "backend/app/source_adapters/base.py": "28640f96adabbe3c117f5d93d2621193c810a582c0d47163749a6dcb42084100",
+    "backend/app/source_adapters/mit_ocw.py": "ef643e23c30d9a6ad15250332b35f62b814f3da03ba0ef5e7dba89debbf092b7",
+    "backend/app/url_utils.py": "11aee8e21efd59ba8fe8ee5a1f2b3e9ec8212a7ab4ec25ba34b4ce452aa26a56",
+    "frontend/package-lock.json": "8e21925e5459df56e7015d4fde56d08d3387e854e38ff0f6310e5f63ce7ef097",
+    "frontend/src/api.ts": "5f58ba17939736c158699525f8c7af99f1398a9f027b7ddd59d18655594e870e",
+    "frontend/src/App.tsx": "9905e5365a1e5a6e35963269efadfe62bba6de71ab649b8bd47b3b306e880426",
+    "frontend/src/components/CapabilitiesFooter.tsx": "16651ae3c96782716510c70ebef782a48c814024706e9b7886bea31fc3a57533",
+    "frontend/src/components/Icons.tsx": "2b2e6cbe51346705bf32a83fe3fd097fb4ab0a0e10890397145232b2c1ad17ee",
+    "frontend/src/components/ResourceCard.tsx": "92bf4383946cca532748f997902fe0d99765cd1c259a58858a4607bf58ec93ce",
+    "frontend/src/components/ResultsPanel.tsx": "8253f478cb6d623a7b6f008ec732b03eb707c1e03e2bd054113348c9f3c6b803",
+    "frontend/src/components/SearchForm.tsx": "22992b65e0edf8bce15e40484ecc3570459d0ee8ff98e9f1ddb0c82991dd81f7",
+    "frontend/src/identity.ts": "28bf22cb53050b15bf5cbdb3bae328032bfb1e5c295c0bd0fa026d486cc4c448",
+    "frontend/src/main.tsx": "5222f4e4eb930b55f72a5b0d6771a58c9e82e8adba571bb5712bcc5a7e697054",
+    "frontend/src/pendingCreation.ts": "50b19c14cde3f5c7e897f1288c1bc1ea3228b9796e36072f8513d2a9e08875a4",
+    "frontend/src/styles.css": "c482fd0405e30e165700cf39ea38e7bc4a601fd027da797494381f0217086b16",
+    "frontend/src/types.ts": "5c6c06b179baeb2ad6d05c8274150e9215450c9939004283626150f15e748401",
+    "frontend/src/useSearch.ts": "9507dcf0f937f3de82f4c1b5b74a4f7aab99ee4c95e8ac75c20caaeb01a3b970",
+    "uv.lock": "39438947bbcefdd07d23adc0724025a9c82c673d617923f1363f859ce0fd4a7c"
+  },
+  "source_unchanged_during_run": true,
+  "finished_at": "2026-10-13T13:43:12.968532+00:00"
+}

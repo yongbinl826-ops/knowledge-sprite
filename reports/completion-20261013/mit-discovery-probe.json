@@ -1,0 +1,463 @@
+{
+  "started_at": "2026-10-13T13:51:55.525944+00:00",
+  "scope": {
+    "date": "2026-10-13",
+    "purpose": "One bounded feasibility probe of an official MIT OCW discovery route, not a course-search acceptance rerun",
+    "entry_url": "https://ocw.mit.edu/search/",
+    "probe_topic": "eigenvectors",
+    "budgets": {
+      "target_http_including_robots_html_xml_redirects": 4,
+      "doh_http": 12,
+      "total_actual_http": 16,
+      "concurrency": 1,
+      "retries": 0,
+      "deadline_seconds": 75,
+      "target_response_max_bytes": 2000000,
+      "robots_response_max_bytes": 256000,
+      "sitemap_response_max_bytes": 500000,
+      "doh_response_max_bytes": 65536
+    },
+    "transport": "Existing Fetcher.fetch and PinnedHTTPClient; fresh public A/AAAA validation by existing fixed Cloudflare DoH resolver; TLS hostname and pinned public IP; trust_env=false; no browser or JS execution",
+    "selection_rule": [
+      "Start only from entry_url, letting Fetcher retrieve and enforce same-origin robots first.",
+      "Stop on HTTP/access/DNS/timeout/size error; no replacement path or repeated failed request.",
+      "Parse returned HTML offline for actual course links, public GET search forms and structured declarations; never guess an API or request script assets.",
+      "If a same-origin public GET search form exposes a named search input, issue at most one eigenvectors query using that observed action and parameter. Do not reuse held-out topics.",
+      "Otherwise, if robots actually declares a same-origin sitemap URL, fetch only the first declared sitemap once, subject to robots and remaining budget. Do not recursively follow sitemap indexes or guess sitemap paths.",
+      "Do not fetch discovered course pages or media, follow unreviewed third-party endpoints, seed results, modify production code/configuration, or access SQLite."
+    ],
+    "stop_at_any_budget": true,
+    "rerun_failed_probe": false,
+    "doh_budget_authorization": "Parent explicitly clarified: at most 4 target HTTP plus at most 12 separately recorded DoH HTTP, at most 16 actual HTTP total, all sequential.",
+    "output": "mit-discovery-probe.json with request UTC/status/error/body-read/hash/truncation evidence and separate counts; successful raw target bodies retained alongside it"
+  },
+  "scope_sha256": "34573ccbe78ae791486f23cfb6e14a85aaae512144ca8aae3d7d146f72854800",
+  "code_sha256": {
+    "scripts/probe_mit_discovery.py": "f682adab42d52eb2a178f3ef10a3b57e64e609345b2697e37c8ce180416acbcc",
+    "backend/app/fetcher.py": "9e91407f9c322175c3e8f10840ec05bcbfdc783a62cd1b52bbf3de22946965d0",
+    "backend/app/url_utils.py": "11aee8e21efd59ba8fe8ee5a1f2b3e9ec8212a7ab4ec25ba34b4ce452aa26a56"
+  },
+  "requests": [
+    {
+      "sequence": 1,
+      "kind": "doh",
+      "url": "https://1.1.1.1/dns-query?name=ocw.mit.edu&type=A",
+      "started_at": "2026-10-13T13:51:55.697573+00:00",
+      "status_code": 200,
+      "error_type": null,
+      "truncated": false,
+      "body_bytes_read": 386,
+      "body_sha256": "e263699a58c6efbd82844a5833e02d7d726fa45af7524ff5e5cac6e5ffec4e5c",
+      "body_complete": true,
+      "response_headers_at": "2026-10-13T13:51:56.924509+00:00",
+      "content_type": "application/dns-json",
+      "content_length": "386",
+      "location": null,
+      "body_completed_at": "2026-10-13T13:51:56.928668+00:00",
+      "finished_at": "2026-10-13T13:51:57.723866+00:00"
+    },
+    {
+      "sequence": 2,
+      "kind": "doh",
+      "url": "https://1.1.1.1/dns-query?name=ocw.mit.edu&type=AAAA",
+      "started_at": "2026-10-13T13:51:56.929102+00:00",
+      "status_code": 200,
+      "error_type": null,
+      "truncated": false,
+      "body_bytes_read": 253,
+      "body_sha256": "9b504f9796e2fd918f08c395553067e7bdf0fcbfcd1885b0f8c693d476894f18",
+      "body_complete": true,
+      "response_headers_at": "2026-10-13T13:51:57.720000+00:00",
+      "content_type": "application/dns-json",
+      "content_length": "253",
+      "location": null,
+      "body_completed_at": "2026-10-13T13:51:57.722572+00:00",
+      "finished_at": "2026-10-13T13:51:57.723881+00:00"
+    },
+    {
+      "sequence": 3,
+      "kind": "target",
+      "url": "https://ocw.mit.edu/robots.txt",
+      "started_at": "2026-10-13T13:51:57.869972+00:00",
+      "status_code": 200,
+      "error_type": null,
+      "truncated": false,
+      "body_bytes_read": 64,
+      "body_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+      "body_complete": true,
+      "response_headers_at": "2026-10-13T13:51:59.076785+00:00",
+      "content_type": "text/plain",
+      "content_length": "64",
+      "location": null,
+      "body_completed_at": "2026-10-13T13:51:59.082171+00:00",
+      "finished_at": "2026-10-13T13:51:59.084285+00:00",
+      "pinned_public_addresses": [
+        "151.101.66.132",
+        "151.101.2.132",
+        "151.101.194.132",
+        "151.101.130.132"
+      ],
+      "max_bytes": 256000,
+      "source_file": "reports/completion-20261013/mit-discovery-source-3.txt",
+      "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6"
+    },
+    {
+      "sequence": 4,
+      "kind": "doh",
+      "url": "https://1.1.1.1/dns-query?name=ocw.mit.edu&type=A",
+      "started_at": "2026-10-13T13:51:59.362352+00:00",
+      "status_code": 200,
+      "error_type": null,
+      "truncated": false,
+      "body_bytes_read": 386,
+      "body_sha256": "f0f205e123699015e059a6e657af983ec01a55bcc32c6a7dec53369f70c4888c",
+      "body_complete": true,
+      "response_headers_at": "2026-10-13T13:52:05.096512+00:00",
+      "content_type": "application/dns-json",
+      "content_length": "386",
+      "location": null,
+      "body_completed_at": "2026-10-13T13:52:05.101637+00:00",
+      "finished_at": "2026-10-13T13:52:05.490333+00:00"
+    },
+    {
+      "sequence": 5,
+      "kind": "doh",
+      "url": "https://1.1.1.1/dns-query?name=ocw.mit.edu&type=AAAA",
+      "started_at": "2026-10-13T13:52:05.102121+00:00",
+      "status_code": 200,
+      "error_type": null,
+      "truncated": false,
+      "body_bytes_read": 253,
+      "body_sha256": "efd0f206c676f40b221454329fb12d0ba6378d90c110777796ad8a158116c47c",
+      "body_complete": true,
+      "response_headers_at": "2026-10-13T13:52:05.480511+00:00",
+      "content_type": "application/dns-json",
+      "content_length": "253",
+      "location": null,
+      "body_completed_at": "2026-10-13T13:52:05.485699+00:00",
+      "finished_at": "2026-10-13T13:52:05.490357+00:00"
+    },
+    {
+      "sequence": 6,
+      "kind": "target",
+      "url": "https://ocw.mit.edu/search/",
+      "started_at": "2026-10-13T13:52:05.797438+00:00",
+      "status_code": 200,
+      "error_type": null,
+      "truncated": false,
+      "body_bytes_read": 9835,
+      "body_sha256": "7264e09eb1ab42e76a9d86e242692ecf4774cc68384b6c26c0f5444a65dd4f8b",
+      "body_complete": true,
+      "response_headers_at": "2026-10-13T13:52:06.874312+00:00",
+      "content_type": "text/html",
+      "content_length": "9835",
+      "location": null,
+      "body_completed_at": "2026-10-13T13:52:07.739543+00:00",
+      "finished_at": "2026-10-13T13:52:07.742200+00:00",
+      "pinned_public_addresses": [
+        "151.101.2.132",
+        "151.101.130.132",
+        "151.101.66.132",
+        "151.101.194.132"
+      ],
+      "max_bytes": 2000000,
+      "source_file": "reports/completion-20261013/mit-discovery-source-6.html",
+      "source_sha256": "7264e09eb1ab42e76a9d86e242692ecf4774cc68384b6c26c0f5444a65dd4f8b"
+    },
+    {
+      "sequence": 7,
+      "kind": "doh",
+      "url": "https://1.1.1.1/dns-query?name=ocw.mit.edu&type=A",
+      "started_at": "2026-10-13T13:52:08.048550+00:00",
+      "status_code": 200,
+      "error_type": null,
+      "truncated": false,
+      "body_bytes_read": 382,
+      "body_sha256": "2092348c972c7272e1d8e8b79e8f3381a6c9c0760c67ac1c8b61c568cacc67b7",
+      "body_complete": true,
+      "response_headers_at": "2026-10-13T13:52:09.733444+00:00",
+      "content_type": "application/dns-json",
+      "content_length": "382",
+      "location": null,
+      "body_completed_at": "2026-10-13T13:52:09.737813+00:00",
+      "finished_at": "2026-10-13T13:52:10.533907+00:00"
+    },
+    {
+      "sequence": 8,
+      "kind": "doh",
+      "url": "https://1.1.1.1/dns-query?name=ocw.mit.edu&type=AAAA",
+      "started_at": "2026-10-13T13:52:09.738336+00:00",
+      "status_code": 200,
+      "error_type": null,
+      "truncated": false,
+      "body_bytes_read": 253,
+      "body_sha256": "b31652ac57e379470bacfa5ed8e2d8fda4f7b4ed95b21227afa321343c7ae3bd",
+      "body_complete": true,
+      "response_headers_at": "2026-10-13T13:52:10.528291+00:00",
+      "content_type": "application/dns-json",
+      "content_length": "253",
+      "location": null,
+      "body_completed_at": "2026-10-13T13:52:10.531989+00:00",
+      "finished_at": "2026-10-13T13:52:10.533927+00:00"
+    },
+    {
+      "sequence": 9,
+      "kind": "target",
+      "url": "https://ocw.mit.edu/sitemap.xml",
+      "started_at": "2026-10-13T13:52:10.824914+00:00",
+      "status_code": 200,
+      "error_type": null,
+      "truncated": false,
+      "body_bytes_read": 363036,
+      "body_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+      "body_complete": true,
+      "response_headers_at": "2026-10-13T13:52:12.054679+00:00",
+      "content_type": "text/xml",
+      "content_length": "363036",
+      "location": null,
+      "body_completed_at": "2026-10-13T13:52:17.220131+00:00",
+      "finished_at": "2026-10-13T13:52:17.221147+00:00",
+      "pinned_public_addresses": [
+        "151.101.194.132",
+        "151.101.2.132",
+        "151.101.130.132",
+        "151.101.66.132"
+      ],
+      "max_bytes": 500000,
+      "source_file": "reports/completion-20261013/mit-discovery-source-9.xml",
+      "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07"
+    }
+  ],
+  "documents": [
+    {
+      "role": "search_entry",
+      "url": "https://ocw.mit.edu/search/",
+      "observations": {
+        "title": "Search | MIT OpenCourseWare | Free Online Course Materials",
+        "visible_course_link_count": 0,
+        "visible_course_links": [],
+        "forms": [],
+        "json_declarations": [
+          {
+            "type": "application/ld+json",
+            "id": null,
+            "bytes": 653,
+            "sha256": "70f08b0228a99ff88a30b884b149a60ea808682b43e549d188c2880e7d2ebf4f",
+            "top_level_keys": [
+              "@context",
+              "@type",
+              "name",
+              "url",
+              "description",
+              "license",
+              "inLanguage",
+              "publisher"
+            ]
+          }
+        ],
+        "script_assets_observed_not_requested": [
+          "/static_shared/js/www.1a547.js",
+          "/static_shared/js/common.1a547.js",
+          "https://w.appzi.io/w.js?token=Tgs1d"
+        ],
+        "search_mounts": [
+          {
+            "id": "search-page",
+            "class": [
+              "w-100"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "role": "declared_sitemap",
+      "url": "https://ocw.mit.edu/sitemap.xml",
+      "root_element": "sitemapindex",
+      "location_count": 2588,
+      "locations_first_30": [
+        "https://ocw.mit.edu/sitemap-www.xml",
+        "https://ocw.mit.edu/courses/10-01-ethics-for-engineers-artificial-intelligence-spring-2020/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-00-introduction-to-computers-and-engineering-problem-solving-spring-2012/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-010-uncertainty-in-engineering-fall-2008/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-011-project-evaluation-spring-2011/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-012-introduction-to-civil-engineering-design-spring-2002/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-017-computing-and-data-analysis-for-environmental-applications-fall-2003/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-018j-ecology-i-the-earth-system-fall-2009/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-020-ecology-ii-engineering-for-sustainability-spring-2008/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-022-introduction-to-network-models-fall-2018/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-302-transport-processes-fall-2004/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-32-separation-processes-spring-2005/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-033-mechanics-of-material-systems-an-energy-approach-fall-2003/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-34-numerical-methods-applied-to-chemical-engineering-fall-2005/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-34-numerical-methods-applied-to-chemical-engineering-fall-2015/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-37-chemical-and-biological-reaction-engineering-spring-2007/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-40-chemical-engineering-thermodynamics-fall-2003/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-040-project-management-spring-2004/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-040-project-management-spring-2009/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-442-biochemical-engineering-spring-2005/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-445-separation-processes-for-biochemical-products-summer-2005/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-450-process-dynamics-operations-and-control-spring-2006/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-467-polymer-science-laboratory-fall-2005/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-490-integrated-chemical-engineering-i-fall-2006/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-491-integrated-chemical-engineering-ii-spring-2006/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-492-1-integrated-chemical-engineering-topics-i-process-control-by-design-fall-2004/sitemap.xml",
+        "https://ocw.mit.edu/courses/10-492-2-integrated-chemical-engineering-topics-i-introduction-to-biocatalysis-fall-2004/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-050-engineering-mechanics-i-fall-2007/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-050-solid-mechanics-fall-2004/sitemap.xml",
+        "https://ocw.mit.edu/courses/1-051-structural-engineering-design-fall-2003/sitemap.xml"
+      ],
+      "recursive_followups": 0
+    }
+  ],
+  "events": [],
+  "counts": {
+    "target": 3,
+    "doh": 6
+  },
+  "dynamic_discovery_verified": false,
+  "production_changed": false,
+  "robots_declared_sitemaps": [
+    {
+      "url": "https://ocw.mit.edu/sitemap.xml",
+      "declared_at": "https://ocw.mit.edu/robots.txt",
+      "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6"
+    }
+  ],
+  "selection": {
+    "kind": "first_robots_declared_sitemap",
+    "url": "https://ocw.mit.edu/sitemap.xml",
+    "declared_at": "https://ocw.mit.edu/robots.txt",
+    "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6"
+  },
+  "assessment": "One declared sitemap observed; indexing/query support and arbitrary-topic relevance remain unverified. No recursive crawl or course-page requests.",
+  "finished_at": "2026-10-13T13:52:17.234017+00:00",
+  "elapsed_seconds": 21.707,
+  "total_actual_http": 9,
+  "fetch_events": [
+    {
+      "event": "dns_started",
+      "at": "2026-10-13T13:51:55.529398+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/robots.txt",
+      "url_sha256": "14df804ea0f213bbd1af364963310d1a9395cd0ccd9bbcee0b06dd32737564a5",
+      "kind": "robots",
+      "attempt": 0
+    },
+    {
+      "event": "dns_completed",
+      "at": "2026-10-13T13:51:57.724623+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/robots.txt",
+      "url_sha256": "14df804ea0f213bbd1af364963310d1a9395cd0ccd9bbcee0b06dd32737564a5",
+      "kind": "robots",
+      "attempt": 0,
+      "address_count": 4
+    },
+    {
+      "event": "http_started",
+      "at": "2026-10-13T13:51:57.724682+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/robots.txt",
+      "url_sha256": "14df804ea0f213bbd1af364963310d1a9395cd0ccd9bbcee0b06dd32737564a5",
+      "kind": "robots",
+      "attempt": 0
+    },
+    {
+      "event": "http_completed",
+      "at": "2026-10-13T13:51:59.087930+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/robots.txt",
+      "url_sha256": "14df804ea0f213bbd1af364963310d1a9395cd0ccd9bbcee0b06dd32737564a5",
+      "kind": "robots",
+      "attempt": 0,
+      "status_code": 200,
+      "bytes_read": 64
+    },
+    {
+      "event": "dns_started",
+      "at": "2026-10-13T13:51:59.088643+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/search/",
+      "url_sha256": "ae7a980552c31ebba3435caa8243cdc5003a4c21d5ae3bf5e6eafefd5d3ef1fe",
+      "kind": "page",
+      "attempt": 0
+    },
+    {
+      "event": "dns_completed",
+      "at": "2026-10-13T13:52:05.491698+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/search/",
+      "url_sha256": "ae7a980552c31ebba3435caa8243cdc5003a4c21d5ae3bf5e6eafefd5d3ef1fe",
+      "kind": "page",
+      "attempt": 0,
+      "address_count": 4
+    },
+    {
+      "event": "http_started",
+      "at": "2026-10-13T13:52:05.491781+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/search/",
+      "url_sha256": "ae7a980552c31ebba3435caa8243cdc5003a4c21d5ae3bf5e6eafefd5d3ef1fe",
+      "kind": "page",
+      "attempt": 0
+    },
+    {
+      "event": "http_completed",
+      "at": "2026-10-13T13:52:07.744643+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/search/",
+      "url_sha256": "ae7a980552c31ebba3435caa8243cdc5003a4c21d5ae3bf5e6eafefd5d3ef1fe",
+      "kind": "page",
+      "attempt": 0,
+      "status_code": 200,
+      "bytes_read": 9835
+    },
+    {
+      "event": "dns_started",
+      "at": "2026-10-13T13:52:07.802264+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/sitemap.xml",
+      "url_sha256": "23fb788afdf7e2eaecd6071c75d0ba9dbf500d8c766eac9ee87591f2054f2760",
+      "kind": "page",
+      "attempt": 0
+    },
+    {
+      "event": "dns_completed",
+      "at": "2026-10-13T13:52:10.535085+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/sitemap.xml",
+      "url_sha256": "23fb788afdf7e2eaecd6071c75d0ba9dbf500d8c766eac9ee87591f2054f2760",
+      "kind": "page",
+      "attempt": 0,
+      "address_count": 4
+    },
+    {
+      "event": "http_started",
+      "at": "2026-10-13T13:52:10.535156+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/sitemap.xml",
+      "url_sha256": "23fb788afdf7e2eaecd6071c75d0ba9dbf500d8c766eac9ee87591f2054f2760",
+      "kind": "page",
+      "attempt": 0
+    },
+    {
+      "event": "http_completed",
+      "at": "2026-10-13T13:52:17.223062+00:00",
+      "host": "ocw.mit.edu",
+      "url": "https://ocw.mit.edu/sitemap.xml",
+      "url_sha256": "23fb788afdf7e2eaecd6071c75d0ba9dbf500d8c766eac9ee87591f2054f2760",
+      "kind": "page",
+      "attempt": 0,
+      "status_code": 200,
+      "bytes_read": 363036
+    }
+  ],
+  "fetch_counts": {
+    "dns_started": 3,
+    "dns_completed": 3,
+    "http_started": 3,
+    "http_completed": 3
+  },
+  "budgets_respected": true
+}

@@ -1,0 +1,17 @@
+name: knowledge-sprite
+services:
+  searxng:
+    # Official GHCR mirror; exact digest verified 2026-10-13.
+    image: ghcr.io/searxng/searxng@sha256:ddd642cae6eac75412938fd846ddbf440a2df029cfeae8a562b8b205f4e35e25
+    ports:
+      - "127.0.0.1:18780:8080"
+    volumes:
+      - ./deploy/searxng/settings.yml:/etc/searxng/settings.yml:ro
+      - searxng-cache:/var/cache/searxng
+    environment:
+      SEARXNG_BASE_URL: http://localhost:18780/
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+volumes:
+  searxng-cache:

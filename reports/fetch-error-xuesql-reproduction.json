@@ -1,0 +1,20 @@
+{
+  "started_at": "2026-10-13T07:28:20.297344+00:00",
+  "url": "http://xuesql.cn/lesson/select_queries_with_joins",
+  "dns_resolver": "cloudflare_doh",
+  "attempts": 1,
+  "exception": {
+    "type": "AttributeError",
+    "message": "'NoneType' object has no attribute 'get'",
+    "traceback": "Traceback (most recent call last):\n  File \"<stdin>\", line 8, in main\n  File \"D:\\项目制知识引导小精灵\\backend\\app\\fetcher.py\", line 389, in enrich\n    extracted = self.extractor.extract(html, response.url, resource[\"fetched_at\"])\n  File \"D:\\项目制知识引导小精灵\\backend\\app\\extractor.py\", line 184, in extract\n    if re.search(r\"display\\s*:\\s*none|visibility\\s*:\\s*hidden\", str(tag.get(\"style\", \"\")), re.I):\n                                                                    ~~~~~~~^^^^^^^^^^^^^\n  File \"D:\\项目制知识引导小精灵\\.venv\\Lib\\site-packages\\bs4\\element.py\", line 2449, in get\n    return self.attrs.get(key, default)\n           ^^^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'get'\n"
+  },
+  "completed_at": "2026-10-13T07:28:32.603464+00:00",
+  "diagnosis": {
+    "type": "implementation_bug",
+    "cause": "BeautifulSoup decompose() on a hidden ancestor clears descendant Tag.attrs; the precomputed styled-node list still contained those descendants, causing AttributeError in tag.get().",
+    "fix": "Skip already-decomposed nodes in both removal loops in backend/app/extractor.py.",
+    "validation": "34 fetcher tests and 18 subtests passed, including nested hidden/styled node regression.",
+    "network_rerun_after_fix": false,
+    "original_failure_retained": true
+  }
+}

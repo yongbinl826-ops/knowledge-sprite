@@ -1,0 +1,412 @@
+from __future__ import annotations
+
+import asyncio
+import warnings
+from contextlib import asynccontextmanager
+from logging import DEBUG, WARNING, getLogger
+from typing import TYPE_CHECKING, Any, cast
+
+import httpx2
+from typing_extensions import override
+
+from crawlee._log_config import get_configured_log_level
+from crawlee._types import HttpHeaders
+from crawlee._utils.blocked import ROTATE_PROXY_ERRORS
+from crawlee._utils.docs import docs_group
+from crawlee._utils.urls import validate_http_url
+from crawlee.errors import ProxyError
+from crawlee.fingerprint_suite import HeaderGenerator
+from crawlee.http_clients import HttpClient, HttpCrawlingResult, HttpResponse
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, AsyncIterator
+    from datetime import timedelta
+    from ssl import SSLContext
+
+    from crawlee import Request
+    from crawlee._types import HttpMethod, HttpPayload
+    from crawlee.proxy_configuration import ProxyInfo
+    from crawlee.sessions import Session
+    from crawlee.statistics import Statistics
+
+logger = getLogger(__name__)
+
+
+class _HttpxResponse:
+    """Adapter class for `httpx2.Response` to conform to the `HttpResponse` protocol."""
+
+    def __init__(self, response: httpx2.Response) -> None:
+        self._response = response
+
+    @property
+    def http_version(self) -> str:
+        return self._response.http_version
+
+    @property
+    def status_code(self) -> int:
+        return self._response.status_code
+
+    @property
+    def headers(self) -> HttpHeaders:
+        return HttpHeaders(dict(self._response.headers))
+
+    async def read(self) -> bytes:
+        if not self._response.is_closed:
+            raise RuntimeError('Use `read_stream` to read the body of the Response received from the `stream` method')
+        return await self._response.aread()
+
+    async def read_stream(self) -> AsyncIterator[bytes]:
+        if self._response.is_stream_consumed:
+            raise RuntimeError('Stream is already consumed.')
+        else:
+            async for chunk in self._response.aiter_bytes():
+                yield chunk
+
+
+def _same_origin(url: httpx2.URL, other: httpx2.URL) -> bool:
+    """Check whether two URLs share an origin."""
+    return url.scheme == other.scheme and url.host == other.host and url.port == other.port
+
+
+class _HttpxTransport(httpx2.AsyncHTTPTransport):
+    """HTTP transport adapter that keeps cookies in a `Session` instead of in the `HTTPX2` client.
+
+    Response cookies are stored in the session when `persist_cookies_per_session` is enabled, and the `Cookie`
+    header is rebuilt from it before every hop, so one client can be shared by all sessions. A `Cookie` header
+    passed by the caller wins for as long as the redirect chain stays on its origin.
+    """
+
+    def __init__(self, *, persist_cookies_per_session: bool, **kwargs: Any) -> None:
+        """Initialize a new instance. Extra arguments are passed to `httpx2.AsyncHTTPTransport`."""
+        self._persist_cookies_per_session = persist_cookies_per_session
+        super().__init__(**kwargs)
+
+    @override
+    async def handle_async_request(self, request: httpx2.Request) -> httpx2.Response:
+        session = cast('Session | None', request.extensions.get('crawlee_session'))
+        original_url, user_cookie = request.extensions.get('crawlee_caller_cookie', (None, None))
+
+        # The transport owns the `Cookie` header. Anything already on the request came from the `httpx2` jar,
+        # which is scoped to no session and no origin, so it is always replaced or dropped.
+        if original_url is not None and _same_origin(original_url, request.url):
+            request.headers['cookie'] = user_cookie
+        elif session and (cookies := session.cookies.get_cookie_string(str(request.url))):
+            request.headers['cookie'] = cookies
+        else:
+            request.headers.pop('cookie', None)
+
+        response = await super().handle_async_request(request)
+        response.request = request
+
+        if self._persist_cookies_per_session and session:
+            session.cookies.store_cookies(list(response.cookies.jar))
+
+        if 'Set-Cookie' in response.headers:
+            del response.headers['Set-Cookie']
+
+        return response
+
+
+@docs_group('HTTP clients')
+class HttpxHttpClient(HttpClient):
+    """HTTP client based on the `HTTPX2` library.
+
+    This client uses the `HTTPX2` library to perform HTTP requests in crawlers (`BasicCrawler` subclasses)
+    and to manage sessions, proxies, and error handling.
+
+    See the `HttpClient` class for more common information about HTTP clients.
+
+    ### Usage
+
+    ```python
+    from crawlee.crawlers import HttpCrawler  # or any other HTTP client-based crawler
+    from crawlee.http_clients import HttpxHttpClient
+
+    http_client = HttpxHttpClient()
+    crawler = HttpCrawler(http_client=http_client)
+    ```
+    """
+
+    _DEFAULT_HEADER_GENERATOR = HeaderGenerator()
+
+    def __init__(
+        self,
+        *,
+        persist_cookies_per_session: bool = True,
+        http1: bool = True,
+        http2: bool = True,
+        verify: str | bool | SSLContext = True,
+        header_generator: HeaderGenerator | None = _DEFAULT_HEADER_GENERATOR,
+        **async_client_kwargs: Any,
+    ) -> None:
+        """Initialize a new instance.
+
+        Args:
+            persist_cookies_per_session: Whether to persist cookies per HTTP session.
+            http1: Whether to enable HTTP/1.1 support.
+            http2: Whether to enable HTTP/2 support.
+            verify: SSL certificates used to verify the identity of requested hosts.
+            header_generator: Header generator instance to use for generating browser-like headers.
+            async_client_kwargs: Additional keyword arguments for `httpx2.AsyncClient`. The `mounts` and `transport`
+                arguments are ignored, they would bypass the cookie handling. The `proxy` argument covers only the
+                requests made without a `ProxyInfo`, a `ProxyConfiguration` takes precedence over it. The `limits`
+                argument applies per proxy, because every proxy gets a connection pool of its own.
+        """
+        super().__init__(
+            persist_cookies_per_session=persist_cookies_per_session,
+        )
+
+        # `httpx2` logs one INFO line per request, which is too noisy for the default log level. Silence it down to
+        # WARNING unless the user has explicitly opted into DEBUG.
+        httpx_logger = getLogger('httpx2')
+        httpx_logger.setLevel(DEBUG if get_configured_log_level() <= DEBUG else WARNING)
+
+        self._http1 = http1
+        self._http2 = http2
+
+        # `httpx2.AsyncClient` turns a `proxy` into a mount that bypasses the cookie handling, so it is handed to
+        # the transport instead. It covers the requests that carry no `ProxyInfo` of their own.
+        self._proxy = async_client_kwargs.pop('proxy', None)
+
+        # These two would put a transport of their own in front of the one that handles the cookies.
+        for ignored_kwarg in ('mounts', 'transport'):
+            if async_client_kwargs.pop(ignored_kwarg, None) is not None:
+                warnings.warn(
+                    f'The `{ignored_kwarg}` argument of `HttpxHttpClient` is ignored, requests are sent through '
+                    'the transport that handles the cookies.',
+                    UserWarning,
+                    stacklevel=2,
+                )
+
+        self._async_client_kwargs = async_client_kwargs
+        self._header_generator = header_generator
+
+        self._ssl_context = httpx2.create_ssl_context(verify=verify)
+
+        self._client_by_proxy_url = dict[str | None, httpx2.AsyncClient]()
+
+    @override
+    async def crawl(
+        self,
+        request: Request,
+        *,
+        session: Session | None = None,
+        proxy_info: ProxyInfo | None = None,
+        statistics: Statistics | None = None,
+        timeout: timedelta | None = None,
+    ) -> HttpCrawlingResult:
+        client = self._get_client(proxy_info.url if proxy_info else None)
+
+        http_request = self._build_request(
+            client=client,
+            session=session,
+            url=request.url,
+            method=request.method,
+            headers=request.headers,
+            payload=request.payload,
+            timeout=httpx2.Timeout(timeout.total_seconds()) if timeout is not None else None,
+        )
+
+        try:
+            response = await client.send(http_request)
+        except httpx2.TimeoutException as exc:
+            raise asyncio.TimeoutError from exc
+        except httpx2.TransportError as exc:
+            if self._is_proxy_error(exc):
+                raise ProxyError from exc
+            raise
+
+        if statistics:
+            statistics.register_status_code(response.status_code)
+
+        request.loaded_url = str(response.url)
+
+        return HttpCrawlingResult(
+            http_response=_HttpxResponse(response),
+        )
+
+    @override
+    async def send_request(
+        self,
+        url: str,
+        *,
+        method: HttpMethod = 'GET',
+        headers: HttpHeaders | dict[str, str] | None = None,
+        payload: HttpPayload | None = None,
+        session: Session | None = None,
+        proxy_info: ProxyInfo | None = None,
+        timeout: timedelta | None = None,
+    ) -> HttpResponse:
+        validate_http_url(url)
+
+        client = self._get_client(proxy_info.url if proxy_info else None)
+
+        http_request = self._build_request(
+            client=client,
+            url=url,
+            method=method,
+            headers=headers,
+            payload=payload,
+            session=session,
+            timeout=httpx2.Timeout(timeout.total_seconds()) if timeout is not None else None,
+        )
+
+        try:
+            response = await client.send(http_request)
+        except httpx2.TimeoutException as exc:
+            raise asyncio.TimeoutError from exc
+        except httpx2.TransportError as exc:
+            if self._is_proxy_error(exc):
+                raise ProxyError from exc
+            raise
+
+        return _HttpxResponse(response)
+
+    @asynccontextmanager
+    @override
+    async def stream(
+        self,
+        url: str,
+        *,
+        method: HttpMethod = 'GET',
+        headers: HttpHeaders | dict[str, str] | None = None,
+        payload: HttpPayload | None = None,
+        session: Session | None = None,
+        proxy_info: ProxyInfo | None = None,
+        timeout: timedelta | None = None,
+    ) -> AsyncGenerator[HttpResponse]:
+        validate_http_url(url)
+
+        client = self._get_client(proxy_info.url if proxy_info else None)
+
+        http_request = self._build_request(
+            client=client,
+            url=url,
+            method=method,
+            headers=headers,
+            payload=payload,
+            session=session,
+            timeout=httpx2.Timeout(None, connect=timeout.total_seconds()) if timeout is not None else None,
+        )
+
+        try:
+            response = await client.send(http_request, stream=True)
+        except httpx2.TimeoutException as exc:
+            raise asyncio.TimeoutError from exc
+
+        try:
+            yield _HttpxResponse(response)
+        finally:
+            await response.aclose()
+
+    def _build_request(
+        self,
+        *,
+        client: httpx2.AsyncClient,
+        url: str,
+        method: HttpMethod,
+        headers: HttpHeaders | dict[str, str] | None,
+        payload: HttpPayload | None,
+        session: Session | None = None,
+        timeout: httpx2.Timeout | None = None,
+    ) -> httpx2.Request:
+        """Build an `httpx2.Request` using the provided parameters."""
+        if isinstance(headers, dict) or headers is None:
+            headers = HttpHeaders(headers or {})
+
+        headers = self._combine_headers(headers)
+
+        request = client.build_request(
+            url=url,
+            method=method,
+            headers=dict(headers) if headers else None,
+            content=payload,
+            extensions={'crawlee_session': session},
+            timeout=timeout or httpx2.USE_CLIENT_DEFAULT,
+        )
+
+        # Extensions survive a redirect, the `Cookie` header does not, so the caller's value rides along there.
+        # An empty value is kept too: it means "no cookies" and outranks the session on the origin it came from.
+        if (caller_cookie := request.headers.get('cookie')) is not None:
+            request.extensions['crawlee_caller_cookie'] = (request.url, caller_cookie)
+
+        return request
+
+    def _get_client(self, proxy_url: str | None) -> httpx2.AsyncClient:
+        """Retrieve or create an HTTP client for the given proxy URL.
+
+        If a client for the specified proxy URL does not exist, create and store a new one.
+        """
+        if proxy_url not in self._client_by_proxy_url:
+            # A client built with `proxy=` mounts its own transport and never calls the one given to `transport=`,
+            # so the proxy has to go on the transport for the cookie handling to run.
+            transport = _HttpxTransport(
+                http1=self._http1,
+                http2=self._http2,
+                verify=self._ssl_context,
+                proxy=proxy_url or self._proxy,
+                persist_cookies_per_session=self._persist_cookies_per_session,
+                # Above the `httpx2` default of 20 kept-alive connections every request pays a TCP and TLS handshake.
+                limits=self._async_client_kwargs.get(
+                    'limits',
+                    httpx2.Limits(max_connections=1000, max_keepalive_connections=200),
+                ),
+            )
+
+            # Prepare a default kwargs for the new client.
+            kwargs: dict[str, Any] = {
+                'http1': self._http1,
+                'http2': self._http2,
+                'follow_redirects': True,
+            }
+
+            # Update the default kwargs with any additional user-provided kwargs.
+            kwargs.update(self._async_client_kwargs)
+
+            kwargs.update(
+                {
+                    'transport': transport,
+                    'verify': self._ssl_context,
+                }
+            )
+
+            client = httpx2.AsyncClient(**kwargs)
+            self._client_by_proxy_url[proxy_url] = client
+
+        return self._client_by_proxy_url[proxy_url]
+
+    def _combine_headers(self, explicit_headers: HttpHeaders | None) -> HttpHeaders:
+        """Merge generated headers with explicit headers for an HTTP request.
+
+        The generated headers come from a single browser profile, so that the set stays consistent. Explicit
+        headers win over the generated ones.
+        """
+        if self._header_generator:
+            generated_headers = self._header_generator.get_specific_headers(
+                header_names={'Accept', 'Accept-Language', 'User-Agent'},
+            )
+        else:
+            generated_headers = HttpHeaders()
+
+        explicit_headers = explicit_headers or HttpHeaders()
+        return generated_headers | explicit_headers
+
+    @staticmethod
+    def _is_proxy_error(error: httpx2.TransportError) -> bool:
+        """Determine whether the given error is related to a proxy issue.
+
+        Check if the error is an instance of `httpx2.ProxyError` or if its message contains known proxy-related
+        error keywords.
+        """
+        if isinstance(error, httpx2.ProxyError):
+            return True
+
+        if any(needle in str(error) for needle in ROTATE_PROXY_ERRORS):  # noqa: SIM103
+            return True
+
+        return False
+
+    async def cleanup(self) -> None:
+        for client in self._client_by_proxy_url.values():
+            await client.aclose()
+        self._client_by_proxy_url.clear()

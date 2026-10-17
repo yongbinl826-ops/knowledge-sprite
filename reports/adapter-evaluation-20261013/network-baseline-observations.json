@@ -1,0 +1,178 @@
+{
+  "mode": "offline mocks, socket connect and resolver guards; no outbound, browser, application SQLite, or source edits",
+  "harness_note": "Initial socket guard also blocked Windows event-loop self-pipe initialization; corrected by creating the event loop before installing the guard. No page request occurred in that failed harness run.",
+  "hashes": {
+    "backend/app/fetcher.py": "1c36061c9b554b41e1bcd75f60e18f5ae2e8c655f138e4e88d1a179fbf6e69f2",
+    "backend/app/service.py": "b8c39d3a9aef47baac081eaf705e77f8be7ef6f1778de633430c13dff7d837c8",
+    "backend/app/db.py": "7a6a10d1a4a34f4c509213260fa80b5d74a99bb50c0aedfb3e7dc3c3c9a5d34a",
+    "backend/app/url_utils.py": "11aee8e21efd59ba8fe8ee5a1f2b3e9ec8212a7ab4ec25ba34b4ce452aa26a56",
+    "backend/app/config.py": "0feee74272c5dc5e6264c22d1d47277a19bc4061bf25661d159c6b82e4c1cb01",
+    "backend/tests/test_fetcher.py": "d3f49694b5cf264dc3dc2f676421ec466bab13826c9e73b2e9b6994c3a55e27d"
+  },
+  "matches_baseline": {
+    "backend/app/fetcher.py": true,
+    "backend/app/service.py": true,
+    "backend/app/db.py": true,
+    "backend/app/url_utils.py": true,
+    "backend/app/config.py": true,
+    "backend/tests/test_fetcher.py": true
+  },
+  "checks": {
+    "zero_interval": {
+      "statuses": [
+        "javascript_required",
+        "javascript_required"
+      ],
+      "calls": [
+        {
+          "url": "https://learning.example.org/robots.txt",
+          "time": 1000.0
+        },
+        {
+          "url": "https://learning.example.org/one",
+          "time": 1000.0
+        },
+        {
+          "url": "https://learning.example.org/two",
+          "time": 1000.0
+        }
+      ],
+      "paused": {}
+    },
+    "retry": {
+      "statuses": [
+        "javascript_required",
+        "javascript_required"
+      ],
+      "calls": [
+        {
+          "url": "https://learning.example.org/robots.txt",
+          "time": 1000.0
+        },
+        {
+          "url": "https://learning.example.org/one",
+          "time": 1005.0
+        },
+        {
+          "url": "https://learning.example.org/one",
+          "time": 1005.25
+        },
+        {
+          "url": "https://learning.example.org/two",
+          "time": 1010.25
+        }
+      ],
+      "paused": {}
+    },
+    "origins": {
+      "statuses": [
+        "javascript_required",
+        "javascript_required",
+        "javascript_required"
+      ],
+      "calls": [
+        {
+          "url": "https://learning.example.org/robots.txt",
+          "time": 1010.25
+        },
+        {
+          "url": "https://learning.example.org/one",
+          "time": 1015.25
+        },
+        {
+          "url": "http://learning.example.org/robots.txt",
+          "time": 1020.25
+        },
+        {
+          "url": "http://learning.example.org/two",
+          "time": 1020.25
+        },
+        {
+          "url": "https://learning.example.org/three",
+          "time": 1020.25
+        }
+      ],
+      "paused": {}
+    },
+    "503": {
+      "statuses": [
+        "http_error",
+        "http_error"
+      ],
+      "calls": [
+        {
+          "url": "https://learning.example.org/robots.txt",
+          "time": 1020.25
+        },
+        {
+          "url": "https://learning.example.org/one",
+          "time": 1020.25
+        },
+        {
+          "url": "https://learning.example.org/two",
+          "time": 1020.25
+        }
+      ],
+      "paused": {}
+    },
+    "NaN": {
+      "statuses": [
+        "rate_limited",
+        "rate_limited"
+      ],
+      "calls": [
+        {
+          "url": "https://learning.example.org/robots.txt",
+          "time": 1020.25
+        },
+        {
+          "url": "https://learning.example.org/one",
+          "time": 1020.25
+        },
+        {
+          "url": "https://learning.example.org/two",
+          "time": 1020.25
+        }
+      ],
+      "paused": {
+        "learning.example.org": "1020.25"
+      }
+    },
+    "Infinity": {
+      "statuses": [
+        "rate_limited",
+        "rate_limited"
+      ],
+      "calls": [
+        {
+          "url": "https://learning.example.org/robots.txt",
+          "time": 1020.25
+        },
+        {
+          "url": "https://learning.example.org/one",
+          "time": 1020.25
+        }
+      ],
+      "paused": {
+        "learning.example.org": "inf"
+      }
+    },
+    "robots_403": {
+      "statuses": [
+        "robots_blocked",
+        "robots_blocked"
+      ],
+      "calls": [
+        {
+          "url": "https://learning.example.org/robots.txt",
+          "time": 1020.25
+        },
+        {
+          "url": "https://learning.example.org/robots.txt",
+          "time": 1020.25
+        }
+      ],
+      "paused": {}
+    }
+  }
+}

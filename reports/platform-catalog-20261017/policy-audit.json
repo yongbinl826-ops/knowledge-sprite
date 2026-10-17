@@ -1,0 +1,111 @@
+{
+  "audit_date": "2026-10-17",
+  "local_code_checked_at": "2026-10-17T03:56:37.751190+00:00",
+  "scope": "Read-only review of existing official terms and robots URLs. No course details, platform APIs, browser actions, playback, account use, production writes, or historical report edits.",
+  "network_budget": {
+    "maximum_distinct_urls_per_platform": 2,
+    "web_open_calls": 2,
+    "requested_distinct_urls": 4,
+    "requested_urls_per_platform": {"bilibili": 2, "icourse163": 2},
+    "retries": 0,
+    "underlying_http_request_count": null,
+    "underlying_http_statuses_available": false,
+    "note": "The web tool provides retrieved/indexed text and crawl labels, not raw HTTP traces. Four URL reads must not be represented as four independently observed origin HTTP 200 responses."
+  },
+  "production_policy": {
+    "file": "backend/app/fetcher.py",
+    "constant": "PLATFORM_POLICY_REVIEWS",
+    "constant_name_note": "The repository uses PLATFORM_POLICY_REVIEWS; no OFFICIAL_SITE_POLICIES identifier was used for this audit.",
+    "guard": "Fetcher._site_policy",
+    "allowed_restricted_hosts": [],
+    "denied_fetch_hosts": ["open.edu"],
+    "fetch_enabled": true,
+    "offline_guard_network_requests": 0,
+    "changes_made": false
+  },
+  "platforms": {
+    "bilibili": {
+      "code_policy_status": "explicit_permission_required",
+      "code_reviewed_at": "2026-10-13",
+      "offline_guard_result": "site_policy_blocked",
+      "guard_meaning": "A pre-request application policy decision; not an HTTP rejection observed on a Bilibili course/video page today. The unreviewed-host allowlist cannot override this permission-required state.",
+      "terms": {
+        "url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+        "method": "web.open, once",
+        "tool_crawl_label": "today",
+        "retrieved_title": "哔哩哔哩弹幕网用户使用协议",
+        "content_type_reported_by_tool": "text/html",
+        "readable_body_lines": 0,
+        "http_status": null,
+        "explicit_403_or_captcha_observed": false,
+        "current_clause_text_verified": false,
+        "interpretation": "Title-only tool result. Cause unknown; this is not proof of a 403, CAPTCHA, login requirement, or a whole-site browser-access failure.",
+        "historical_clause": {
+          "reviewed_at": "2026-10-13",
+          "document_updated_as_recorded_then": "2025-04-30",
+          "section": "5.6(3)",
+          "paraphrase": "The historical official-domain review records a prior express written-permission requirement for automated acquisition of service, content, or data. The project records no such permission.",
+          "evidence_file": "reports/catalog-probe-policy-review-20261013.json",
+          "historical_method": "Official-domain search returned agreement text; direct opening already had no readable body then.",
+          "revalidated_current_text_on_20261017": false
+        }
+      },
+      "robots": {
+        "url": "https://www.bilibili.com/robots.txt",
+        "method": "web.open, once",
+        "tool_crawl_label": "today",
+        "content_type_reported_by_tool": "text/plain",
+        "http_status": null,
+        "readable_body_lines": 3,
+        "retrieved_rules": ["User-agent: *", "Disallow: /medialist/detail/", "Disallow: /index.html"],
+        "interpretation": "The retrieved robots text does not prohibit every /video/ path. Robots rules do not override a separate service-terms requirement or establish permission for automated aggregation."
+      },
+      "course_page_http_verified_this_audit": false,
+      "browser_access_verified_this_audit": false,
+      "catalog_verified_this_audit": false
+    },
+    "icourse163": {
+      "code_policy_status": "unreviewed_permission_scope",
+      "code_reviewed_at": "2026-10-13",
+      "offline_guard_result": "policy_unreviewed",
+      "guard_meaning": "The application currently stops automatic metadata collection because its integration permission scope remains unconfirmed. This is not a declaration that public human browsing is prohibited, and is not an observed HTTP refusal today.",
+      "terms": {
+        "url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+        "method": "web.open, once",
+        "tool_crawl_label": "yesterday",
+        "content_type_reported_by_tool": "text/html",
+        "http_status": null,
+        "readable_body_lines": 193,
+        "document_effective_and_updated_date": "2021-07-16",
+        "current_retrieved_clause_text_verified": true,
+        "explicit_403_or_captcha_observed": false,
+        "clauses": [
+          {"section": "3.1", "short_excerpt": "浏览课程信息", "paraphrase": "Public course-information browsing is described; watching or studying a course is described as requiring account login."},
+          {"section": "5.2.7", "short_excerpt": "未经书面许可", "paraphrase": "Plugins, add-ons, and other third-party tools or services connecting to the platform and related systems are subject to prior written-permission restrictions."},
+          {"section": "8.6", "paraphrase": "Site content and course materials remain subject to intellectual-property and reuse restrictions."}
+        ],
+        "interpretation": "These clauses distinguish browsing a public course introduction from a production automatic metadata integration. This audit does not resolve or expand the latter permission scope. It does not treat policy_unreviewed as a permanent categorical ban."
+      },
+      "robots": {
+        "url": "https://www.icourse163.org/robots.txt",
+        "method": "web.open, once",
+        "http_status": null,
+        "tool_result": "URL https://www.icourse163.org/robots.txt is not accessible via this tool.",
+        "result_classification": "tool_access_unavailable",
+        "explicit_403_or_captcha_observed": false,
+        "rules_verified_this_audit": false,
+        "interpretation": "The tool did not expose an origin HTTP status. Do not convert this result to 404, 403, CAPTCHA, or site-wide denial.",
+        "historical_observation": {"observed_at": "2026-10-13T09:14:47.478153+00:00", "http_status": 404, "source": "reports/platform-coverage-policy-20261013-final.json", "applies_to_current_request": false}
+      },
+      "course_page_http_verified_this_audit": false,
+      "browser_access_verified_this_audit": false,
+      "catalog_verified_this_audit": false
+    }
+  },
+  "artifacts_read_sha256": {
+    "backend/app/fetcher.py": "daf1cc84b72362be921b82974fb8e263f986ced7fc9d3a38ba1e345dd7bede14",
+    "reports/catalog-probe-policy-review-20261013.json": "aa3ccadcae7cbadb8d6e877104adceced1385031e461e0b92c9fbc6fcf0a3424",
+    "reports/platform-coverage-policy-20261013-final.json": "5326f4176f7d6731bc67545e4f1edf0a0abeae32c07f0dcbe7113d0713b3e0a0"
+  },
+  "conclusion": "Keep observed browser course-page access and directory findings in the separate parent-task evidence. Neither application policy result is evidence of a new origin HTTP rejection. No production policy or allowlist was changed."
+}

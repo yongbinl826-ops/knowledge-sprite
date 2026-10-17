@@ -1,0 +1,55 @@
+{
+  "started_at": "2026-10-13T13:20:51.785421+00:00",
+  "baseline": "../adapter-evaluation-20261013/final-source-and-validation.json",
+  "baseline_tests": {
+    "passed": 213,
+    "subtests_passed": 26,
+    "browser_e2e": 16
+  },
+  "network_plan": {
+    "development_probe": {
+      "urls": [
+        "https://www.open.edu/openlearn/free-courses/full-catalogue"
+      ],
+      "max_pages": 2,
+      "max_target_and_robots_http": 10,
+      "max_retries": 0,
+      "concurrency": 1,
+      "selection": "At most first visible course card from first catalogue page, for adapter development; do not replace failed sample."
+    },
+    "held_out_acceptance": {
+      "cases": [
+        {
+          "knowledge_points": [
+            "Bayes theorem conditional probability",
+            "plate tectonics",
+            "supply demand elasticity"
+          ],
+          "language": "en",
+          "preferred_platforms": []
+        },
+        {
+          "knowledge_points": [
+            "二分查找"
+          ],
+          "language": "zh",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163"
+          ]
+        }
+      ],
+      "per_job_max_search_requests": 12,
+      "per_job_max_detail_pages": 12,
+      "per_job_deadline_seconds": 240,
+      "total_max_search_requests": 24,
+      "total_max_detail_pages": 24,
+      "concurrency": 1,
+      "rerun_failed_cases": false,
+      "note": "No held-out topic is used in adapter development; preserve query outcomes, cache provenance, failures and unknown course identity."
+    }
+  },
+  "browser_platform_check": {
+    "scope": "One actual discovered Bilibili result and the previously unvisited discovered MOOC linear algebra page, using ordinary public browsing only; stop challenge/login/explicit access limitation, no backend bypass."
+  }
+}

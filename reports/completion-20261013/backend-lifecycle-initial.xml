@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="74" time="4.339" timestamp="2026-10-13T21:24:07.619947+08:00" hostname="LAPTOP-UT2FMDJK"><testcase classname="tests.test_job_lifecycle" name="test_queued_request_coalescing_normalization_and_cancel" time="0.038" /><testcase classname="tests.test_job_lifecycle" name="test_running_cancel_cleans_http_and_all_details_but_worker_continues" time="0.070" /><testcase classname="tests.test_job_lifecycle" name="test_worker_contains_failure_before_execution_and_redacts_error" time="0.044" /><testcase classname="tests.test_job_lifecycle" name="test_single_network_slot_and_repeated_start_do_not_deadlock" time="0.040" /><testcase classname="tests.test_job_lifecycle" name="test_deadline_during_llm_ranking_retains_rule_results_without_late_writes" time="0.084" /><testcase classname="tests.test_job_lifecycle" name="test_shutdown_distinguishes_interrupted_and_recovers_queued_tasks" time="0.029" /><testcase classname="tests.test_job_lifecycle" name="test_idempotency_survives_terminal_status_and_reopen" time="0.052" /><testcase classname="tests.test_job_lifecycle" name="test_api_cancel_idempotency_conflict_and_missing_job" time="0.055" /><testcase classname="tests.test_job_lifecycle" name="test_budget_limited_catalog_does_not_freeze_in_page_cache" time="0.059" /><testcase classname="tests.test_job_lifecycle" name="test_failed_catalog_has_short_ttl_and_retries_after_expiry_even_with_stale_enabled" time="0.059" /><testcase classname="tests.test_job_lifecycle" name="test_page_cache_never_replays_another_queries_search_fallback[False]" time="0.070" /><testcase classname="tests.test_job_lifecycle" name="test_page_cache_never_replays_another_queries_search_fallback[True]" time="0.052" /><testcase classname="tests.test_job_lifecycle" name="test_cache_source_identity_and_page_policy_settings_are_isolated" time="0.045" /><testcase classname="tests.test_core" name="test_request_validation_and_dedup" time="0.001" /><testcase classname="tests.test_core" name="test_queries_arbitrary_point_open_and_targeted_preserve_version" time="0.000" /><testcase classname="tests.test_core" name="test_query_round_robin" time="0.000" /><testcase classname="tests.test_core" name="test_searxng_documented_request_and_missing_fields" time="0.003" /><testcase classname="tests.test_core" name="test_tavily_opt_in_official_auth_and_payload" time="0.002" /><testcase classname="tests.test_core" name="test_provider_timeout_bounded_retry_and_safe_error" time="1.013" /><testcase classname="tests.test_core" name="test_429_pauses_source_without_retry" time="0.002" /><testcase classname="tests.test_core" name="test_searxng_upstream_partial_and_all_failed" time="0.003" /><testcase classname="tests.test_core" name="test_multimapping_dedupe_all_evidence_and_cache" time="0.052"><failure message="assert False&#10; +  where False = all(&lt;generator object test_multimapping_dedupe_all_evidence_and_cache.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001DBFB4EA260&gt;)">tmp_path = WindowsPath('C:/Users/xiaoer/AppData/Local/Temp/pytest-of-xiaoer/pytest-5942/test_multimapping_dedupe_all_e0')
+
+    @pytest.mark.asyncio
+    async def test_multimapping_dedupe_all_evidence_and_cache(tmp_path):
+        svc = service(tmp_path)
+        request = SearchRequest(knowledge_points=["Python 列表与字典", "HTML 表单校验"])
+        first = svc.create(request)["job_id"]
+        await svc.run(first)
+        result = svc.results(first)
+        assert result["status"] == "completed"
+&gt;       assert all(len(group["items"]) == 1 for group in result["groups"])
+E       assert False
+E        +  where False = all(&lt;generator object test_multimapping_dedupe_all_evidence_and_cache.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001DBFB4EA260&gt;)
+
+tests\test_core.py:162: AssertionError</failure></testcase><testcase classname="tests.test_core" name="test_partial_failure_and_no_fake_results" time="0.048" /><testcase classname="tests.test_core" name="test_successful_zero_results_is_completed" time="0.027" /><testcase classname="tests.test_core" name="test_fair_budget_and_llm_failure_fallback" time="0.032"><failure message="assert False&#10; +  where False = all(&lt;generator object test_fair_budget_and_llm_failure_fallback.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001DBFB4B2C20&gt;)">tmp_path = WindowsPath('C:/Users/xiaoer/AppData/Local/Temp/pytest-of-xiaoer/pytest-5942/test_fair_budget_and_llm_failu0')
+
+    @pytest.mark.asyncio
+    async def test_fair_budget_and_llm_failure_fallback(tmp_path):
+        settings = Settings(database_path=str(tmp_path / "test.sqlite3"), max_search_requests=2)
+        svc = service(tmp_path, settings=settings, llm=BrokenLLM())
+        jid = svc.create(SearchRequest(knowledge_points=["Python 列表", "HTML 表单"]))["job_id"]
+        await svc.run(jid)
+        job = svc.store.get_job(jid)
+        assert job["status"] == "partial" and job["progress"]["search_requests"] == 2
+&gt;       assert all(group["items"] for group in svc.results(jid)["groups"])
+E       assert False
+E        +  where False = all(&lt;generator object test_fair_budget_and_llm_failure_fallback.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001DBFB4B2C20&gt;)
+
+tests\test_core.py:207: AssertionError</failure></testcase><testcase classname="tests.test_core" name="test_restart_marks_queued_and_running_interrupted" time="0.020" /><testcase classname="tests.test_core" name="test_expired_cache_explicit_opt_in" time="0.014" /><testcase classname="tests.test_core" name="test_llm_keywords_urls_extra_fields_forbidden" time="0.001" /><testcase classname="tests.test_core" name="test_llm_rerank_rejects_new_url_unknown_id_and_evidence" time="0.004" /><testcase classname="tests.test_core" name="test_versions_not_mixed_and_reasons_cautious" time="0.001" /><testcase classname="tests.test_core" name="test_prerequisite_only_live_discovery_regression" time="0.001"><failure message="AssertionError: assert None is not None&#10; +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'Python 列表与字典'}, {'resource_id': 'r', 'url': 'https://www.icourse163.org/course/-1001871002', 'title': 'Python列表与字典入门课程', 'metadata_evidence_level': 'search', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'Python云端系统开发入门_北京理工大学_中国大学MOOC(慕课)', 'snippet': 'Python语言程序设计课程。具体地，学习者需要预先掌握Python的数字类型、字符串类型、分支、循环、函数、列表类型、字典类型、文件和第三方库使用等概念和编程方法。'}], SearchRequest(knowledge_points=['Python 列表与字典'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)&#10; +    where {'resource_id': 'r', 'url': 'https://www.icourse163.org/course/-1001871002', 'title': 'Python列表与字典入门课程', 'metadata_evidence_level': 'search', ...} = dict({'resource_id': 'r', 'url': 'https://www.icourse163.org/course/-1001871002', 'title': 'Python云端系统开发入门_北京理工大学_中国大学MOOC(慕课)', 'metadata_evidence_level': 'search', ...}, title='Python列表与字典入门课程')">def test_prerequisite_only_live_discovery_regression():
+        point = {"knowledge_point_id": "k", "text": "Python 列表与字典"}
+        resource = {"resource_id": "r", "url": "https://www.icourse163.org/course/-1001871002",
+                    "title": "Python云端系统开发入门_北京理工大学_中国大学MOOC(慕课)",
+                    "metadata_evidence_level": "search", "resource_type": "course",
+                    "field_provenance": {"resource_type": {"evidence_id": "e", "source": "url_pattern"}}}
+        evidence = [{"evidence_id": "e", "kind": "search", "title": resource["title"],
+                     "snippet": "Python语言程序设计课程。具体地，学习者需要预先掌握Python的数字类型、字符串类型、分支、循环、函数、列表类型、字典类型、文件和第三方库使用等概念和编程方法。"}]
+        request = SearchRequest(knowledge_points=[point["text"]])
+        assert rank_resource(point, resource, evidence, request, require_type=False) is None
+        # This isolates topic relevance; an actual recommendation also needs video evidence.
+&gt;       assert rank_resource(point, dict(resource, title="Python列表与字典入门课程"), evidence, request, require_type=False) is not None
+E       AssertionError: assert None is not None
+E        +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'Python 列表与字典'}, {'resource_id': 'r', 'url': 'https://www.icourse163.org/course/-1001871002', 'title': 'Python列表与字典入门课程', 'metadata_evidence_level': 'search', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'Python云端系统开发入门_北京理工大学_中国大学MOOC(慕课)', 'snippet': 'Python语言程序设计课程。具体地，学习者需要预先掌握Python的数字类型、字符串类型、分支、循环、函数、列表类型、字典类型、文件和第三方库使用等概念和编程方法。'}], SearchRequest(knowledge_points=['Python 列表与字典'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)
+E        +    where {'resource_id': 'r', 'url': 'https://www.icourse163.org/course/-1001871002', 'title': 'Python列表与字典入门课程', 'metadata_evidence_level': 'search', ...} = dict({'resource_id': 'r', 'url': 'https://www.icourse163.org/course/-1001871002', 'title': 'Python云端系统开发入门_北京理工大学_中国大学MOOC(慕课)', 'metadata_evidence_level': 'search', ...}, title='Python列表与字典入门课程')
+
+tests\test_core.py:273: AssertionError</failure></testcase><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[Python-Python3 tutorial-1]" time="0.002" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[Python-Python3.13 tutorial-1]" time="0.001" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[Python3-Python tutorial-1]" time="0.001" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[Python-Python3tutorial-0]" time="0.001" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[Java-JavaScript tutorial-0]" time="0.001" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[SQL-NoSQL tutorial-0]" time="0.001" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[D3.js-D3.js tutorial-1]" time="0.001" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[D3.js-D3 tutorial-0]" time="0.001" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[C++-C++17 tutorial-1]" time="0.001" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[C#-C#12 tutorial-1]" time="0.001" /><testcase classname="tests.test_core" name="test_complete_version_alias_preserves_technology_token_boundaries[C++-C# tutorial-0]" time="0.001" /><testcase classname="tests.test_core" name="test_teaching_and_prerequisite_clauses_in_one_description_are_independent[Python \u5217\u8868\u4e0e\u5b57\u5178-\u672c\u8bfe\u7a0b\u8bb2\u89e3Python\u5217\u8868\u4e0e\u5b57\u5178\uff0c\u5148\u4fee\u8981\u6c42\uff1a\u57fa\u7840\u7b97\u672f\u3002-True]" time="0.001" /><testcase classname="tests.test_core" name="test_teaching_and_prerequisite_clauses_in_one_description_are_independent[Python lists and dictionaries-This course teaches Python lists and dictionaries, prerequisites: basic arithmetic.-True]" time="0.001" /><testcase classname="tests.test_core" name="test_teaching_and_prerequisite_clauses_in_one_description_are_independent[Python lists and dictionaries-This course teaches Python lists and dictionaries, and prior knowledge of arithmetic is required.-True]" time="0.001" /><testcase classname="tests.test_core" name="test_teaching_and_prerequisite_clauses_in_one_description_are_independent[Python \u5217\u8868\u4e0e\u5b57\u5178-\u5148\u4fee\u8981\u6c42\uff1a\u9884\u5148\u638c\u63e1Python\u5217\u8868\u4e0e\u5b57\u5178\uff0c\u672c\u8bfe\u7a0b\u8bb2\u89e3\u4e91\u7aef\u7cfb\u7edf\u5f00\u53d1\u3002-False]" time="0.001" /><testcase classname="tests.test_core" name="test_teaching_and_prerequisite_clauses_in_one_description_are_independent[Python lists and dictionaries-Prerequisites: prior knowledge of Python lists and dictionaries, this course teaches cloud development.-False]" time="0.001" /><testcase classname="tests.test_core" name="test_api_live_configuration_failure_no_secrets" time="0.038" /><testcase classname="tests.test_core" name="test_deadline_preserves_partial_results" time="0.131" /><testcase classname="tests.test_core" name="test_documentation_keywords_or_forged_type_are_not_course_evidence" time="0.001" /><testcase classname="tests.test_core" name="test_compound_points_require_specific_evidence_not_only_the_technology[SQL \u591a\u8868\u8fde\u63a5-SQL\u6570\u636e\u5e93\u5b8c\u6574\u5165\u95e8\u8bfe\u7a0b-SQL JOIN\u591a\u8868\u8fde\u63a5\u8bfe\u7a0b]" time="0.001"><failure message="AssertionError: assert None is not None&#10; +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'SQL 多表连接'}, {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL JOIN多表连接课程', 'resource_type': 'video', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'SQL数据库完整入门课程', 'snippet': 'SQL数据库完整入门课程', ...}], SearchRequest(knowledge_points=['SQL 多表连接'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)&#10; +    where {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL JOIN多表连接课程', 'resource_type': 'video', ...} = dict({'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL数据库完整入门课程', 'resource_type': 'video', ...}, title='SQL JOIN多表连接课程')">point_text = 'SQL 多表连接', generic_title = 'SQL数据库完整入门课程'
+specific_title = 'SQL JOIN多表连接课程'
+
+    @pytest.mark.parametrize("point_text,generic_title,specific_title", [
+        ("SQL 多表连接", "SQL数据库完整入门课程", "SQL JOIN多表连接课程"),
+        ("Python 列表与字典", "Python编程完整入门课程", "Python列表与字典课程"),
+        ("SQL joins", "SQL programming course", "SQL joins course"),
+    ])
+    def test_compound_points_require_specific_evidence_not_only_the_technology(point_text, generic_title, specific_title):
+        point = {"knowledge_point_id": "k", "text": point_text}
+        resource = {"resource_id": "r", "url": "https://example.org/video", "title": generic_title,
+                    "resource_type": "video", "metadata_evidence_level": "search",
+                    "field_provenance": {"resource_type": {"evidence_id": "e", "source": "search_template"}}}
+        evidence = [{"evidence_id": "e", "kind": "search", "title": generic_title, "snippet": generic_title,
+                     "type_source": "search_template", "resource_type_hint": "video"}]
+        request = SearchRequest(knowledge_points=[point_text])
+        assert rank_resource(point, resource, evidence, request, require_type=False) is None
+&gt;       assert rank_resource(point, dict(resource, title=specific_title), evidence, request, require_type=False) is not None
+E       AssertionError: assert None is not None
+E        +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'SQL 多表连接'}, {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL JOIN多表连接课程', 'resource_type': 'video', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'SQL数据库完整入门课程', 'snippet': 'SQL数据库完整入门课程', ...}], SearchRequest(knowledge_points=['SQL 多表连接'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)
+E        +    where {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL JOIN多表连接课程', 'resource_type': 'video', ...} = dict({'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL数据库完整入门课程', 'resource_type': 'video', ...}, title='SQL JOIN多表连接课程')
+
+tests\test_core.py:387: AssertionError</failure></testcase><testcase classname="tests.test_core" name="test_compound_points_require_specific_evidence_not_only_the_technology[Python \u5217\u8868\u4e0e\u5b57\u5178-Python\u7f16\u7a0b\u5b8c\u6574\u5165\u95e8\u8bfe\u7a0b-Python\u5217\u8868\u4e0e\u5b57\u5178\u8bfe\u7a0b]" time="0.001"><failure message="AssertionError: assert None is not None&#10; +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'Python 列表与字典'}, {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python列表与字典课程', 'resource_type': 'video', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'Python编程完整入门课程', 'snippet': 'Python编程完整入门课程', ...}], SearchRequest(knowledge_points=['Python 列表与字典'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)&#10; +    where {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python列表与字典课程', 'resource_type': 'video', ...} = dict({'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python编程完整入门课程', 'resource_type': 'video', ...}, title='Python列表与字典课程')">point_text = 'Python 列表与字典', generic_title = 'Python编程完整入门课程'
+specific_title = 'Python列表与字典课程'
+
+    @pytest.mark.parametrize("point_text,generic_title,specific_title", [
+        ("SQL 多表连接", "SQL数据库完整入门课程", "SQL JOIN多表连接课程"),
+        ("Python 列表与字典", "Python编程完整入门课程", "Python列表与字典课程"),
+        ("SQL joins", "SQL programming course", "SQL joins course"),
+    ])
+    def test_compound_points_require_specific_evidence_not_only_the_technology(point_text, generic_title, specific_title):
+        point = {"knowledge_point_id": "k", "text": point_text}
+        resource = {"resource_id": "r", "url": "https://example.org/video", "title": generic_title,
+                    "resource_type": "video", "metadata_evidence_level": "search",
+                    "field_provenance": {"resource_type": {"evidence_id": "e", "source": "search_template"}}}
+        evidence = [{"evidence_id": "e", "kind": "search", "title": generic_title, "snippet": generic_title,
+                     "type_source": "search_template", "resource_type_hint": "video"}]
+        request = SearchRequest(knowledge_points=[point_text])
+        assert rank_resource(point, resource, evidence, request, require_type=False) is None
+&gt;       assert rank_resource(point, dict(resource, title=specific_title), evidence, request, require_type=False) is not None
+E       AssertionError: assert None is not None
+E        +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'Python 列表与字典'}, {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python列表与字典课程', 'resource_type': 'video', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'Python编程完整入门课程', 'snippet': 'Python编程完整入门课程', ...}], SearchRequest(knowledge_points=['Python 列表与字典'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)
+E        +    where {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python列表与字典课程', 'resource_type': 'video', ...} = dict({'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python编程完整入门课程', 'resource_type': 'video', ...}, title='Python列表与字典课程')
+
+tests\test_core.py:387: AssertionError</failure></testcase><testcase classname="tests.test_core" name="test_compound_points_require_specific_evidence_not_only_the_technology[SQL joins-SQL programming course-SQL joins course]" time="0.001"><failure message="AssertionError: assert None is not None&#10; +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'SQL joins'}, {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL joins course', 'resource_type': 'video', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'SQL programming course', 'snippet': 'SQL programming course', ...}], SearchRequest(knowledge_points=['SQL joins'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)&#10; +    where {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL joins course', 'resource_type': 'video', ...} = dict({'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL programming course', 'resource_type': 'video', ...}, title='SQL joins course')">point_text = 'SQL joins', generic_title = 'SQL programming course'
+specific_title = 'SQL joins course'
+
+    @pytest.mark.parametrize("point_text,generic_title,specific_title", [
+        ("SQL 多表连接", "SQL数据库完整入门课程", "SQL JOIN多表连接课程"),
+        ("Python 列表与字典", "Python编程完整入门课程", "Python列表与字典课程"),
+        ("SQL joins", "SQL programming course", "SQL joins course"),
+    ])
+    def test_compound_points_require_specific_evidence_not_only_the_technology(point_text, generic_title, specific_title):
+        point = {"knowledge_point_id": "k", "text": point_text}
+        resource = {"resource_id": "r", "url": "https://example.org/video", "title": generic_title,
+                    "resource_type": "video", "metadata_evidence_level": "search",
+                    "field_provenance": {"resource_type": {"evidence_id": "e", "source": "search_template"}}}
+        evidence = [{"evidence_id": "e", "kind": "search", "title": generic_title, "snippet": generic_title,
+                     "type_source": "search_template", "resource_type_hint": "video"}]
+        request = SearchRequest(knowledge_points=[point_text])
+        assert rank_resource(point, resource, evidence, request, require_type=False) is None
+&gt;       assert rank_resource(point, dict(resource, title=specific_title), evidence, request, require_type=False) is not None
+E       AssertionError: assert None is not None
+E        +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'SQL joins'}, {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL joins course', 'resource_type': 'video', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'SQL programming course', 'snippet': 'SQL programming course', ...}], SearchRequest(knowledge_points=['SQL joins'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)
+E        +    where {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL joins course', 'resource_type': 'video', ...} = dict({'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'SQL programming course', 'resource_type': 'video', ...}, title='SQL joins course')
+
+tests\test_core.py:387: AssertionError</failure></testcase><testcase classname="tests.test_core" name="test_english_function_words_do_not_create_a_topic_match" time="0.001"><failure message="AssertionError: assert None is not None&#10; +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'Python lists and dictionaries'}, {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python lists and dictionaries tutorial', 'resource_type': 'video', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'And the with course', 'snippet': 'And the with tutorial', ...}], SearchRequest(knowledge_points=['Python lists and dictionaries'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)&#10; +    where {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python lists and dictionaries tutorial', 'resource_type': 'video', ...} = dict({'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'And the with course', 'resource_type': 'video', ...}, title='Python lists and dictionaries tutorial')">def test_english_function_words_do_not_create_a_topic_match():
+        point = {"knowledge_point_id": "k", "text": "Python lists and dictionaries"}
+        resource = {"resource_id": "r", "url": "https://example.org/video", "title": "And the with course",
+                    "resource_type": "video", "metadata_evidence_level": "search",
+                    "field_provenance": {"resource_type": {"evidence_id": "e", "source": "search_template"}}}
+        evidence = [{"evidence_id": "e", "kind": "search", "title": resource["title"], "snippet": "And the with tutorial",
+                     "type_source": "search_template", "resource_type_hint": "video"}]
+        request = SearchRequest(knowledge_points=[point["text"]])
+        assert rank_resource(point, resource, evidence, request, require_type=False) is None
+&gt;       assert rank_resource(point, dict(resource, title="Python lists and dictionaries tutorial"), evidence, request, require_type=False) is not None
+E       AssertionError: assert None is not None
+E        +  where None = rank_resource({'knowledge_point_id': 'k', 'text': 'Python lists and dictionaries'}, {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python lists and dictionaries tutorial', 'resource_type': 'video', ...}, [{'evidence_id': 'e', 'kind': 'search', 'title': 'And the with course', 'snippet': 'And the with tutorial', ...}], SearchRequest(knowledge_points=['Python lists and dictionaries'], student_level='beginner', language='zh', project_context='', technical_version='', preferred_platforms=['bilibili', 'icourse163', 'xuetangx']), require_type=False)
+E        +    where {'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'Python lists and dictionaries tutorial', 'resource_type': 'video', ...} = dict({'resource_id': 'r', 'url': 'https://example.org/video', 'title': 'And the with course', 'resource_type': 'video', ...}, title='Python lists and dictionaries tutorial')
+
+tests\test_core.py:399: AssertionError</failure></testcase><testcase classname="tests.test_core" name="test_type_inference_is_limited_to_platform_entry_formats[https://www.bilibili.com/video/BV1RJ411x7Yk?p=2-video]" time="0.001" /><testcase classname="tests.test_core" name="test_type_inference_is_limited_to_platform_entry_formats[https://www.icourse163.org/course/BIT-1001871002-course]" time="0.001" /><testcase classname="tests.test_core" name="test_type_inference_is_limited_to_platform_entry_formats[https://www.icourse163.org/course/-1001871002-course]" time="0.001" /><testcase classname="tests.test_core" name="test_type_inference_is_limited_to_platform_entry_formats[https://www.xuetangx.com/course/course-id-123-course]" time="0.001" /><testcase classname="tests.test_core" name="test_type_inference_is_limited_to_platform_entry_formats[https://www.bilibili.com/search?keyword=Python-unknown]" time="0.001" /><testcase classname="tests.test_core" name="test_type_inference_is_limited_to_platform_entry_formats[https://www.icourse163.org/course/-unknown]" time="0.001" /><testcase classname="tests.test_core" name="test_type_inference_is_limited_to_platform_entry_formats[https://docs.python.org/3/tutorial/-unknown]" time="0.001" /><testcase classname="tests.test_core" name="test_type_inference_is_limited_to_platform_entry_formats[https://bilibili.com.attacker.example/video/BV1RJ411x7Yk-unknown]" time="0.001" /><testcase classname="tests.test_core" name="test_unknown_candidates_stay_in_evidence_but_not_learning_results" time="0.033" /><testcase classname="tests.test_core" name="test_unknown_promoted_only_after_page_type_and_catalog_ids_resolve" time="0.077" /><testcase classname="tests.test_core" name="test_confirmed_unusable_courses_are_removed_after_enrichment[not_found]" time="0.038" /><testcase classname="tests.test_core" name="test_confirmed_unusable_courses_are_removed_after_enrichment[error_page]" time="0.036" /><testcase classname="tests.test_core" name="test_confirmed_unusable_courses_are_removed_after_enrichment[unsafe_url]" time="0.041" /><testcase classname="tests.test_core" name="test_chapter_urls_dedup_fetch_once_without_losing_multimapping" time="0.086"><failure message="AssertionError: assert 2 == 4&#10; +  where 2 = len([{'knowledge_point_id': '462327d5-ff78-4d4b-8628-999398d4d451', 'resource_id': 'res_764c694b8dcecfcb128b91e1', 'rankin...08b2e011afa8729', 'ranking_score': 83.0, 'recommendation_reason': '根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。', ...}])&#10; +    where [{'knowledge_point_id': '462327d5-ff78-4d4b-8628-999398d4d451', 'resource_id': 'res_764c694b8dcecfcb128b91e1', 'rankin...08b2e011afa8729', 'ranking_score': 83.0, 'recommendation_reason': '根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。', ...}] = matches('a4e35b31-1301-4628-bcd0-aeed3657f45d')&#10; +      where matches = &lt;backend.app.db.Store object at 0x000001DBFB5A0370&gt;.matches&#10; +        where &lt;backend.app.db.Store object at 0x000001DBFB5A0370&gt; = &lt;backend.app.service.JobService object at 0x000001DBFB589180&gt;.store">tmp_path = WindowsPath('C:/Users/xiaoer/AppData/Local/Temp/pytest-of-xiaoer/pytest-5942/test_chapter_urls_dedup_fetch_0')
+
+    @pytest.mark.asyncio
+    async def test_chapter_urls_dedup_fetch_once_without_losing_multimapping(tmp_path):
+        class ChaptersSearch(FakeSearch):
+            async def search(self, query, language, limit, domain_filters):
+                first = (await super().search(query, language, limit, domain_filters))[0]
+                return [first.model_copy(update={"url": f"https://example.org/course/python?p={p}&amp;utm_source=test", "id": str(p)}) for p in (1, 2, 1)]
+        svc = service(tmp_path, provider=ChaptersSearch())
+        jid = svc.create(SearchRequest(knowledge_points=["Python 列表与字典", "HTML 表单校验"]))["job_id"]
+        await svc.run(jid)
+        assert len(svc.fetcher.calls) == 2
+&gt;       assert len(svc.store.matches(jid)) == 4
+E       AssertionError: assert 2 == 4
+E        +  where 2 = len([{'knowledge_point_id': '462327d5-ff78-4d4b-8628-999398d4d451', 'resource_id': 'res_764c694b8dcecfcb128b91e1', 'rankin...08b2e011afa8729', 'ranking_score': 83.0, 'recommendation_reason': '根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。', ...}])
+E        +    where [{'knowledge_point_id': '462327d5-ff78-4d4b-8628-999398d4d451', 'resource_id': 'res_764c694b8dcecfcb128b91e1', 'rankin...08b2e011afa8729', 'ranking_score': 83.0, 'recommendation_reason': '根据该知识点对应的搜索标题与摘要匹配，可能涉及该知识点；页面详情及完整教学覆盖尚未核验。', ...}] = matches('a4e35b31-1301-4628-bcd0-aeed3657f45d')
+E        +      where matches = &lt;backend.app.db.Store object at 0x000001DBFB5A0370&gt;.matches
+E        +        where &lt;backend.app.db.Store object at 0x000001DBFB5A0370&gt; = &lt;backend.app.service.JobService object at 0x000001DBFB589180&gt;.store
+
+tests\test_core.py:493: AssertionError</failure></testcase><testcase classname="tests.test_core" name="test_details_overlap_search_remain_fair_bounded_and_incremental" time="0.342" /><testcase classname="tests.test_core" name="test_metadata_deadline_cancels_all_children_without_late_writes" time="0.137" /><testcase classname="tests.test_core" name="test_catalog_followup_shares_detail_budget_and_does_not_recount_cache[1-0]" time="0.059"><failure message="assert 0 == 1">tmp_path = WindowsPath('C:/Users/xiaoer/AppData/Local/Temp/pytest-of-xiaoer/pytest-5942/test_catalog_followup_shares_d0')
+budget = 1, expected_catalog = 0
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("budget,expected_catalog", [(1, 0), (2, 1)])
+    async def test_catalog_followup_shares_detail_budget_and_does_not_recount_cache(tmp_path, budget, expected_catalog):
+        class HookFetcher(Fetcher):
+            async def enrich(self, candidate, *, catalog_budget_hook=None):
+                assert catalog_budget_hook is not None
+                allowed = await catalog_budget_hook()
+                return {"fetch_status": "fetched", "catalog_pages_completed": int(allowed),
+                        "catalog_fetch_status": "fetched" if allowed else "budget_limited"}
+        svc = service(tmp_path, settings=Settings(database_path=str(tmp_path / "catalog-budget.sqlite3"), max_detail_pages=budget))
+        svc.fetcher = HookFetcher()
+        request = SearchRequest(knowledge_points=["Python 列表"])
+        jid = svc.create(request)["job_id"]
+        await svc.run(jid)
+        job = svc.store.get_job(jid)
+        assert job["progress"]["details_attempted"] == job["progress"]["details_completed"] == 1
+        assert job["progress"]["catalog_pages_attempted"] == job["progress"]["catalog_pages_completed"] == expected_catalog
+        assert job["progress"]["details_attempted"] + job["progress"]["catalog_pages_attempted"] &lt;= budget
+        assert job["status"] == ("partial" if budget == 1 else "completed")
+        second = svc.create(request)["job_id"]
+        await svc.run(second)
+&gt;       assert svc.store.get_job(second)["progress"]["details_cached"] == 1
+E       assert 0 == 1
+
+tests\test_core.py:607: AssertionError</failure></testcase><testcase classname="tests.test_core" name="test_catalog_followup_shares_detail_budget_and_does_not_recount_cache[2-1]" time="0.062" /><testcase classname="tests.test_core" name="test_current_search_trace_is_separate_from_cache_history_and_denial_stops_job[False]" time="0.041" /><testcase classname="tests.test_core" name="test_current_search_trace_is_separate_from_cache_history_and_denial_stops_job[True]" time="0.036" /></testsuite></testsuites>

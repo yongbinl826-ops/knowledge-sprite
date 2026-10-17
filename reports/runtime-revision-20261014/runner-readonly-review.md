@@ -1,0 +1,35 @@
+# Runtime runner read-only review — 2026-10-14
+
+Reviewed `scripts/verify_runtime_20261014.py`, the MIT/dynamic scopes, production transport/provider/service paths, and all three completed `*live.json` reports. This review performed no network requests, changed no application/runner/scope files, and did not rerun the experiments. The completed runner is retained and must not be reused for further live requests without addressing the issues below.
+
+## Completed-run evidence
+
+| Report | Real source HTTP | DoH HTTP | SearXNG endpoint HTTP | API returned learning resources | Detail attempts |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `mit-live.json` | 4 | 8 | 0 | 1 | 1 |
+| `dynamic-live.json` | 0 | 0 | 3 | 0 | 0 |
+| `dynamic-course-id-live.json` | 0 | 0 | 3 | 0 | 0 |
+
+- The MIT run completed in 32.497 seconds and retained 409,722 complete source-response bytes. The saved robots document contains the actual index URL; that index contains the requested child sitemap; the child contains the requested course URL. This was checked against the saved raw files, not merely against the report's discovery summary.
+- `/api/search-jobs` returned 202 with `reused: false` in all three runs. The runner invokes the real FastAPI routes and `JobService` through ASGITransport with fresh SQLite databases. It does not seed candidates. This proves the in-process API chain; it does not itself prove a browser interaction or a TCP deployment. Browser acceptance is separate.
+- MIT's actual `/results` response contains **Theory of Probability**, with `resource_type=course`, `fetch_status=fetched`, and independent page Course evidence. It has `video_evidence_status=none`, zero chapters, and no renderer diagnostics. Knowledge coverage is title-based relevance, not verified complete instruction. This is successful ordinary-course discovery, not video/catalog/playback validation.
+- Both dynamic jobs made two open queries and one Microsoft-domain query. All six search endpoint requests completed with HTTP 200 and passed the production identity-encoding check. Each domain query returned zero accepted candidates. Each final API group contains zero items; neither job attempted a source page or JS rendering. `completed` describes completed search execution, not successful course discovery or dynamic supplementation. The second job is an explicitly identified development query, not independent held-out evidence.
+- Independently recomputed interval overlap across source HTTP, DNS HTTP, and search endpoint HTTP is one for each run. The recorded counts equal their trace-array lengths. All saved source/search body hashes, current source hashes, and preserved prior-report hashes match the reports. No observed scope violation or invented source chain was found.
+
+## Runner defects retained for repair before any reuse
+
+1. **Search-response buffering can decompress before the production guard.** At runner lines 149–160, `SearchTransport` reads raw bytes and reconstructs `httpx.Response(..., headers=result.headers, content=bytes(body))`. HTTPX's response constructor calls `read()` for a byte stream and applies `Content-Encoding`. Consequently, an unexpected compressed response could be decompressed before `SearXNGProvider._bounded_response` rejects non-identity encoding; the 2 MB raw-byte check would not bound that decompression. This branch was not triggered in the six completed search requests, so it does not invalidate their recorded results. Before reuse, reject unexpected encoding immediately after headers and before reading or reconstructing content, preserve an error record, and close the response in `finally`. Do not modify or repeat the completed runs merely to repair this runner.
+
+2. **Unexpected runner exceptions lack terminal cleanup/report finalization.** Search response `aclose()` only occurs after a successful complete read. The main API/report block also lacks an outer `try/finally`; an unexpected API status, JSON/schema error, raw-file write failure, or audit extraction error can skip search-client closure and the final counters/source hashes. Incremental snapshots may remain, but they are not a complete failure report. The current application's lifespan body also has cleanup after a bare `yield`, so exceptional exit from the runner's lifespan block cannot be assumed to execute service/database cleanup. Before reusing this runner, preserve a terminal error stage/type and perform owned client/job cleanup and final report attempts in a bounded `finally`. All three reviewed runs did finalize normally; this is an unexercised failure-path limitation, not a claim that their cleanup failed.
+
+## Interpretation limits
+
+- Independent wrappers cover Fetcher target requests and resolver calls, including redirects, robots, catalog followups, and renderer preparation if exercised. DoH observation is installed inside each resolver invocation after the provider/renderer observer exists, so provider ContextVar replacement does not remove the outer independent transport limits.
+- The injected Fetcher uses zero retries, serial operation, the scope's response cap, 10-second headers, 5-second idle body time, 30-second cumulative body cap, and 16,384 bytes/second size policy. Effective settings match the relevant scope settings. The MIT index recorded the fixed body formula and a 27.158-second body budget; the body completed within it. Dynamic rendering limits are configured but were not exercised.
+- `total_bytes_max` and `complete_response_bytes` concern source payloads. They do not include search responses, DoH responses, transport overhead, or SearXNG's internal upstream traffic. Search responses have their separate 2 MB per-response raw limit; DoH has the production 64 KiB response bound. Do not describe the source-byte cap as a total network-byte cap.
+- SearXNG's internal upstream request count is explicitly unknown. Three observed local endpoint requests are not proof of only three upstream engine requests.
+- The report's `acceptance` array includes all stored candidates. Success claims must additionally inspect actual `/results` groups; this review did so. Likewise, `api_transport`'s reference to separate UI checking is a description of the intended workflow, not embedded UI evidence.
+- The HTTP audit wrapper performs strict UTF-8 decoding and extraction inside its transport `try`. A future non-UTF-8 or extractor-edge-case page could therefore turn a diagnostic failure into a fetch failure. All observed HTML in these runs completed successfully. Keep optional diagnostic extraction isolated from transport success in any future runner revision.
+- A missing `static_extractions[resource.url]` is currently reported as zero chapters, including a possible redirect-key mismatch. Treat missing baselines as unknown in future comparisons; use `render_diagnostics.static_chapter_count` or the resolved source URL where available. There was no dynamic extraction or claimed JS gain in these runs.
+
+No application, runner, scope, prior report, or SQLite database was modified by this review. Only this review document was added.

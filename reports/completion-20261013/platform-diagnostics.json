@@ -1,0 +1,972 @@
+{
+  "generated_at_utc": "2026-10-13T13:47:45.585543+00:00",
+  "rows": [
+    {
+      "platform": "bilibili",
+      "url": "https://www.bilibili.com/video/BV1VZ4y1G7YB/?uid=425631565A34793147375942",
+      "observed_at_utc": "2026-10-13T13:24:51.467Z",
+      "tool_mode": "normal public IAB browser; actual prior search link",
+      "http_status": null,
+      "page_features": {
+        "label": "视频选集（1/15）",
+        "count": 15,
+        "examples": [
+          {
+            "title": "1. 本课目标",
+            "display_duration": "02:35"
+          },
+          {
+            "title": "2. 为什么需要列表",
+            "display_duration": "04:21"
+          },
+          {
+            "title": "11. 字典基本应用",
+            "display_duration": "29:50"
+          }
+        ]
+      },
+      "classifications": [
+        "manual_catalog_visible",
+        "playback_not_verified",
+        "production_explicit_permission_required",
+        "production_catalog_adapter_not_implemented"
+      ],
+      "production_metadata_updated": false,
+      "evidence": "bilibili-browser-check.json",
+      "next_condition": "Automatic integration requires applicable permission and a separately tested adapter; manual visibility is not permission."
+    },
+    {
+      "platform": "icourse163",
+      "url": "https://www.icourse163.org/course/NWPU-1207119809",
+      "observed_at_utc": "2026-10-13T13:26:45.945Z",
+      "tool_mode": "Bounded normal public browser navigation to previously discovered unvisited MOOC link; no backend integration",
+      "http_status": null,
+      "page_features": {
+        "course_identity_visible": true,
+        "overview_visible": true,
+        "objectives_visible": true,
+        "outline_heading_visible": true,
+        "outline_rows_visible": 0,
+        "prerequisites_visible": true,
+        "login_or_captcha_interacted": false
+      },
+      "classifications": [
+        "entry_visible",
+        "catalog_not_observed_cause_unknown",
+        "playback_not_tested",
+        "automatic_permission_unconfirmed",
+        "platform_catalog_adapter_not_implemented"
+      ],
+      "production_metadata_updated": false,
+      "evidence": "mooc-browser-check.json",
+      "next_condition": "Confirm applicable automation scope; distinguish empty render from absence/login/JS by direct evidence before implementing access."
+    },
+    {
+      "platform": "icourse163",
+      "url": "https://www.icourse163.org/course/WHUT-1206307812",
+      "observed_at_utc": "2026-10-13T09:22:12.316Z",
+      "tool_mode": "historical same-day normal public browser; not repeated this batch",
+      "http_status": null,
+      "page_features": {
+        "course_title": "数据结构与算法Python版",
+        "institution": "北京大学",
+        "term": "2026年03月05日 ~ 2026年06月25日",
+        "availability": [
+          "当前开课已结束",
+          "老师已关闭该学期，无法查看"
+        ],
+        "course_outline_visible": true
+      },
+      "classifications": [
+        "historical_manual_outline_visible",
+        "term_closed",
+        "playback_not_tested"
+      ],
+      "evidence": "../browser-mooc-entry-20261013.json",
+      "next_condition": "An accessible current offering would need independent observation; no login or enrollment performed."
+    },
+    {
+      "platform": "openlearn",
+      "url": "https://www.open.edu/robots.txt",
+      "target_not_requested": "https://www.open.edu/openlearn/free-courses/full-catalogue",
+      "observed_at_utc": "2026-10-13T13:21:30.166330+00:00",
+      "tool_mode": "production safety Fetcher with bounded recorder; isolated from database",
+      "http_status": 403,
+      "page_features": {
+        "bytes": 0,
+        "catalog_page_requested": false
+      },
+      "classifications": [
+        "explicit_http_denial_at_robots",
+        "path_stopped",
+        "catalog_page_not_requested",
+        "source_adapter_not_implemented"
+      ],
+      "evidence": "openlearn-probe.json",
+      "next_condition": "Do not retry this denied route; an independently authorized and accessible route would need new evidence."
+    },
+    {
+      "platform": "xuetangx",
+      "url": "https://www.xuetangx.com/app/protocol",
+      "observed_at_utc": null,
+      "tool_mode": "historical same-day official policy/browser review; not retested in current held-out cases",
+      "http_status": null,
+      "page_features": {
+        "policy_updated_date": "2021-01-05",
+        "explicit_scraping_restriction_recorded": true
+      },
+      "classifications": [
+        "official_scraping_prohibition",
+        "not_retested_current_batch",
+        "historical_search_no_accepted_results"
+      ],
+      "evidence": "../platform-coverage-policy-20261013-final.json",
+      "historical_http_observations": [],
+      "next_condition": "No automatic traversal under current policy; search-index results remain a separate discovery path."
+    },
+    {
+      "platform": "mit_ocw",
+      "url": "https://ocw.mit.edu/sitemap.xml",
+      "observed_at_utc": "2026-10-13T13:52:17.223062+00:00",
+      "tool_mode": "bounded production safety Fetcher/PinnedHTTPClient probe; no database/browser/JS",
+      "http_status": 200,
+      "page_features": {
+        "root_element": "sitemapindex",
+        "locations": 2588,
+        "course_version_sitemaps": 2587,
+        "bytes": 363036,
+        "recursively_followed": 0
+      },
+      "classifications": [
+        "official_declared_index_reachable",
+        "dynamic_discovery_not_yet_verified_by_this_probe"
+      ],
+      "evidence": "mit-discovery-probe.json",
+      "counts": {
+        "target": 3,
+        "doh": 6
+      },
+      "next_condition": "Implement bounded same-origin child-sitemap discovery and verify actual Course page and original knowledge-point evidence in a separate repair run."
+    },
+    {
+      "platform": "MIT OCW official sitemap repair",
+      "url": "https://ocw.mit.edu/sitemap.xml",
+      "observed_at_utc": "2026-10-13T14:30:12.957273+00:00",
+      "tool_mode": "production JobService and Fetcher with independent bounded live transport; isolated fresh database",
+      "http_status": null,
+      "classifications": [
+        "network_timeout",
+        "repair_validation_failed",
+        "no_course_or_catalog_requested"
+      ],
+      "target_http": 2,
+      "doh_http": 4,
+      "requests": [
+        {
+          "sequence": 1,
+          "url": "https://ocw.mit.edu/robots.txt",
+          "started_at": "2026-10-13T14:29:57.273661+00:00",
+          "status_code": 200,
+          "error_type": null,
+          "truncated": false,
+          "max_bytes": 256000,
+          "pinned_public_addresses": [
+            "151.101.2.132",
+            "151.101.194.132",
+            "151.101.66.132",
+            "151.101.130.132"
+          ],
+          "bytes": 64,
+          "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+          "content_type": "text/plain",
+          "location": null,
+          "source_file": "reports/completion-20261013/official-repair-source-1.txt",
+          "finished_at": "2026-10-13T14:29:59.612650+00:00",
+          "elapsed_seconds": 2.339
+        },
+        {
+          "sequence": 2,
+          "url": "https://ocw.mit.edu/sitemap.xml",
+          "started_at": "2026-10-13T14:30:02.940188+00:00",
+          "status_code": null,
+          "error_type": "CancelledError",
+          "truncated": false,
+          "max_bytes": 2000000,
+          "pinned_public_addresses": [
+            "151.101.66.132",
+            "151.101.194.132",
+            "151.101.130.132",
+            "151.101.2.132"
+          ],
+          "stop_status": null,
+          "finished_at": "2026-10-13T14:30:12.948958+00:00",
+          "elapsed_seconds": 10.009
+        }
+      ],
+      "subsequent_points_new_http": 0,
+      "production_metadata_updated": false,
+      "evidence": "official-repair-live.json",
+      "browser_evidence": "official-repair-browser.json",
+      "next_action": "No rerun in this scope; optional source remains disabled in normal runtime; do not treat prior probe as this run passing"
+    }
+  ],
+  "current_scoped_search_observations": [
+    {
+      "job_id": "4682587d-f925-4219-8448-b3175c91937e",
+      "query": "(site:ocw.mit.edu OR site:open.edu) Bayes theorem conditional probability course lesson",
+      "domains": [
+        "ocw.mit.edu",
+        "open.edu"
+      ],
+      "observed_at_utc": "2026-10-13T13:42:32.130249+00:00",
+      "time_scope": "job submission; per-request time and elapsed fields retained in original provider_requests",
+      "candidate_count": 0,
+      "tool_mode": "production SearXNG HTTP through configured engine group",
+      "provider_requests": [
+        {
+          "provider": "searxng",
+          "started_at": "2026-10-13T13:42:51.787195+00:00",
+          "retry_index": 0,
+          "status": "completed",
+          "engines_requested": "bing",
+          "http_status": 200,
+          "response_bytes": 5519,
+          "elapsed_seconds": 1.982,
+          "upstream_warnings": [],
+          "raw_candidate_count": 10,
+          "candidate_count": 0,
+          "fallback": false,
+          "filter_counts": {
+            "domain_mismatch": 10
+          },
+          "candidate_trace": [
+            {
+              "index": 0,
+              "reason": "domain_mismatch",
+              "url": "https://www.pandora.com/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "b06937b3f19088a9c99b143a6a4c999fb6571ce7221452148ae5068b68218d9e"
+            },
+            {
+              "index": 1,
+              "reason": "domain_mismatch",
+              "url": "https://www.pandora.com/login.vm",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "4e3a9477c61ec03657eccd879e13b301770a3e0e52537f3d5d36689eba6d8874"
+            },
+            {
+              "index": 2,
+              "reason": "domain_mismatch",
+              "url": "https://amp.pandora.com/login",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "21ecd5eef63761c96649859b7bdd0cd1d15d96479425a1a318695e21a3cab06a"
+            },
+            {
+              "index": 3,
+              "reason": "domain_mismatch",
+              "url": "https://tv.pandora.com/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "a1c38401ec8ab6671d5b21319ad7233c67e24731f591d72d5bc8e9743c6e4a9b"
+            },
+            {
+              "index": 4,
+              "reason": "domain_mismatch",
+              "url": "https://community.pandora.com/t5/Account/How-to-Log-into-My-Account/td-p/103304",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "a31f3113d46366b1a6fa81574605ff364ae6f0ee16a8ff47d4b10fb5a6d9fdda"
+            },
+            {
+              "index": 5,
+              "reason": "domain_mismatch",
+              "url": "https://help.pandora.com/s/",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "765d0c3bceac4a48cf0b533f6652f84a4e6c7ef53b0572dc009e79a18af63f6f"
+            },
+            {
+              "index": 6,
+              "reason": "domain_mismatch",
+              "url": "https://developer.pandora.com/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "66ff171fd5fc6ccf23cdf65494fff337ebed1e87389626074d9da286007ed7be"
+            },
+            {
+              "index": 7,
+              "reason": "domain_mismatch",
+              "url": "https://community.pandora.com/t5/Subscriptions/bd-p/subs",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "3da1ac7ed8dd1207a4df5c3d58e23b960d5b26c4c9c01ab3d0ca6867920433ec"
+            },
+            {
+              "index": 8,
+              "reason": "domain_mismatch",
+              "url": "https://www.pandora.com/desktop",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "b81384f01bd5011b579dbb464dd2efb643cf7b08858959651c7d8b52908666c5"
+            },
+            {
+              "index": 9,
+              "reason": "domain_mismatch",
+              "url": "https://www.pandora.com/browse",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "7a8ceea56c6cbf3dcccdbdcb39ca892ad9e063b53a1c38ee43392811fa94e28c"
+            }
+          ],
+          "candidate_trace_omitted": 0
+        }
+      ],
+      "classification": "search_no_accepted_candidates"
+    },
+    {
+      "job_id": "4682587d-f925-4219-8448-b3175c91937e",
+      "query": "(site:ocw.mit.edu OR site:open.edu) plate tectonics course lesson",
+      "domains": [
+        "ocw.mit.edu",
+        "open.edu"
+      ],
+      "observed_at_utc": "2026-10-13T13:42:32.130249+00:00",
+      "time_scope": "job submission; per-request time and elapsed fields retained in original provider_requests",
+      "candidate_count": 0,
+      "tool_mode": "production SearXNG HTTP through configured engine group",
+      "provider_requests": [
+        {
+          "provider": "searxng",
+          "started_at": "2026-10-13T13:42:53.773129+00:00",
+          "retry_index": 0,
+          "status": "completed",
+          "engines_requested": "bing",
+          "http_status": 200,
+          "response_bytes": 6178,
+          "elapsed_seconds": 2.214,
+          "upstream_warnings": [],
+          "raw_candidate_count": 10,
+          "candidate_count": 0,
+          "fallback": false,
+          "filter_counts": {
+            "domain_mismatch": 10
+          },
+          "candidate_trace": [
+            {
+              "index": 0,
+              "reason": "domain_mismatch",
+              "url": "https://www.merriam-webster.com/dictionary/plate",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "14a2483d7916e9631f9874614aa35195eb738f4f3f8a8cdae643793b0aaabdb4"
+            },
+            {
+              "index": 1,
+              "reason": "domain_mismatch",
+              "url": "https://www.target.com/c/plates-dinnerware-dining-entertaining-kitchen/-/N-4ykli",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "7bbd65daa0c81ee26ecf0c83c5e8bfbfc743192f98cc0c601e2e8a97cea9d9de"
+            },
+            {
+              "index": 2,
+              "reason": "domain_mismatch",
+              "url": "https://dictionary.cambridge.org/dictionary/english/plate",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "4b223ec8910c56df42f44101fefd66c8c60e07d154fb06468f7618c6adfc87d5"
+            },
+            {
+              "index": 3,
+              "reason": "domain_mismatch",
+              "url": "https://en.wikipedia.org/wiki/Plate_(dishware)",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "97672cebcfe721ca97e4a1ebb26cc788854a4e56a7cc9c84ccca5615828ec773"
+            },
+            {
+              "index": 4,
+              "reason": "domain_mismatch",
+              "url": "https://en.wikipedia.org/wiki/Plate",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "6eadcae2ad280aaebf4f1fcd5617975711861bb6be0b6f7ce0c342ccc3071e70"
+            },
+            {
+              "index": 5,
+              "reason": "domain_mismatch",
+              "url": "https://www.platestowe.com/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "29fa0f2f0cc0772bc604578d42552f80994eac0fac221335d8ac03a9db21c0c9"
+            },
+            {
+              "index": 6,
+              "reason": "domain_mismatch",
+              "url": "https://www.macys.com/shop/home/kitchen-dining/dining-entertaining/dinnerware/Dinnerware_type/Plates",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "9a255d60e6cd35752178725db638cbf9b133487244401b29ec2d5e96d214ae0a"
+            },
+            {
+              "index": 7,
+              "reason": "domain_mismatch",
+              "url": "https://www.crateandbarrel.com/dining-and-entertaining/dinner-plates/1",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "2eceff8c7d01c364e26006b5a2f4148af4199c1823712da1025c6e7e3f6cbde6"
+            },
+            {
+              "index": 8,
+              "reason": "domain_mismatch",
+              "url": "https://www.amazon.com/plate-set/s",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "1f4987e529f5fec768b837f763aa85a2751e8d0093d3d8aab54c96885e8e2c49"
+            },
+            {
+              "index": 9,
+              "reason": "domain_mismatch",
+              "url": "https://www.ikea.com/us/en/cat/plates-18861/",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "157e8a85ca77a8f8a6ab805914de68da8dc301546ff3eda804fb85ce3aeff3cf"
+            }
+          ],
+          "candidate_trace_omitted": 0
+        }
+      ],
+      "classification": "search_no_accepted_candidates"
+    },
+    {
+      "job_id": "4682587d-f925-4219-8448-b3175c91937e",
+      "query": "(site:ocw.mit.edu OR site:open.edu) supply demand elasticity course lesson",
+      "domains": [
+        "ocw.mit.edu",
+        "open.edu"
+      ],
+      "observed_at_utc": "2026-10-13T13:42:32.130249+00:00",
+      "time_scope": "job submission; per-request time and elapsed fields retained in original provider_requests",
+      "candidate_count": 0,
+      "tool_mode": "production SearXNG HTTP through configured engine group",
+      "provider_requests": [
+        {
+          "provider": "searxng",
+          "started_at": "2026-10-13T13:42:55.991372+00:00",
+          "retry_index": 0,
+          "status": "completed",
+          "engines_requested": "bing",
+          "http_status": 200,
+          "response_bytes": 6147,
+          "elapsed_seconds": 1.804,
+          "upstream_warnings": [],
+          "raw_candidate_count": 10,
+          "candidate_count": 0,
+          "fallback": false,
+          "filter_counts": {
+            "domain_mismatch": 10
+          },
+          "candidate_trace": [
+            {
+              "index": 0,
+              "reason": "domain_mismatch",
+              "url": "https://www.merriam-webster.com/dictionary/supply",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "20626a5f1ceec1e4d21bcd52227be6a7fce274c1801f4605cf454db5026128a9"
+            },
+            {
+              "index": 1,
+              "reason": "domain_mismatch",
+              "url": "https://en.m.wikipedia.org/wiki/Supply_(economics)",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "34b880e5777cd6ece7ac4a1639ad952bab6b4269f676ce8f3fcc2d594390c061"
+            },
+            {
+              "index": 2,
+              "reason": "domain_mismatch",
+              "url": "https://www.supplyhouse.com/",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "5f9ade730aa44d20c82725b64f4144f786d2ac321b80b2fb0084b5418cefee7e"
+            },
+            {
+              "index": 3,
+              "reason": "domain_mismatch",
+              "url": "https://www.investopedia.com/terms/s/supply.asp",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "fc8dd47311b7e8dd1e099a901a9352e6d6352a0a9c33e925d53de000899ee821"
+            },
+            {
+              "index": 4,
+              "reason": "domain_mismatch",
+              "url": "https://en.m.wikipedia.org/wiki/Supply_and_demand",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "c827c3a2cebea7354b8587bf6855998b2fb3a969b5c06edfdcc605a545bc5a80"
+            },
+            {
+              "index": 5,
+              "reason": "domain_mismatch",
+              "url": "https://www.restaurantsupply.com/pages/new-york-queens-restaurant-supply-store",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "2299ca50309731215afe1eb2665f12170496b2248c635181dae9c337794ca7f4"
+            },
+            {
+              "index": 6,
+              "reason": "domain_mismatch",
+              "url": "https://dictionary.cambridge.org/dictionary/english/supply",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "042314dd02499c9eff131bdbddc12ef7d0358972b86ac5b8f9d042aeeef825c1"
+            },
+            {
+              "index": 7,
+              "reason": "domain_mismatch",
+              "url": "https://www.merriam-webster.com/dictionary/supply%20and%20demand",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "739930b9795070b7d7533a0d424dfd35fc499a710d88629feac9e71a8e19ea7d"
+            },
+            {
+              "index": 8,
+              "reason": "domain_mismatch",
+              "url": "https://www.yelp.com/search",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "dab5388313de36d9460abf7691792d0299d51c3b7d62638eeb4b513eda7a2a7c"
+            },
+            {
+              "index": 9,
+              "reason": "domain_mismatch",
+              "url": "https://www.dictionary.com/browse/supply",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "ddd8358b9a12963e138d62b717a92d5e736a3c8312952069f2acef775e81709c"
+            }
+          ],
+          "candidate_trace_omitted": 0
+        }
+      ],
+      "classification": "search_no_accepted_candidates"
+    },
+    {
+      "job_id": "a75c3934-622c-4333-bc8b-ccc448f0add4",
+      "query": "site:bilibili.com/video 二分查找 视频教程",
+      "domains": [
+        "bilibili.com"
+      ],
+      "observed_at_utc": "2026-10-13T13:42:58.588079+00:00",
+      "time_scope": "job submission; per-request time and elapsed fields retained in original provider_requests",
+      "candidate_count": 6,
+      "tool_mode": "production SearXNG HTTP through configured engine group",
+      "provider_requests": [
+        {
+          "provider": "searxng",
+          "started_at": "2026-10-13T13:43:04.019827+00:00",
+          "retry_index": 0,
+          "status": "completed",
+          "engines_requested": "duckduckgo videos",
+          "http_status": 200,
+          "response_bytes": 72357,
+          "elapsed_seconds": 3.654,
+          "upstream_warnings": [],
+          "raw_candidate_count": 59,
+          "candidate_count": 6,
+          "fallback": false,
+          "filter_counts": {
+            "accepted": 6,
+            "limit_reached": 53
+          },
+          "candidate_trace": [
+            {
+              "index": 0,
+              "reason": "accepted",
+              "url": "https://www.bilibili.com/video/BV1fA4y1o715/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "cf74b2d95a7b102e510f8b6975649a21325a1c7ada449d1be9aaba069e1a3174"
+            },
+            {
+              "index": 1,
+              "reason": "accepted",
+              "url": "https://www.bilibili.com/video/BV1LJ411X76n/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "0c32abb315763bab380cfb9c29c8e09848161208254bc26f5ec10da12367b94d"
+            },
+            {
+              "index": 2,
+              "reason": "accepted",
+              "url": "https://www.bilibili.com/video/BV1db411U7Cp/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "a3d5c6c7f6ed24c4b93e58fae86957da5e21390b3068bed76608c9e8aa1965f7"
+            },
+            {
+              "index": 3,
+              "reason": "accepted",
+              "url": "https://www.bilibili.com/video/BV1Ng4y1q7E3/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "b04bdf0c1f2cfaa58cbd0635c53db61875fffcc8da5d3186edeeaf5ad8079838"
+            },
+            {
+              "index": 4,
+              "reason": "accepted",
+              "url": "https://www.bilibili.com/video/BV1w8411L7v9/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "59eb4bbf54264db9a61863f1d9816eb57adeaddbdc4260703320e872e956f0d9"
+            },
+            {
+              "index": 5,
+              "reason": "accepted",
+              "url": "https://www.bilibili.com/video/BV1wBYi6fEaD/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "cc9791a01864f1309c17801a41e945ad26f94c2d688b22bad5788607f9fd6b79"
+            },
+            {
+              "index": 6,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1E3hG6VEGj/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "080602929197e62b656e9a6f7f10d41b061e4a64a53c4f1e20f5ac95989d1b97"
+            },
+            {
+              "index": 7,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1VfSFB2EBr/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "50d5c9c311b46f64dd2e09d794992f1466ffb59119cd535ab6a1b3217670424b"
+            },
+            {
+              "index": 8,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1X5fwY7Ets/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "2a06cc96d115d77511b457c0f0c43a7868c326f3c6909caf0267f0de655b9926"
+            },
+            {
+              "index": 9,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1F7dVByEGJ/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "6acee378e70a7a2d3bd42610a26271cd90d0cddc74fabcb7de1530a08b37f9ea"
+            },
+            {
+              "index": 10,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1kHhi6XEYT/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "582bfb0accdf30e683d55016b8fb886bd89fb9c9ccfbcad4665af4a9eac1190d"
+            },
+            {
+              "index": 11,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1Rn8GzHE1p/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "b2af7d2878e8f50071bfecc10e55bdc19e867872c35b67d9efcf8dd62c2d2b02"
+            },
+            {
+              "index": 12,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1CihxzkE9t/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "bf4d84499b676cb23fd68a1ec4cf06f16e616302b0186b5518e7ca9759da1287"
+            },
+            {
+              "index": 13,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1Sw2WBwEQF/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "baed577e0475d106b58169a71cb1ea0a52c05811323af381afa9dacf2f0685e6"
+            },
+            {
+              "index": 14,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV11Rhe6HEYQ/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "fb758e0da021be9151a285caf5f7096f06f65ab3d5e0c1f0f0a12beb41b26958"
+            },
+            {
+              "index": 15,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1csReBiEpH/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "c74fee92a6dae677d4bea4fabf69696e185f30b8e7a916715587926ed4bdef3b"
+            },
+            {
+              "index": 16,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1n7411B7JD/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "ccbd9e7fec17ca9770d7620614d0f50b3032a7918509ef4983208000e8300bb8"
+            },
+            {
+              "index": 17,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1RVMKzjEh2/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "9f46975feba29e121209b64b7f91817b840c3bbb88d9fad1de623f802c217047"
+            },
+            {
+              "index": 18,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1HsujemEgQ/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "99251fd6daec1c499613f6567e48cc2a37afad5a0ba2ed7d2c5cff167f30997d"
+            },
+            {
+              "index": 19,
+              "reason": "limit_reached",
+              "url": "https://www.bilibili.com/video/BV1Z6Ne6rEuu/",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "f5beb0738c142c8a409cf1977dea1a31f5b30ef117c05bd5fbee3711d97922b5"
+            }
+          ],
+          "candidate_trace_omitted": 39
+        }
+      ],
+      "classification": "search_candidates_returned"
+    },
+    {
+      "job_id": "a75c3934-622c-4333-bc8b-ccc448f0add4",
+      "query": "site:icourse163.org 二分查找 视频教程",
+      "domains": [
+        "icourse163.org"
+      ],
+      "observed_at_utc": "2026-10-13T13:42:58.588079+00:00",
+      "time_scope": "job submission; per-request time and elapsed fields retained in original provider_requests",
+      "candidate_count": 5,
+      "tool_mode": "production SearXNG HTTP through configured engine group",
+      "provider_requests": [
+        {
+          "provider": "searxng",
+          "started_at": "2026-10-13T13:43:07.693253+00:00",
+          "retry_index": 0,
+          "status": "completed",
+          "engines_requested": "duckduckgo videos",
+          "http_status": 200,
+          "response_bytes": 6658,
+          "elapsed_seconds": 2.505,
+          "upstream_warnings": [],
+          "raw_candidate_count": 5,
+          "candidate_count": 5,
+          "fallback": false,
+          "filter_counts": {
+            "accepted": 5
+          },
+          "candidate_trace": [
+            {
+              "index": 0,
+              "reason": "accepted",
+              "url": "https://www.icourse163.org/course/WHU-29001",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "2cde5dfbcfff239c767a3f7bf3561cfc4bfcffb2345577b00f8f19723013d236"
+            },
+            {
+              "index": 1,
+              "reason": "accepted",
+              "url": "https://www.icourse163.org/course/JIANGNAN-1207113825",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "8abd8d5548be6ad9b3daf902ac88871b9aec7faf7ba098ad3e85a3805a37d46a"
+            },
+            {
+              "index": 2,
+              "reason": "accepted",
+              "url": "https://www.icourse163.org/course/ECUST-1002575003",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "32b1fa08ff1205700d2bcd9eca5ce07f33efa11d1ce6789dd5c95bbcf4235639"
+            },
+            {
+              "index": 3,
+              "reason": "accepted",
+              "url": "https://www.icourse163.org/course/BUAA-1449777166",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "52fdcb517056f6012ebb6434c2b3b7bf5101c1d88c6aa353d969f8174730572a"
+            },
+            {
+              "index": 4,
+              "reason": "accepted",
+              "url": "https://www.icourse163.org/course/TJU-1003019001",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "605ef23644777c7bd0d6181c5ca676a77c2cf5351859052e522a7799c81ec2c1"
+            }
+          ],
+          "candidate_trace_omitted": 0
+        }
+      ],
+      "classification": "search_candidates_returned"
+    },
+    {
+      "job_id": "a75c3934-622c-4333-bc8b-ccc448f0add4",
+      "query": "(site:ocw.mit.edu OR site:open.edu) 二分查找 课程 教学",
+      "domains": [
+        "ocw.mit.edu",
+        "open.edu"
+      ],
+      "observed_at_utc": "2026-10-13T13:42:58.588079+00:00",
+      "time_scope": "job submission; per-request time and elapsed fields retained in original provider_requests",
+      "candidate_count": 0,
+      "tool_mode": "production SearXNG HTTP through configured engine group",
+      "provider_requests": [
+        {
+          "provider": "searxng",
+          "started_at": "2026-10-13T13:43:10.220812+00:00",
+          "retry_index": 0,
+          "status": "completed",
+          "engines_requested": "bing",
+          "http_status": 200,
+          "response_bytes": 6893,
+          "elapsed_seconds": 2.044,
+          "upstream_warnings": [],
+          "raw_candidate_count": 10,
+          "candidate_count": 0,
+          "fallback": false,
+          "filter_counts": {
+            "domain_mismatch": 10
+          },
+          "candidate_trace": [
+            {
+              "index": 0,
+              "reason": "domain_mismatch",
+              "url": "https://www.backmarket.com/en-us",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "fc81d39591bbfa0342f853c7858ad8a5ed369e5b11f5b6596c31c743d28c7ead"
+            },
+            {
+              "index": 1,
+              "reason": "domain_mismatch",
+              "url": "https://www.backmarket.com/en-us/l/iphone/e8724fea-197e-4815-85ce-21b8068020cc",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "2191cbe62e7de64108df7dd24e750e8fcba5743e4f6ddecfea78b7eeccbf6320"
+            },
+            {
+              "index": 2,
+              "reason": "domain_mismatch",
+              "url": "https://help.backmarket.com/hc/en-us/categories/4403407816722-Contact-and-support",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "fb2a18393e6a751795ff276dc8b7166bdcb81e6bc66c97e58b195c95ebaf173d"
+            },
+            {
+              "index": 3,
+              "reason": "domain_mismatch",
+              "url": "https://help.backmarket.com/hc/es/articles/360014698640--C%C3%B3mo-devolver-un-producto-comprado-en-Back-Market",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "b67c7aeae03399200e886125f885ba91a400236668f577df91b31cfbd2bd0c28"
+            },
+            {
+              "index": 4,
+              "reason": "domain_mismatch",
+              "url": "https://pro.backmarket.com/contact",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "abe5f349a6f52cf68f0747556a851aa3416a00e23d71674a563b298a49be9ca5"
+            },
+            {
+              "index": 5,
+              "reason": "domain_mismatch",
+              "url": "https://pro.backmarket.com/pages/return-instructions",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "34c2e983324c00b068bbc0034aae4ed167e16b3394d3b7827ff8cae72af91e7f"
+            },
+            {
+              "index": 6,
+              "reason": "domain_mismatch",
+              "url": "https://www.backmarket.com/en-us/l/apple-ipad/f78ae8f5-4611-4ad0-b2ad-ced07765b847",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "7b29c0d9ab0c472eeeb526a92932ce4288c04ecc5e48c161325403f36a84586f"
+            },
+            {
+              "index": 7,
+              "reason": "domain_mismatch",
+              "url": "https://www.backmarket.com/en-us/l/watches/4ee50ebd-1eb4-4436-a797-80828ce28cc5",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "d9e8661bd1455fc6c32f0db4c3afbe6021d00e711319f77f3d92980e272d14a2"
+            },
+            {
+              "index": 8,
+              "reason": "domain_mismatch",
+              "url": "https://www.backmarket.com/en-us/l/smartphones/0744fd27-8605-465d-8691-3b6dffda5969",
+              "url_truncated": false,
+              "query_redacted": true,
+              "url_sha256": "ebfba6dbac61e7c234c332553d0a7b872083b8ddeb4eaa22e3fc4738153b3fd6"
+            },
+            {
+              "index": 9,
+              "reason": "domain_mismatch",
+              "url": "https://help.backmarket.com/hc/es/categories/4403407816722-Contacto-y-ayuda",
+              "url_truncated": false,
+              "query_redacted": false,
+              "url_sha256": "af9afa75d03fafdd3bd11c779232de82a6b1c3198a955124fdfe1fc984623050"
+            }
+          ],
+          "candidate_trace_omitted": 0
+        }
+      ],
+      "classification": "search_no_accepted_candidates"
+    }
+  ],
+  "interpretation": {
+    "code_missing": "Adapter or controlled production renderer absent; not a platform access failure",
+    "untested": "No current observation; not zero capability",
+    "parse_failure": "Requires an actually fetched document and a failed extraction; not used for policy stops",
+    "no_search_result": "No accepted candidate from this index/query; not proof the platform has no courses",
+    "network_error": "Observed transport error, timeout, or unresolved upstream error; HTTP code stays null when absent",
+    "rate_limit": "Only recorded when actual 429/Retry-After or explicit upstream restriction supports it",
+    "login_captcha": "Only when observed; none solved or used to bypass",
+    "explicit_denial": "Actual 403 or applicable explicit restriction, with trigger source retained",
+    "permission_unconfirmed": "Automatic use scope not established; ordinary public browsing may still work"
+  },
+  "framework_boundary": {
+    "Scrapling": "Prior Selector parser-only replay; no production adoption or anti-bot access claim",
+    "Crawlee": "Official research only, not production runtime",
+    "controlled_renderer": "Local audited-fixture experiment only; arbitrary third-party scripts and production browser fallback disabled; OS egress and WebRTC UDP isolation remain unknown"
+  },
+  "held_out_outcome": {
+    "actual_search_http": 17,
+    "target_html_and_robots_http": 0,
+    "source_families_identified": 0,
+    "new_verified_catalog_rows": 0,
+    "bilibili_displayed_resources": 5,
+    "mooc_candidates": 5,
+    "mooc_displayed_for_binary_search": 0,
+    "english_points_without_qualified_results": 3,
+    "coverage_expansion_passed": false
+  },
+  "closure_updated_at_utc": "2026-10-13T14:35:33.612364+00:00"
+}

@@ -1,0 +1,3840 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-14T10:09:10.618363+00:00",
+  "scope": "original five-case v7 live acquisition only; excludes subsequent offline re-evaluation and UI fixtures",
+  "source_files_sha256": {
+    "live/D06.json": "29c86c73e921b1d09d0a3c40dabe7427e28858574e04dba528ce4e664c5a57a0",
+    "live/D13.json": "b6ec24ac05776b59e7a30404d5fe9e4236be01ec29d26eb02693185179baf723",
+    "live/H06.json": "b9700081bc42f2a973087ac6c464562a191ba158b013c845e3d74c1a53cccd7c",
+    "live/H09.json": "c0906046922a9d456cfc2f1aaa01ce7e5aeb53530fa84642450276442adb9795",
+    "live/H16.json": "7b59c0f9081aa9b6df6af3b4a47021d0294e2919097585395e1878a5f0a1d5c3",
+    "live/frozen-scope.json": "96b50f55a04b1d768f4938152998d6f055b3732c79c9ad4fd2369c4c64c9ea25",
+    "live/finished.json": "ad69ae8817aed6dcd291efa61febd572cc7c42702d49302b4f6bafcdbf162dbb",
+    "live/checkpoint.json": "b96678eba44d50bed96e0035238c79c8343b230f0913cc869d12d150c65486c4",
+    "live/coverage.json": "b26c0dfdb9512cb65ce2fdd92fe20cd1ca5063d5f5be1a005486dcc9bc80c35d",
+    "live/live.sqlite3": "bd19961b5d87b36700f67e0c9724c557ad10938818992c987ca18d5cdeddcd42"
+  },
+  "checkpoint_read_condition": {
+    "active_case": null,
+    "inflight": null,
+    "all_five_cases_terminal": true
+  },
+  "boundaries": [
+    "SearXNG后端实际物理上游请求数unknown；44是应用到SearXNG的HTTP次数。",
+    "题目均已用于开发，原holdout标签保留历史身份；本批不能作为独立留出泛化评测。",
+    "default与platform合并按resource_id去重；资源数不是独立课程数。",
+    "details_attempted/completed是详情处理任务计数，不能当作实际详情HTTP数。",
+    "时序峰值根据应用请求账本started_at/finished_at计算，不是全系统抓包或SearX内部并发观测。",
+    "候选trace存在截断；未保存内容保持unknown。",
+    "未进行播放测试，播放与教学完整覆盖保持unknown。"
+  ],
+  "aggregate": {
+    "case_count": 5,
+    "logical_queries": 25,
+    "logical_status_counts": {
+      "completed": 23,
+      "failed": 2
+    },
+    "request_ledger_counts": {
+      "search_http": 44,
+      "dns_http": 8,
+      "target_http": 4
+    },
+    "request_caps": {
+      "search_http": 60,
+      "target_http": 20,
+      "dns_http": 40
+    },
+    "all_recorded_http_status_counts": {
+      "200": 56
+    },
+    "application_http_error_count": 0,
+    "physical_searx_upstream_http": "unknown",
+    "upstream_payload_failure_counts": [
+      {
+        "code": "upstream_engine_failed",
+        "reason": "timeout",
+        "count": 2
+      },
+      {
+        "code": "upstream_engine_failed",
+        "reason": "unknown",
+        "count": 2
+      }
+    ],
+    "sum_job_progress_search_requests": 46,
+    "search_progress_explanation": "46 = 44 SearXNG HTTP + 2 official discovery HTTP (robots and sitemap), not 46 SearXNG requests.",
+    "source_http_roles": {
+      "robots": 2,
+      "official_sitemap_index": 1,
+      "resource_detail": 1,
+      "catalog_follow": 0
+    },
+    "sum_detail_tasks_attempted": 8,
+    "sum_detail_tasks_completed": 8,
+    "detail_task_outcomes": {
+      "site_policy_blocked": 7,
+      "javascript_required": 1
+    },
+    "catalog_pages_attempted": 0,
+    "catalog_pages_completed": 0,
+    "search_cache_hits": 0,
+    "detail_cache_hits": 0,
+    "official_sitemap_cache_note": "后续适用逻辑查询可复用D06的robots/sitemap索引；这些缓存读取不新增HTTP。",
+    "all_display_buckets_unique_resource_count": 16,
+    "all_display_buckets_unique_status_counts": {
+      "supported": 13,
+      "partial": 2,
+      "needs_review": 1
+    },
+    "default_section_counts": {
+      "supported": 9,
+      "partial": 2,
+      "needs_review": 1
+    },
+    "platform_targeted_queries": {
+      "bilibili": {
+        "logical_queries": 5,
+        "search_http": 7
+      },
+      "icourse163": {
+        "logical_queries": 5,
+        "search_http": 10
+      },
+      "general": {
+        "logical_queries": 10,
+        "search_http": 17
+      },
+      "open_domains": {
+        "logical_queries": 5,
+        "search_http": 10
+      }
+    },
+    "saved_candidate_trace_omitted_observations": 462,
+    "playback_tests": 0,
+    "source_hashes_unchanged_as_recorded_by_runner": true
+  },
+  "timing": {
+    "all": {
+      "request_count": 56,
+      "minimum_start_interval_seconds": 2.001166,
+      "maximum_start_interval_seconds": 61.078402,
+      "peak_inflight_at_ledger_boundary": 1,
+      "peak_starts_in_half_open_window": {
+        "1s": 1,
+        "2s": 1,
+        "60s": 23
+      }
+    },
+    "search_http": {
+      "request_count": 44,
+      "minimum_start_interval_seconds": 2.001905,
+      "maximum_start_interval_seconds": 61.078402,
+      "peak_inflight_at_ledger_boundary": 1,
+      "peak_starts_in_half_open_window": {
+        "1s": 1,
+        "2s": 1,
+        "60s": 21
+      }
+    },
+    "target_http": {
+      "request_count": 4,
+      "minimum_start_interval_seconds": 9.339529,
+      "maximum_start_interval_seconds": 94.724714,
+      "peak_inflight_at_ledger_boundary": 1,
+      "peak_starts_in_half_open_window": {
+        "1s": 1,
+        "2s": 1,
+        "60s": 2
+      }
+    },
+    "dns_http": {
+      "request_count": 8,
+      "minimum_start_interval_seconds": 2.001485,
+      "maximum_start_interval_seconds": 92.717523,
+      "peak_inflight_at_ledger_boundary": 1,
+      "peak_starts_in_half_open_window": {
+        "1s": 1,
+        "2s": 1,
+        "60s": 4
+      }
+    }
+  },
+  "budget_checks": {
+    "campaign_request_caps_respected": true,
+    "per_job_search_budget_respected": true,
+    "per_job_detail_budget_respected": true,
+    "each_case_completed_under_90_seconds": true,
+    "minimum_recorded_combined_start_interval_at_least_2_seconds": true,
+    "max_recorded_inflight_one": true,
+    "observed_wait_between_case4_and5_seconds": 60.008678
+  },
+  "case_partial_boundaries": {
+    "D06": "2个逻辑平台查询失败；DDG两次timeout、两次unknown；Bing返回泛CSS/域不匹配；MIT sitemap索引无匹配子索引。零返回不能证明平台无课。",
+    "D13": "5个逻辑查询completed，HTTP均200；保存no_topic_signal及详情预算文案，2次详情处理均site_policy_blocked且未发目标HTTP。通用未完成警告不等于HTTP故障。",
+    "H06": "5个逻辑查询completed，HTTP均200；完整复合点信号为0，但2条partial仅支持并发，错误处理仍unknown；2次详情处理为策略停止。",
+    "H09": "5个逻辑查询completed，HTTP均200；1次B站策略停止，1次Douyin详情HTTP200后javascript_required；JS未启用，目录未取得。",
+    "H16": "5个逻辑查询completed，HTTP均200；2次YouTube详情处理为策略停止；1条四元数泛外链线索保留needs_review，未计入明确支持。"
+  },
+  "cases": [
+    {
+      "case_id": "D06",
+      "topic": "CSS Flexbox 对齐",
+      "purpose": "development_consumed",
+      "original_split": "development",
+      "job_id": "8ad2399d-06b8-4015-ac29-d9e38ee859eb",
+      "status": "partial",
+      "logical_queries": 5,
+      "logical_status_counts": {
+        "completed": 3,
+        "failed": 2
+      },
+      "progress": {
+        "queries_planned": 5,
+        "queries_completed": 5,
+        "search_requests": 12,
+        "search_successes": 3,
+        "search_failures": 2,
+        "candidates_discovered": 12,
+        "resources_discovered": 6,
+        "details_attempted": 0,
+        "details_completed": 0,
+        "details_cached": 0,
+        "cache_hits": 0,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0,
+        "discovery_dns_requests": 4
+      },
+      "budgets": {
+        "max_search_requests": 12,
+        "max_detail_pages": 2,
+        "deadline_seconds": 90
+      },
+      "request_ledger_counts": {
+        "search_http": 10,
+        "dns_http": 4,
+        "target_http": 2
+      },
+      "source_http": {
+        "robots": 1,
+        "official_sitemap": 1,
+        "resource_detail": 0,
+        "catalog_follow": 0
+      },
+      "first_any_evidence_seconds": null,
+      "completed_seconds": 48.702,
+      "default_section_counts": {
+        "supported": 0,
+        "partial": 0,
+        "needs_review": 0
+      },
+      "platform_section_counts": {},
+      "all_display_buckets_unique_count": 0,
+      "all_display_buckets_unique_status_counts": {},
+      "displayed_resources": [],
+      "stored_resource_fetch_status_counts": {
+        "not_fetched": 6
+      },
+      "processed_detail_resources": [],
+      "warnings": [
+        "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+        "6 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+        "6 个候选缺少课程或视频类型依据，未作为学习资源展示"
+      ],
+      "errors": [
+        {
+          "code": "upstream_engine_failed",
+          "message": "SearXNG 上游引擎故障且没有候选，不能确认正常无结果"
+        }
+      ],
+      "logical_query_audit": [
+        {
+          "query": "CSS Flexbox 对齐  视频教程",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T09:59:16.693929+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.304,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": [
+                {
+                  "code": "upstream_engine_failed",
+                  "engine": "duckduckgo videos",
+                  "reason_code": "timeout",
+                  "reason": "timeout",
+                  "message": "上游搜索超时",
+                  "reason_sha256": "f77d1bb58da886e3cbeebbf35a0b3d217b003506792268052c6a730fbc5ec9bc"
+                }
+              ]
+            },
+            {
+              "started_at": "2026-10-14T09:59:18.999093+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.42,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 10,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "CSS Flexbox 对齐",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-14T09:59:30.673600+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": false
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+              "observed_at": "2026-10-14T09:59:43.566399+00:00",
+              "cache_hit": false,
+              "location_count": 2588
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "CSS Flexbox 对齐 课程 教学",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T09:59:43.679542+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 0.76,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 10,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T09:59:45.685384+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.391,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": [
+                {
+                  "code": "upstream_engine_failed",
+                  "engine": "duckduckgo videos",
+                  "reason_code": "timeout",
+                  "reason": "timeout",
+                  "message": "上游搜索超时",
+                  "reason_sha256": "f77d1bb58da886e3cbeebbf35a0b3d217b003506792268052c6a730fbc5ec9bc"
+                }
+              ]
+            }
+          ],
+          "official_discovery": {
+            "topic": "CSS Flexbox 对齐",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-14T09:59:30.673600+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+              "observed_at": "2026-10-14T09:59:43.566399+00:00",
+              "cache_hit": true,
+              "location_count": 2588
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "site:bilibili.com/video CSS Flexbox 对齐 视频教程",
+          "targeted_platform": "bilibili",
+          "domain_filters": [
+            "bilibili.com"
+          ],
+          "status": "failed",
+          "candidate_count_entering_job": 0,
+          "error_code": "upstream_engine_failed",
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T09:59:48.145756+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 0.185,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": [
+                {
+                  "code": "upstream_engine_failed",
+                  "engine": "duckduckgo videos",
+                  "reason_code": "unknown",
+                  "reason": "unknown",
+                  "message": "上游失败，具体原因未识别",
+                  "reason_sha256": "6c90b1014a9eabe5143c08002e6186b5aba390f3a48fb460c186e520be6071c2"
+                }
+              ]
+            },
+            {
+              "started_at": "2026-10-14T09:59:50.156706+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.141,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "site:icourse163.org CSS Flexbox 对齐 视频教程",
+          "targeted_platform": "icourse163",
+          "domain_filters": [
+            "icourse163.org"
+          ],
+          "status": "failed",
+          "candidate_count_entering_job": 0,
+          "error_code": "upstream_engine_failed",
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T09:59:52.166872+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 0.369,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": [
+                {
+                  "code": "upstream_engine_failed",
+                  "engine": "duckduckgo videos",
+                  "reason_code": "unknown",
+                  "reason": "unknown",
+                  "message": "上游失败，具体原因未识别",
+                  "reason_sha256": "6c90b1014a9eabe5143c08002e6186b5aba390f3a48fb460c186e520be6071c2"
+                }
+              ]
+            },
+            {
+              "started_at": "2026-10-14T09:59:54.170065+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 4.422,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "(site:ocw.mit.edu OR site:open.edu) CSS Flexbox 对齐 课程 教学",
+          "targeted_platform": "open_domains",
+          "domain_filters": [
+            "ocw.mit.edu",
+            "open.edu"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 0,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T09:59:58.597966+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.933,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:00:01.532999+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 3.591,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "CSS Flexbox 对齐",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-14T09:59:30.673600+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+              "observed_at": "2026-10-14T09:59:43.566399+00:00",
+              "cache_hit": true,
+              "location_count": 2588
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        }
+      ],
+      "collection_coverage": {
+        "decomposition_status": "not_applicable",
+        "shared_context": [],
+        "subtopics": [],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "timing": {
+        "request_count": 16,
+        "minimum_start_interval_seconds": 2.001485,
+        "maximum_start_interval_seconds": 9.054375,
+        "peak_inflight_at_ledger_boundary": 1,
+        "peak_starts_in_half_open_window": {
+          "1s": 1,
+          "2s": 1,
+          "60s": 16
+        }
+      },
+      "zero_result_saved_candidates": [
+        {
+          "resource_id": "res_a4157a411aa33c84ad5dec92",
+          "title": "CSS Profile Home – CSS Profile | College Board",
+          "url": "https://cssprofile.collegeboard.org/",
+          "resource_type": "unknown",
+          "fetch_status": "not_fetched"
+        },
+        {
+          "resource_id": "res_ce8d61c509df9265e527fc37",
+          "title": "CSS: Cascading Style Sheets - MDN Web Docs",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/CSS",
+          "resource_type": "unknown",
+          "fetch_status": "not_fetched"
+        },
+        {
+          "resource_id": "res_2f33ecb86a0886dacd95ecc3",
+          "title": "CSS - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/CSS",
+          "resource_type": "unknown",
+          "fetch_status": "not_fetched"
+        },
+        {
+          "resource_id": "res_11b83716dafbb3c6461a81ea",
+          "title": "CSS Tutorial - GeeksforGeeks",
+          "url": "https://www.geeksforgeeks.org/css/css-tutorial/",
+          "resource_type": "unknown",
+          "fetch_status": "not_fetched"
+        },
+        {
+          "resource_id": "res_728f54d236b0ed442c644578",
+          "title": "CSS Tutorial - W3Schools",
+          "url": "https://www.w3schools.com/Css/",
+          "resource_type": "unknown",
+          "fetch_status": "not_fetched"
+        },
+        {
+          "resource_id": "res_8cc262c976ff91e4530c04b0",
+          "title": "HTML Styles CSS - W3Schools",
+          "url": "https://www.w3schools.com/html/html_css.asp",
+          "resource_type": "unknown",
+          "fetch_status": "not_fetched"
+        }
+      ]
+    },
+    {
+      "case_id": "D13",
+      "topic": "JavaScript closures",
+      "purpose": "development_consumed",
+      "original_split": "development",
+      "job_id": "084ba01d-d521-4315-8fc5-b561d60574eb",
+      "status": "partial",
+      "logical_queries": 5,
+      "logical_status_counts": {
+        "completed": 5
+      },
+      "progress": {
+        "queries_planned": 5,
+        "queries_completed": 5,
+        "search_requests": 8,
+        "search_successes": 5,
+        "search_failures": 0,
+        "candidates_discovered": 18,
+        "resources_discovered": 16,
+        "details_attempted": 2,
+        "details_completed": 2,
+        "details_cached": 0,
+        "cache_hits": 0,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0
+      },
+      "budgets": {
+        "max_search_requests": 12,
+        "max_detail_pages": 2,
+        "deadline_seconds": 90
+      },
+      "request_ledger_counts": {
+        "search_http": 8
+      },
+      "source_http": {
+        "robots": 0,
+        "official_sitemap": 0,
+        "resource_detail": 0,
+        "catalog_follow": 0
+      },
+      "first_any_evidence_seconds": 4.797,
+      "completed_seconds": 24.976,
+      "default_section_counts": {
+        "supported": 3,
+        "partial": 0,
+        "needs_review": 0
+      },
+      "platform_section_counts": {
+        "bilibili": {
+          "supported": 2,
+          "partial": 0,
+          "needs_review": 0
+        },
+        "other": {
+          "supported": 3,
+          "partial": 0,
+          "needs_review": 0
+        }
+      },
+      "all_display_buckets_unique_count": 5,
+      "all_display_buckets_unique_status_counts": {
+        "supported": 5
+      },
+      "displayed_resources": [
+        {
+          "resource_id": "res_2e3c6059f995f280be94ed69",
+          "title": "JavaScript Closures Explained SUPER Clearly ✨ | Long Definitions + Line-By-Line Examples | JS Day 13",
+          "url": "https://www.youtube.com/watch?v=Zx4TTTONZpU",
+          "platform": "other",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_11230671-9830-476d-80b2-9b6a404ef408"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_11230671-9830-476d-80b2-9b6a404ef408"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_478240713a5a5a3884e82b6a",
+          "title": "Learn JavaScript CLOSURES in 10 minutes! 🔒",
+          "url": "https://www.youtube.com/watch?v=beZfCfiuIkA",
+          "platform": "other",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_4506be99-b7af-4ed5-879b-4b0f417022a2",
+                "ev_c610d97a-91b3-4850-89c8-3fc96f8c045d"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_4506be99-b7af-4ed5-879b-4b0f417022a2",
+            "ev_c610d97a-91b3-4850-89c8-3fc96f8c045d"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_5de2c61ef286dc5c5e01f4e8",
+          "title": "How Closures Work in JavaScript",
+          "url": "https://www.youtube.com/watch?v=gma1GStxYl0",
+          "platform": "other",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_f140b3ca-7267-455a-becd-a01bc893f592"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_f140b3ca-7267-455a-becd-a01bc893f592"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_0f2fbd73e504a81bc9a55a6e",
+          "title": "[一(01-10)]Udemy - JavaScript Pro: Mastering Advanced Concepts and Techniques 202",
+          "url": "https://www.bilibili.com/video/BV1H7EvzYE9x/?uid=425631483745767A59453978",
+          "platform": "bilibili",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_2f661343-cfe1-40ba-81d5-7cca9c92cf0d"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_2f661343-cfe1-40ba-81d5-7cca9c92cf0d"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_c11d5eee91b6f738817ed4ef",
+          "title": "JS可视化教程：闭包",
+          "url": "https://www.bilibili.com/video/BV1u1Z7YJEzG/?uid=42563175315A37594A457A47",
+          "platform": "bilibili",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_5263f576-9b31-43d9-8aa1-2641c6ed0623"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_5263f576-9b31-43d9-8aa1-2641c6ed0623"
+          ],
+          "subtopic_coverage": []
+        }
+      ],
+      "stored_resource_fetch_status_counts": {
+        "not_fetched": 14,
+        "site_policy_blocked": 2
+      },
+      "processed_detail_resources": [
+        {
+          "resource_id": "res_2e3c6059f995f280be94ed69",
+          "title": "JavaScript Closures Explained SUPER Clearly ✨ | Long Definitions + Line-By-Line Examples | JS Day 13",
+          "url": "https://www.youtube.com/watch?v=Zx4TTTONZpU",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search"
+        },
+        {
+          "resource_id": "res_478240713a5a5a3884e82b6a",
+          "title": "Learn JavaScript CLOSURES in 10 minutes! 🔒",
+          "url": "https://www.youtube.com/watch?v=beZfCfiuIkA",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search"
+        }
+      ],
+      "warnings": [
+        "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+        "达到详情页预算；按知识点轮转补全，未确认类型的候选不会作为课程展示",
+        "16 个候选仅搜索发现，页面详情未核验；不代表可播放或免费"
+      ],
+      "errors": [],
+      "logical_query_audit": [
+        {
+          "query": "JavaScript closures  video tutorial",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 1,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:05.401571+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 4.467,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 58,
+              "candidate_count": 6,
+              "topic_signal_count": 6,
+              "filter_counts": {
+                "accepted": 58
+              },
+              "candidate_trace_omitted": 38,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "JavaScript closures course lesson",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:10.020689+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.105,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 10,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:00:12.127848+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 6.365,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 56,
+              "candidate_count": 6,
+              "topic_signal_count": 6,
+              "filter_counts": {
+                "accepted": 56
+              },
+              "candidate_trace_omitted": 36,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "site:bilibili.com/video JavaScript closures video tutorial",
+          "targeted_platform": "bilibili",
+          "domain_filters": [
+            "bilibili.com"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 1,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:18.679969+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 3.248,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 51,
+              "candidate_count": 6,
+              "topic_signal_count": 2,
+              "filter_counts": {
+                "accepted": 51
+              },
+              "candidate_trace_omitted": 31,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "site:icourse163.org JavaScript closures video tutorial",
+          "targeted_platform": "icourse163",
+          "domain_filters": [
+            "icourse163.org"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 0,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:21.986848+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.788,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:00:24.004447+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.549,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "JavaScript closures",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "stop_reason": "domain_filter_excludes_official_source"
+          }
+        },
+        {
+          "query": "(site:ocw.mit.edu OR site:open.edu) JavaScript closures course lesson",
+          "targeted_platform": "open_domains",
+          "domain_filters": [
+            "ocw.mit.edu",
+            "open.edu"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 0,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:26.016332+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.295,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:00:28.019272+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.059,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "JavaScript closures",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-14T09:59:30.673600+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+              "observed_at": "2026-10-14T09:59:43.566399+00:00",
+              "cache_hit": true,
+              "location_count": 2588
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        }
+      ],
+      "collection_coverage": {
+        "decomposition_status": "not_applicable",
+        "shared_context": [],
+        "subtopics": [],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "timing": {
+        "request_count": 8,
+        "minimum_start_interval_seconds": 2.001905,
+        "maximum_start_interval_seconds": 6.572219,
+        "peak_inflight_at_ledger_boundary": 1,
+        "peak_starts_in_half_open_window": {
+          "1s": 1,
+          "2s": 1,
+          "60s": 8
+        }
+      }
+    },
+    {
+      "case_id": "H06",
+      "topic": "JavaScript Promise 并发与错误处理",
+      "purpose": "development_consumed",
+      "original_split": "holdout",
+      "job_id": "4e769651-0d15-4396-b06e-bc4dfb750d2b",
+      "status": "partial",
+      "logical_queries": 5,
+      "logical_status_counts": {
+        "completed": 5
+      },
+      "progress": {
+        "queries_planned": 5,
+        "queries_completed": 5,
+        "search_requests": 10,
+        "search_successes": 5,
+        "search_failures": 0,
+        "candidates_discovered": 24,
+        "resources_discovered": 23,
+        "details_attempted": 2,
+        "details_completed": 2,
+        "details_cached": 0,
+        "cache_hits": 0,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0
+      },
+      "budgets": {
+        "max_search_requests": 12,
+        "max_detail_pages": 2,
+        "deadline_seconds": 90
+      },
+      "request_ledger_counts": {
+        "search_http": 10
+      },
+      "source_http": {
+        "robots": 0,
+        "official_sitemap": 0,
+        "resource_detail": 0,
+        "catalog_follow": 0
+      },
+      "first_any_evidence_seconds": 3.836,
+      "completed_seconds": 25.951,
+      "default_section_counts": {
+        "supported": 0,
+        "partial": 2,
+        "needs_review": 0
+      },
+      "platform_section_counts": {
+        "bilibili": {
+          "supported": 0,
+          "partial": 2,
+          "needs_review": 0
+        }
+      },
+      "all_display_buckets_unique_count": 2,
+      "all_display_buckets_unique_status_counts": {
+        "partial": 2
+      },
+      "displayed_resources": [
+        {
+          "resource_id": "res_a2b7b4ba2aab174e86be731c",
+          "title": "TS 异步系列 EP.7 | Promise 并发详解：all / race / allSettled / any 一次讲清",
+          "url": "https://www.bilibili.com/video/BV1N4L36EEJi/?uid=4256314E344C333645454A69",
+          "platform": "bilibili",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "partial",
+          "topic_evidence_reasons": [
+            {
+              "code": "partial_compound_coverage",
+              "message": "仅有部分子项的自身证据；不能把这条资源当作整个复合知识点的完整支持。",
+              "evidence_ids": [
+                "ev_1251d8a1-8bce-4d7a-b47f-59d73e80a236",
+                "ev_2f0609b2-baf6-4600-a660-b8d640309460"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_1251d8a1-8bce-4d7a-b47f-59d73e80a236",
+            "ev_2f0609b2-baf6-4600-a660-b8d640309460"
+          ],
+          "subtopic_coverage": [
+            {
+              "id": "subtopic_1",
+              "text": "并发",
+              "status": "supported",
+              "evidence_ids": [
+                "ev_1251d8a1-8bce-4d7a-b47f-59d73e80a236",
+                "ev_2f0609b2-baf6-4600-a660-b8d640309460"
+              ],
+              "reason": "同一条观察明确包含共同技术上下文和该子项。"
+            },
+            {
+              "id": "subtopic_2",
+              "text": "错误处理",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+            }
+          ],
+          "search_observations": [
+            {
+              "evidence_id": "ev_1251d8a1-8bce-4d7a-b47f-59d73e80a236",
+              "title": "TS 异步系列 EP.7 | Promise 并发详解：all / race / allSettled / any 一次讲清",
+              "snippet": "本期是 TS 异步编程系列 EP.7，我们来系统讲清楚 Promise 并发组合器： Promise.all / Promise.race / Promise.allSettled / Promise.any 很多同学平时会写 Promise，也知道 await，但一到多个异步任务一起处理时，就容易混淆： 什么时候该用 Promise.all？ Promise.race 到底是在比什么 ...",
+              "url": "https://www.bilibili.com/video/BV1N4L36EEJi/?uid=4256314E344C333645454A69",
+              "query": "JavaScript Promise 并发与错误处理  视频教程"
+            },
+            {
+              "evidence_id": "ev_2f0609b2-baf6-4600-a660-b8d640309460",
+              "title": "TS 异步系列 EP.7 | Promise 并发详解：all / race / allSettled / any 一次讲清",
+              "snippet": "本期是 TS 异步编程系列 EP.7，我们来系统讲清楚 Promise 并发组合器： Promise.all / Promise.race / Promise.allSettled / Promise.any 很多同学平时会写 Promise，也知道 await，但一到多个异步任务一起处理时，就容易混淆： 什么时候该用 Promise.all？ Promise.race 到底是在比什么 ...",
+              "url": "https://www.bilibili.com/video/BV1N4L36EEJi/?uid=4256314E344C333645454A69",
+              "query": "site:bilibili.com/video JavaScript Promise 并发与错误处理 视频教程"
+            }
+          ]
+        },
+        {
+          "resource_id": "res_8969a927b90ef5ca21be4f79",
+          "title": "42-Node.js教程-使用Promise.all方法执行并发操作",
+          "url": "https://www.bilibili.com/video/BV1DM4y1P7s6/?uid=425631444D34793150377336",
+          "platform": "bilibili",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "partial",
+          "topic_evidence_reasons": [
+            {
+              "code": "partial_compound_coverage",
+              "message": "仅有部分子项的自身证据；不能把这条资源当作整个复合知识点的完整支持。",
+              "evidence_ids": [
+                "ev_cc0bad6e-36d6-427f-bc68-a1a580f672d9"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_cc0bad6e-36d6-427f-bc68-a1a580f672d9"
+          ],
+          "subtopic_coverage": [
+            {
+              "id": "subtopic_1",
+              "text": "并发",
+              "status": "supported",
+              "evidence_ids": [
+                "ev_cc0bad6e-36d6-427f-bc68-a1a580f672d9"
+              ],
+              "reason": "同一条观察明确包含共同技术上下文和该子项。"
+            },
+            {
+              "id": "subtopic_2",
+              "text": "错误处理",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+            }
+          ],
+          "search_observations": [
+            {
+              "evidence_id": "ev_cc0bad6e-36d6-427f-bc68-a1a580f672d9",
+              "title": "42-Node.js教程-使用Promise.all方法执行并发操作",
+              "snippet": "",
+              "url": "https://www.bilibili.com/video/BV1DM4y1P7s6/?uid=425631444D34793150377336",
+              "query": "site:bilibili.com/video JavaScript Promise 并发与错误处理 视频教程"
+            }
+          ]
+        }
+      ],
+      "stored_resource_fetch_status_counts": {
+        "not_fetched": 21,
+        "site_policy_blocked": 2
+      },
+      "processed_detail_resources": [
+        {
+          "resource_id": "res_4c32009ec3f14cf2557c28b2",
+          "title": "【HarmonyOS】鸿蒙开发教程之并发模型解析（Promise异步处理与多线程Worker交互）~",
+          "url": "https://www.bilibili.com/video/BV1KyKnzvET2/?uid=4256314B794B6E7A76455432",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search"
+        },
+        {
+          "resource_id": "res_c46ea341093a9d59299310dc",
+          "title": "JavaScript错误处理：识别与修复常见问题",
+          "url": "https://www.bilibili.com/video/BV1tEcdewErn/?uid=42563174456364657745726E",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search"
+        }
+      ],
+      "warnings": [
+        "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+        "达到详情页预算；按知识点轮转补全，未确认类型的候选不会作为课程展示",
+        "23 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+        "6 个候选缺少课程或视频类型依据，未作为学习资源展示"
+      ],
+      "errors": [],
+      "logical_query_audit": [
+        {
+          "query": "JavaScript Promise 并发与错误处理  视频教程",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:30.388658+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.329,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 60,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 60
+              },
+              "candidate_trace_omitted": 40,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:00:32.746945+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.283,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 10,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "JavaScript Promise 并发与错误处理",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-14T09:59:30.673600+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+              "observed_at": "2026-10-14T09:59:43.566399+00:00",
+              "cache_hit": true,
+              "location_count": 2588
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "JavaScript Promise 并发与错误处理 课程 教学",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:34.759072+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.653,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 10,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:00:36.761454+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.596,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 60,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 60
+              },
+              "candidate_trace_omitted": 40,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "JavaScript Promise 并发与错误处理",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-14T09:59:30.673600+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+              "observed_at": "2026-10-14T09:59:43.566399+00:00",
+              "cache_hit": true,
+              "location_count": 2588
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "site:bilibili.com/video JavaScript Promise 并发与错误处理 视频教程",
+          "targeted_platform": "bilibili",
+          "domain_filters": [
+            "bilibili.com"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:39.467737+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 6.094,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 60,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 60
+              },
+              "candidate_trace_omitted": 40,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:00:45.603349+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.206,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "JavaScript Promise 并发与错误处理",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "stop_reason": "domain_filter_excludes_official_source"
+          }
+        },
+        {
+          "query": "site:icourse163.org JavaScript Promise 并发与错误处理 视频教程",
+          "targeted_platform": "icourse163",
+          "domain_filters": [
+            "icourse163.org"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:47.605165+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.915,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 24,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 24
+              },
+              "candidate_trace_omitted": 4,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:00:49.614582+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.36,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "JavaScript Promise 并发与错误处理",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "stop_reason": "domain_filter_excludes_official_source"
+          }
+        },
+        {
+          "query": "(site:ocw.mit.edu OR site:open.edu) JavaScript Promise 并发与错误处理 课程 教学",
+          "targeted_platform": "open_domains",
+          "domain_filters": [
+            "ocw.mit.edu",
+            "open.edu"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 0,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:51.619996+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.045,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:00:53.635510+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.32,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "JavaScript Promise 并发与错误处理",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-14T09:59:30.673600+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+              "observed_at": "2026-10-14T09:59:43.566399+00:00",
+              "cache_hit": true,
+              "location_count": 2588
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        }
+      ],
+      "collection_coverage": {
+        "decomposition_status": "applied",
+        "shared_context": [
+          "JavaScript",
+          "Promise"
+        ],
+        "subtopics": [
+          {
+            "id": "subtopic_1",
+            "text": "并发",
+            "status": "supported",
+            "resource_ids": [
+              "res_a2b7b4ba2aab174e86be731c",
+              "res_8969a927b90ef5ca21be4f79"
+            ],
+            "evidence_ids": [
+              "ev_1251d8a1-8bce-4d7a-b47f-59d73e80a236",
+              "ev_2f0609b2-baf6-4600-a660-b8d640309460",
+              "ev_cc0bad6e-36d6-427f-bc68-a1a580f672d9"
+            ]
+          },
+          {
+            "id": "subtopic_2",
+            "text": "错误处理",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "status": "some_subtopics_supported",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "timing": {
+        "request_count": 10,
+        "minimum_start_interval_seconds": 2.003795,
+        "maximum_start_interval_seconds": 6.190375,
+        "peak_inflight_at_ledger_boundary": 1,
+        "peak_starts_in_half_open_window": {
+          "1s": 1,
+          "2s": 1,
+          "60s": 10
+        }
+      }
+    },
+    {
+      "case_id": "H09",
+      "topic": "地理坐标与投影坐标转换",
+      "purpose": "development_consumed",
+      "original_split": "holdout",
+      "job_id": "fde1b6de-9dd6-4adc-bb98-3f0fc477ea46",
+      "status": "partial",
+      "logical_queries": 5,
+      "logical_status_counts": {
+        "completed": 5
+      },
+      "progress": {
+        "queries_planned": 5,
+        "queries_completed": 5,
+        "search_requests": 8,
+        "search_successes": 5,
+        "search_failures": 0,
+        "candidates_discovered": 24,
+        "resources_discovered": 15,
+        "details_attempted": 2,
+        "details_completed": 2,
+        "details_cached": 0,
+        "cache_hits": 0,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0
+      },
+      "budgets": {
+        "max_search_requests": 12,
+        "max_detail_pages": 2,
+        "deadline_seconds": 90
+      },
+      "request_ledger_counts": {
+        "search_http": 8,
+        "dns_http": 4,
+        "target_http": 2
+      },
+      "source_http": {
+        "robots": 1,
+        "official_sitemap": 0,
+        "resource_detail": 1,
+        "catalog_follow": 0
+      },
+      "first_any_evidence_seconds": 3.992,
+      "completed_seconds": 43.783,
+      "default_section_counts": {
+        "supported": 3,
+        "partial": 0,
+        "needs_review": 0
+      },
+      "platform_section_counts": {
+        "bilibili": {
+          "supported": 3,
+          "partial": 0,
+          "needs_review": 0
+        },
+        "other": {
+          "supported": 1,
+          "partial": 0,
+          "needs_review": 0
+        }
+      },
+      "all_display_buckets_unique_count": 4,
+      "all_display_buckets_unique_status_counts": {
+        "supported": 4
+      },
+      "displayed_resources": [
+        {
+          "resource_id": "res_d4b61df944a895cc4d098bb3",
+          "title": "ArcGIS如何进行坐标转换？ 本集讲解 ArcGIS 中地理坐标系与投影坐标系之间的转换方法，包括经纬度坐标转平面直角坐标、投影坐标转地理坐标、CGCS2000 三度分带坐标转换、投影工具使用、数据导出转换等内容。重点区分\"定义投影\"和\"投影变换\"，避免只改坐标系文件、不真正转换坐标值的常见错误。ArcGIS坐标转换、ArcGIS投影变换、地理坐标转投影坐标、投影坐标转经纬度、CGCS2000",
+          "url": "https://www.douyin.com/video/7639398453470154038",
+          "platform": "other",
+          "fetch_status": "javascript_required",
+          "metadata_evidence_level": "page",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_bbf61960-7501-478e-970f-5211d352be1a"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_bbf61960-7501-478e-970f-5211d352be1a"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_811d7eb1a0bf217157e377ce",
+          "title": "栅格数据:地理坐标转投影坐标，从DEM到等高线",
+          "url": "https://www.bilibili.com/video/av337179838/",
+          "platform": "bilibili",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_1ae582f0-d4fc-429d-9429-d4a568b20785"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_1ae582f0-d4fc-429d-9429-d4a568b20785"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_8395bed048592be8b34d142e",
+          "title": "ArcGIS坐标系转换（地理坐标系转投影坐标系）",
+          "url": "https://www.bilibili.com/video/BV1Fu4m1g7yr/?uid=4256314675346D3167377972",
+          "platform": "bilibili",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_b65e6bd1-268c-4b6a-bcce-ff0ebc33c36c",
+                "ev_dbc4cd0a-c634-4e52-9a35-188fe5c84aa7",
+                "ev_794fb34d-f882-4835-97b1-7ce2414a8e18"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_b65e6bd1-268c-4b6a-bcce-ff0ebc33c36c",
+            "ev_dbc4cd0a-c634-4e52-9a35-188fe5c84aa7",
+            "ev_794fb34d-f882-4835-97b1-7ce2414a8e18"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_cf6ccaa19a1c0db7abea7f77",
+          "title": "arcgis中tif从地理坐标系转换为投影坐标系（球面转平面）",
+          "url": "https://www.bilibili.com/video/BV1vRJHz9EV2/?uid=42563176524A487A39455632",
+          "platform": "bilibili",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_d59e78c6-33c4-4754-a5ff-e48b2d6168ed"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_d59e78c6-33c4-4754-a5ff-e48b2d6168ed"
+          ],
+          "subtopic_coverage": []
+        }
+      ],
+      "stored_resource_fetch_status_counts": {
+        "not_fetched": 13,
+        "site_policy_blocked": 1,
+        "javascript_required": 1
+      },
+      "processed_detail_resources": [
+        {
+          "resource_id": "res_811d7eb1a0bf217157e377ce",
+          "title": "栅格数据:地理坐标转投影坐标，从DEM到等高线",
+          "url": "https://www.bilibili.com/video/av337179838/",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search"
+        },
+        {
+          "resource_id": "res_d4b61df944a895cc4d098bb3",
+          "title": "ArcGIS如何进行坐标转换？ 本集讲解 ArcGIS 中地理坐标系与投影坐标系之间的转换方法，包括经纬度坐标转平面直角坐标、投影坐标转地理坐标、CGCS2000 三度分带坐标转换、投影工具使用、数据导出转换等内容。重点区分\"定义投影\"和\"投影变换\"，避免只改坐标系文件、不真正转换坐标值的常见错误。ArcGIS坐标转换、ArcGIS投影变换、地理坐标转投影坐标、投影坐标转经纬度、CGCS2000",
+          "url": "https://www.douyin.com/video/7639398453470154038",
+          "fetch_status": "javascript_required",
+          "metadata_evidence_level": "page"
+        }
+      ],
+      "warnings": [
+        "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+        "达到详情页预算；按知识点轮转补全，未确认类型的候选不会作为课程展示",
+        "14 个候选仅搜索发现，页面详情未核验；不代表可播放或免费"
+      ],
+      "errors": [],
+      "logical_query_audit": [
+        {
+          "query": "地理坐标与投影坐标转换  视频教程",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 1,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:00:56.351842+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 3.695,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 60,
+              "candidate_count": 6,
+              "topic_signal_count": 6,
+              "filter_counts": {
+                "accepted": 60
+              },
+              "candidate_trace_omitted": 40,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "地理坐标与投影坐标转换 课程 教学",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:01:00.098755+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.323,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 10,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:01:02.108862+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 3.289,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 60,
+              "candidate_count": 6,
+              "topic_signal_count": 6,
+              "filter_counts": {
+                "accepted": 60
+              },
+              "candidate_trace_omitted": 40,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "site:bilibili.com/video 地理坐标与投影坐标转换 视频教程",
+          "targeted_platform": "bilibili",
+          "domain_filters": [
+            "bilibili.com"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 1,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:01:29.946028+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 3.038,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 60,
+              "candidate_count": 6,
+              "topic_signal_count": 6,
+              "filter_counts": {
+                "accepted": 60
+              },
+              "candidate_trace_omitted": 40,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "site:icourse163.org 地理坐标与投影坐标转换 视频教程",
+          "targeted_platform": "icourse163",
+          "domain_filters": [
+            "icourse163.org"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:01:33.035548+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.125,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 6,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 6
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:01:35.048363+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.263,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "地理坐标与投影坐标转换",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "stop_reason": "domain_filter_excludes_official_source"
+          }
+        },
+        {
+          "query": "(site:ocw.mit.edu OR site:open.edu) 地理坐标与投影坐标转换 课程 教学",
+          "targeted_platform": "open_domains",
+          "domain_filters": [
+            "ocw.mit.edu",
+            "open.edu"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 0,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:01:37.060726+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 0.868,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:01:39.071923+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 0.87,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "地理坐标与投影坐标转换",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-14T09:59:30.673600+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+              "observed_at": "2026-10-14T09:59:43.566399+00:00",
+              "cache_hit": true,
+              "location_count": 2588
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        }
+      ],
+      "collection_coverage": {
+        "decomposition_status": "unknown",
+        "shared_context": [],
+        "subtopics": [],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "timing": {
+        "request_count": 14,
+        "minimum_start_interval_seconds": 2.001166,
+        "maximum_start_interval_seconds": 9.360761,
+        "peak_inflight_at_ledger_boundary": 1,
+        "peak_starts_in_half_open_window": {
+          "1s": 1,
+          "2s": 1,
+          "60s": 14
+        }
+      }
+    },
+    {
+      "case_id": "H16",
+      "topic": "quaternion rotations",
+      "purpose": "development_consumed",
+      "original_split": "holdout",
+      "job_id": "84507ebb-1b40-484e-957e-f61fdd44d38e",
+      "status": "partial",
+      "logical_queries": 5,
+      "logical_status_counts": {
+        "completed": 5
+      },
+      "progress": {
+        "queries_planned": 5,
+        "queries_completed": 5,
+        "search_requests": 8,
+        "search_successes": 5,
+        "search_failures": 0,
+        "candidates_discovered": 24,
+        "resources_discovered": 20,
+        "details_attempted": 2,
+        "details_completed": 2,
+        "details_cached": 0,
+        "cache_hits": 0,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0
+      },
+      "budgets": {
+        "max_search_requests": 12,
+        "max_detail_pages": 2,
+        "deadline_seconds": 90
+      },
+      "request_ledger_counts": {
+        "search_http": 8
+      },
+      "source_http": {
+        "robots": 0,
+        "official_sitemap": 0,
+        "resource_detail": 0,
+        "catalog_follow": 0
+      },
+      "first_any_evidence_seconds": 2.809,
+      "completed_seconds": 15.895,
+      "default_section_counts": {
+        "supported": 3,
+        "partial": 0,
+        "needs_review": 1
+      },
+      "platform_section_counts": {
+        "bilibili": {
+          "supported": 1,
+          "partial": 0,
+          "needs_review": 1
+        },
+        "other": {
+          "supported": 3,
+          "partial": 0,
+          "needs_review": 0
+        }
+      },
+      "all_display_buckets_unique_count": 5,
+      "all_display_buckets_unique_status_counts": {
+        "supported": 4,
+        "needs_review": 1
+      },
+      "displayed_resources": [
+        {
+          "resource_id": "res_43871065078038643576e7d3",
+          "title": "3D rotations for graphics and game engine development: matrix and quaternion formalisms (part 1)",
+          "url": "https://www.youtube.com/watch?v=seOP3fucISc",
+          "platform": "other",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_72dd8138-3cc9-4cc8-9ba5-64bb36558ac7",
+                "ev_7cecd77e-4c74-4383-9643-2e1f7ec7a6c5"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_72dd8138-3cc9-4cc8-9ba5-64bb36558ac7",
+            "ev_7cecd77e-4c74-4383-9643-2e1f7ec7a6c5"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_60246d383126503997807e08",
+          "title": "[Houdini_Tips] merge_quaternion_rotations 四元数复合旋转",
+          "url": "https://www.bilibili.com/video/BV1Jp4y1t794/?uid=4256314A7034793174373934",
+          "platform": "bilibili",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_cbc3f6ac-b969-4bcb-a7ae-a10f459241f0"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_cbc3f6ac-b969-4bcb-a7ae-a10f459241f0"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_7d92df6fa02dd2a25e502521",
+          "title": "Cinema 4D Quaternion Rotations",
+          "url": "https://www.youtube.com/watch?v=_gPtD9XHIWs",
+          "platform": "other",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_9aa3e28b-03ab-4089-945f-f87a5bed1352"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_9aa3e28b-03ab-4089-945f-f87a5bed1352"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_8b1baeaa8faf5431e49560f9",
+          "title": "3D rotations for graphics and game engine development: matrix and quaternion formalisms (part 2)",
+          "url": "https://www.youtube.com/watch?v=jMiJY4fCP2M",
+          "platform": "other",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "supported",
+          "topic_evidence_reasons": [
+            {
+              "code": "direct_topic_support",
+              "message": "已有本资源自身的标题、简介或目录文字直接支持该主题；不代表完整教学或播放已核验。",
+              "evidence_ids": [
+                "ev_60dbca56-d331-4abb-9be2-1502d7d47d78"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_60dbca56-d331-4abb-9be2-1502d7d47d78"
+          ],
+          "subtopic_coverage": []
+        },
+        {
+          "resource_id": "res_a3b13c278ed9659dbf95e70a",
+          "title": "游戏编程知识课程 - 3D数学 (四元数quaternion)",
+          "url": "https://www.bilibili.com/video/BV1Gi4y1q7Bh/?uid=425631476934793171374268",
+          "platform": "bilibili",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "playback_verified": false,
+          "topic_evidence_status": "needs_review",
+          "topic_evidence_reasons": [
+            {
+              "code": "external_link_terms_only",
+              "message": "部分目标术语仅出现在外部链接地址中；链接路径不能证明本资源讲授该内容。",
+              "evidence_ids": [
+                "ev_abd22008-35ea-43f4-b63d-ffb890a8a5de"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [],
+          "subtopic_coverage": []
+        }
+      ],
+      "stored_resource_fetch_status_counts": {
+        "not_fetched": 18,
+        "site_policy_blocked": 2
+      },
+      "processed_detail_resources": [
+        {
+          "resource_id": "res_7d92df6fa02dd2a25e502521",
+          "title": "Cinema 4D Quaternion Rotations",
+          "url": "https://www.youtube.com/watch?v=_gPtD9XHIWs",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search"
+        },
+        {
+          "resource_id": "res_43871065078038643576e7d3",
+          "title": "3D rotations for graphics and game engine development: matrix and quaternion formalisms (part 1)",
+          "url": "https://www.youtube.com/watch?v=seOP3fucISc",
+          "fetch_status": "site_policy_blocked",
+          "metadata_evidence_level": "search"
+        }
+      ],
+      "warnings": [
+        "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+        "达到详情页预算；按知识点轮转补全，未确认类型的候选不会作为课程展示",
+        "20 个候选仅搜索发现，页面详情未核验；不代表可播放或免费"
+      ],
+      "errors": [],
+      "logical_query_audit": [
+        {
+          "query": "quaternion rotations  video tutorial",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 1,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:02:40.160794+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 2.416,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 58,
+              "candidate_count": 6,
+              "topic_signal_count": 6,
+              "filter_counts": {
+                "accepted": 58
+              },
+              "candidate_trace_omitted": 38,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "quaternion rotations course lesson",
+          "targeted_platform": "general",
+          "domain_filters": [],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:02:42.729398+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.158,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 10,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:02:44.737258+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.885,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 59,
+              "candidate_count": 6,
+              "topic_signal_count": 6,
+              "filter_counts": {
+                "accepted": 59
+              },
+              "candidate_trace_omitted": 39,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "site:bilibili.com/video quaternion rotations video tutorial",
+          "targeted_platform": "bilibili",
+          "domain_filters": [
+            "bilibili.com"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 1,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:02:46.776413+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.702,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 56,
+              "candidate_count": 6,
+              "topic_signal_count": 1,
+              "filter_counts": {
+                "accepted": 56
+              },
+              "candidate_trace_omitted": 36,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {}
+        },
+        {
+          "query": "site:icourse163.org quaternion rotations video tutorial",
+          "targeted_platform": "icourse163",
+          "domain_filters": [
+            "icourse163.org"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 0,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:02:48.778221+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 0.785,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 0,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {},
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:02:50.786773+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.293,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "quaternion rotations",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "stop_reason": "domain_filter_excludes_official_source"
+          }
+        },
+        {
+          "query": "(site:ocw.mit.edu OR site:open.edu) quaternion rotations course lesson",
+          "targeted_platform": "open_domains",
+          "domain_filters": [
+            "ocw.mit.edu",
+            "open.edu"
+          ],
+          "status": "completed",
+          "candidate_count_entering_job": 6,
+          "error_code": null,
+          "search_http_count": 2,
+          "search_http_requests": [
+            {
+              "started_at": "2026-10-14T10:02:52.804117+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 1.159,
+              "engines_requested": "bing",
+              "retry_index": 0,
+              "fallback": false,
+              "raw_candidate_count": 10,
+              "candidate_count": 0,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "domain_mismatch": 10
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            },
+            {
+              "started_at": "2026-10-14T10:02:54.819785+00:00",
+              "status": "completed",
+              "http_status": 200,
+              "elapsed_seconds": 0.888,
+              "engines_requested": "duckduckgo videos",
+              "retry_index": 0,
+              "fallback": true,
+              "raw_candidate_count": 12,
+              "candidate_count": 6,
+              "topic_signal_count": 0,
+              "filter_counts": {
+                "accepted": 12
+              },
+              "candidate_trace_omitted": 0,
+              "upstream_warnings": []
+            }
+          ],
+          "official_discovery": {
+            "topic": "quaternion rotations",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-14T09:59:30.673600+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "a031e44f51efaf0a5fcda850d350de34b864d572c14705ebf047893f7325cd07",
+              "observed_at": "2026-10-14T09:59:43.566399+00:00",
+              "cache_hit": true,
+              "location_count": 2588
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        }
+      ],
+      "collection_coverage": {
+        "decomposition_status": "not_applicable",
+        "shared_context": [],
+        "subtopics": [],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "timing": {
+        "request_count": 8,
+        "minimum_start_interval_seconds": 2.002121,
+        "maximum_start_interval_seconds": 2.562171,
+        "peak_inflight_at_ledger_boundary": 1,
+        "peak_starts_in_half_open_window": {
+          "1s": 1,
+          "2s": 1,
+          "60s": 8
+        }
+      }
+    }
+  ],
+  "request_ledger": [
+    {
+      "id": 1,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T09:59:16.935908+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "CSS Flexbox 对齐  视频教程",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "d6085fe8d9f978b76c3d2000d34ba77992f2e8d224a95421c1b904a365684d54",
+      "finished_at": "2026-10-14T09:59:18.996200+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [
+          {
+            "code": "upstream_engine_failed",
+            "engine": "duckduckgo videos",
+            "reason_code": "timeout",
+            "reason": "timeout",
+            "message": "上游搜索超时",
+            "reason_sha256": "f77d1bb58da886e3cbeebbf35a0b3d217b003506792268052c6a730fbc5ec9bc"
+          }
+        ],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 2,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T09:59:19.151600+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "CSS Flexbox 对齐  视频教程",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "d6085fe8d9f978b76c3d2000d34ba77992f2e8d224a95421c1b904a365684d54",
+      "finished_at": "2026-10-14T09:59:21.417359+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 3,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "dns_http",
+      "started_at": "2026-10-14T09:59:21.574891+00:00",
+      "status": "completed",
+      "host": "ocw.mit.edu",
+      "finished_at": "2026-10-14T09:59:22.414114+00:00",
+      "finished_at_source": "trace.finished_at",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "record_type": "A"
+      }
+    },
+    {
+      "id": 4,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "dns_http",
+      "started_at": "2026-10-14T09:59:23.576376+00:00",
+      "status": "completed",
+      "host": "ocw.mit.edu",
+      "finished_at": "2026-10-14T09:59:23.859005+00:00",
+      "finished_at_source": "trace.finished_at",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "record_type": "AAAA"
+      }
+    },
+    {
+      "id": 5,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "target_http",
+      "started_at": "2026-10-14T09:59:25.579807+00:00",
+      "status": "returned",
+      "host": "ocw.mit.edu",
+      "path": "/robots.txt",
+      "url_sha256": "d21f50eeb006c2d3e711079f92fa103374ce22f11f664b0acf15203e2a8bccd8",
+      "http_status": 200,
+      "bytes_read": 64,
+      "finished_at": "2026-10-14T09:59:30.671192+00:00"
+    },
+    {
+      "id": 6,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "dns_http",
+      "started_at": "2026-10-14T09:59:30.904134+00:00",
+      "status": "completed",
+      "host": "ocw.mit.edu",
+      "finished_at": "2026-10-14T09:59:32.682282+00:00",
+      "finished_at_source": "trace.finished_at",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "record_type": "A"
+      }
+    },
+    {
+      "id": 7,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "dns_http",
+      "started_at": "2026-10-14T09:59:32.908593+00:00",
+      "status": "completed",
+      "host": "ocw.mit.edu",
+      "finished_at": "2026-10-14T09:59:33.200659+00:00",
+      "finished_at_source": "trace.finished_at",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "record_type": "AAAA"
+      }
+    },
+    {
+      "id": 8,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "target_http",
+      "started_at": "2026-10-14T09:59:34.919336+00:00",
+      "status": "returned",
+      "host": "ocw.mit.edu",
+      "path": "/sitemap.xml",
+      "url_sha256": "c06370dbd2d04d630f280c3434a5ef44c8308293f7ba5ce1c5acdec617bd40d0",
+      "http_status": 200,
+      "bytes_read": 363036,
+      "finished_at": "2026-10-14T09:59:43.469942+00:00"
+    },
+    {
+      "id": 9,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T09:59:43.973711+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "CSS Flexbox 对齐 课程 教学",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "4a826d18a78a82d815f5853e7f16942d489891e73af01644b6e5681989ce34c7",
+      "finished_at": "2026-10-14T09:59:44.436994+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 10,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T09:59:46.019458+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "CSS Flexbox 对齐 课程 教学",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "4a826d18a78a82d815f5853e7f16942d489891e73af01644b6e5681989ce34c7",
+      "finished_at": "2026-10-14T09:59:48.074205+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [
+          {
+            "code": "upstream_engine_failed",
+            "engine": "duckduckgo videos",
+            "reason_code": "timeout",
+            "reason": "timeout",
+            "message": "上游搜索超时",
+            "reason_sha256": "f77d1bb58da886e3cbeebbf35a0b3d217b003506792268052c6a730fbc5ec9bc"
+          }
+        ],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 11,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T09:59:48.301327+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:bilibili.com/video CSS Flexbox 对齐 视频教程",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "70436b27a11eeb49d22715777a81d167fdcce7af024595d3808036258537bb28",
+      "finished_at": "2026-10-14T09:59:48.328480+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [
+          {
+            "code": "upstream_engine_failed",
+            "engine": "duckduckgo videos",
+            "reason_code": "unknown",
+            "reason": "unknown",
+            "message": "上游失败，具体原因未识别",
+            "reason_sha256": "6c90b1014a9eabe5143c08002e6186b5aba390f3a48fb460c186e520be6071c2"
+          }
+        ],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 12,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T09:59:50.304668+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:bilibili.com/video CSS Flexbox 对齐 视频教程",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "70436b27a11eeb49d22715777a81d167fdcce7af024595d3808036258537bb28",
+      "finished_at": "2026-10-14T09:59:51.294694+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 13,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T09:59:52.494735+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org CSS Flexbox 对齐 视频教程",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "98daebb3366916f1733ee8492294fbc58e632494aae4076eef14870f30853e6e",
+      "finished_at": "2026-10-14T09:59:52.532359+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [
+          {
+            "code": "upstream_engine_failed",
+            "engine": "duckduckgo videos",
+            "reason_code": "unknown",
+            "reason": "unknown",
+            "message": "上游失败，具体原因未识别",
+            "reason_sha256": "6c90b1014a9eabe5143c08002e6186b5aba390f3a48fb460c186e520be6071c2"
+          }
+        ],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 14,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T09:59:54.501548+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org CSS Flexbox 对齐 视频教程",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "98daebb3366916f1733ee8492294fbc58e632494aae4076eef14870f30853e6e",
+      "finished_at": "2026-10-14T09:59:58.589067+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 15,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T09:59:58.801289+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) CSS Flexbox 对齐 课程 教学",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "a150d3887d9d1c6a86b20f9e2c25debfe921581ef54f3408c0caaf5d63be327d",
+      "finished_at": "2026-10-14T10:00:01.528800+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 16,
+      "case_id": "D06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:01.677109+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) CSS Flexbox 对齐 课程 教学",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "a150d3887d9d1c6a86b20f9e2c25debfe921581ef54f3408c0caaf5d63be327d",
+      "finished_at": "2026-10-14T10:00:05.120981+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 17,
+      "case_id": "D13",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:05.546464+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "JavaScript closures  video tutorial",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "46cce5f1706093740ab8f44000771aa39ae15c1c5b7335b420d3617e9ee3ad7d",
+      "finished_at": "2026-10-14T10:00:09.865375+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 58,
+        "candidate_count": 6,
+        "topic_signal_count": 6,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 38
+      }
+    },
+    {
+      "id": 18,
+      "case_id": "D13",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:10.165886+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "JavaScript closures course lesson",
+      "language": "en",
+      "engines": "bing",
+      "query_sha256": "11111e07f325ec3106c0b88987d26a4b4727757a841902e7d3f98acf0cf64ed9",
+      "finished_at": "2026-10-14T10:00:12.123067+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 19,
+      "case_id": "D13",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:12.268310+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "JavaScript closures course lesson",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "11111e07f325ec3106c0b88987d26a4b4727757a841902e7d3f98acf0cf64ed9",
+      "finished_at": "2026-10-14T10:00:18.488613+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 56,
+        "candidate_count": 6,
+        "topic_signal_count": 6,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 36
+      }
+    },
+    {
+      "id": 20,
+      "case_id": "D13",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:18.840529+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:bilibili.com/video JavaScript closures video tutorial",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "e2c3d6c638a528f9e19ea4deb5cab90172448867fecb31ffaaf3d407eb48d63a",
+      "finished_at": "2026-10-14T10:00:21.923656+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 51,
+        "candidate_count": 6,
+        "topic_signal_count": 2,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 31
+      }
+    },
+    {
+      "id": 21,
+      "case_id": "D13",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:22.154203+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org JavaScript closures video tutorial",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "4654529642e86b444302a1c090d6afebab26775d655fd42539517f71ed4f1b53",
+      "finished_at": "2026-10-14T10:00:23.768792+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 22,
+      "case_id": "D13",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:24.166762+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org JavaScript closures video tutorial",
+      "language": "en",
+      "engines": "bing",
+      "query_sha256": "4654529642e86b444302a1c090d6afebab26775d655fd42539517f71ed4f1b53",
+      "finished_at": "2026-10-14T10:00:25.550264+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 23,
+      "case_id": "D13",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:26.185374+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) JavaScript closures course lesson",
+      "language": "en",
+      "engines": "bing",
+      "query_sha256": "5305cd7dce484358ce57571043a47b30125678d44c6ad97297eac29c11f23324",
+      "finished_at": "2026-10-14T10:00:27.308072+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 24,
+      "case_id": "D13",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:28.187279+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) JavaScript closures course lesson",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "5305cd7dce484358ce57571043a47b30125678d44c6ad97297eac29c11f23324",
+      "finished_at": "2026-10-14T10:00:30.075853+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 25,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:30.531872+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "JavaScript Promise 并发与错误处理  视频教程",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "a7b80a7cba1f1738cdff2d640ae593526814b188d6ea0cb537ab447ee32d9461",
+      "finished_at": "2026-10-14T10:00:32.714079+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 60,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 40
+      }
+    },
+    {
+      "id": 26,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:32.887626+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "JavaScript Promise 并发与错误处理  视频教程",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "a7b80a7cba1f1738cdff2d640ae593526814b188d6ea0cb537ab447ee32d9461",
+      "finished_at": "2026-10-14T10:00:34.025946+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 27,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:34.986832+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "JavaScript Promise 并发与错误处理 课程 教学",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "0faa8bca90e4941cd4afb8e74eae535fd9385996d823b6ed101d0f2b67399390",
+      "finished_at": "2026-10-14T10:00:36.408417+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 28,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:36.993476+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "JavaScript Promise 并发与错误处理 课程 教学",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "0faa8bca90e4941cd4afb8e74eae535fd9385996d823b6ed101d0f2b67399390",
+      "finished_at": "2026-10-14T10:00:39.353886+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 60,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 40
+      }
+    },
+    {
+      "id": 29,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:39.610443+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:bilibili.com/video JavaScript Promise 并发与错误处理 视频教程",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "323d28488512f0973bba45f7929516365e0fd3bbf6f38af59391b8bfc4228455",
+      "finished_at": "2026-10-14T10:00:45.556343+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 60,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 40
+      }
+    },
+    {
+      "id": 30,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:45.800818+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:bilibili.com/video JavaScript Promise 并发与错误处理 视频教程",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "323d28488512f0973bba45f7929516365e0fd3bbf6f38af59391b8bfc4228455",
+      "finished_at": "2026-10-14T10:00:46.805498+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 31,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:47.812382+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org JavaScript Promise 并发与错误处理 视频教程",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "e5fa90496b486dddaae6ad51046812ed7adcec27d353dfe5c1265179dfa6c2e5",
+      "finished_at": "2026-10-14T10:00:49.515401+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 24,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 4
+      }
+    },
+    {
+      "id": 32,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:49.826393+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org JavaScript Promise 并发与错误处理 视频教程",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "e5fa90496b486dddaae6ad51046812ed7adcec27d353dfe5c1265179dfa6c2e5",
+      "finished_at": "2026-10-14T10:00:50.969291+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 33,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:51.830188+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) JavaScript Promise 并发与错误处理 课程 教学",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "332a2d24d65658b0f60c5cb8d176c0f954f99d172874840ff2fe5cda7995d94c",
+      "finished_at": "2026-10-14T10:00:52.660050+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 34,
+      "case_id": "H06",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:53.849274+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) JavaScript Promise 并发与错误处理 课程 教学",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "332a2d24d65658b0f60c5cb8d176c0f954f99d172874840ff2fe5cda7995d94c",
+      "finished_at": "2026-10-14T10:00:55.950692+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 35,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:00:56.495686+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "地理坐标与投影坐标转换  视频教程",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "30ad5ef9fc331e4af2961926d7794db2c71386814a719e8ac9f5a5df2f8289ba",
+      "finished_at": "2026-10-14T10:01:00.042107+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 60,
+        "candidate_count": 6,
+        "topic_signal_count": 6,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 40
+      }
+    },
+    {
+      "id": 36,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:01:00.312050+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "地理坐标与投影坐标转换 课程 教学",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "9a8d9b41eef1b57bd3e43feb325005f6f33b3a5ba927fc5413948807a4467f4b",
+      "finished_at": "2026-10-14T10:01:01.416734+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 37,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:01:02.323713+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "地理坐标与投影坐标转换 课程 教学",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "9a8d9b41eef1b57bd3e43feb325005f6f33b3a5ba927fc5413948807a4467f4b",
+      "finished_at": "2026-10-14T10:01:05.392771+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 60,
+        "candidate_count": 6,
+        "topic_signal_count": 6,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 40
+      }
+    },
+    {
+      "id": 38,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "dns_http",
+      "started_at": "2026-10-14T10:01:05.626116+00:00",
+      "status": "completed",
+      "host": "www.douyin.com",
+      "finished_at": "2026-10-14T10:01:06.879713+00:00",
+      "finished_at_source": "trace.finished_at",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "record_type": "A"
+      }
+    },
+    {
+      "id": 39,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "dns_http",
+      "started_at": "2026-10-14T10:01:07.632712+00:00",
+      "status": "completed",
+      "host": "www.douyin.com",
+      "finished_at": "2026-10-14T10:01:08.462756+00:00",
+      "finished_at_source": "trace.finished_at",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "record_type": "AAAA"
+      }
+    },
+    {
+      "id": 40,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "target_http",
+      "started_at": "2026-10-14T10:01:09.644050+00:00",
+      "status": "returned",
+      "host": "www.douyin.com",
+      "path": "/robots.txt",
+      "url_sha256": "78f779308d43791423ec978e498570313177a94022fd983eb9babc205b8bb1a9",
+      "http_status": 200,
+      "bytes_read": 1044,
+      "finished_at": "2026-10-14T10:01:12.586465+00:00"
+    },
+    {
+      "id": 41,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "dns_http",
+      "started_at": "2026-10-14T10:01:12.741346+00:00",
+      "status": "completed",
+      "host": "www.douyin.com",
+      "finished_at": "2026-10-14T10:01:18.737111+00:00",
+      "finished_at_source": "trace.finished_at",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "record_type": "A"
+      }
+    },
+    {
+      "id": 42,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "dns_http",
+      "started_at": "2026-10-14T10:01:18.737143+00:00",
+      "status": "completed",
+      "host": "www.douyin.com",
+      "finished_at": "2026-10-14T10:01:19.053086+00:00",
+      "finished_at_source": "trace.finished_at",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "record_type": "AAAA"
+      }
+    },
+    {
+      "id": 43,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "target_http",
+      "started_at": "2026-10-14T10:01:20.738309+00:00",
+      "status": "returned",
+      "host": "www.douyin.com",
+      "path": "/video/7639398453470154038",
+      "url_sha256": "5426ed2ddbd0f9e949a56c2b0778b52fffaa2cc7b5a4cc5f84d6ce16fac8f2cb",
+      "http_status": 200,
+      "bytes_read": 72914,
+      "finished_at": "2026-10-14T10:01:29.930157+00:00"
+    },
+    {
+      "id": 44,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:01:30.099070+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:bilibili.com/video 地理坐标与投影坐标转换 视频教程",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "06262adcf6d8b19b97a2b73ebc8b55af27e2a128216148284dd0855d5b0f5bc1",
+      "finished_at": "2026-10-14T10:01:32.977585+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 60,
+        "candidate_count": 6,
+        "topic_signal_count": 6,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 40
+      }
+    },
+    {
+      "id": 45,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:01:33.199537+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org 地理坐标与投影坐标转换 视频教程",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "ca702902373983f78dfc65fff4b46c995af211d7ac9c837888b3f1df031e7484",
+      "finished_at": "2026-10-14T10:01:34.152137+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 6,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 46,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:01:35.213495+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org 地理坐标与投影坐标转换 视频教程",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "ca702902373983f78dfc65fff4b46c995af211d7ac9c837888b3f1df031e7484",
+      "finished_at": "2026-10-14T10:01:36.303852+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 47,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:01:37.224049+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) 地理坐标与投影坐标转换 课程 教学",
+      "language": "zh-CN",
+      "engines": "bing",
+      "query_sha256": "9fc7315f728e16596a842231e60ed3d76d1b03568f587902c9f78c45935c7401",
+      "finished_at": "2026-10-14T10:01:37.923765+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 48,
+      "case_id": "H09",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:01:39.259226+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) 地理坐标与投影坐标转换 课程 教学",
+      "language": "zh-CN",
+      "engines": "duckduckgo videos",
+      "query_sha256": "9fc7315f728e16596a842231e60ed3d76d1b03568f587902c9f78c45935c7401",
+      "finished_at": "2026-10-14T10:01:39.937276+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 49,
+      "case_id": "H16",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:02:40.337628+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "quaternion rotations  video tutorial",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "6e979a4dace1edb4a373124e729a55c6b1636d58b590534ba121580db19afd36",
+      "finished_at": "2026-10-14T10:02:42.571931+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 58,
+        "candidate_count": 6,
+        "topic_signal_count": 6,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 38
+      }
+    },
+    {
+      "id": 50,
+      "case_id": "H16",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:02:42.899799+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "quaternion rotations course lesson",
+      "language": "en",
+      "engines": "bing",
+      "query_sha256": "91968ac7a570647204bcabca07e6df5a649a7af6dfde8e19bcc9932c13320b7a",
+      "finished_at": "2026-10-14T10:02:43.879983+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 51,
+      "case_id": "H16",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:02:44.902815+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "quaternion rotations course lesson",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "91968ac7a570647204bcabca07e6df5a649a7af6dfde8e19bcc9932c13320b7a",
+      "finished_at": "2026-10-14T10:02:46.616955+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 59,
+        "candidate_count": 6,
+        "topic_signal_count": 6,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 39
+      }
+    },
+    {
+      "id": 52,
+      "case_id": "H16",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:02:46.916594+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:bilibili.com/video quaternion rotations video tutorial",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "3705be72afcbc4f804eae034cf2bd26fa5983e7efed6ebed488b5bb3ef04d576",
+      "finished_at": "2026-10-14T10:02:48.473053+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 56,
+        "candidate_count": 6,
+        "topic_signal_count": 1,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 36
+      }
+    },
+    {
+      "id": 53,
+      "case_id": "H16",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:02:48.918715+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org quaternion rotations video tutorial",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "f1717bf40408b81cc5327bcbcc308e2abf00a2d41a59e394f70963e50df38adc",
+      "finished_at": "2026-10-14T10:02:49.558772+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 0,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 54,
+      "case_id": "H16",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:02:50.931046+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "site:icourse163.org quaternion rotations video tutorial",
+      "language": "en",
+      "engines": "bing",
+      "query_sha256": "f1717bf40408b81cc5327bcbcc308e2abf00a2d41a59e394f70963e50df38adc",
+      "finished_at": "2026-10-14T10:02:52.074614+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 55,
+      "case_id": "H16",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:02:52.945616+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) quaternion rotations course lesson",
+      "language": "en",
+      "engines": "bing",
+      "query_sha256": "ae23786bcdf4dd88ecacd404ea6d4a1d834df67e11f88b64f9779ee83cba6cc9",
+      "finished_at": "2026-10-14T10:02:53.954151+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "bing",
+        "raw_candidate_count": 10,
+        "candidate_count": 0,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    },
+    {
+      "id": 56,
+      "case_id": "H16",
+      "source_epoch": 1,
+      "kind": "search_http",
+      "started_at": "2026-10-14T10:02:54.978497+00:00",
+      "status": "returned",
+      "endpoint": "http://127.0.0.1:18780/search",
+      "query": "(site:ocw.mit.edu OR site:open.edu) quaternion rotations course lesson",
+      "language": "en",
+      "engines": "duckduckgo videos",
+      "query_sha256": "ae23786bcdf4dd88ecacd404ea6d4a1d834df67e11f88b64f9779ee83cba6cc9",
+      "finished_at": "2026-10-14T10:02:55.702168+00:00",
+      "http_status": 200,
+      "trace_summary": {
+        "status": "completed",
+        "engines_requested": "duckduckgo videos",
+        "raw_candidate_count": 12,
+        "candidate_count": 6,
+        "topic_signal_count": 0,
+        "upstream_warnings": [],
+        "candidate_trace_omitted": 0
+      }
+    }
+  ]
+}

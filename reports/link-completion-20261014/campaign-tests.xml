@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="4" time="0.588" timestamp="2026-10-14T16:41:23.524826+08:00" hostname="LAPTOP-UT2FMDJK"><testcase classname="tests.test_link_campaign" name="test_checkpoint_fail_closed_and_config_drift" time="0.001" /><testcase classname="tests.test_link_campaign" name="test_second_instance_restores_denial_before_any_transport" time="0.011" /><testcase classname="tests.test_link_campaign" name="test_unknown_timeout_not_latched_and_real_engine_restriction_persists" time="0.006"><failure message="UnicodeDecodeError: 'gbk' codec can't decode byte 0x81 in position 511: illegal multibyte sequence">tmp_path = WindowsPath('C:/Users/xiaoer/AppData/Local/Temp/pytest-of-xiaoer/pytest-5983/test_unknown_timeout_not_latch0')
+
+    def test_unknown_timeout_not_latched_and_real_engine_restriction_persists(tmp_path):
+        campaign=Campaign(tmp_path,state());campaign.service=service();provider=campaign.service.provider
+        provider._failures({'unresponsive_engines':[['bing','timeout'],['duckduckgo videos','arbitrary']]})
+        campaign.snapshot();assert campaign.state['restrictions']=={}
+        provider.last_warnings=provider._failures({'unresponsive_engines':[['bing','CAPTCHA']]})
+        campaign.snapshot()
+&gt;       saved=json.loads((tmp_path/'checkpoint.json').read_text())
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_link_campaign.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\xiaoer\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\pathlib\_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/xiaoer/AppData/Local/Temp/pytest-of-xiaoer/pytest-5983/test_unknown_timeout_not_latch0/checkpoint.json')
+encoding = 'locale', errors = None, newline = None
+
+    def read_text(self, encoding=None, errors=None, newline=None):
+        """
+        Open the file in text mode, read it, and close the file.
+        """
+        with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+&gt;           return f.read()
+                   ^^^^^^^^
+E           UnicodeDecodeError: 'gbk' codec can't decode byte 0x81 in position 511: illegal multibyte sequence
+
+C:\Users\xiaoer\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\pathlib\_abc.py:633: UnicodeDecodeError</failure></testcase><testcase classname="tests.test_link_campaign" name="test_budget_reserved_durably_before_delegate_and_not_refunded" time="0.008" /></testsuite></testsuites>

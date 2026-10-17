@@ -1,0 +1,295 @@
+{
+  "started_at": "2026-10-14T05:17:34.262871+00:00",
+  "scope": "Audited synthetic HTML only; current production worker; local fulfill of document, every other request aborts; no Fetcher or live HTTP",
+  "source_sha256_before": "2590ca0936981218399f8de5cfe16d7293c4c2e5dd8265d66ff2189bc5a8b927",
+  "cases": [
+    {
+      "name": "optional_script_get",
+      "fixture_html": "<!doctype html><html><head><title>Local probe</title><script src=\"https://w.appzi.io/w.js?token=synthetic\"></script></head><body>Local fixture</body></html>",
+      "source_csp": "",
+      "result": {
+        "status": "rendered",
+        "blocked_requests": [
+          {
+            "reason": "optional_integration_blocked",
+            "url": "https://w.appzi.io/w.js?token=synthetic",
+            "method": "GET",
+            "kind": "script",
+            "fatal": false
+          }
+        ],
+        "fulfilled_requests": [
+          {
+            "url": "https://ocw.mit.edu/courses/isolated-renderer-probe/",
+            "kind": "document",
+            "bytes": 156
+          }
+        ],
+        "edge_main_exit_observed": true,
+        "all_descendant_processes_exited": "unknown"
+      },
+      "parent_cleanup": {
+        "node_exited": true,
+        "edge_main_exit_observed": null,
+        "all_descendant_processes_exited": "unknown",
+        "node_pid": 15984,
+        "worker_ready": true,
+        "edge_pid": 14104,
+        "forced_tree_cleanup_requested": false
+      }
+    },
+    {
+      "name": "optional_fetch_get",
+      "fixture_html": "<!doctype html><html><head><title>Local probe</title><script>fetch(\"https://w.appzi.io/w.js?token=synthetic\").catch(()=>{})</script></head><body>Local fixture</body></html>",
+      "source_csp": "",
+      "result": {
+        "status": "render_dependency_blocked",
+        "blocked_requests": [
+          {
+            "reason": "csp_connect-src",
+            "url": "https://w.appzi.io/w.js?token=synthetic",
+            "method": "",
+            "kind": "",
+            "fatal": true
+          }
+        ],
+        "fulfilled_requests": [
+          {
+            "url": "https://ocw.mit.edu/courses/isolated-renderer-probe/",
+            "kind": "document",
+            "bytes": 172
+          }
+        ],
+        "edge_main_exit_observed": true,
+        "all_descendant_processes_exited": "unknown"
+      },
+      "parent_cleanup": {
+        "node_exited": true,
+        "edge_main_exit_observed": null,
+        "all_descendant_processes_exited": "unknown",
+        "node_pid": 50696,
+        "worker_ready": true,
+        "edge_pid": 52832,
+        "forced_tree_cleanup_requested": false
+      }
+    },
+    {
+      "name": "optional_fetch_post",
+      "fixture_html": "<!doctype html><html><head><title>Local probe</title><script>fetch(\"https://w.appzi.io/w.js?token=synthetic\",{method:\"POST\",body:\"synthetic\"}).catch(()=>{})</script></head><body>Local fixture</body></html>",
+      "source_csp": "",
+      "result": {
+        "status": "render_dependency_blocked",
+        "blocked_requests": [
+          {
+            "reason": "csp_connect-src",
+            "url": "https://w.appzi.io/w.js?token=synthetic",
+            "method": "",
+            "kind": "",
+            "fatal": true
+          }
+        ],
+        "fulfilled_requests": [
+          {
+            "url": "https://ocw.mit.edu/courses/isolated-renderer-probe/",
+            "kind": "document",
+            "bytes": 205
+          }
+        ],
+        "edge_main_exit_observed": true,
+        "all_descendant_processes_exited": "unknown"
+      },
+      "parent_cleanup": {
+        "node_exited": true,
+        "edge_main_exit_observed": null,
+        "all_descendant_processes_exited": "unknown",
+        "node_pid": 47700,
+        "worker_ready": true,
+        "edge_pid": 68528,
+        "forced_tree_cleanup_requested": false
+      }
+    },
+    {
+      "name": "same_origin_fetch_post",
+      "fixture_html": "<!doctype html><html><head><title>Local probe</title><script>fetch(\"/probe-only\",{method:\"POST\",body:\"synthetic\"}).catch(()=>{})</script></head><body>Local fixture</body></html>",
+      "source_csp": "",
+      "result": {
+        "status": "render_dependency_blocked",
+        "blocked_requests": [
+          {
+            "reason": "non_get",
+            "url": "https://ocw.mit.edu/probe-only",
+            "method": "POST",
+            "kind": "fetch",
+            "fatal": true
+          }
+        ],
+        "fulfilled_requests": [
+          {
+            "url": "https://ocw.mit.edu/courses/isolated-renderer-probe/",
+            "kind": "document",
+            "bytes": 177
+          }
+        ],
+        "edge_main_exit_observed": true,
+        "all_descendant_processes_exited": "unknown"
+      },
+      "parent_cleanup": {
+        "node_exited": true,
+        "edge_main_exit_observed": null,
+        "all_descendant_processes_exited": "unknown",
+        "node_pid": 58516,
+        "worker_ready": true,
+        "edge_pid": 44360,
+        "forced_tree_cleanup_requested": false
+      }
+    },
+    {
+      "name": "optional_navigation_get",
+      "fixture_html": "<!doctype html><html><head><title>Local probe</title><script>location.href=\"https://w.appzi.io/w.js?token=synthetic\"</script></head><body>Local fixture</body></html>",
+      "source_csp": "",
+      "result": {
+        "status": "render_dependency_blocked",
+        "blocked_requests": [
+          {
+            "reason": "navigation_or_frame",
+            "url": "https://w.appzi.io/w.js?token=synthetic",
+            "method": "GET",
+            "kind": "document",
+            "fatal": true
+          }
+        ],
+        "fulfilled_requests": [
+          {
+            "url": "https://ocw.mit.edu/courses/isolated-renderer-probe/",
+            "kind": "document",
+            "bytes": 165
+          }
+        ],
+        "edge_main_exit_observed": true,
+        "all_descendant_processes_exited": "unknown"
+      },
+      "parent_cleanup": {
+        "node_exited": true,
+        "edge_main_exit_observed": null,
+        "all_descendant_processes_exited": "unknown",
+        "node_pid": 65252,
+        "worker_ready": true,
+        "edge_pid": 28372,
+        "forced_tree_cleanup_requested": false
+      }
+    },
+    {
+      "name": "same_origin_unknown_script",
+      "fixture_html": "<!doctype html><html><head><title>Local probe</title><script src=\"/unknown-script.js\"></script></head><body>Local fixture</body></html>",
+      "source_csp": "",
+      "result": {
+        "status": "render_dependency_blocked",
+        "blocked_requests": [
+          {
+            "reason": "resource_not_preapproved",
+            "url": "https://ocw.mit.edu/unknown-script.js",
+            "method": "GET",
+            "kind": "script",
+            "fatal": true
+          }
+        ],
+        "fulfilled_requests": [
+          {
+            "url": "https://ocw.mit.edu/courses/isolated-renderer-probe/",
+            "kind": "document",
+            "bytes": 135
+          }
+        ],
+        "edge_main_exit_observed": true,
+        "all_descendant_processes_exited": "unknown"
+      },
+      "parent_cleanup": {
+        "node_exited": true,
+        "edge_main_exit_observed": null,
+        "all_descendant_processes_exited": "unknown",
+        "node_pid": 51504,
+        "worker_ready": true,
+        "edge_pid": 66824,
+        "forced_tree_cleanup_requested": false
+      }
+    },
+    {
+      "name": "same_host_unknown_script",
+      "fixture_html": "<!doctype html><html><head><title>Local probe</title><script src=\"https://w.appzi.io/unknown-script.js\"></script></head><body>Local fixture</body></html>",
+      "source_csp": "",
+      "result": {
+        "status": "render_dependency_blocked",
+        "blocked_requests": [
+          {
+            "reason": "csp_script-src-elem",
+            "url": "https://w.appzi.io/unknown-script.js",
+            "method": "",
+            "kind": "",
+            "fatal": true
+          }
+        ],
+        "fulfilled_requests": [
+          {
+            "url": "https://ocw.mit.edu/courses/isolated-renderer-probe/",
+            "kind": "document",
+            "bytes": 153
+          }
+        ],
+        "edge_main_exit_observed": true,
+        "all_descendant_processes_exited": "unknown"
+      },
+      "parent_cleanup": {
+        "node_exited": true,
+        "edge_main_exit_observed": null,
+        "all_descendant_processes_exited": "unknown",
+        "node_pid": 33804,
+        "worker_ready": true,
+        "edge_pid": 66596,
+        "forced_tree_cleanup_requested": false
+      }
+    },
+    {
+      "name": "original_csp_script_block",
+      "fixture_html": "<!doctype html><html><head><title>Local probe</title><script src=\"https://w.appzi.io/w.js?token=synthetic\"></script></head><body>Local fixture</body></html>",
+      "source_csp": "script-src 'none'",
+      "result": {
+        "status": "render_dependency_blocked",
+        "blocked_requests": [
+          {
+            "reason": "csp_script-src-elem",
+            "url": "https://w.appzi.io/w.js?token=synthetic",
+            "method": "",
+            "kind": "",
+            "fatal": true
+          }
+        ],
+        "fulfilled_requests": [
+          {
+            "url": "https://ocw.mit.edu/courses/isolated-renderer-probe/",
+            "kind": "document",
+            "bytes": 156
+          }
+        ],
+        "edge_main_exit_observed": true,
+        "all_descendant_processes_exited": "unknown"
+      },
+      "parent_cleanup": {
+        "node_exited": true,
+        "edge_main_exit_observed": null,
+        "all_descendant_processes_exited": "unknown",
+        "node_pid": 25316,
+        "worker_ready": true,
+        "edge_pid": 60104,
+        "forced_tree_cleanup_requested": false
+      }
+    }
+  ],
+  "isolation": {
+    "page_network": "manifest_fulfill_or_abort",
+    "os_background_egress": "unknown",
+    "webrtc_udp": "unknown"
+  },
+  "source_sha256_after": "2590ca0936981218399f8de5cfe16d7293c4c2e5dd8265d66ff2189bc5a8b927",
+  "source_unchanged": true,
+  "finished_at": "2026-10-14T05:17:46.188359+00:00"
+}
