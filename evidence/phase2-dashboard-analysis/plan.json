@@ -1,0 +1,76 @@
+{
+  "classification": "synthetic_non_sensitive_inputs",
+  "standards": {
+    "scope": "Four synthetic, previously unseen projects and three learner stages; no video-search submission by this script.",
+    "coverage": "Every stated behavior needs a concrete implementing unit or useful prerequisite. Keyword observations only flag areas for manual review.",
+    "granularity": "One coherent buildable subtask per unit, not a full language course or isolated syntax. Four to eight units is a soft observation range; fewer is acceptable when prior knowledge justifies it.",
+    "prerequisites": "No cycles or missing references, prerequisites earlier, and manual verification of genuinely necessary skills.",
+    "relevance": "Per-unit tool matches the chosen approach; no unrelated mandatory features or generic tutorials substituting for project skills. A tool field is not video-coverage evidence.",
+    "technical_accuracy": "No unresolved high/medium behavioral contradiction in manual review. Hardware review is static, not execution validation.",
+    "background": "Honor exact requested stage and actual stated experience; do not equate advanced with knowledge of an unfamiliar library.",
+    "latency": {
+      "client_goal_seconds": 60,
+      "client_failure_threshold_seconds": 90,
+      "p95_limit_seconds": 90,
+      "observation_deadline_seconds": 150
+    },
+    "bounds": {
+      "max_analysis_api_submissions": 4,
+      "max_program_provider_attempts_per_analysis": 2,
+      "external_search_submissions": 0
+    },
+    "pass_policy": "All four complete with manual rubric passed and no known high/medium issue. Report latency goal misses and failures separately; never convert a keyword hit into a semantic pass."
+  },
+  "cases": [
+    {
+      "id": "study_room_streamlit_intermediate",
+      "input": {
+        "name": "校园自习室使用情况本地看板",
+        "requirements": "用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率以百分比保留1位小数，不能平均各行百分比；有效零到访记录必须保留。按room汇总到访人次并用Streamlit自带条形图显示。尚未上传、CSV缺列或格式错误、筛选无匹配时给清晰提示且页面可继续操作；空结果时指标显示“—”，不算除零或显示NaN，不画误导性图。只用本地文件，不需要账号、联网数据、数据库、预测、地图或云部署。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "coverage": [
+        [
+          "Streamlit upload",
+          "streamlit|file_uploader"
+        ],
+        [
+          "Validation",
+          "to_datetime|to_numeric|校验|验证|清洗"
+        ],
+        [
+          "Filtering",
+          "date_input|multiselect|筛选"
+        ],
+        [
+          "Weighted metrics",
+          "metric|加权|分子"
+        ],
+        [
+          "Grouped bar",
+          "bar_chart|条形|分组"
+        ],
+        [
+          "Recoverable empty state",
+          "st\\.stop|空|无结果|零"
+        ]
+      ],
+      "manual_checks": [
+        "本地Streamlit入口、CSV上传与可恢复输入状态",
+        "按明确字段条件清洗并报告排除行数",
+        "含等号的日期范围与明确房间多选语义",
+        "三个指标及加权使用率边界",
+        "房间分组到访条形图与指标同口径",
+        "空结果、无效输入与重新选择的可用流程"
+      ]
+    }
+  ]
+}

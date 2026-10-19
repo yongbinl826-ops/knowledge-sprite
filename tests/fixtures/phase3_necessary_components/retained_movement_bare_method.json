@@ -1,0 +1,210 @@
+{
+  "source": "Exact retained actual r3 own resource and required own binding rows, no invented teaching text or new request. Description remains copied only as original resource field.",
+  "source_snapshot": "evidence\\phase3-audit\\r3-live-pong-v3\\source-pool-snapshot.json",
+  "source_snapshot_sha256": "29a4ac4e8ae7861bc69185ff525900c5cfa6bd8c39bfafd50b1d6fee8820ce21",
+  "job_id": "951a793b-2e7b-45be-9917-5a51607c25c8",
+  "student_level": "intermediate",
+  "point": {
+    "knowledge_point_id": "7d3ac364-fb6e-4bcb-9132-64f572d11eab",
+    "text": "pygame 按住键读取与球拍边界夹取",
+    "learning_targets": [
+      "pygame.key.get_pressed() 每帧轮询",
+      "经 pygame.K_UP 等键位映射到移动方向",
+      "位置加 速度*dt 后在 [0, 屏高-拍高] 内夹取"
+    ],
+    "learning_skills": [
+      "pygame get_pressed 轮询按住键状态",
+      "数值夹取把坐标限制在给定区间",
+      "按帧间隔累加对象位移"
+    ]
+  },
+  "resource": {
+    "resource_id": "res_75865a884af31279cf83e9db",
+    "title": "Basic Movement & Key Presses",
+    "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+    "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+    "resolved_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+    "platform": "other",
+    "resource_type": "video",
+    "video_evidence_status": "page_verified",
+    "author": "Tim Ruscica",
+    "author_role": null,
+    "parent_course_url": null,
+    "course_identity": {
+      "status": "partial",
+      "family_id": null,
+      "offering_id": null,
+      "lesson_id": null,
+      "family_url": null,
+      "offering_url": null,
+      "role": "video",
+      "basis": "unknown",
+      "source_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "evidence_ids": [
+        "ev_83ad326c-aec8-4d99-9c75-c6f7317d676f"
+      ],
+      "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+    },
+    "description": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+    "video_topic_summary": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+    "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/pygame_window_tutorial_1_01af2f97bd.png",
+    "language": "en",
+    "duration_seconds": null,
+    "published_at": null,
+    "discovered_at": "2026-10-18T23:44:01.950138+00:00",
+    "fetched_at": "2026-10-18T23:02:19.668666+00:00",
+    "fetch_status": "fetched",
+    "metadata_evidence_level": "page",
+    "requires_login": null,
+    "requires_payment": null,
+    "requires_enrollment": null,
+    "access_notice": null,
+    "chapters": [],
+    "catalog_kind": null,
+    "catalog_fetch_status": null,
+    "render_diagnostics": null,
+    "field_provenance": {
+      "title": {
+        "evidence_id": "ev_66e073a6-ab04-4a8e-9850-49c66099a4fd",
+        "source": "html.techwithtim.lesson.title",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+      },
+      "url": {
+        "evidence_id": "ev_1c3083a8-ef8b-411a-b2fe-0013fc7d17f0",
+        "source": "search",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement"
+      },
+      "description": {
+        "evidence_id": "ev_f984fd56-fb63-48cc-a637-2baedbe4ba51",
+        "source": "html.techwithtim.lesson.summary",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+      },
+      "thumbnail_url": {
+        "evidence_id": "ev_261f0e12-e218-4ff9-ac04-c80e4e30e761",
+        "source": "meta.og:image",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+      },
+      "author": {
+        "evidence_id": "ev_263a0f80-3702-4825-b897-c16e50de9a5b",
+        "source": "meta.author",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+      },
+      "language": {
+        "evidence_id": "ev_a66f49d0-443b-4fb4-a96b-2bcfbfb7f1e9",
+        "source": "html.lang",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+      },
+      "resource_type": {
+        "evidence_id": "ev_90f80583-094e-45a0-bd19-3419a62689f4",
+        "source": "html.techwithtim.lesson.video",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+      },
+      "video_evidence_status": {
+        "evidence_id": "ev_83ad326c-aec8-4d99-9c75-c6f7317d676f",
+        "source": "html.techwithtim.lesson.video",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+      },
+      "video_topic_summary": {
+        "evidence_id": "ev_5ce6240d-8b4b-40c1-9d53-6bfd8fc08d1e",
+        "source": "html.techwithtim.lesson.summary",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+      }
+    },
+    "cache": {
+      "hit": true,
+      "stale": false,
+      "cached_at": "2026-10-18T23:02:19.760498+00:00"
+    },
+    "playback_verified": false
+  },
+  "evidence": [
+    {
+      "id": "ev_634d24fbe69950d78337",
+      "evidence_id": "ev_66e073a6-ab04-4a8e-9850-49c66099a4fd",
+      "kind": "page",
+      "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "field": "title",
+      "source": "html.techwithtim.lesson.title",
+      "text": "Basic Movement & Key Presses",
+      "fetched_at": "2026-10-18T23:02:19.668666+00:00",
+      "observed_at": "2026-10-18T23:02:19.668666+00:00",
+      "cache": {
+        "hit": true,
+        "stale": false,
+        "cached_at": "2026-10-18T23:02:19.760498+00:00"
+      }
+    },
+    {
+      "id": "ev_dd31d074774f6d8ee98a",
+      "evidence_id": "ev_90f80583-094e-45a0-bd19-3419a62689f4",
+      "kind": "page",
+      "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "field": "resource_type",
+      "source": "html.techwithtim.lesson.video",
+      "text": "{\"basis\": \"same visible own lesson container, unique title-matched iframe and own teaching notes; no player/media request\", \"binding_kind\": \"same_lesson_dom_v2\", \"binding_version\": 2, \"dom_witness\": {\"all_content_iframe_count\": 1, \"content_count\": 1, \"embedded_iframe_count\": 1, \"heading_count\": 1, \"heading_text\": \"Basic Movement & Key Presses\", \"iframe_title\": \"Basic Movement & Key Presses\", \"markdown_count\": 1, \"notes_characters\": 5354, \"notes_sha256\": \"248c932a5513e0553b9eb57ff731b8365c755991990ea271bd32f8f8eff34b7d\", \"teaching_prose_count\": 19, \"visible\": true}, \"embed_title\": \"Basic Movement & Key Presses\", \"embed_url\": \"https://www.youtube.com/embed/i6xMBig-pP4\", \"excluded\": \"series sidebar, navigation and cumulative Full Code\", \"lesson_title\": \"Basic Movement & Key Presses\", \"lesson_url\": \"https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement\", \"summary_sha256\": \"248c932a5513e0553b9eb57ff731b8365c755991990ea271bd32f8f8eff34b7d\", \"teaching_binding\": \"One visible own lesson title and teaching notes share a unique visible embedded video in the same lesson content container.\", \"video_id\": \"i6xMBig-pP4\"}",
+      "fetched_at": "2026-10-18T23:02:19.668666+00:00",
+      "observed_at": "2026-10-18T23:02:19.668666+00:00",
+      "cache": {
+        "hit": true,
+        "stale": false,
+        "cached_at": "2026-10-18T23:02:19.760498+00:00"
+      }
+    },
+    {
+      "id": "ev_06719af96ff119e79e0d",
+      "evidence_id": "ev_83ad326c-aec8-4d99-9c75-c6f7317d676f",
+      "kind": "page",
+      "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "field": "video_evidence_status",
+      "source": "html.techwithtim.lesson.video",
+      "text": "{\"basis\": \"same visible own lesson container, unique title-matched iframe and own teaching notes; no player/media request\", \"binding_kind\": \"same_lesson_dom_v2\", \"binding_version\": 2, \"dom_witness\": {\"all_content_iframe_count\": 1, \"content_count\": 1, \"embedded_iframe_count\": 1, \"heading_count\": 1, \"heading_text\": \"Basic Movement & Key Presses\", \"iframe_title\": \"Basic Movement & Key Presses\", \"markdown_count\": 1, \"notes_characters\": 5354, \"notes_sha256\": \"248c932a5513e0553b9eb57ff731b8365c755991990ea271bd32f8f8eff34b7d\", \"teaching_prose_count\": 19, \"visible\": true}, \"embed_title\": \"Basic Movement & Key Presses\", \"embed_url\": \"https://www.youtube.com/embed/i6xMBig-pP4\", \"excluded\": \"series sidebar, navigation and cumulative Full Code\", \"lesson_title\": \"Basic Movement & Key Presses\", \"lesson_url\": \"https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement\", \"summary_sha256\": \"248c932a5513e0553b9eb57ff731b8365c755991990ea271bd32f8f8eff34b7d\", \"teaching_binding\": \"One visible own lesson title and teaching notes share a unique visible embedded video in the same lesson content container.\", \"video_id\": \"i6xMBig-pP4\"}",
+      "fetched_at": "2026-10-18T23:02:19.668666+00:00",
+      "observed_at": "2026-10-18T23:02:19.668666+00:00",
+      "cache": {
+        "hit": true,
+        "stale": false,
+        "cached_at": "2026-10-18T23:02:19.760498+00:00"
+      }
+    },
+    {
+      "id": "ev_429e5d74f8322956f251",
+      "evidence_id": "ev_5ce6240d-8b4b-40c1-9d53-6bfd8fc08d1e",
+      "kind": "page",
+      "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "field": "video_topic_summary",
+      "source": "html.techwithtim.lesson.summary",
+      "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+      "fetched_at": "2026-10-18T23:02:19.668666+00:00",
+      "observed_at": "2026-10-18T23:02:19.668666+00:00",
+      "cache": {
+        "hit": true,
+        "stale": false,
+        "cached_at": "2026-10-18T23:02:19.760498+00:00"
+      }
+    }
+  ],
+  "saved_core": {
+    "fingerprint": "bc7c1c40e714b4fedd291b163cc9336bc3e49afaccc342897a234b236aec7948",
+    "supports": [],
+    "_review_version": "teaching-claim-review-v2-method-input",
+    "_review_hash": "a2245b9dfbf685cc2697bc911a42ec197f217c8cc1ee3b2daf8faecc3d1f799a"
+  },
+  "expected_source_facts": {
+    "summary_characters": 5354,
+    "summary_contains": "keys = pygame.key.get_pressed()",
+    "original_model_visible_get_pressed": false,
+    "do_not_claim": [
+      "clamp",
+      "dt",
+      "pygame.KEYDOWN"
+    ]
+  }
+}

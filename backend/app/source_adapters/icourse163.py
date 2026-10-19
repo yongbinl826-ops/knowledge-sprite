@@ -3,16 +3,82 @@ from __future__ import annotations
 
 import json
 import re
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
 
-from ..url_utils import UnsafeURL, normalize_url, safe_thumbnail_url
+from ..url_utils import safe_thumbnail_url
+from ..mooc_urls import course_identity_parts, public_course_url
 from .base import FieldFact, SourceFacts, clean_text
 
 
 _TOKEN = re.compile(r'''\s+|//[^\r\n]*|/\*[\s\S]*?\*/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[A-Za-z_$][\w$]*|-?\d+(?:\.\d+)?|[^\s]''')
 MOOC_CATALOG_LIMIT = 500
+MOOC_STRUCT_SOURCE = "html.icourse163.termDto.outLineDto.outLineStructureDtos"
+
+
+def _structure_text(value: str) -> str:
+    """Render literal text only; markup cannot add remote lessons or scripts."""
+    soup = BeautifulSoup(value, "html.parser")
+    for tag in soup.select("script, style, noscript, template, [hidden], [aria-hidden='true']"):
+        if not tag.decomposed:
+            tag.decompose()
+    for tag in list(soup.select("[style]")):
+        if not tag.decomposed and re.search(r"display\s*:\s*none|visibility\s*:\s*hidden", str(tag.get("style", "")), re.I):
+            tag.decompose()
+    return " ".join(soup.get_text(" ", strip=True).split())
+
+
+def _read_structure(result: SourceFacts, rows: object, page_url: str) -> bool:
+    """Read explicit DTO name/plan relations; goals are not lesson titles.
+
+    Public pages use ordered name/goals/plan records.  The plan separator is
+    literal ';;;', not a remote lesson identifier.  Reject an invalid/oversized
+    whole catalog rather than presenting a silently truncated preview.
+    """
+    titles: list[tuple[str, int | None]] = []
+    text_size = 0
+    try:
+        if not isinstance(rows, list) or len(rows) > 200:
+            raise ValueError("record bounds")
+        for row in rows:
+            if not isinstance(row, dict) or not set(row) <= {"name", "goals", "plan"}:
+                raise ValueError("record schema")
+            name, goals, plan = row.get("name"), row.get("goals", ""), row.get("plan", "")
+            if (not isinstance(name, str) or not isinstance(goals, str) or not isinstance(plan, str)
+                    or len(name) > 300 or len(goals) > 4000 or len(plan) > 16000):
+                raise ValueError("text schema or bounds")
+            text_size += len(name) + len(goals) + len(plan)
+            if text_size > 100000:
+                raise ValueError("total text bounds")
+            title = _structure_text(name)
+            if not title:
+                raise ValueError("empty parent")
+            parent_index = len(titles)
+            titles.append((title, None))
+            for part in plan.split(";;;"):
+                child = _structure_text(part)
+                if len(child) > 300:
+                    raise ValueError("child title bounds")
+                if child:
+                    titles.append((child, parent_index))
+        if len(titles) > MOOC_CATALOG_LIMIT:
+            result.fields.append(FieldFact("catalog_fetch_status", "catalog_limit_exceeded", MOOC_STRUCT_SOURCE + ".limit",
+                f"Public course outline contains {len(titles)} nonempty entries, exceeding the {MOOC_CATALOG_LIMIT}-entry limit; no truncated catalog is displayed"))
+            return False
+    except (ValueError, TypeError):
+        result.fields.append(FieldFact("catalog_fetch_status", "catalog_payload_invalid", MOOC_STRUCT_SOURCE + ".invalid",
+            "Own public course structure has unsupported schema or exceeds text bounds; no partial catalog is displayed"))
+        return False
+    result.chapters = [{"title": title, "url": None, "source_url": page_url,
+                        "start_seconds": None, "end_seconds": None,
+                        "duration_seconds": None,
+                        **({"outline_parent_index": parent} if parent is not None else {})}
+                       for title, parent in titles]
+    if result.chapters:
+        result.catalog_source = MOOC_STRUCT_SOURCE
+        result.catalog_kind = "course_outline"
+    return True
 
 
 def _read_paragraphs(result: SourceFacts, paragraphs: list, page_url: str, source: str) -> bool:
@@ -139,11 +205,11 @@ def extract_embedded_course_facts(soup: BeautifulSoup, url: str) -> SourceFacts:
         return result
     payload = payloads[0]
     course = payload["courseDto"]
-    if str(course.get("id")) != urlsplit(page_url).path.rstrip("/").rsplit("-", 1)[-1]:
+    identity = course_identity_parts(page_url)
+    if not identity or str(course.get("id")) != identity["course_id"]:
         return result
-    requested_terms = parse_qs(urlsplit(page_url).query, keep_blank_values=True).get("tid")
-    if requested_terms is not None and (len(requested_terms) != 1 or not requested_terms[0].isdigit()
-                                       or str(payload["termDto"].get("id")) != requested_terms[0]):
+    requested_term = identity["term_id"]
+    if requested_term is not None and str(payload["termDto"].get("id")) != requested_term:
         return result
     outline_dto = payload["termDto"].get("outLineDto")
     if not isinstance(outline_dto, dict) or not isinstance(outline_dto.get("outLine"), str):
@@ -157,10 +223,15 @@ def extract_embedded_course_facts(soup: BeautifulSoup, url: str) -> SourceFacts:
             tag.decompose()
     within_limit = _read_paragraphs(result, outline.select("p"), page_url,
                                    "html.icourse163.termDto.outLineDto.outLine")
+    # Alternative public-page representation. Never borrow related/telemetry
+    # arrays or replace a nonempty/oversized legacy outline with this view.
+    if not result.chapters and within_limit and not outline.get_text(strip=True) and "outLineStructureDtos" in outline_dto:
+        within_limit = _read_structure(result, outline_dto["outLineStructureDtos"], page_url)
     if not result.chapters and within_limit:
         return result
+    curriculum = (result.catalog_source or "html.icourse163.termDto.outLineDto").removeprefix("html.icourse163.")
     result.fields.append(FieldFact("resource_type", "course", "html.icourse163.embedded_course_structure",
-        "Public course HTML contains matching courseDto.id, course introduction/outline containers and termDto.outLineDto.outLine literal curriculum; no scripts executed or playback tested"))
+        f"Public course HTML contains matching courseDto.id, course introduction/outline containers and {curriculum} literal curriculum; no scripts executed or playback tested"))
     title = clean_text(course.get("name"), 500)
     if title:
         result.fields.append(FieldFact("title", title, "html.icourse163.embedded_course.name"))
@@ -174,16 +245,7 @@ def extract_embedded_course_facts(soup: BeautifulSoup, url: str) -> SourceFacts:
 
 
 def _course_url(url: str) -> str | None:
-    try:
-        normalized = normalize_url(url)
-        parsed = urlsplit(normalized)
-    except (UnsafeURL, ValueError):
-        return None
-    if parsed.hostname not in {"icourse163.org", "www.icourse163.org"}:
-        return None
-    if not re.fullmatch(r"/course/(?:[A-Za-z0-9_]+)?-\d+/?", parsed.path):
-        return None
-    return normalized
+    return public_course_url(url)
 
 
 def outline_duration_seconds(value: str | None) -> int | float | None:
@@ -208,6 +270,12 @@ class ICourse163Adapter:
         result = SourceFacts()
         page_url = _course_url(url)
         if not page_url:
+            return result
+        if urlsplit(page_url).path == "/course/detail.htm":
+            # The legacy detail endpoint can contain generic HTML without any
+            # course identifier. Containers/title alone cannot bind its cid.
+            # A matching literal courseDto/termDto is handled before scripts
+            # are removed by extract_embedded_course_facts above.
             return result
         for button in soup.select(".course-enroll-info_course-enroll_buttons .course-enroll-info_course-enroll_buttons_enroll-btn .ux-btn")[:5]:
             notice = clean_text(button.get_text(" ", strip=True), 500)

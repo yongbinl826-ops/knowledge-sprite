@@ -1,0 +1,86 @@
+{
+  "created_at": "2026-10-18T22:59:39.377218+00:00",
+  "scope": "Read-only diagnosis plus isolated candidate; frozen stage unchanged",
+  "inputs": [
+    {
+      "path": "tmp/phase3-work/evidence/phase3-live/phase3_pygame_pong_intermediate/project-view.json",
+      "sha256": "19b89a7f7997023798871784d19c9c53b0244993ec44d8003ddbbd4012af47c8",
+      "case": "phase3_pygame_pong_intermediate"
+    },
+    {
+      "path": "tmp/phase3-work/evidence/phase3-live/web_pomodoro_beginner/project-view.json",
+      "sha256": "cecc04b00f3d1082c40861dc8bdf726406a0021569aae26cf63da4c3f8b656ef",
+      "case": "web_pomodoro_beginner"
+    },
+    {
+      "path": "tmp/phase3-work/evidence/phase3-live/pygame_maze_intermediate/project-view.json",
+      "sha256": "6c1ce43c16593c48e9deca2021e6c95a96ba5e7a0c7b6458e94db74102b3e75d",
+      "case": "pygame_maze_intermediate"
+    }
+  ],
+  "live_facts": {
+    "pong_v2": "Two generation attempts each reported unresponsive_game_restart at k8. Rejected drafts are absent; cannot determine which field or whether failure was true contradiction/false positive.",
+    "web_v6": "First attempt semantic_review rejected four issues; repair failed JSONDecodeError at line1,column1228,position1227. Original issue code/locations and rejected text absent; cannot determine exact semantic issues or malformed JSON content."
+  },
+  "confirmed_detector_findings": [
+    {
+      "case": "actual_accepted_comparison",
+      "text": "区分暂停玩法逻辑与退出主循环",
+      "baseline_stops": true,
+      "candidate_stops": false,
+      "synthetic": false
+    },
+    {
+      "case": "reverse_comparison",
+      "text": "区分退出主循环与暂停玩法逻辑",
+      "baseline_stops": true,
+      "candidate_stops": false,
+      "synthetic": true
+    },
+    {
+      "case": "explicit_esc_quit",
+      "text": "按 Esc 退出主循环，R 重置比赛数据。",
+      "baseline_stops": true,
+      "candidate_stops": false,
+      "synthetic": true
+    },
+    {
+      "case": "window_close_quit",
+      "text": "关闭窗口时退出主循环；获胜只暂停物理更新。",
+      "baseline_stops": true,
+      "candidate_stops": false,
+      "synthetic": true
+    },
+    {
+      "case": "bad_restart_stop",
+      "text": "获胜时退出主循环，然后按 R 重开。",
+      "baseline_stops": true,
+      "candidate_stops": true,
+      "synthetic": true
+    },
+    {
+      "case": "mixed_quit_and_bad_restart",
+      "text": "按 Esc 退出主循环；获胜后停止主循环等待 R。",
+      "baseline_stops": true,
+      "candidate_stops": true,
+      "synthetic": true
+    }
+  ],
+  "diagnostic_gap": "Point-level any() loses triggering field/index. Attempt history retains only count for quality/review, so a later JSON parse error hides earlier issue codes/locations. Candidate adds schema-resolved paths and fixed rule ID; history stores only allowlisted code/severity/location/rule, never model messages, quotes, drafts or source/credential values. Unknown paths are masked.",
+  "candidate": {
+    "manifest": "tmp/phase3-analysis-guard-patch/manifest.json",
+    "schema_unchanged": true,
+    "generation_attempts": 2,
+    "model_calls_max": 4,
+    "default_shared_timeout_seconds": 120,
+    "new_tests": 38,
+    "focused_passed": 166,
+    "prompt_only_caveat": "Generic JSON escaping, real API-argument syntax/cross-field consistency and explicit first-observation scaffolds are instructions, not proof that future model output will comply."
+  },
+  "limits": [
+    "Cannot retrospectively recover failed draft text or determine actual Pong cause.",
+    "No new live model/search/HTTP calls performed.",
+    "Guard remains a narrow heuristic, not a semantic proof.",
+    "No stage production or existing test files changed."
+  ]
+}

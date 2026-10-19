@@ -1,0 +1,850 @@
+import { test, expect, type Page } from '@playwright/test';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import type { Capabilities, CollectionCoverage, ResourceItem, ResultGroup } from '../src/types';
+import type { ProjectAnalysis, ProjectView } from '../src/projectTypes';
+
+// Phase 2: isolated UI transport fixtures. These are not live video discovery,
+// instructional-quality, source-availability or project-completion evidence.
+const root = resolve(process.cwd(), process.env.QA_EVIDENCE_ROOT || '../evidence/browser/phase2');
+const sourceRoot = resolve(process.cwd(), process.env.QA_SOURCE_ROOT || '..');
+const time = '2026-10-18T16:00:00Z';
+const name = 'pandas 读取成绩、统计并导出';
+const skills = [{ id: 'read', text: '读取 Excel 成绩表' }, { id: 'mean', text: '按班级统计均值' }, { id: 'export', text: '导出统计结果' }];
+const input = { name: '成绩分析工具', requirements: '读取成绩表，按班级统计均值并导出结果。', student_level: 'beginner' as const, language: 'zh' as const,
+  project_context: '', technical_version: 'Python 3 / pandas', preferred_platforms: ['bilibili' as const] };
+const caps: Capabilities = { mode: 'live', search: { status: 'configured', message: '隔离测试', selected_provider: 'fixture', providers: [] },
+  llm: { status: 'configured', message: '隔离测试' }, fetch: { status: 'available', message: '隔离测试', browser_fallback: false }, platforms: [],
+  limits: { max_knowledge_points: 5, max_results_per_point: 5, max_search_requests: 30, max_detail_pages: 40 } };
+const analysis: ProjectAnalysis = { scope: '本地成绩分析工具', technical_plan: 'Python / pandas', assumptions: ['Excel 来自本地'],
+  functions: [{ id: 'f1', name: '成绩统计与导出', original_requirement: input.requirements, acceptance_criteria: '统计结果可导出', no_new_learning_reason: null }],
+  knowledge_points: [{ id: 'unit-1', name, description: '把成绩表转为按班级汇总的统计结果', function_ids: ['f1'], why_needed: '完成统计和导出',
+    learning_goal: '读取 Excel，按班级统计均值，并导出新的统计表', necessity: 'required', prerequisite_ids: [], learning_order: 1, selection: 'learn',
+    concepts: skills.map(skill => skill.text), practice_check: '换一份成绩表，独立生成按班级汇总的 Excel 文件。', technology: 'Python / pandas' }] };
+function course(id: string, skill: string, kind: 'page' | 'catalog' | 'search' = 'page', platform = 'bilibili'): ResourceItem {
+  const text = skills.find(row => row.id === skill)!.text;
+  const url = `https://example.org/fixture/${id}`;
+  const eid = `evidence-${id}`;
+  const description = `本视频用 pandas 演示${text}，并以成绩表进行练习。`;
+  const chapter = { title: `pandas ${text}`, evidence_id: eid };
+  return {
+    resource: { resource_id: id, title: `隔离视频：${text}`, url, canonical_url: url, platform, resource_type: 'video', author: null,
+      description: kind === 'page' ? description : null, language: null, duration_seconds: null, published_at: null, discovered_at: time,
+      fetched_at: kind === 'search' ? null : time, fetch_status: kind === 'search' ? 'search_only_policy' : 'fetched', metadata_evidence_level: kind,
+      requires_login: null, requires_payment: null, requires_enrollment: null, chapters: kind === 'catalog' ? [chapter] : [],
+      field_provenance: kind === 'page' ? { description: { evidence_id: eid, source: 'fixture.description', url } } : {}, playback_verified: false },
+    match: { knowledge_point_id: 'job-point-1', resource_id: id, ranking_score: 0.8,
+      recommendation_reason: '仅有这一子技能的内容线索；视频/授课语言尚未由来源元数据确认。', matched_evidence_ids: [eid], coverage_basis: [kind],
+      topic_evidence_status: 'partial', supporting_evidence_ids: [eid], subtopic_coverage: skills.map(row => ({ ...row,
+        status: row.id === skill ? 'supported' : 'unknown', evidence_ids: row.id === skill ? [eid] : [], reason: row.id === skill ? '隔离来源自身记录' : '未确认' })) },
+    evidence: [{ evidence_id: eid, kind, source: kind === 'page' ? 'fixture.description' : kind === 'catalog' ? 'fixture.catalog' : 'fixture.search', url,
+      ...(kind === 'search' ? { title: `pandas ${text}`, snippet: description, observed_at: time }
+        : { field: kind === 'page' ? 'description' : 'chapters.0', text: kind === 'page' ? description : JSON.stringify({ title: chapter.title, url: null, start_seconds: null, end_seconds: null, duration_seconds: null }), fetched_at: time }) }],
+  };
+}
+function fixtureGroup(): ResultGroup {
+  const read = course('read-video', 'read');
+  const mean = course('mean-video', 'mean', 'catalog', 'other');
+  const snippet = course('snippet-only', 'export', 'search');
+  const review = course('review-only', 'export'); review.match.topic_evidence_status = 'needs_review';
+  const coverage: CollectionCoverage = { decomposition_status: 'applied', shared_context: ['pandas'], status: 'all_subtopics_supported',
+    subtopics: skills.map(skill => ({ ...skill, status: 'supported', resource_ids: ['invented-aggregate-resource'], evidence_ids: ['invented-aggregate-evidence'] })),
+    single_resource_full_coverage: true, disclaimer: '故意过度宣称的服务端汇总；客户端必须根据当前可见资源重新推导。' };
+  return { knowledge_point_id: 'job-point-1', text: name, total_matches: 0, items: [], section_limit: 5,
+    partial_items: [read, mean, snippet], partial_platform_items: { bilibili: [read, snippet], other: [mean] }, review_items: [review], review_platform_items: { bilibili: [review] },
+    collection_coverage: coverage, platform_collection_coverage: { bilibili: structuredClone(coverage), other: structuredClone(coverage) } };
+}
+type Logs = { runtime: string[]; console: string[]; unexpected: string[] };
+const diagnostics = new WeakMap<Page, Logs>();
+test.afterEach(async ({ page }, info) => {
+  const log = diagnostics.get(page)!;
+  await info.attach('phase2-browser-diagnostics', { body: JSON.stringify(log, null, 2), contentType: 'application/json' });
+  expect(log.runtime).toEqual([]); expect(log.console).toEqual([]); expect(log.unexpected).toEqual([]);
+});
+async function setup(page: Page, groups: Map<number, ResultGroup | null>, status = 'completed', document = analysis, projectInput = input, pointState?: { current: string }, mockImageUrls: string[] = []) {
+  const log: Logs = { runtime: [], console: [], unexpected: [] }; diagnostics.set(page, log);
+  page.on('pageerror', error => log.runtime.push(error.message));
+  page.on('console', message => { if (['warning', 'error'].includes(message.type())) log.console.push(message.text()); });
+  const current = Math.max(...groups.keys());
+  await page.route('**/*', route => {
+    const request = route.request(); const url = new URL(request.url());
+    const origin = new URL(process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5173').origin;
+    if (url.origin === origin && !url.pathname.startsWith('/api/')) return route.continue();
+    if (request.method() === 'GET' && url.pathname === '/api/capabilities') return route.fulfill({ json: caps });
+    if (request.method() === 'GET' && url.pathname === '/api/projects') return route.fulfill({ json: { projects: [{ project_id: 'coverage-project', name: projectInput.name, current_version: current, created_at: time, updated_at: time }] } });
+    if (request.method() === 'GET' && url.pathname === '/api/projects/coverage-project/results') {
+      const selected = Number(url.searchParams.get('version')) || current; const result = groups.get(selected);
+      const view: ProjectView = { project_id: 'coverage-project', input: projectInput, current_version: current,
+        versions: [...groups.keys()].map(version => ({ version, status, created_at: time })),
+        version: { version: selected, status, input: projectInput, analysis: document, confirmation: { version: selected, confirmed_at: time },
+          batches: [{ batch_id: `batch-${selected}`, status, project_knowledge_point_ids: [document.knowledge_points[0].id], job_id: `job-${selected}` }], error: null, created_at: time },
+        points: [{ project_knowledge_point_id: document.knowledge_points[0].id, name: document.knowledge_points[0].name, selection: 'learn', status: pointState?.current ?? (status === 'running' ? 'running' : result?.items.length ? 'completed' : result?.partial_items?.length || result?.review_items?.length ? 'partial' : 'no_results'),
+          batch_id: `batch-${selected}`, job_id: `job-${selected}`, knowledge_point_id: result?.knowledge_point_id || null, result: result || null }] };
+      return route.fulfill({ json: view });
+    }
+    if (request.resourceType() === 'image' && mockImageUrls.includes(url.href)) return route.fulfill({ contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jrZkAAAAASUVORK5CYII=', 'base64') });
+    log.unexpected.push(`${request.method()} ${url.href}`); return route.abort('blockedbyclient');
+  });
+  await page.goto(`/?project=coverage-project&version=${current}`);
+  await expect(page).toHaveTitle('项目制知识引导小精灵 · 课程与视频发现');
+  await expect(page.getByRole('heading', { name: `项目课程结果 · v${current}` })).toBeVisible();
+  await expect(page.locator('vite-error-overlay')).toHaveCount(0);
+  await openLegacy(page);
+  return log;
+}
+// Phase 3 keeps the exact old evidence contract inside an explicit disclosure.
+// These regression cases inspect that retained contract; the new primary skill
+// and practice axes are independently exercised in learning-support.spec.ts.
+async function openLegacy(page: Page) {
+  for (const disclosure of await page.locator('.legacy-requirements').all()) {
+    if (!await disclosure.evaluate(element => (element as HTMLDetailsElement).open)) await disclosure.locator(':scope>summary').click();
+  }
+}
+const routeSummary = (page: Page) => page.locator('.unit-coverage');
+const primaryNext = (page: Page) => page.locator('.learning-route-next');
+
+test('phase2 API 使用核心：真实来源离线回放保留部分材料，原学习目标仍为 0/8', async ({ page }) => {
+  const fixturePath = 'tests/fixtures/api-operation-core-coverage.json';
+  const bytes = readFileSync(resolve(process.cwd(), fixturePath));
+  const digest = createHash('sha256').update(bytes).digest('hex');
+  expect(digest).toBe('d2601f82c5ea044298e19a131d91db4847c6f43f0f7b20c12a0875288bcb00ab');
+  const fixture = JSON.parse(bytes.toString('utf8')) as {
+    planned: ProjectAnalysis['knowledge_points'][number]; result_group: ResultGroup;
+    network_requests: number; model_calls: number; database_reads: number; database_writes: number;
+    fresh_search: boolean; production_response: boolean; producer: Record<string, string>;
+  };
+  expect([fixture.network_requests, fixture.model_calls, fixture.database_reads, fixture.database_writes]).toEqual([0, 0, 0, 0]);
+  expect(fixture.fresh_search).toBe(false); expect(fixture.production_response).toBe(false);
+  const group = fixture.result_group, parts = group.collection_coverage!.subtopics;
+  expect(group.items).toHaveLength(0); expect(group.partial_items).toHaveLength(1); expect(group.review_items).toHaveLength(0);
+  expect(parts).toHaveLength(8); expect(parts.every(part => part.status === 'unknown' && !part.resource_ids.length && !part.evidence_ids.length)).toBe(true);
+  expect(parts.filter(part => part.id.startsWith('learning_target_')).map(part => part.text)).toEqual(fixture.planned.concepts);
+  const item = group.partial_items![0];
+  expect(item.match.subtopic_coverage!.filter(part => part.status === 'supported').map(part => part.id)).toEqual(['api_operation_core_1']);
+  expect(parts.some(part => part.id === 'api_operation_core_1')).toBe(false);
+  const document = structuredClone(analysis);
+  document.knowledge_points = [fixture.planned];
+  document.functions = [{ id: 'f2', name: '时间数据清洗', original_requirement: fixture.planned.description,
+    acceptance_criteria: fixture.planned.practice_check!, no_new_learning_reason: null }];
+  const mockImageUrl = item.resource.thumbnail_url!.replace(/^http:/, 'https:');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await setup(page, new Map([[1, group]]), 'partial', document, input, undefined, [mockImageUrl]);
+  const summary = page.locator('.unit-coverage');
+  const card = page.locator('.resource-card');
+  await expect(card).toHaveCount(1);
+  await expect(card).toContainText('Python pandas.to_datetime函数方法的使用');
+  await expect(card).toContainText('部分匹配');
+  await expect(card).toContainText('pandas.to_datetime API 使用核心（参数未确认）');
+  await expect(card).toContainText('不表示别名或参数等价');
+  for (const text of fixture.planned.concepts!) await expect(card).toContainText(text);
+  await expect(summary).toContainText('0 / 8 项有内容依据');
+  await expect(summary.locator('.unit-coverage-supported li')).toHaveCount(0);
+  await expect(summary.locator('.unit-coverage-supported p')).toHaveText('这些原项目要求尚无足够的本课正文或目录依据；请结合主路线区分补学与实践。');
+  await expect(summary).not.toContainText('当前视频尚无足够的正文或目录依据');
+  await expect(summary.locator('.unit-coverage-missing li')).toHaveText(parts.map(part => part.text));
+  for (const [index, part] of parts.entries()) await expect(summary.locator('.unit-coverage-missing li').nth(index)).toHaveAttribute('data-requirement-ids', JSON.stringify([part.id]));
+  await expect(summary.locator('.unit-coverage-missing')).not.toContainText('API 使用核心');
+  await expect(summary.locator('.unit-coverage-next')).toContainText('参数教学仍需证据，项目应用则需要自己实践');
+  await expect(primaryNext(page)).toContainText('先到原平台核对教学范围');
+  await expect(summary.getByRole('link')).toHaveCount(0);
+  await expect(summary.locator('.unit-coverage-practice span')).toHaveText(fixture.planned.practice_check!);
+  await expect(summary).toContainText('不代表已完成项目实践');
+  await mkdir(resolve(root, 'screenshots'), { recursive: true }); const observations = [];
+  for (const viewport of [{ name: 'desktop', width: 1440, height: 1000 }, { name: 'tablet', width: 768, height: 1024 }, { name: 'mobile', width: 390, height: 844 }]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    const overflow = await page.evaluate(() => globalThis.document.documentElement.scrollWidth > innerWidth); expect(overflow).toBe(false);
+    const colors = await contrast(page); expect(colors.every(row => row.ratio >= 4.5), JSON.stringify(colors)).toBe(true);
+    expect(colors.some(row => row.text === '这些原项目要求尚无足够的本课正文或目录依据；请结合主路线区分补学与实践。')).toBe(true);
+    await page.screenshot({ path: resolve(root, `screenshots/api-core-${viewport.name}.png`), fullPage: true, animations: 'disabled' });
+    observations.push({ viewport, overflow, colors });
+  }
+  await writeFile(resolve(root, 'api-core-observations.json'), JSON.stringify({ mock: true, source: 'Actual retained source -> offline JobService.results replay; API and exact thumbnail request fulfilled locally; no live requests or instructional-completion claim', fixture: fixturePath, fixtureSha256: digest, producer: fixture.producer, denominator: parts, partialMaterialCount: 1, originalSupportedTargets: 0, observations }, null, 2));
+});
+
+test('phase2 检索范围失配：实际保存结果的只读投影明确重试，旧Excel与旧覆盖不能继续展示',async({page})=>{
+  const bytes=readFileSync(resolve(process.cwd(),'tests/fixtures/project-scope-mismatch.json'));
+  expect(createHash('sha256').update(bytes).digest('hex')).toBe('09ad8aecf65917409956edda81bba62b409f792756ef9e85193df928b76e8a01');
+  const view=JSON.parse(bytes.toString('utf8')) as ProjectView;
+  const mismatch=view.points!.find(point=>point.status==='scope_mismatch')!;
+  expect(mismatch.project_knowledge_point_id).toBe('k5');
+  expect(mismatch.result!.scope_status).toBe('mismatch');
+  expect(mismatch.result!.expected_search_text).toBe('Streamlit groupby 汇总与 Streamlit 条形图');
+  expect(mismatch.result!.collection_coverage!.subtopics.every(part=>part.status==='unknown')).toBe(true);
+  const log:Logs={runtime:[],console:[],unexpected:[]};diagnostics.set(page,log);
+  page.on('pageerror',error=>log.runtime.push(error.message));
+  page.on('console',message=>{if(['warning','error'].includes(message.type()))log.console.push(message.text());});
+  await page.route('**/*',route=>{
+    const request=route.request(),url=new URL(request.url());
+    const origin=new URL(process.env.PLAYWRIGHT_BASE_URL||'http://127.0.0.1:5173').origin;
+    if(url.origin===origin&&!url.pathname.startsWith('/api/'))return route.continue();
+    if(request.method()==='GET'&&url.pathname==='/api/capabilities')return route.fulfill({json:caps});
+    if(request.method()==='GET'&&url.pathname==='/api/projects')return route.fulfill({json:{projects:[{project_id:view.project_id,name:view.input.name,current_version:view.current_version,created_at:time,updated_at:time}]}});
+    if(request.method()==='GET'&&url.pathname===`/api/projects/${view.project_id}/results`)return route.fulfill({json:view});
+    if(request.resourceType()==='image')return route.fulfill({contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jrZkAAAAASUVORK5CYII=','base64')});
+    log.unexpected.push(`${request.method()} ${url.href}`);return route.abort('blockedbyclient');
+  });
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto(`/?project=${view.project_id}&version=1`);
+  const select=page.getByRole('button',{name:mismatch.name,exact:true});
+  await select.focus();await page.keyboard.press('Enter');
+  const point=page.locator('.project-result-point'),notice=page.getByRole('status',{name:'检索范围需重试',exact:true});
+  await expect(point).toHaveCount(1);await expect(notice).toContainText(mismatch.result!.scope_notice!);
+  await expect(notice).toContainText(mismatch.result!.expected_search_text!);
+  await expect(notice).toContainText('创建新版本');
+  await expect(point).toContainText('检索范围需重试 · 0 条推荐');
+  await expect(point.locator('.resource-card,.unit-coverage')).toHaveCount(0);
+  await expect(page.locator('.search-progress,.skeleton-card')).toHaveCount(0);
+  await expect(point).not.toContainText('本次没有找到');await expect(point).not.toContainText('正在读取');
+  await expect(page.getByRole('button',{name:'重新检索这些知识点'})).toBeEnabled();
+  await mkdir(resolve(root,'screenshots'),{recursive:true});const observations=[];
+  for(const viewport of [{name:'desktop',width:1440,height:1000},{name:'tablet',width:768,height:1024},{name:'mobile',width:390,height:844}]){
+    await page.setViewportSize({width:viewport.width,height:viewport.height});
+    const overflow=await page.evaluate(()=>globalThis.document.documentElement.scrollWidth>innerWidth);expect(overflow).toBe(false);
+    const colors=await notice.evaluate(element=>{
+      const rgb=(s:string)=>s.match(/[\d.]+/g)!.map(Number);
+      const lum=(c:number[])=>c.slice(0,3).map(n=>n/255<=.04045?n/255/12.92:((n/255+.055)/1.055)**2.4).reduce((sum,n,i)=>sum+n*[.2126,.7152,.0722][i],0);
+      const bg=(e:Element):number[]=>{const c=rgb(getComputedStyle(e).backgroundColor);return c.length<4||c[3]>0?c:bg(e.parentElement!);};
+      return [...element.querySelectorAll('p')].map(node=>{const s=getComputedStyle(node),a=lum(rgb(s.color)),b=lum(bg(node));return {text:node.textContent,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};});
+    });
+    expect(colors.length).toBe(3);expect(colors.every(row=>row.ratio>=4.5)).toBe(true);
+    await notice.scrollIntoViewIfNeeded();
+    await page.screenshot({path:resolve(root,`screenshots/scope-mismatch-${viewport.name}.png`),animations:'disabled'});
+    observations.push({viewport,overflow,colors});
+  }
+  await writeFile(resolve(root,'scope-mismatch-observations.json'),JSON.stringify({mock:true,source:'actual retained Dashboard v1 -> staged backend pure read projection, not a new network search',fixtureSha256:'09ad8aecf65917409956edda81bba62b409f792756ef9e85193df928b76e8a01',observations},null,2));
+  const stale=structuredClone(view.points!.find(row=>row.result?.partial_items?.length)!.result!.partial_items![0]);
+  stale.resource.title='Excel GROUPBY 旧范围课程';
+  mismatch.status='partial';mismatch.result!.items=[stale];mismatch.result!.partial_items=[stale];mismatch.result!.review_items=[stale];
+  mismatch.result!.platform_items={excel:[stale]};mismatch.result!.partial_platform_items={excel:[stale]};mismatch.result!.review_platform_items={excel:[stale]};
+  mismatch.result!.collection_coverage!.status='all_subtopics_supported';
+  await page.reload();await openLegacy(page);await page.getByRole('button',{name:mismatch.name,exact:true}).click();
+  await expect(notice).toBeVisible();await expect(point.locator('.resource-card,.unit-coverage')).toHaveCount(0);
+  await expect(page.locator('#project-platform-filter option[value="excel"]')).toHaveCount(0);
+  delete mismatch.result!.scope_status;mismatch.status='scope_mismatch';
+  mismatch.result!.scope_notice='<img src=x onerror="window.__scopeInjected=1"> 范围需重试';
+  await page.reload();await openLegacy(page);await page.getByRole('button',{name:mismatch.name,exact:true}).click();
+  await expect(notice).toContainText('<img src=x');await expect(notice.locator('img,script')).toHaveCount(0);
+  await expect(point.locator('.resource-card,.unit-coverage')).toHaveCount(0);
+  expect(await page.evaluate(()=>(window as Window & {__scopeInjected?:number}).__scopeInjected)).toBeUndefined();
+});
+
+test('phase2 精确同文：拆分与确认目标只显示一次，未知成员和隐藏来源不借用已有支持',async({page})=>{
+  const group=fixtureGroup();const document=structuredClone(analysis);
+  document.knowledge_points[0].concepts=[skills[0].text,skills[1].text];
+  const original=course('exact-title-video','read');
+  const target=structuredClone(original);target.resource.resource_id='exact-target-video';target.resource.platform='other';
+  target.match.resource_id=target.resource.resource_id;
+  target.match.subtopic_coverage=[{id:'learning_target_1',text:skills[0].text,status:'supported',evidence_ids:[original.evidence[0].evidence_id],reason:'隔离已绑定正文'}];
+  const extra:CollectionCoverage['subtopics'][number]={id:'learning_target_1',text:skills[0].text,status:'supported',resource_ids:[target.resource.resource_id],evidence_ids:[original.evidence[0].evidence_id]};
+  group.collection_coverage!.subtopics=[...group.collection_coverage!.subtopics,extra,
+    {id:'learning_target_2',text:skills[1].text,status:'unknown',resource_ids:[],evidence_ids:[]}];
+  group.partial_items=[original,target];group.partial_platform_items={bilibili:[original],other:[target]};group.review_items=[];group.review_platform_items=undefined;
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await setup(page,new Map([[1,group]]),'completed',document);
+  const summary=routeSummary(page);
+  await expect(summary).toContainText('1 / 3 项有内容依据');
+  await expect(summary.locator('.unit-coverage-supported li>span')).toHaveText([skills[0].text]);
+  await expect(summary.locator('.unit-coverage-supported small')).toHaveText('2 个当前视频有正文或目录依据');
+  await expect(summary.locator('.unit-coverage-supported li')).toHaveAttribute('data-requirement-ids',JSON.stringify(['read','learning_target_1']));
+  await expect(summary.locator('.unit-coverage-missing li')).toHaveText([skills[1].text,skills[2].text]);
+  await expect(summary.locator('.unit-coverage-missing li').first()).toHaveAttribute('data-requirement-ids',JSON.stringify(['mean','learning_target_2']));
+  await expect(summary.locator('.unit-coverage-next')).toContainText('项目应用则需要自己实践');
+  await mkdir(resolve(root,'screenshots'),{recursive:true});const observations=[];
+  for(const viewport of [{name:'desktop',width:1440,height:1000},{name:'tablet',width:768,height:1024},{name:'mobile',width:390,height:844}]){
+    await page.setViewportSize({width:viewport.width,height:viewport.height});
+    const overflow=await page.evaluate(()=>globalThis.document.documentElement.scrollWidth>innerWidth);expect(overflow).toBe(false);
+    const colors=await contrast(page);expect(colors.every(row=>row.ratio>=4.5),JSON.stringify(colors)).toBe(true);
+    await page.screenshot({path:resolve(root,`screenshots/coverage-exact-text-${viewport.name}.png`),fullPage:true,animations:'disabled'});
+    observations.push({viewport,overflow,colors});
+  }
+  await writeFile(resolve(root,'exact-text-observations.json'),JSON.stringify({mock:true,observations,scope:'Display grouping after own-source validation; no live source or learning completion claim'},null,2));
+  await page.getByLabel('项目课程来源').selectOption('bilibili');
+  await expect(summary).toContainText('0 / 3 项有内容依据');
+  await expect(summary.locator('.unit-coverage-supported li')).toHaveCount(0);
+  await expect(summary.locator('.unit-coverage-missing li')).toHaveText(skills.map(skill=>skill.text));
+  await expect(summary.getByRole('link')).toHaveCount(0);
+  await expect(primaryNext(page)).toContainText('切换到全部平台');
+  await page.getByLabel('项目课程来源').selectOption('all');
+  extra.status='unknown';extra.resource_ids=[];extra.evidence_ids=[];
+  await page.reload();await openLegacy(page);
+  await expect(summary).toContainText('0 / 3 项有内容依据');
+  await expect(summary.locator('.unit-coverage-missing li')).toHaveText(skills.map(skill=>skill.text));
+  await expect(summary.getByRole('link')).toHaveCount(0);
+  await expect(summary).toContainText('不代表整单元教学完整');
+});
+
+test('phase2 单元状态：项目仍运行时已结束空单元不再等待，排队单元等待，已有部分依据仍可学习',async({page})=>{
+  const group=fixtureGroup();group.items=[];group.partial_items=[];group.partial_platform_items=undefined;group.review_items=[];group.review_platform_items=undefined;
+  const state={current:'partial'};
+  await setup(page,new Map([[1,group]]),'running',analysis,input,state);
+  await expect(page.locator('.search-progress')).toContainText('正在执行项目检索');
+  await expect(page.locator('.group-empty')).toContainText('本次检索部分完成，暂无达到技能教学推荐标准的课程');
+  await expect(primaryNext(page)).toContainText('调整后重新检索');
+  await expect(primaryNext(page)).not.toContainText('等待材料');
+  for(const status of ['pending','queued','submitted','running']){
+    state.current=status;await page.reload();await openLegacy(page);
+    await expect(primaryNext(page),status).toContainText('检索仍在进行');
+    await expect(primaryNext(page),status).toContainText('等待材料返回');
+  }
+  state.current='partial';group.partial_items=[course('terminal-partial-video','read')];await page.reload();await openLegacy(page);
+  await expect(routeSummary(page)).toContainText('1 / 3 项有内容依据');
+  await expect(primaryNext(page)).toContainText('已有相关材料');
+  await expect(primaryNext(page)).not.toContainText('等待材料');
+  await expect(routeSummary(page).getByRole('link')).toHaveAttribute('href',group.partial_items[0].resource.url);
+});
+
+function actualFccFixture(file = 'freecodecamp-course-coverage.json', pandas = false) {
+  const fixture = JSON.parse(readFileSync(resolve(process.cwd(), 'tests/fixtures', file), 'utf8')) as {
+    source_fixture: string; fixture_sha256: string; original_public_source_sha256: string; point_text: string; item: ResourceItem; collection_coverage: CollectionCoverage;
+  };
+  expect(createHash('sha256').update(readFileSync(resolve(sourceRoot, fixture.source_fixture))).digest('hex')).toBe(fixture.fixture_sha256);
+  const partial = fixture.item.match.topic_evidence_status === 'partial';
+  const group: ResultGroup = { knowledge_point_id: 'job-point-1', text: fixture.point_text, total_matches: partial ? 0 : 1, items: partial ? [] : [fixture.item], partial_items: partial ? [fixture.item] : [], collection_coverage: fixture.collection_coverage };
+  const document = structuredClone(analysis); document.knowledge_points[0].name = fixture.point_text;
+  document.knowledge_points[0].concepts = fixture.collection_coverage.subtopics.map(part => part.text);
+  document.knowledge_points[0].learning_goal = '在 Python 程序中接收用户输入并保存到变量';
+  document.knowledge_points[0].practice_check = '独立编写一个询问姓名并回应用户的 Python 程序。';
+  document.knowledge_points[0].technology = 'Python';
+  document.scope='Python 交互练习'; document.technical_plan='Python'; document.functions[0].name='用户输入与回应';
+  const projectInput=pandas ? {...input,name:'Pandas 数据分析工具',requirements:'读取数据并完成选定的数据分析步骤。',technical_version:'Python / pandas'}
+    : {...input,name:'Python 交互小游戏',requirements:'询问姓名并回应用户。',technical_version:'Python'};
+  if(pandas){ document.scope='本地Pandas数据分析';document.technical_plan='Python / pandas';document.functions[0].name='数据分析';document.knowledge_points[0].technology='Python / pandas';
+    document.knowledge_points[0].learning_goal='将本单元的数据分析步骤用在自己的数据表中';document.knowledge_points[0].practice_check='换一份数据表，独立完成所选分析步骤并检查结果。'; }
+  return { fixture, group, document, projectInput };
+}
+
+function actualTwtFixture(file = 'techwithtim-lesson-coverage.json') {
+  const fixture = JSON.parse(readFileSync(resolve(process.cwd(), 'tests/fixtures', file), 'utf8')) as {
+    source_fixture: string; fixture_sha256: string; original_public_source_sha256: string; point_text: string; item: ResourceItem; collection_coverage: CollectionCoverage;
+  };
+  expect(createHash('sha256').update(readFileSync(resolve(sourceRoot, fixture.source_fixture))).digest('hex')).toBe(fixture.fixture_sha256);
+  const partial = fixture.item.match.topic_evidence_status === 'partial';
+  const group: ResultGroup = { knowledge_point_id:'job-point-1', text:fixture.point_text, total_matches:partial ? 0 : 1,
+    items:partial ? [] : [fixture.item], partial_items:partial ? [fixture.item] : [], collection_coverage:fixture.collection_coverage };
+  const document = structuredClone(analysis); document.knowledge_points[0].name=fixture.point_text;
+  const targets=fixture.collection_coverage.subtopics.filter(part=>part.id.startsWith('learning_target_'));
+  document.knowledge_points[0].concepts=(targets.length ? targets : fixture.collection_coverage.subtopics.filter(part=>part.id!=='whole_topic')).map(part=>part.text);
+  document.knowledge_points[0].learning_goal='在小游戏中显示本单元对应的界面反馈';
+  document.knowledge_points[0].practice_check='换一组游戏数据，独立实现本单元已选的界面反馈。';
+  document.knowledge_points[0].technology='Python / pygame';
+  document.scope='Python 小游戏'; document.technical_plan='Python / pygame'; document.functions[0].name='游戏文字与碰撞反馈';
+  const projectInput={...input,name:'Python 小游戏',requirements:'显示提示文字并检测矩形碰撞。',technical_version:'Python / pygame'};
+  if(file==='techwithtim-movement-coverage.json'){
+    document.functions[0].name='游戏主循环';projectInput.requirements='为小游戏建立主循环并处理窗口退出事件。';
+    document.knowledge_points[0].learning_goal='在游戏主循环中处理本课展示的事件与画面更新';
+    document.knowledge_points[0].practice_check='独立建立可关闭窗口的游戏主循环。';
+  }else if(file==='techwithtim-snake-coverage.json'){
+    document.functions[0].name='网格线绘制';projectInput.requirements='为小游戏绘制等距网格线。';
+    document.knowledge_points[0].learning_goal='根据本课说明绘制等距网格线';
+    document.knowledge_points[0].practice_check='独立绘制网格线并检查行列是否等距。';
+  }
+  return { fixture,group,document,projectInput };
+}
+
+for(const lesson of [{key:'movement',title:'Basic Movement & Key Presses'},{key:'snake',title:'Tutorial #1'}]){
+  test(`phase2 TWT DOM v2：真实${lesson.key}自身正文与视频绑定保留实际标题及窄目标`,async({page})=>{
+    const {fixture,group,document,projectInput}=actualTwtFixture(`techwithtim-${lesson.key}-coverage.json`);
+    const proof=JSON.parse(fixture.item.evidence.find(row=>row.field==='video_evidence_status')!.text!);
+    const summary=fixture.item.resource.video_topic_summary!;
+    expect(proof.binding_version).toBe(2);expect(proof.binding_kind).toBe('same_lesson_dom_v2');
+    expect(proof.teaching_binding).not.toMatch(/video above offers/i);
+    expect(fixture.item.resource.title).toBe(lesson.title);expect(fixture.item.match.topic_evidence_status).toBe('supported');
+    expect([...summary].length).toBeLessThanOrEqual(6000);
+    if(lesson.key==='movement')expect([...summary].length).toBeGreaterThan(1800);
+    expect(proof.dom_witness.notes_sha256).toBe(createHash('sha256').update(summary).digest('hex'));
+    expect(proof.dom_witness.notes_characters).toBe([...summary].length);
+    await setup(page,new Map([[1,group]]),'completed',document,projectInput);
+    const route=page.locator('.unit-coverage');
+    await expect(route).toContainText('2 / 2 项有内容依据');
+    await expect(route.locator('.unit-coverage-supported li>span')).toHaveText(fixture.collection_coverage.subtopics.map(row=>row.text));
+    await expect(page.locator('.resource-card h4')).toHaveText(lesson.title);
+    await expect(page.locator('.recommendation-reason')).toHaveText(fixture.item.match.recommendation_reason);
+    await expect(page.locator('iframe,video,.learning-location li')).toHaveCount(0);
+    await expect(route).toContainText('不代表已完成项目实践');
+    await mkdir(resolve(root,'screenshots'),{recursive:true});
+    const widths=[];
+    for(const viewport of [{name:'desktop',width:1440,height:1000},{name:'tablet',width:768,height:1024},{name:'mobile',width:390,height:844}]){
+      await page.setViewportSize({width:viewport.width,height:viewport.height});
+      const overflow=await page.evaluate(()=>globalThis.document.documentElement.scrollWidth>innerWidth);expect(overflow).toBe(false);
+      const colors=await contrast(page);expect(colors.every(row=>row.ratio>=4.5),JSON.stringify(colors)).toBe(true);
+      await page.screenshot({path:resolve(root,`screenshots/coverage-twt-dom-v2-${lesson.key}-${viewport.name}.png`),fullPage:true,animations:'disabled'});
+      widths.push({viewport,horizontalOverflow:overflow,contrast:colors});
+    }
+    await writeFile(resolve(root,`dom-v2-${lesson.key}-observations.json`),JSON.stringify({kind:'retained actual public HTML replay, not a new fetch or player test',
+      title:lesson.title,sourceFixture:fixture.source_fixture,originalPublicSourceSha256:fixture.original_public_source_sha256,
+      point:fixture.point_text,confirmedConcepts:document.knowledge_points[0].concepts,summaryCharacters:[...summary].length,binding:proof,widths,
+      scope:'Narrow source-binding validation only; no assertion that the actual maze requirements are covered'},null,2));
+  });
+}
+
+test('phase2 TWT DOM v2：结构旗标、版本降级、标题或摘要破坏不能替代真实自身绑定',async({page})=>{
+  const file='techwithtim-movement-coverage.json';const {group,document,projectInput}=actualTwtFixture(file);
+  await setup(page,new Map([[1,group]]),'completed',document,projectInput);
+  const proof=(item:ResourceItem)=>item.evidence.find(row=>row.field==='video_evidence_status')!;
+  const change=(item:ResourceItem,mutate:(facts:Record<string,any>)=>void)=>{const facts=JSON.parse(proof(item).text!);mutate(facts);proof(item).text=JSON.stringify(facts);};
+  const cases:[string,(item:ResourceItem)=>void][]=[
+    ['future version plus legacy phrase',item=>change(item,p=>{p.binding_version=3;p.teaching_binding='The video above offers more in-depth explanations.';})],
+    ['boolean version',item=>change(item,p=>{p.binding_version=true;})],
+    ['missing version',item=>change(item,p=>{delete p.binding_version;})],
+    ['unknown kind',item=>change(item,p=>{p.binding_kind='same_page';})],
+    ['missing witness',item=>change(item,p=>{delete p.dom_witness;})],
+    ['scope flag alone',item=>change(item,p=>{p.dom_witness={visible:true};})],
+    ['array witness',item=>change(item,p=>{p.dom_witness=[];})],
+    ['wrong heading',item=>change(item,p=>{p.dom_witness.heading_text='Another lesson';})],
+    ['wrong iframe title',item=>change(item,p=>{p.dom_witness.iframe_title='Tutorial #1';})],
+    ['wrong notes SHA',item=>change(item,p=>{p.dom_witness.notes_sha256='0'.repeat(64);})],
+    ['wrong notes length',item=>change(item,p=>{p.dom_witness.notes_characters+=1;})],
+    ['too little prose',item=>change(item,p=>{p.dom_witness.teaching_prose_count=1;})],
+    ['unsafe prose count',item=>change(item,p=>{p.dom_witness.teaching_prose_count=201;})],
+    ['fractional prose count',item=>change(item,p=>{p.dom_witness.teaching_prose_count=2.5;})],
+    ['string visibility',item=>change(item,p=>{p.dom_witness.visible='true';})],
+    ...['content_count','heading_count','markdown_count','embedded_iframe_count','all_content_iframe_count'].map(key=>[key,(item:ResourceItem)=>change(item,p=>{p.dom_witness[key]=2;})] as [string,(item:ResourceItem)=>void]),
+    ['boolean uniqueness',item=>change(item,p=>{p.dom_witness.content_count=true;})],
+    ['v2 phrase downgrade',item=>change(item,p=>{p.teaching_binding='The video above offers more in-depth explanations.';})],
+    ['explicit negative statement',item=>change(item,p=>{p.teaching_binding='This video does not teach the lesson notes.';})],
+    ['different video ID',item=>change(item,p=>{p.embed_url='https://www.youtube.com/embed/aaaaaaaaaaa';})],
+    ['different lesson URL',item=>change(item,p=>{p.lesson_url='https://www.techwithtim.net/tutorials/python/basics/other-lesson';})],
+    ['summary exceeds bound despite matching hashes',item=>{const text=item.resource.title+'\n'+'x'.repeat(6001);const digest=createHash('sha256').update(text).digest('hex');
+      item.resource.video_topic_summary=text;item.evidence.find(row=>row.field==='video_topic_summary')!.text=text;
+      change(item,p=>{p.summary_sha256=digest;p.dom_witness.notes_sha256=digest;p.dom_witness.notes_characters=[...text].length;});}],
+  ];
+  for(const [label,mutate] of cases){
+    const item=actualTwtFixture(file).fixture.item;mutate(item);group.items=[item];
+    await page.reload();await openLegacy(page);await expect(page.locator('.unit-coverage-heading'),label).not.toContainText('正在核对');
+    await expect(page.locator('.unit-coverage'),label).toContainText('0 / 2 项有内容依据');
+    await expect(page.locator('.unit-coverage').getByRole('link'),label).toHaveCount(0);
+    await expect(page.locator('.resource-card h4'),label).toHaveText('Basic Movement & Key Presses');
+  }
+  await writeFile(resolve(root,'dom-v2-damage-observations.json'),JSON.stringify({kind:'isolated damage cases applied to actual API-shaped retained HTML fixture',cases:cases.map(([name])=>name),allRemainUnconfirmed:true},null,2));
+});
+
+test('phase2：仅页面壳元数据的待核实课程保留access_notice且不能补齐学习目标',async({page})=>{
+  const group=fixtureGroup();const item=course('metadata-shell','read');item.resource.platform='coursera';item.resource.resource_type='course';
+  item.resource.url='https://www.coursera.org/learn/fixture-shell';item.resource.access_notice='仅取得页面壳元数据，课程正文与学习目标尚待核实；请前往原平台查看。';
+  item.match.topic_evidence_status='needs_review';item.match.recommendation_reason='标题仅作为待核实线索。';
+  group.items=[];group.partial_items=[];group.partial_platform_items=undefined;group.review_items=[item];group.review_platform_items={coursera:[item]};
+  await setup(page,new Map([[1,group]]));
+  await expect(page.locator('.course-access-note')).toHaveText(item.resource.access_notice);
+  await expect(page.locator('.match-label')).toHaveText('待核实');
+  await expect(routeSummary(page)).toContainText('0 / 3 项有内容依据');
+  await expect(routeSummary(page).getByRole('link')).toHaveCount(0);
+  await expect(page.locator('.course-outbound')).toHaveAttribute('href',item.resource.url);
+});
+
+test('phase2 TWT：真实课页摘要经同标题视频和SHA核对可支持子技能，FullCode与侧栏不能补齐', async ({ page }) => {
+  const {fixture,group,document,projectInput}=actualTwtFixture();
+  const supported=fixture.collection_coverage.subtopics.filter(part=>part.status==='supported');
+  expect(supported.length).toBeGreaterThan(0); expect(fixture.collection_coverage.decomposition_status).toBe('applied');
+  const total=fixture.collection_coverage.subtopics.length;
+  expect(fixture.item.match.topic_evidence_status).toBe('partial');
+  await setup(page,new Map([[1,group]]),'completed',document,projectInput);
+  await expect(page.locator('.unit-coverage')).toContainText(`${supported.length} / ${total} 项有内容依据`);
+  await expect(page.locator('.unit-coverage-supported li>span')).toHaveText(supported.map(part=>part.text));
+  await expect(page.locator('.unit-coverage-supported li>span')).toHaveText(['字体渲染']);
+  await expect(page.locator('.unit-coverage-missing li')).toHaveText(['矩形碰撞检测']);
+  await expect(page.locator('.recommendation-reason')).toHaveText(fixture.item.match.recommendation_reason);
+  await expect(page.locator('iframe,video,.learning-location li')).toHaveCount(0);
+  await mkdir(resolve(root,'screenshots'),{recursive:true});
+  await page.screenshot({path:resolve(root,'screenshots/coverage-twt-bound-summary.png'),animations:'disabled'});
+  for(const viewport of [{name:'desktop',width:1440,height:1000},{name:'tablet',width:768,height:1024},{name:'mobile',width:390,height:844}]){
+    await page.setViewportSize({width:viewport.width,height:viewport.height});
+    expect(await page.evaluate(()=>globalThis.document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    await page.locator('.unit-coverage').scrollIntoViewIfNeeded();
+    await page.screenshot({path:resolve(root,`screenshots/coverage-twt-${viewport.name}-bound.png`),animations:'disabled'});
+  }
+  const item=fixture.item; const extra='Full Code中的跳跃动画'; const id='full-code-and-sidebar';
+  const text='Full Code\nclass Player: jump_animation = True\nSidebar: Jumping and Walking';
+  item.resource.description=text; item.resource.field_provenance.description={evidence_id:id,source:'html.techwithtim.lesson.full_code',url:item.resource.url};
+  item.evidence.push({evidence_id:id,kind:'page',source:'html.techwithtim.lesson.full_code',field:'description',url:item.resource.url,text,fetched_at:time});
+  item.match.supporting_evidence_ids!.push(id);
+  item.match.subtopic_coverage!.push({id:'cumulative-only',text:extra,status:'supported',evidence_ids:[id],reason:'故意注入的累计程序/侧栏'});
+  group.collection_coverage!.subtopics.push({id:'cumulative-only',text:extra,status:'supported',resource_ids:[item.resource.resource_id],evidence_ids:[id]});
+  await page.reload();await openLegacy(page);
+  await expect(page.locator('.unit-coverage')).toContainText(`${supported.length} / ${total+1} 项有内容依据`);
+  await expect(page.locator('.unit-coverage-supported li>span')).toHaveText(supported.map(part=>part.text));
+  await expect(page.locator('.unit-coverage-missing')).toContainText(extra);
+  await writeFile(resolve(root,'twt-bound-summary-observations.json'),JSON.stringify({
+    kind:'browser API replay from retained real lesson HTML; native SHA-256 checks retained proof, no player/network access',
+    sourceFixture:fixture.source_fixture,fixtureSha256:fixture.fixture_sha256,originalPublicSourceSha256:fixture.original_public_source_sha256,
+    supportedSubskills:supported.map(part=>part.text),ignoredCumulativeFullCodeAndSidebar:true,languageReasonPreserved:true,
+  },null,2));
+});
+
+test('phase2 TWT：同课视频绑定损坏、摘要hash不符或WebCrypto不可用时保守待确认', async ({ page }) => {
+  const {group,document,projectInput}=actualTwtFixture();
+  const total=group.collection_coverage!.subtopics.length;
+  await setup(page,new Map([[1,group]]),'completed',document,projectInput);
+  const proof=(item:ResourceItem)=>item.evidence.find(row=>row.field==='video_evidence_status')!;
+  const body=(item:ResourceItem)=>item.evidence.find(row=>row.field==='video_topic_summary')!;
+  const mutateProof=(item:ResourceItem,key:string,value:string)=>{const fields=JSON.parse(proof(item).text!);fields[key]=value;proof(item).text=JSON.stringify(fields);};
+  const cases:[string,(item:ResourceItem)=>void][]=[
+    ['wrong SHA',item=>mutateProof(item,'summary_sha256','0'.repeat(64))],
+    ['changed summary',item=>{const changed=(item.resource.video_topic_summary||'')+'\nFull Code';item.resource.video_topic_summary=changed;body(item).text=changed;}],
+    ['embed title mismatch',item=>mutateProof(item,'embed_title','Unrelated lesson')],
+    ['different iframe ID',item=>mutateProof(item,'embed_url','https://www.youtube.com/embed/aaaaaaaaaaa')],
+    ['negated binding',item=>mutateProof(item,'teaching_binding','The video above offers more in-depth explanations, but does not teach this lesson.')],
+    ['different lesson URL',item=>mutateProof(item,'lesson_url','https://www.techwithtim.net/tutorials/python/basics/another-lesson')],
+    ['wrong title record',item=>{item.evidence.find(row=>row.field==='title'&&row.source==='html.techwithtim.lesson.title')!.text='Unrelated title';}],
+    ['wrong summary source',item=>{body(item).source='html.freecodecamp.course_announcement.summary';}],
+    ['duplicate summary',item=>{item.evidence.push(structuredClone(body(item)));}],
+    ['duplicate proof',item=>{item.evidence.push(structuredClone(proof(item)));}],
+    ['foreign page URL',item=>{body(item).url='https://www.techwithtim.net/tutorials/python/basics/another-lesson';}],
+    ['cumulative description only',item=>{item.resource.video_topic_summary=undefined;item.resource.description='Full Code: class Player and jump animation';}],
+  ];
+  for(const [label,mutate] of cases){
+    const candidate=actualTwtFixture().fixture.item;mutate(candidate);
+    group.items=candidate.match.topic_evidence_status==='partial'?[]:[candidate];group.partial_items=candidate.match.topic_evidence_status==='partial'?[candidate]:[];
+    await page.reload();await openLegacy(page);await expect(page.locator('.unit-coverage'),label).toContainText(`0 / ${total} 项有内容依据`);
+    await expect(page.locator('.unit-coverage').getByRole('link')).toHaveCount(0);
+  }
+  const valid=actualTwtFixture().fixture.item;group.items=valid.match.topic_evidence_status==='partial'?[]:[valid];group.partial_items=valid.match.topic_evidence_status==='partial'?[valid]:[];
+  await page.addInitScript(()=>{Object.defineProperty(globalThis.crypto,'subtle',{configurable:true,value:{digest:async()=>{throw new Error('isolated SHA unavailable');}}});});
+  await page.reload();await openLegacy(page);
+  await expect(page.locator('.unit-coverage')).toContainText(`0 / ${total} 项有内容依据`);
+  await expect(page.locator('.unit-coverage-heading')).not.toContainText('正在核对');
+  await expect(page.locator('.resource-card')).toHaveCount(1);
+});
+
+test('phase2 FCC Pandas：真实课页的HTTPS youtu.be同ID短链接可支持子技能，伪域与转跳不采信', async ({page})=>{
+  const {fixture,group,document,projectInput}=actualFccFixture('freecodecamp-pandas-coverage.json',true);
+  const supported=fixture.collection_coverage.subtopics.filter(part=>part.status==='supported');
+  const total=fixture.collection_coverage.subtopics.length;
+  expect(fixture.collection_coverage.decomposition_status).toBe('applied');expect(supported.length).toBeGreaterThan(0);
+  expect(supported.map(part=>part.text)).toEqual(['null values','duplicate values']);
+  const originalProof=fixture.item.evidence.find(row=>row.field==='video_evidence_status')!;
+  const binding=JSON.parse(originalProof.text!);expect(binding.watch_url).toBe('https://youtu.be/gtjxAH8uaP0');expect(binding.video_id).toBe('gtjxAH8uaP0');
+  await setup(page,new Map([[1,group]]),'completed',document,projectInput);
+  await expect(page.locator('.unit-coverage')).toContainText(`${supported.length} / ${total} 项有内容依据`);
+  await expect(page.locator('.unit-coverage-supported li>span')).toHaveText(supported.map(part=>part.text));
+  await expect(page.locator('iframe,video,.learning-location li')).toHaveCount(0);
+  await mkdir(resolve(root,'screenshots'),{recursive:true});
+  await page.screenshot({path:resolve(root,'screenshots/coverage-fcc-pandas-short-url.png'),animations:'disabled'});
+  const rejected=['http://youtu.be/gtjxAH8uaP0','https://youtu.be.attacker.example/gtjxAH8uaP0','https://youtu.be/redirect?url=gtjxAH8uaP0','https://youtu.be/aaaaaaaaaaa'];
+  for(const watch_url of rejected){
+    const candidate=actualFccFixture('freecodecamp-pandas-coverage.json',true).fixture.item;
+    const proof=candidate.evidence.find(row=>row.field==='video_evidence_status')!;const facts=JSON.parse(proof.text!);facts.watch_url=watch_url;proof.text=JSON.stringify(facts);
+    group.items=candidate.match.topic_evidence_status==='partial'?[]:[candidate];group.partial_items=candidate.match.topic_evidence_status==='partial'?[candidate]:[];
+    await page.reload();await openLegacy(page);await expect(page.locator('.unit-coverage'),watch_url).toContainText(`0 / ${total} 项有内容依据`);
+  }
+  await writeFile(resolve(root,'fcc-pandas-short-url-observations.json'),JSON.stringify({
+    kind:'retained real Pandas announcement HTML through current backend API-shaped offline replay, not a live fetch or playback check',
+    sourceFixture:fixture.source_fixture,fixtureSha256:fixture.fixture_sha256,originalPublicSourceSha256:fixture.original_public_source_sha256,
+    watchUrl:binding.watch_url,sameVideoId:binding.video_id,supportedSubskills:supported.map(part=>part.text),rejectedWatchUrls:rejected,
+  },null,2));
+});
+
+test('phase2 FCC：真实保留HTML经后端提取的绑定视频摘要可支持子技能，不虚构播放器或章节', async ({ page }) => {
+  const { fixture, group, document, projectInput } = actualFccFixture();
+  await setup(page, new Map([[1, group]]), 'completed', document, projectInput);
+  const summary = page.locator('.unit-coverage');
+  await expect(summary).toContainText('2 / 2 项有内容依据');
+  await expect(summary.locator('.unit-coverage-supported li>span')).toHaveText(['variables', 'user input']);
+  await expect(summary.getByRole('link')).toHaveAttribute('href', fixture.item.resource.url);
+  await expect(page.locator('iframe,video,.learning-location li')).toHaveCount(0);
+  await mkdir(root, { recursive: true });
+  await mkdir(resolve(root,'screenshots'), { recursive: true });
+  await page.screenshot({ path: resolve(root,'screenshots/coverage-fcc-bound-summary.png'), animations:'disabled' });
+  await writeFile(resolve(root,'fcc-bound-summary-observations.json'), JSON.stringify({
+    kind: 'browser replay of API-shaped extractor/ranking output from retained actual public HTML; not a new request or playback check',
+    sourceFixture: fixture.source_fixture, fixtureSha256: fixture.fixture_sha256, originalPublicSourceSha256: fixture.original_public_source_sha256,
+    supportedSubskills: ['variables','user input'], summaryAccepted: true, playerRequests: 0, inventedChapters: 0,
+  },null,2));
+});
+
+test('phase2 FCC：标题、meta描述、脚本和旁侧Article污染不能补足绑定摘要之外的子技能', async ({ page }) => {
+  const { group, document, projectInput } = actualFccFixture();
+  const item = group.items[0]; const pollution = 'Python quantum mechanics is explained in the article, not the bound course summary.';
+  item.resource.description = pollution;
+  item.resource.field_provenance.description = { evidence_id: 'article-meta', source: 'meta.description', url: item.resource.url };
+  for (const [evidence_id, field, source] of [['article-title','title','html.title'],['article-meta','description','meta.description'],['article-script','video_topic_summary','script.article'],['article-aside','description','html.article.aside']]) {
+    item.evidence.push({ evidence_id, kind:'page', source, field, text:pollution, url:item.resource.url, fetched_at:time });
+  }
+  const ids = ['article-title','article-meta','article-script','article-aside'];
+  item.match.supporting_evidence_ids!.push(...ids);
+  item.match.subtopic_coverage!.push({ id:'article-only', text:'Python quantum mechanics', status:'supported', evidence_ids:ids, reason:'故意污染的API形状，不应采信' });
+  group.collection_coverage!.subtopics.push({ id:'article-only', text:'Python quantum mechanics', status:'supported', resource_ids:[item.resource.resource_id], evidence_ids:ids });
+  await setup(page, new Map([[1, group]]), 'completed', document, projectInput);
+  await expect(page.locator('.unit-coverage')).toContainText('2 / 3 项有内容依据');
+  await expect(page.locator('.unit-coverage-supported li>span')).toHaveText(['variables','user input']);
+  await expect(page.locator('.unit-coverage-missing li')).toHaveText(['Python quantum mechanics']);
+});
+
+test('phase2 FCC：缺失、改写或损坏的视频与页面绑定拒绝全部覆盖，不回退为泛文章正文', async ({ page }) => {
+  const { group, document, projectInput } = actualFccFixture();
+  await setup(page, new Map([[1, group]]), 'completed', document, projectInput);
+  const proof = (item: ResourceItem) => item.evidence.find(row => row.field === 'video_evidence_status')!;
+  const body = (item: ResourceItem) => item.evidence.find(row => row.field === 'video_topic_summary')!;
+  const mutateProof = (item: ResourceItem, key: string, value: string) => { const facts=JSON.parse(proof(item).text!); facts[key]=value; proof(item).text=JSON.stringify(facts); };
+  const cases: [string,(item:ResourceItem)=>void][] = [
+    ['missing summary evidence',item=>{item.evidence=item.evidence.filter(row=>row.field!=='video_topic_summary');}],
+    ['changed summary',item=>{item.resource.video_topic_summary+=' Python quantum mechanics';}],
+    ['wrong summary source',item=>{body(item).source='meta.description';}],
+    ['wrong summary provenance',item=>{item.resource.field_provenance.video_topic_summary={evidence_id:body(item).evidence_id,source:'meta.description',url:item.resource.url};}],
+    ['wrong summary URL',item=>{body(item).url='https://www.freecodecamp.org/news/another-course/';}],
+    ['different watch ID',item=>mutateProof(item,'watch_url','https://www.youtube.com/watch?v=aaaaaaaaaaa')],
+    ['short URL wrong ID',item=>mutateProof(item,'watch_url','https://youtu.be/aaaaaaaaaaa')],
+    ['short URL lookalike',item=>mutateProof(item,'watch_url','https://youtu.be.attacker.example/kLZgQWjnUz0')],
+    ['short URL redirect',item=>mutateProof(item,'watch_url','https://youtu.be/redirect?url=https://www.youtube.com/watch?v=kLZgQWjnUz0')],
+    ['lookalike iframe host',item=>mutateProof(item,'embed_url','https://www.youtube.com.attacker.example/embed/kLZgQWjnUz0')],
+    ['extra watch query',item=>mutateProof(item,'watch_url','https://www.youtube.com/watch?v=kLZgQWjnUz0&other=1')],
+    ['changed course title',item=>{item.resource.title='Other course';}],
+    ['empty bound title',item=>{item.resource.title='';mutateProof(item,'course_title','');}],
+    ['unverified page',item=>{item.resource.fetch_status='search_only_policy';}],
+    ['duplicate proof',item=>{item.evidence.push(structuredClone(proof(item)));}],
+    ['wrong proof source',item=>{proof(item).source='script.article';}],
+    ['wrong site',item=>{item.resource.url='https://www.freecodecamp.org.attacker.example/news/learn-python-interactively/';}],
+    ['announcement mismatch',item=>{const changed='A different course summary\n'+item.resource.video_topic_summary;item.resource.video_topic_summary=changed;body(item).text=changed;}],
+  ];
+  for (const [label, mutate] of cases) {
+    const original = actualFccFixture().fixture.item; mutate(original); group.items=[original]; await page.reload();await openLegacy(page);
+    await expect(page.locator('.unit-coverage'),label).toContainText('0 / 2 项有内容依据');
+    await expect(page.locator('.unit-coverage-missing li')).toHaveText(['variables','user input']);
+    await expect(page.locator('.unit-coverage').getByRole('link')).toHaveCount(0);
+  }
+});
+
+test('phase2：可见视频的正文与目录支持可互补，摘要和待核实项不能补齐覆盖', async ({ page }) => {
+  await setup(page, new Map([[1, fixtureGroup()]]));
+  const summary = routeSummary(page);
+  await expect(summary).toContainText('2 / 3 项有内容依据');
+  await expect(summary.locator('.unit-coverage-supported li>span')).toHaveText(skills.slice(0, 2).map(row => row.text));
+  await expect(summary.locator('.unit-coverage-missing li')).toHaveText([skills[2].text]);
+  await expect(summary).toContainText('子技能互补不代表整单元教学完整，也不代表已完成项目实践');
+  await expect(summary).toContainText(analysis.knowledge_points[0].practice_check!);
+  await expect(summary.getByRole('link', { name: /查看已有要求依据/ })).toHaveAttribute('href', 'https://example.org/fixture/read-video');
+  await expect(page.locator('[data-resource-id="snippet-only"] .match-partial')).toBeVisible();
+  await expect(page.locator('[data-resource-id="review-only"] .match-needs_review')).toBeVisible();
+  await expect(page.locator('.recommendation-reason').first()).toContainText('视频/授课语言尚未由来源元数据确认');
+});
+
+test('phase2：切换平台重新计算子技能，不借隐藏视频或服务端全量汇总补足', async ({ page }) => {
+  await setup(page, new Map([[1, fixtureGroup()]]));
+  const summary = routeSummary(page);
+  await page.getByLabel('项目课程来源').selectOption('bilibili');
+  await expect(summary).toContainText('1 / 3 项有内容依据');
+  await expect(summary.locator('.unit-coverage-supported li>span')).toHaveText([skills[0].text]);
+  await expect(summary.locator('.unit-coverage-missing li')).toHaveText(skills.slice(1).map(row => row.text));
+  await expect(page.locator('[data-resource-id="mean-video"]')).toHaveCount(0);
+  await page.getByLabel('项目课程来源').selectOption('other');
+  await expect(summary.locator('.unit-coverage-supported li>span')).toHaveText([skills[1].text]);
+  await expect(summary.locator('.unit-coverage-missing li')).toHaveText([skills[0].text, skills[2].text]);
+  await page.getByLabel('项目课程来源').selectOption('all');
+  await expect(summary).toContainText('2 / 3 项有内容依据');
+});
+
+test('phase2：只有待核实视频时所有子项仍需补充', async ({ page }) => {
+  const group = fixtureGroup(); group.partial_items = []; group.partial_platform_items = undefined;
+  await setup(page, new Map([[1, group]]));
+  await expect(page.locator('.resource-card')).toHaveCount(1);
+  await expect(routeSummary(page)).toContainText('0 / 3 项有内容依据');
+  await expect(routeSummary(page).locator('.unit-coverage-missing li')).toHaveText(skills.map(row => row.text));
+  await expect(routeSummary(page).getByRole('link')).toHaveCount(0);
+});
+
+test('phase2：每栏展示上限以外的视频不能计入当前覆盖', async ({ page }) => {
+  const group = fixtureGroup(); group.section_limit = 1;
+  await setup(page, new Map([[1, group]]));
+  await expect(page.locator('[data-resource-id="mean-video"]')).toHaveCount(0);
+  await expect(routeSummary(page)).toContainText('1 / 3 项有内容依据');
+  await expect(routeSummary(page).locator('.unit-coverage-missing li')).toHaveText(skills.slice(1).map(row => row.text));
+});
+
+test('phase2：未拆分单元的合法whole_topic行显示自身依据，错文本不能伪造新子技能', async ({page})=>{
+  const text='pandas 读取Excel成绩表';const item=course('whole-unit-video','read');
+  item.match.topic_evidence_status='supported';
+  item.match.subtopic_coverage=[{id:'whole_topic',text,status:'supported',evidence_ids:item.match.supporting_evidence_ids!,reason:'本资源自身说明支持原单元'}];
+  const group:ResultGroup={knowledge_point_id:'job-point-1',text,total_matches:1,items:[item],collection_coverage:{
+    decomposition_status:'not_applicable',shared_context:[],status:'all_subtopics_supported',single_resource_full_coverage:true,disclaimer:'整单元主题匹配不表示实践已完成',
+    subtopics:[{id:'whole_topic',text,status:'supported',resource_ids:[item.resource.resource_id],evidence_ids:item.match.supporting_evidence_ids!}],
+  }};
+  const document=structuredClone(analysis);document.knowledge_points[0].name=text;document.knowledge_points[0].concepts=[];
+  await setup(page,new Map([[1,group]]),'completed',document);
+  await expect(page.locator('.unit-coverage')).toContainText('1 / 1 项有内容依据');
+  await expect(page.locator('.unit-coverage-supported li>span')).toHaveText([text]);
+  await expect(page.locator('.unit-coverage')).toContainText('不代表已完成项目实践');
+  group.collection_coverage!.subtopics[0].text='另一个学习单元';item.match.subtopic_coverage[0].text='另一个学习单元';
+  await page.reload();await openLegacy(page);await expect(page.locator('.unit-coverage')).toContainText('子技能覆盖待确认');
+  await expect(page.locator('.unit-coverage').getByRole('link')).toHaveCount(0);
+});
+
+test('phase2 concepts：整单元已支持不能隐藏确认概念，三种分解状态都保留目标缺项', async ({page})=>{
+  const text='pandas 成绩表分析'; const item=course('title-only-unit','read');
+  item.match.topic_evidence_status='supported';
+  item.match.subtopic_coverage=[{id:'whole_topic',text,status:'supported',evidence_ids:item.match.supporting_evidence_ids!,reason:'只支持原单元标题'}];
+  const targets=skills.map((skill,index)=>({id:`learning_target_${index+1}`,text:skill.text,status:'unknown' as const,resource_ids:[],evidence_ids:[]}));
+  const group:ResultGroup={knowledge_point_id:'job-point-1',text,total_matches:1,items:[item],collection_coverage:{
+    decomposition_status:'not_applicable',shared_context:[],status:'all_subtopics_supported',single_resource_full_coverage:true,disclaimer:'故意过度宣称',
+    subtopics:[{id:'whole_topic',text,status:'supported',resource_ids:[item.resource.resource_id],evidence_ids:item.match.supporting_evidence_ids!},...targets],
+  }};
+  await setup(page,new Map([[1,group]]));
+  for(const status of ['not_applicable','unknown','applied'] as const){
+    group.collection_coverage!.decomposition_status=status;await page.reload();await openLegacy(page);
+    await expect(routeSummary(page)).toContainText('1 / 4 项有内容依据');
+    await expect(routeSummary(page).locator('.unit-coverage-supported li>span')).toHaveText([text]);
+    await expect(routeSummary(page).locator('.unit-coverage-missing li')).toHaveText(skills.map(skill=>skill.text));
+    await expect(routeSummary(page)).toContainText('参数教学仍需证据，项目应用则需要自己实践');
+  }
+  await mkdir(resolve(root,'screenshots'),{recursive:true});
+  const widths=[];
+  for(const viewport of [{name:'desktop',width:1440,height:1000},{name:'tablet',width:768,height:1024},{name:'mobile',width:390,height:844}]){
+    await page.setViewportSize({width:viewport.width,height:viewport.height});
+    const overflow=await page.evaluate(()=>globalThis.document.documentElement.scrollWidth>innerWidth);expect(overflow).toBe(false);
+    const colors=await contrast(page);expect(colors.every(row=>row.ratio>=4.5),JSON.stringify(colors)).toBe(true);
+    await routeSummary(page).scrollIntoViewIfNeeded();
+    await page.screenshot({path:resolve(root,`screenshots/coverage-confirmed-concepts-${viewport.name}.png`),animations:'disabled'});
+    widths.push({viewport,horizontalOverflow:overflow,contrast:colors});
+  }
+  await writeFile(resolve(root,'confirmed-concepts-widths.json'),JSON.stringify({kind:'isolated UI contract fixtures, not a new service request',widths},null,2));
+});
+
+test('phase2 concepts：目标只接收同ID同原文的自身证据，隐藏平台与错配目标不能补齐', async ({page})=>{
+  const group=fixtureGroup();const target=course('confirmed-read-target','read','page','other');
+  const first={id:'learning_target_1',text:skills[0].text};
+  target.match.subtopic_coverage=[{...first,status:'supported',evidence_ids:target.match.supporting_evidence_ids!,reason:'当前视频自己的内容支持目标原文'}];
+  group.collection_coverage!.decomposition_status='unknown';
+  group.collection_coverage!.subtopics=skills.map((skill,index)=>({id:`learning_target_${index+1}`,text:skill.text,status:'supported',resource_ids:[target.resource.resource_id],evidence_ids:target.match.supporting_evidence_ids!}));
+  const review=course('review-target','export');review.match.topic_evidence_status='needs_review';
+  review.match.subtopic_coverage=[{id:'learning_target_3',text:skills[2].text,status:'supported',evidence_ids:review.match.supporting_evidence_ids!,reason:'待核实不能计入'}];
+  group.partial_items=[target];group.partial_platform_items={other:[target]};group.review_items=[review];group.review_platform_items={bilibili:[review]};
+  await setup(page,new Map([[1,group]]));
+  await expect(routeSummary(page)).toContainText('1 / 3 项有内容依据');
+  await expect(routeSummary(page).locator('.unit-coverage-supported li>span')).toHaveText([skills[0].text]);
+  await page.getByLabel('项目课程来源').selectOption('bilibili');
+  await expect(routeSummary(page)).toContainText('0 / 3 项有内容依据');
+  await expect(routeSummary(page).locator('.unit-coverage-missing li')).toHaveText(skills.map(skill=>skill.text));
+  await page.getByLabel('项目课程来源').selectOption('all');
+  target.match.subtopic_coverage[0].text=skills[1].text;await page.reload();await openLegacy(page);
+  await expect(routeSummary(page)).toContainText('0 / 3 项有内容依据');
+  target.match.subtopic_coverage[0].text=skills[0].text;
+  group.collection_coverage!.subtopics[0].text=skills[1].text;await page.reload();await openLegacy(page);
+  await expect(routeSummary(page)).toContainText('0 / 3 项有内容依据');
+  await expect(routeSummary(page).locator('.unit-coverage-missing li')).toHaveText([skills[1].text,skills[2].text,skills[0].text]);
+  await expect(routeSummary(page).getByRole('link')).toHaveCount(0);
+});
+
+test('phase2 concepts：旧结果只有whole_topic时确认概念仍保留，未汇总目标与标题同文不能借用整单元支持', async ({page})=>{
+  const text=skills[0].text;const item=course('historical-whole-only','read');item.match.topic_evidence_status='supported';
+  item.match.subtopic_coverage=[{id:'whole_topic',text,status:'supported',evidence_ids:item.match.supporting_evidence_ids!,reason:'只评估整单元'},
+    {id:'learning_target_1',text,status:'supported',evidence_ids:item.match.supporting_evidence_ids!,reason:'缺少该目标的当前汇总行，不能借用'}];
+  const group:ResultGroup={knowledge_point_id:'job-point-1',text,total_matches:1,items:[item],collection_coverage:{
+    decomposition_status:'not_applicable',shared_context:[],status:'all_subtopics_supported',single_resource_full_coverage:true,disclaimer:'旧标题结果',
+    subtopics:[{id:'whole_topic',text,status:'supported',resource_ids:[item.resource.resource_id],evidence_ids:item.match.supporting_evidence_ids!}],
+  }};
+  await setup(page,new Map([[1,group]]));
+  await expect(routeSummary(page)).toContainText('0 / 3 项有内容依据');
+  await expect(routeSummary(page).locator('.unit-coverage-supported li>span')).toHaveCount(0);
+  await expect(routeSummary(page).locator('.unit-coverage-missing li')).toHaveText(skills.map(skill=>skill.text));
+  await expect(routeSummary(page).locator('.unit-coverage-missing li').first()).toHaveAttribute('data-requirement-ids',JSON.stringify(['whole_topic','learning_target_1']));
+  await expect(routeSummary(page).getByRole('link')).toHaveCount(0);
+  await expect(routeSummary(page)).toContainText('不代表整单元教学完整，也不代表已完成项目实践');
+});
+
+test('phase2：全部子项有依据仍保留练习与完整性边界，不宣称已掌握', async ({ page }) => {
+  const group = fixtureGroup();
+  const third = course('export-video', 'export', 'catalog');
+  group.partial_items = [...group.partial_items!.slice(0, 2), third]; group.partial_platform_items = undefined;
+  await setup(page, new Map([[1, group]]));
+  const summary = routeSummary(page);
+  await expect(summary).toContainText('3 / 3 项有内容依据');
+  await expect(summary.locator('.unit-coverage-missing')).toContainText('仍需核对深度与完整性');
+  await expect(summary).toContainText('项目应用则需要自己实践');
+  await expect(summary).not.toContainText('已掌握');
+  await expect(summary).toContainText('不代表已完成项目实践');
+});
+
+test('phase2：错配ID、标题字段、重复记录、目录篡改及跨资源引用不能成为内容依据', async ({ page }) => {
+  const group = fixtureGroup(); group.partial_platform_items = undefined; group.review_items = []; group.review_platform_items = undefined;
+  const variants: [string, (item: ResourceItem) => void][] = [
+    ['missing ID', item => { item.match.supporting_evidence_ids = ['missing']; }],
+    ['wrong point', item => { item.match.knowledge_point_id = 'old-point'; }],
+    ['wrong resource', item => { item.match.resource_id = 'different-resource'; }],
+    ['title only', item => { item.evidence[0].field = 'title'; }],
+    ['duplicate evidence', item => { item.evidence.push(structuredClone(item.evidence[0])); }],
+    ['foreign URL', item => { item.evidence[0].url = 'https://example.org/another-course'; }],
+    ['unbound description', item => { item.resource.description = '另一份描述'; }],
+    ['wrong subtopic text', item => { item.match.subtopic_coverage![0].text = '无关的标题命中'; }],
+    ['tampered catalog', item => { item.resource.chapters[0].title = '篡改的目录标题'; }],
+  ];
+  group.partial_items = [course('invalid', 'read')];
+  await setup(page, new Map([[1, group]]));
+  for (const [label, mutate] of variants) {
+    const candidate = course('invalid', 'read', label === 'tampered catalog' ? 'catalog' : 'page'); mutate(candidate);
+    group.partial_items = [candidate]; await page.reload();await openLegacy(page);
+    await expect(routeSummary(page), label).toContainText('0 / 3 项有内容依据');
+    await expect(routeSummary(page).locator('.unit-coverage-missing li')).toHaveText(skills.map(row => row.text));
+    await expect(routeSummary(page).getByRole('link', { name: /查看已有要求依据/ })).toHaveCount(0);
+  }
+});
+
+for (const state of ['missing', 'empty'] as const) test(`phase2：${state} 覆盖信息给出待核对内容与下一步`, async ({ page }) => {
+  const group = fixtureGroup(); delete group.collection_coverage; delete group.platform_collection_coverage;
+  if (state === 'empty') { group.partial_items = []; group.partial_platform_items = undefined; group.review_items = []; group.review_platform_items = undefined; }
+  await setup(page, new Map([[1, group]]));
+  const summary = routeSummary(page);
+  await expect(summary).toContainText('子技能覆盖待确认');
+  await expect(summary).toContainText(`学习时请核对：${skills.map(row => row.text).join('、')}`);
+  await expect(summary.getByRole('link')).toHaveCount(0);
+  if (state === 'empty') {
+    await expect(primaryNext(page)).toContainText('调整后重新检索');
+    await expect(page.locator('.group-empty')).toContainText('本次暂无达到技能教学推荐标准的课程');
+  } else await expect(primaryNext(page)).toContainText('已有相关材料');
+});
+
+test('phase2：切换版本只显示该版本可见资源的依据', async ({ page }) => {
+  const old = fixtureGroup(); const latest = fixtureGroup();
+  old.partial_items = [old.partial_items![0]]; latest.partial_items = [latest.partial_items![1]];
+  for (const group of [old, latest]) { group.partial_platform_items = undefined; group.review_items = []; group.review_platform_items = undefined; }
+  await setup(page, new Map([[1, old], [2, latest]]));
+  await expect(routeSummary(page).locator('.unit-coverage-supported li>span')).toHaveText([skills[1].text]);
+  await page.goto('/?project=coverage-project&version=1');
+  await openLegacy(page);
+  await expect(routeSummary(page).locator('.unit-coverage-supported li>span')).toHaveText([skills[0].text]);
+  await expect(page.locator('[data-resource-id="mean-video"]')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /重新检索这些知识点/ })).toHaveCount(0);
+});
+
+async function contrast(page: Page) {
+  return page.locator('.unit-coverage').evaluate(container => {
+    const channels = (value: string) => value.match(/[\d.]+/g)!.map(Number);
+    const luminance = (rgb: number[]) => rgb.slice(0, 3).map(n => n / 255 <= .04045 ? n / 255 / 12.92 : ((n / 255 + .055) / 1.055) ** 2.4).reduce((sum, n, i) => sum + n * [.2126,.7152,.0722][i], 0);
+    const background = (element: Element): number[] => { const c = channels(getComputedStyle(element).backgroundColor); return c.length < 4 || c[3] > 0 ? c : background(element.parentElement!); };
+    return [...container.querySelectorAll('h5,h6,li>span,li>small,.unit-coverage-supported p,.unit-coverage-missing li,.unit-coverage-next p,.unit-coverage-next a,.unit-coverage-practice span,.unit-coverage-note,.unit-coverage-heading>span')].filter(e => e.checkVisibility()).map(element => {
+      const style = getComputedStyle(element); const a = luminance(channels(style.color)); const b = luminance(background(element));
+      return { text: element.textContent?.trim(), ratio: (Math.max(a,b)+.05)/(Math.min(a,b)+.05), fontSize: style.fontSize };
+    });
+  });
+}
+for (const viewport of [{ name: 'desktop', width: 1440, height: 1000 }, { name: 'tablet', width: 768, height: 1024 }, { name: 'mobile', width: 390, height: 844 }]) {
+  test(`phase2：${viewport.name} 学习路线可读、无横溢并保留三步设计`, async ({ page }) => {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await setup(page, new Map([[1, fixtureGroup()]]));
+    await expect(page.locator('.stage-navigation [aria-current="step"]')).toContainText('推荐视频');
+    await expect(page.locator('h1')).toContainText('让知识，走进你的项目。');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    const observations = await contrast(page); expect(observations.length).toBeGreaterThan(10);
+    expect(observations.every(row => row.ratio >= 4.5), JSON.stringify(observations)).toBe(true);
+    await mkdir(resolve(root,'screenshots'), { recursive: true });
+    await writeFile(resolve(root,`coverage-${viewport.name}.json`), JSON.stringify({ kind: 'isolated fixture UI observations', viewport, contrast: observations, horizontalOverflow: false },null,2));
+    await page.screenshot({ path: resolve(root,`screenshots/coverage-${viewport.name}-entry.png`), animations: 'disabled' });
+    await routeSummary(page).scrollIntoViewIfNeeded();
+    await page.screenshot({ path: resolve(root,`screenshots/coverage-${viewport.name}-detail.png`), animations: 'disabled' });
+  });
+}
+
+test('phase2：键盘可从平台筛选到视频入口，减少动态偏好保持静态路线', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await setup(page, new Map([[1, fixtureGroup()]]));
+  await page.locator('.legacy-requirements>summary').click();
+  await page.getByLabel('项目课程来源').focus(); await page.keyboard.press('Tab');
+  await expect(page.locator('.legacy-requirements>summary')).toBeFocused();
+  await page.keyboard.press('Enter'); await page.keyboard.press('Tab');
+  const link = routeSummary(page).getByRole('link', { name: /查看已有要求依据/ });
+  await expect(link).toBeFocused();
+  await expect(link).toHaveAttribute('target','_blank'); await expect(link).toHaveAttribute('rel','noopener noreferrer');
+  const motion = await routeSummary(page).evaluate(element => [...element.querySelectorAll('*'),element].map(node => ({ animation: getComputedStyle(node).animationName, transition: getComputedStyle(node).transitionDuration })));
+  expect(motion.every(row => row.animation === 'none' && row.transition === '0s')).toBe(true);
+  await mkdir(resolve(root,'screenshots'), { recursive: true });
+  await page.screenshot({ path: resolve(root,'screenshots/coverage-keyboard-reduced-motion.png'), animations: 'disabled' });
+});

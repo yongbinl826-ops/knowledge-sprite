@@ -5,12 +5,14 @@ from .archive import ArchiveAdapter
 from .base import SourceAdapter, SourceFacts
 from .bilibili import BilibiliAdapter
 from .icourse163 import ICourse163Adapter
+from .freecodecamp import FreeCodeCampCourseAdapter
+from .techwithtim import TechWithTimLessonAdapter
 from .mit_ocw import MITOCWAdapter
 from .microsoft_curriculum import MicrosoftCurriculumAdapter
 
 
 ADAPTERS: tuple[SourceAdapter, ...] = (
-    MITOCWAdapter(), ArchiveAdapter(), MicrosoftCurriculumAdapter(), BilibiliAdapter(), ICourse163Adapter(),
+    MITOCWAdapter(), ArchiveAdapter(), MicrosoftCurriculumAdapter(), BilibiliAdapter(), ICourse163Adapter(), FreeCodeCampCourseAdapter(), TechWithTimLessonAdapter(),
 )
 
 

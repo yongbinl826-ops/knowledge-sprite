@@ -1,0 +1,389 @@
+{
+  "review_version": "r4-analysis-repair-outcome-v1",
+  "reviewed_at_utc": "2026-10-19T00:17:26.491762+00:00",
+  "decision": "independent_real_3_3_trial_failed_no_approved_plan_produced",
+  "production_stability_proven": false,
+  "operations_by_this_reviewer": {
+    "HTTP_requests": 0,
+    "provider_calls": 0,
+    "database_writes": 0,
+    "product_source_changes": 0,
+    "student_edits": 0,
+    "retries": 0
+  },
+  "case": {
+    "case_id": "analysis-traceability",
+    "source_case_id": "web_pomodoro_beginner",
+    "project_id": "7c66b822-b8bf-4741-aa96-cd53fd00d629",
+    "version": 1,
+    "origin": "analysis",
+    "prompt_version": "project-analysis-v3.3-method-traceability",
+    "semantic_review_prompt_version": "project-semantic-review-v2.3-method-traceability",
+    "model": "deepseek-flash",
+    "status": "analysis_failed",
+    "error_code": "quality",
+    "original_input_sha256": "8578b758f3ea6b4ad5ae3b9786cc1b3f8bc12c30501ec7f70ca26a8490befe17",
+    "same_synthetic_input_as_retained_pomodoro_v8": true,
+    "separate_new_project_from_original": true
+  },
+  "retained_failed_state": {
+    "approved_analysis": null,
+    "confirmation": null,
+    "search_batches": [],
+    "search_started_at": null,
+    "original_input_retained": true,
+    "only_one_version_in_this_trial": true,
+    "error_as_saved": {
+      "code": "quality",
+      "message": "学习单元的需求覆盖、行为约束或学习说明复核未通过，有限修正仍有问题。原始输入已保留，请检查需求和项目背景后重试。",
+      "diagnostics": [
+        {
+          "type": "semantic_quality",
+          "severity": "medium",
+          "code": "prerequisite",
+          "location": "k2 practice_check",
+          "message": "k2 的练习依赖浏览器控制台、手动调用函数、修改变量等能力，但学生背景只有变量与 if，k1–k2 也未教授控制台或调用函数；对初学者这一步无法自行完成。应改为由页面上的临时调试入口或明确讲解的操作步骤来观察 01:05 显示。"
+        },
+        {
+          "type": "semantic_quality",
+          "severity": "medium",
+          "code": "learner_stage",
+          "location": "k2 concepts / learning_skills",
+          "message": "k2 要求用集中式状态驱动渲染并实现 MM:SS 补零显示，但学生尚未学函数、textContent、Math.floor 与 padStart；这些新方法未作为技能被明确教授，只出现在 concepts 中，练习却要求完成完整渲染函数。"
+        },
+        {
+          "type": "attempt_history",
+          "attempts": [
+            {
+              "attempt": 1,
+              "phase": "semantic_review",
+              "category": "semantic_quality",
+              "issue_count": 1,
+              "issues": [
+                {
+                  "code": "numeric_boundary",
+                  "severity": "medium",
+                  "location": [
+                    "<unknown_field>"
+                  ]
+                }
+              ]
+            },
+            {
+              "attempt": 2,
+              "phase": "semantic_review",
+              "category": "semantic_quality",
+              "issue_count": 2,
+              "issues": [
+                {
+                  "code": "prerequisite",
+                  "severity": "medium",
+                  "location": [
+                    "<unknown_field>"
+                  ]
+                },
+                {
+                  "code": "learner_stage",
+                  "severity": "medium",
+                  "location": [
+                    "<unknown_field>"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "diagnostic_interpretation": {
+    "attempt_1": "Saved safe history reports one medium semantic_quality numeric_boundary issue. Its location is <unknown_field>; first full review text/rejected proposal is not available in retained evidence. No exact offending boundary or draft can be reconstructed.",
+    "attempt_2": "Saved semantic review reports two medium issues: k2 practice observation prerequisites, and k2 method/learning_skills traceability. These are model-review allegations, not an independent reading of the rejected proposal.",
+    "independent_correctness_of_each_diagnostic": "unknown: rejected analysis drafts were intentionally not retained; response hashes/lengths are not substitute text.",
+    "verified_workflow_outcome": "Two bounded generation/review rounds ended with quality error and no approved analysis; input and safe failure history were persisted, and no search was started.",
+    "not_inferred": [
+      "That every diagnostic is correct",
+      "That the rejected draft actually omitted every named method",
+      "That the first numeric boundary involved any specific constant",
+      "That the repair definitely improved or worsened the unseen proposal",
+      "That an HTTP200/json_returned response was semantically valid",
+      "That original eight-case statistics improved or regressed from this independent new project"
+    ]
+  },
+  "actual_call_accounting": {
+    "source_observer_as_read": {
+      "path": "tmp/phase3-work/evidence/phase3-final-live/model-audit/model-events.jsonl",
+      "sha256_at_read": "0d17426676f6ddca1bbfa75449f0bd288c3cf07985d2c5b84f8052b390a798ee",
+      "bytes_at_read": 13267,
+      "appendable_shared_observer": true
+    },
+    "selection": "task exactly project_analysis/project_analysis_review and started_at inside this single analysis_intent_at..observed_at window; selected starts and finishes are1:1",
+    "analysis_intent_at": "2026-10-19T00:12:56.158501+00:00",
+    "first_terminal_observed_at": "2026-10-19T00:13:32.681827+00:00",
+    "totals": {
+      "calls": 4,
+      "prompt_tokens": 24012,
+      "completion_tokens": 6692,
+      "total_tokens": 30704,
+      "unknown_usage_calls": 0
+    },
+    "by_task": {
+      "project_analysis": {
+        "calls": 2,
+        "prompt_tokens": 12698,
+        "completion_tokens": 6194,
+        "total_tokens": 18892,
+        "unknown_usage_calls": 0
+      },
+      "project_analysis_review": {
+        "calls": 2,
+        "prompt_tokens": 11314,
+        "completion_tokens": 498,
+        "total_tokens": 11812,
+        "unknown_usage_calls": 0
+      }
+    },
+    "finished_events": [
+      {
+        "event_type": "model_call_finished",
+        "call_id": "ee063d93c8c545aea6f5d851d3cf0cc0",
+        "task": "project_analysis",
+        "system_prompt_sha256": "cf6d7e7c1152d17711719803a0fd3410f68c961d539daf6da2862dce2a3f866d",
+        "started_at": "2026-10-19T00:12:56.165081+00:00",
+        "finished_at": "2026-10-19T00:13:13.186724+00:00",
+        "elapsed_seconds": 17.021651,
+        "outcome": "json_returned",
+        "failure_type": null,
+        "http_status": 200,
+        "response_body_sha256": "cb67d238c494b4e8bedef9aa2bae51b476c4c5a709171bc4e56e2c6d58c09b2b",
+        "response_bytes": 14074,
+        "message_content_sha256": "068e9a7c896385bb12e1c18b5568fc1cd4747bd8a056c41741d7fcf16c0443e4",
+        "message_content_chars": 6683,
+        "provider_response_id": "dac5e860-d3c7-47ce-b4af-664c5ae88850",
+        "provider_model": "deepseek-flash",
+        "usage": {
+          "prompt_tokens": 4608,
+          "completion_tokens": 2996,
+          "total_tokens": 7604,
+          "prompt_cache_hit_tokens": 640,
+          "prompt_cache_miss_tokens": 3968,
+          "prompt_tokens_details": {
+            "cached_tokens": 640
+          }
+        },
+        "finish_reason": "stop",
+        "response_read_complete": true
+      },
+      {
+        "event_type": "model_call_finished",
+        "call_id": "45135681b99f4646a7e13fd8bbfa1ac1",
+        "task": "project_analysis_review",
+        "system_prompt_sha256": "dd6e6934daea676cc41514e5f7452ab30035faf5d7eb3c3851de901328f8e2dd",
+        "started_at": "2026-10-19T00:13:13.194770+00:00",
+        "finished_at": "2026-10-19T00:13:16.185263+00:00",
+        "elapsed_seconds": 2.990494,
+        "outcome": "json_returned",
+        "failure_type": null,
+        "http_status": 200,
+        "response_body_sha256": "5919a61dc316fd85ac57600add74ec1b7ba5d1b4b6e371ce2b4eb43427ea8da5",
+        "response_bytes": 1012,
+        "message_content_sha256": "b44df9b0155e4ca3a2542729483d49f25d781fca003d1649f826708eeb88e2d7",
+        "message_content_chars": 318,
+        "provider_response_id": "e67ba930-9e3c-4721-b0c6-72bf9cc6c5e6",
+        "provider_model": "deepseek-flash",
+        "usage": {
+          "prompt_tokens": 5588,
+          "completion_tokens": 156,
+          "total_tokens": 5744,
+          "prompt_cache_hit_tokens": 128,
+          "prompt_cache_miss_tokens": 5460,
+          "prompt_tokens_details": {
+            "cached_tokens": 128
+          }
+        },
+        "finish_reason": "stop",
+        "response_read_complete": true
+      },
+      {
+        "event_type": "model_call_finished",
+        "call_id": "5f6c0b35241340deaa047b298858400a",
+        "task": "project_analysis",
+        "system_prompt_sha256": "cf6d7e7c1152d17711719803a0fd3410f68c961d539daf6da2862dce2a3f866d",
+        "started_at": "2026-10-19T00:13:16.187460+00:00",
+        "finished_at": "2026-10-19T00:13:28.679906+00:00",
+        "elapsed_seconds": 12.492444,
+        "outcome": "json_returned",
+        "failure_type": null,
+        "http_status": 200,
+        "response_body_sha256": "2a75c706d8b1fc87d61a11b4965d04131659c3287598d0f914fcc897619dafeb",
+        "response_bytes": 14859,
+        "message_content_sha256": "6bccea53b9f4d3334dce8cc259ed601efb0c5273988d5767f8ae395358c22312",
+        "message_content_chars": 7229,
+        "provider_response_id": "dbe71087-c2b9-40d8-b71e-47a7249587a3",
+        "provider_model": "deepseek-flash",
+        "usage": {
+          "prompt_tokens": 8090,
+          "completion_tokens": 3198,
+          "total_tokens": 11288,
+          "prompt_cache_hit_tokens": 4480,
+          "prompt_cache_miss_tokens": 3610,
+          "prompt_tokens_details": {
+            "cached_tokens": 4480
+          }
+        },
+        "finish_reason": "stop",
+        "response_read_complete": true
+      },
+      {
+        "event_type": "model_call_finished",
+        "call_id": "6c9f1eedec904c838a862ba2ae74680f",
+        "task": "project_analysis_review",
+        "system_prompt_sha256": "dd6e6934daea676cc41514e5f7452ab30035faf5d7eb3c3851de901328f8e2dd",
+        "started_at": "2026-10-19T00:13:28.684555+00:00",
+        "finished_at": "2026-10-19T00:13:32.434237+00:00",
+        "elapsed_seconds": 3.749688,
+        "outcome": "json_returned",
+        "failure_type": null,
+        "http_status": 200,
+        "response_body_sha256": "213ef7333b8dc96482f27588bfe7ef1ad11a00ed89c9d3e18e870815504b36e0",
+        "response_bytes": 1862,
+        "message_content_sha256": "f741420f4d894e14a8891fcb16a08cb345953b319faddad831028c9d778d2a4b",
+        "message_content_chars": 802,
+        "provider_response_id": "3f44d5f5-69e2-41f0-92f9-946369ec61c1",
+        "provider_model": "deepseek-flash",
+        "usage": {
+          "prompt_tokens": 5726,
+          "completion_tokens": 342,
+          "total_tokens": 6068,
+          "prompt_cache_hit_tokens": 1920,
+          "prompt_cache_miss_tokens": 3806,
+          "prompt_tokens_details": {
+            "cached_tokens": 1920
+          }
+        },
+        "finish_reason": "stop",
+        "response_read_complete": true
+      }
+    ],
+    "all_4_calls_report_usage": true,
+    "http200_stop_json_returned_is_transport_JSON_outcome_not_semantic_pass": true,
+    "other_teaching_match_calls_in_same_observer_excluded": true,
+    "money_cost": null,
+    "money_cost_reason": "No price lookup; tokens only."
+  },
+  "bounded_execution": {
+    "automatic_external_API_retries_reported_by_harness": 0,
+    "generation_attempts_observed": 2,
+    "reviews_observed": 2,
+    "call_sequence": [
+      "generation1",
+      "review1",
+      "repair_generation2",
+      "review2"
+    ],
+    "source_hard_max_generation_attempts": 2,
+    "source_hard_max_model_calls": 4,
+    "source_absolute_total_timeout_ceiling_seconds": 180,
+    "source_absolute_per_call_ceiling_seconds": 120,
+    "source_settings_default_total_timeout_seconds": 120,
+    "source_settings_default_per_call_timeout_seconds": 90,
+    "effective_operator_timeout_not_freshly_read": "No environment/secret or live capabilities access by this review; manifest records search-only preview overrides. Do not claim an exact effective deployment timeout from defaults.",
+    "review_source_output_token_ceiling": 1500,
+    "observed_review_completion_tokens": [
+      156,
+      342
+    ],
+    "client_intent_to_retained_terminal_observation_seconds": 36.523326,
+    "persisted_version_created_to_updated_seconds": 36.274711,
+    "sum_reported_model_elapsed_seconds": 36.254277,
+    "observed_calls_within_2generation_2review_bound": true,
+    "bounded_failure_not_unlimited_retry": true
+  },
+  "original_eight_case_boundary": {
+    "original_project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+    "retained_version": 8,
+    "previous_view": {
+      "path": "tmp/phase3-work/evidence/phase3-final-live/analysis-traceability/previous-project-view.json",
+      "sha256": "16766933edf4f2682034221784f6cb685d2670fc9626cbce8a21719c5e1a7130",
+      "bytes": 44760
+    },
+    "immutable_r3_view": {
+      "path": "evidence/phase3-audit/r3-final-matrix-sources/web_pomodoro_beginner/project-view.json",
+      "sha256": "16766933edf4f2682034221784f6cb685d2670fc9626cbce8a21719c5e1a7130",
+      "bytes": 44760
+    },
+    "approved_analysis_sha256": "2593e715b72fe3ff05b6f90b92588641892edfd4711cb70e1f490203eea2a824",
+    "same_approved_analysis_as_frozen_r3": true,
+    "original_matrix": {
+      "path": "evidence/phase3-audit/final-teaching-quality-matrix.r3.json",
+      "sha256": "02077724ef8c5d32a581cd84d68db30c763a6936f0ef042db2e2a7f06899ad07",
+      "bytes": 461561
+    },
+    "same_input_sha256": "8578b758f3ea6b4ad5ae3b9786cc1b3f8bc12c30501ec7f70ca26a8490befe17",
+    "this_new_trial_added_to_r3_cohort_denominator": false,
+    "no_original_project_edit_by_reviewer": true,
+    "live_DB_state_not_requeried": "Only retained evidence read; current originals are not re-read through HTTP or DB."
+  },
+  "runtime_binding": {
+    "manifest": {
+      "path": "tmp/phase3-work/tmp/preview-runtime-manifest.json",
+      "sha256": "08b0f105deee61d188e36bc19781f50446297d7dbb2d0ff693eab02e0eb24648",
+      "bytes": 5466
+    },
+    "pid": 34972,
+    "port": 8010,
+    "source_modules_equal_runtime_manifest": {
+      "project_analysis.py": {
+        "path": "tmp/phase3-work/backend/app/project_analysis.py",
+        "sha256": "5b0b9f99302383b380b2fd69e9c6b6705a241b9e42b0a19c79b1f37eec543c37",
+        "bytes": 51429
+      },
+      "analysis_review.py": {
+        "path": "tmp/phase3-work/backend/app/analysis_review.py",
+        "sha256": "977235c622e772a49a84c9e4ef0dc23d5f2dcc587aedc7fb7bf66780d576ba61",
+        "bytes": 14679
+      },
+      "config.py": {
+        "path": "tmp/phase3-work/backend/app/config.py",
+        "sha256": "f8493d47eabb218ff088aa668c219a5ce08177d74d13a1bfafb945f744a31f0a",
+        "bytes": 18376
+      }
+    },
+    "observed_generation_system_prompt_sha256": "cf6d7e7c1152d17711719803a0fd3410f68c961d539daf6da2862dce2a3f866d",
+    "observed_review_system_prompt_sha256": "dd6e6934daea676cc41514e5f7452ab30035faf5d7eb3c3851de901328f8e2dd",
+    "source_literal_prompt_hashes_equal_observer": true
+  },
+  "immutable_snapshots": [
+    {
+      "path": "evidence/phase3-audit/r4-analysis-repair-outcome/project-view.json",
+      "sha256": "bfe8d918e3f1aa352ba1cfdcf1b5aae94fbaae87e00d37fa137e65cc06e47829",
+      "bytes": 6264
+    },
+    {
+      "path": "evidence/phase3-audit/r4-analysis-repair-outcome/previous-pomodoro-v8-view.json",
+      "sha256": "16766933edf4f2682034221784f6cb685d2670fc9626cbce8a21719c5e1a7130",
+      "bytes": 44760
+    },
+    {
+      "path": "evidence/phase3-audit/r4-analysis-repair-outcome/run.json",
+      "sha256": "d73eb28c5ee3fe25b89f56d5929363634415b75a0865f00fdd26ef60569c22bd",
+      "bytes": 2167
+    },
+    {
+      "path": "evidence/phase3-audit/r4-analysis-repair-outcome/runtime-manifest.json",
+      "sha256": "08b0f105deee61d188e36bc19781f50446297d7dbb2d0ff693eab02e0eb24648",
+      "bytes": 5466
+    },
+    {
+      "path": "evidence/phase3-audit/r4-analysis-repair-outcome/analysis-only-model-events.jsonl",
+      "sha256": "f0be05f83caa658b3000a9dc3d1f38b06898128ae501f70b1d470bfdd315b8fc",
+      "bytes": 5061
+    }
+  ],
+  "readiness_conclusion": "The346 offline tests establish tested local behavior only. The first independent real3.3 same-input trial exhausted its2generation+2review budget without a usable approved plan. It does not prove stable production generation/repair; exact rejected-draft quality and reviewer false-positive rate remain unknown. Keep the failed trial and avoid claiming a prompt-only production fix from offline tests.",
+  "remaining_blockers": [
+    "No approved analysis was produced for this authorized post-fix trial.",
+    "Rejected drafts are absent, so independent diagnostic adjudication and exact repair-cause analysis cannot be completed from these artifacts.",
+    "Production stability is unproven; no automatic/extra retry or manual repair of this new trial is authorized by this review."
+  ]
+}

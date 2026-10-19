@@ -1,0 +1,470 @@
+{
+  "reviewed_at": "2026-10-18T18:48:37.833418+00:00",
+  "mode": "independent_static_semantic_review",
+  "network_requests": 0,
+  "provider_requests": 0,
+  "production_code_changed": false,
+  "predeclared_case": "evidence\\phase2-dashboard-plan\\case.json",
+  "predeclared_case_sha256": "e183fe73ca1ecceb119d120bf783c3a3190457918a166444b33109baada0eff8",
+  "predeclared_fixture_sha256": "f7f9cc67a29f2e5b449304c2efedf20b2023c404a957b2906ff9cd6fef395452",
+  "source_run": "evidence\\phase2-dashboard-analysis\\run.json",
+  "source_run_sha256": "a854007ccfb834bed441e396c43c44227646eff6c0b9b2ad06d3b55de2c8d4ca",
+  "source_case": "evidence\\phase2-dashboard-analysis\\study_room_streamlit_intermediate.json",
+  "source_case_sha256": "9c8e8a23d19437a5ba8c3b2b6d25c0cc2434a743b94cfe7f9ebcda64a7409627",
+  "fixed_requirement_total": 6,
+  "assessed_requirements": 6,
+  "assessed_requirement_passes": 6,
+  "unassessed_requirements": 0,
+  "cohort_acceptance_pass": true,
+  "accepted_output_semantic_pass": true,
+  "case_reviews": [
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "project_id": "bb01c9ec-8b25-4425-832e-ccd9fa7d0a60",
+      "version": 1,
+      "api_status": "analyzed",
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+      "analysis_sha256": "208fc973b4258a0c11c3fa48adfa32fe8a722db88fd974340d0fc592a709af4f",
+      "review_type": "independent_static_semantic_review",
+      "verdict": "static_pass",
+      "requirements": [
+        {
+          "id": "dashboard_1",
+          "requirement": "本地Streamlit入口、CSV上传与可恢复输入状态",
+          "unit_ids": [
+            "k1",
+            "k2",
+            "k6"
+          ],
+          "function_ids": [
+            "f1",
+            "f3",
+            "f7"
+          ],
+          "passed": true,
+          "reason": "k1上传并显示表头/行数且未上传提示；f1/f3与k2区分解析/缺列错误；k6条件提示且页面仍可操作，入口与恢复路径有具体学习任务。",
+          "predeclared_expected": [
+            "本机Streamlit运行和st.file_uploader",
+            "未上传有提示而非异常",
+            "缺列/坏CSV显示错误，重新上传可恢复"
+          ],
+          "predeclared_must_not": [
+            "联网API/账号/数据库/云部署替代本地CSV",
+            "只有泛Python文件读写课替代Streamlit上传流程"
+          ]
+        },
+        {
+          "id": "dashboard_2",
+          "requirement": "按明确字段条件清洗并报告排除行数",
+          "unit_ids": [
+            "k2"
+          ],
+          "function_ids": [
+            "f2",
+            "f3"
+          ],
+          "passed": true,
+          "reason": "technical_plan逐项列日期、非空room、非负整数visits、正整数capacity/open_minutes及非负且<=容量时长的occupied_seat_minutes；k2验证函数区分缺列和行级无效，计数、不去重且练习明确零visits保留。",
+          "predeclared_expected": [
+            "YYYY-MM-DD日期解析、非空room",
+            "visits非负整数；capacity/open_minutes正整数",
+            "occupied_seat_minutes>=0且<=capacity*open_minutes",
+            "不合格行排除并显示数量，不擅自去重",
+            "有效visits=0与占用分钟=0的行保留"
+          ],
+          "predeclared_must_not": [
+            "以visits>0排掉零记录",
+            "非法行静默参与统计",
+            "对重复行擅自去重改变口径"
+          ]
+        },
+        {
+          "id": "dashboard_3",
+          "requirement": "含等号的日期范围与明确房间多选语义",
+          "unit_ids": [
+            "k1",
+            "k3",
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f4",
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "assumptions取有效min/max与全部房间默认；f4/k3明确日期两端包含与选空返回空结果；k1解释重运行，k4和k5明确使用同一份filtered，未出现空选回退全选。",
+          "predeclared_expected": [
+            "开始<=date<=结束",
+            "默认有效日期全集与全部有效房间",
+            "选择空房间集合得到空结果",
+            "一个筛选DataFrame驱动指标与图，控件更新后重算"
+          ],
+          "predeclared_must_not": [
+            "日期上界误用<",
+            "空选择自动恢复全选",
+            "图和指标使用不同过滤结果"
+          ]
+        },
+        {
+          "id": "dashboard_4",
+          "requirement": "三个指标及加权使用率边界",
+          "unit_ids": [
+            "k2",
+            "k4",
+            "k6"
+          ],
+          "function_ids": [
+            "f2",
+            "f5",
+            "f7"
+          ],
+          "passed": true,
+          "reason": "f5与k4明确三项总量聚合、使用率为sum(occupied)/sum(capacity*open_minutes)而非行比例均值，显示时格式化；k2保留零到访记录，k6先判空再算，避免0分母。",
+          "predeclared_expected": [
+            "sum(visits)",
+            "sum(occupied_seat_minutes)",
+            "sum(occupied_seat_minutes)/sum(capacity*open_minutes)",
+            "百分比仅显示时保留1位小数",
+            "零到访有效行保留容量分母，非逐行百分比平均"
+          ],
+          "predeclared_must_not": [
+            "mean(行使用率)替代加权比",
+            "有效零到访行被排掉导致使用率虚高",
+            "没有数据时计算除零或伪造0%"
+          ]
+        },
+        {
+          "id": "dashboard_5",
+          "requirement": "房间分组到访条形图与指标同口径",
+          "unit_ids": [
+            "k3",
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f4",
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "f6/k5明示对filtered按room求sum(visits)，用st.bar_chart；与k4同份过滤数据而不是按记录数，脚本重运行保证控件后重算，空时不画图。",
+          "predeclared_expected": [
+            "按room对visits求和",
+            "Streamlit内置bar_chart或等价明确同工具图表",
+            "图中总人次与指标sum(visits)一致",
+            "房间/日期变化后图同步更新"
+          ],
+          "predeclared_must_not": [
+            "换成预测/复杂仪表盘系统",
+            "按记录行数代替到访人次",
+            "固定硬编码图与筛选无关"
+          ]
+        },
+        {
+          "id": "dashboard_6",
+          "requirement": "空结果、无效输入与重新选择的可用流程",
+          "unit_ids": [
+            "k1",
+            "k2",
+            "k3",
+            "k5",
+            "k6"
+          ],
+          "function_ids": [
+            "f1",
+            "f3",
+            "f4",
+            "f6",
+            "f7"
+          ],
+          "passed": true,
+          "reason": "未上传、缺列/解析错误、无匹配各有提示；k6任务明确在指标图表前判断空和错误，练习三指标—、无NaN、不画图且可继续操作，不把零人次的有效行当空表。",
+          "predeclared_expected": [
+            "无匹配给明确提示",
+            "空指标显示—而非NaN或虚假0%",
+            "空图不画误导柱",
+            "上传新文件/调整筛选后恢复正常数据展示"
+          ],
+          "predeclared_must_not": [
+            "空DataFrame索引崩溃",
+            "用异常吞掉所有错误却不给学生下一步",
+            "必须刷新重启应用才能恢复"
+          ]
+        }
+      ],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "Streamlit 文件上传与脚本重运行",
+          "technology": "Streamlit",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "上传→显示表头/行数→无文件提示是一个可完成子任务；重运行是首次Streamlit所需知识，pandas.read_csv仅连接已会基础，不替代为整门Python课。",
+          "practice_check": "上传文件后页面显示列名与前几行；不传文件时只显示提示。"
+        },
+        {
+          "id": "k2",
+          "name": "pandas 列校验与逐行规则验证",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "合并列检查、规则掩码和排除数为单一可复核验证函数，粒度适中；整数/范围/零值与不去重有项目口径，而非泛pandas基础。",
+          "practice_check": "对含负数、零容量、日期非法、超占用行的样本，只剩合规行，排除数正确且零 visits 行保留。"
+        },
+        {
+          "id": "k3",
+          "name": "Streamlit 日期区间与多选控件",
+          "technology": "Streamlit",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "日期和房间控件共同产生一个过滤子任务，默认、含等号、空选择语义及实践检查清楚。",
+          "practice_check": "默认展示全部数据；房间全不选时结果为空；起止两端日期记录被包含。"
+        },
+        {
+          "id": "k4",
+          "name": "筛选后数据的加权使用率聚合",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "三指标和加权使用率同口径是一项凝聚的业务计算任务，给出函数、格式和不同容量反例，不拆成单行sum语法。",
+          "practice_check": "用两行不同容量数据验证结果是加权比，且格式为带1位小数的百分数。"
+        },
+        {
+          "id": "k5",
+          "name": "groupby 汇总与 Streamlit 条形图",
+          "technology": "Streamlit",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "已知groupby与新Streamlit条图相连，产出按房间visits汇总图；虽然groupby已会，图表接口与filtered一致性是本项目新增成果。",
+          "practice_check": "非空时出现按房间的条形图；空数据时不出现图表。"
+        },
+        {
+          "id": "k6",
+          "name": "空结果的安全展示",
+          "technology": "Streamlit",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "把空表/错误保护与条件展示汇为可测试的可恢复分支；明确先判断再计算、—占位与不画图，补齐完整学生交互。",
+          "practice_check": "筛选无匹配时三项显示“—”，无 NaN 报错，且无图表；页面仍可继续操作。"
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "明确保留Python/pandas既有经验与首次Streamlit；只重用项目需要的read_csv/布尔筛选/groupby，不重开整门基础课。新学习重点是上传/控件/重运行、验证与统一口径。"
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "6单元顺序1..6，引用无环且指向更早单元；上传后校验与控件、校验+筛选后指标、指标后条图、最后加入计算前空保护。所有必要准备都在前面；k3校验数据依赖与k5整合顺序可更显式，列低优先级。"
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "逐字段非负/正整数/占用上限、不去重与零值保留一致；全任务使用同一filtered，明确sum总量比而非行均值，日期两端包含且空rooms无结果，空表不算除零。按原oracle逐步推导42.9%/50.0%/75.0%与零值非空行为一致，未见相互矛盾的要求。"
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "k3的控件默认值来自清洗后的有效数据，但显式先修只列k1；学习顺序已在k2之后，实践可补k2依赖或说明使用已校验样本。",
+        "k5的真正数据准备来自k2/k3，依赖k4更多是建议整合顺序，可把数据依赖与课程顺序分开。",
+        "technical_plan和k2/k4用occupied作概念简称；实现时应明确映射到真实列occupied_seat_minutes，避免误当新CSV列。",
+        "实践可追加全部数据行无效的边界，在取有效min/max构造日期控件前保护空表；当前任务已要求空/错误判断，尚未执行真实Streamlit应用。",
+        "指标展示未指定st.metric，可选择st.write或st.metric作为练习的具体呈现API；不影响已明确的计算与条件展示目标。"
+      ],
+      "numeric_boundary_checks": [
+        {
+          "id": "cleaning_fixture",
+          "probe": "原合成CSV9行，日期非法、零capacity、负visits、超容量占用各1行；合法零到访行保留。",
+          "expected": {
+            "valid_rows": 5,
+            "excluded_rows": 4
+          },
+          "observed_plan": "technical_plan逐项条件与f2/k2零值保留/不去重一致；没有收窄为visits>0。",
+          "passed": true
+        },
+        {
+          "id": "default_weighted_rate",
+          "probe": "全有效日期和房间；零到访A/10-14仍贡献600容量座位分钟。",
+          "expected": {
+            "valid_filtered_rows": 5,
+            "visits": 48,
+            "occupied_seat_minutes": 1800,
+            "capacity_seat_minutes": 4200,
+            "weighted_utilization_percent_display": "42.9%",
+            "by_room_visits": {
+              "A": 30,
+              "B": 18
+            },
+            "empty_indicators": null
+          },
+          "observed_plan": "sum总量比应用于全部5行=1800/4200=42.857...%，显示42.9%；不等于45.0%的行百分比均值。",
+          "passed": true
+        },
+        {
+          "id": "inclusive_dates",
+          "probe": "2026-10-12到2026-10-13，两端包含。",
+          "expected": {
+            "valid_filtered_rows": 4,
+            "visits": 48,
+            "occupied_seat_minutes": 1800,
+            "capacity_seat_minutes": 3600,
+            "weighted_utilization_percent_display": "50.0%",
+            "by_room_visits": {
+              "A": 30,
+              "B": 18
+            },
+            "empty_indicators": null
+          },
+          "observed_plan": "f4/k3明确两端包含，故保留4行，1800/3600=50.0%。",
+          "passed": true
+        },
+        {
+          "id": "room_A",
+          "probe": "同日期区间仅A。",
+          "expected": {
+            "valid_filtered_rows": 2,
+            "visits": 30,
+            "occupied_seat_minutes": 900,
+            "capacity_seat_minutes": 1200,
+            "weighted_utilization_percent_display": "75.0%",
+            "by_room_visits": {
+              "A": 30
+            },
+            "empty_indicators": null
+          },
+          "observed_plan": "统一filtered后sum(visits)=30，900/1200=75.0%，房间条图合计30。",
+          "passed": true
+        },
+        {
+          "id": "empty_rooms",
+          "probe": "房间多选空集合；以及10-14仅B。",
+          "expected": {
+            "rows": 0,
+            "indicators": "—",
+            "chart": "not rendered"
+          },
+          "observed_plan": "f4/k3明确空选不是全部；f7/k6在计算前保护空表，不算除零或NaN且不画图。",
+          "passed": true
+        },
+        {
+          "id": "zero_is_not_empty",
+          "probe": "10-14仅A，保留一行合法零到访记录。",
+          "expected": {
+            "rows": 1,
+            "visits": 0,
+            "occupied_seat_minutes": 0,
+            "capacity_seat_minutes": 600,
+            "weighted_utilization_display": "0.0%",
+            "empty_state": false
+          },
+          "observed_plan": "k2保留零visits，k6依据空DataFrame而非visits总和判断，故零值不应被当空表显示—。",
+          "passed": true
+        }
+      ],
+      "unit_limit": {
+        "requested_maximum": 6,
+        "observed": 6,
+        "passed": true
+      },
+      "scope": {
+        "passed": true,
+        "reason": "本地合成CSV看板；无账号、网络数据、数据库、云、ML、地图或不必要新图表库。Streamlit/pandas逐单元技术清楚。"
+      },
+      "not_executed": true,
+      "oracle_checks_are_static_reasoning_not_generated_app_execution": true
+    }
+  ],
+  "cost_correction": {
+    "scope": "This one dashboard analysis API request: generation plus semantic review only; not all search/app provider cost.",
+    "observer": "evidence\\phase2\\runtime-discovery-v2\\model-events.jsonl",
+    "observer_sha256_at_capture": "40be4066291542801de483262fd3d1b76dd88e8e1a18135a0989d16ffb0d1d46",
+    "selected_event_copy": "evidence\\phase2-dashboard-analysis\\independent-cost-observer-events.jsonl",
+    "selected_event_copy_sha256": "dd5f83c1083dee671f58ad3d02509f28727973109f2d1bcff297e3680634610f",
+    "selected_finished_events": [
+      {
+        "event_type": "model_call_finished",
+        "call_id": "84ad81bd80a74e09b66869ad24d0e572",
+        "task": "project_analysis",
+        "system_prompt_sha256": "a214a2104b55099d5259e2c16529d3e9d826f378f6e26178ae9a0b7f082fbb4f",
+        "started_at": "2026-10-18T18:44:39.661643+00:00",
+        "finished_at": "2026-10-18T18:44:55.779174+00:00",
+        "elapsed_seconds": 16.117532,
+        "outcome": "json_returned",
+        "failure_type": null,
+        "http_status": 200,
+        "response_body_sha256": "a1e2f7677c091d26a3c9f5102c997b0ea9ce2866b53aa40c04ee44cca86dae32",
+        "response_bytes": 11000,
+        "message_content_sha256": "c752f968217315946e27c61a60a5de3a32df869603ac8c9898773f161d450ee0",
+        "message_content_chars": 5773,
+        "provider_response_id": "d70e871f-77d6-4a13-8fe6-a5875ce711be",
+        "provider_model": "deepseek-flash",
+        "usage": {
+          "prompt_tokens": 3408,
+          "completion_tokens": 2420,
+          "total_tokens": 5828,
+          "prompt_cache_hit_tokens": 1536,
+          "prompt_cache_miss_tokens": 1872,
+          "prompt_tokens_details": {
+            "cached_tokens": 1536
+          }
+        },
+        "finish_reason": "stop",
+        "response_read_complete": true
+      },
+      {
+        "event_type": "model_call_finished",
+        "call_id": "eba99671b349469aa07d92a3a1466040",
+        "task": "project_analysis_review",
+        "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+        "started_at": "2026-10-18T18:44:55.782192+00:00",
+        "finished_at": "2026-10-18T18:45:03.653111+00:00",
+        "elapsed_seconds": 7.870922,
+        "outcome": "json_returned",
+        "failure_type": null,
+        "http_status": 200,
+        "response_body_sha256": "f0d7cc93bce834e8903d48721368fda8e85b2c1e1ce8bbd5089ad513ebf3ccf4",
+        "response_bytes": 497,
+        "message_content_sha256": "443b357dbac0138b317ce5c502659832dbd0f5c86556345a672b0f1d3c1077e0",
+        "message_content_chars": 30,
+        "provider_response_id": "201ebcde-bde1-426c-a2ed-3b9c3cede5b7",
+        "provider_model": "deepseek-flash",
+        "usage": {
+          "prompt_tokens": 4127,
+          "completion_tokens": 10,
+          "total_tokens": 4137,
+          "prompt_cache_hit_tokens": 512,
+          "prompt_cache_miss_tokens": 3615,
+          "prompt_tokens_details": {
+            "cached_tokens": 512
+          }
+        },
+        "finish_reason": "stop",
+        "response_read_complete": true
+      }
+    ],
+    "provider_finished_calls": 2,
+    "generation_calls": 1,
+    "semantic_review_calls": 1,
+    "completion_tokens": 2430,
+    "total_tokens": 9965,
+    "all_selected_call_usage_captured": true,
+    "client_total_analysis_seconds": 24.260997,
+    "harness_original_generation_only_summary": {
+      "api_analysis_submissions": 1,
+      "completed_analyses": 1,
+      "failed_analyses": 0,
+      "uncertain_or_pending": 0,
+      "client_median_seconds": 24.260997,
+      "client_p95_nearest_rank_seconds": 24.260997,
+      "latency_goal_misses": [],
+      "latency_hard_limit_misses": [],
+      "provider_finished_events": 1,
+      "provider_completion_tokens": 2420,
+      "provider_total_tokens": 5828,
+      "provider_counts_are_complete": true,
+      "manual_review_required": true,
+      "semantic_acceptance_pass": null,
+      "search_api_submissions": 0
+    },
+    "harness_correction": "Original harness filters only task=project_analysis; its provider_counts_are_complete=true covers generation only and must not be read as complete analysis+review cost. Keep original report unchanged; use this observer-bound correction."
+  },
+  "limits": "Independent human-style static reading and mathematical consistency review only. No generated Streamlit code, browser, CSV ingestion implementation, video search or playback was executed. Model semantic-review pass and keyword observations were not used as substitutes for this judgment."
+}

@@ -20,6 +20,8 @@ class Store:
         self.connection.row_factory = sqlite3.Row
         self.connection.execute("PRAGMA journal_mode=WAL")
         self.connection.execute("PRAGMA foreign_keys=ON")
+        had_consumers = self.connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='job_consumers'").fetchone() is not None
         self.connection.executescript("""
             CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY, status TEXT NOT NULL, data TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS knowledge_points(id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id), text TEXT NOT NULL);
@@ -29,9 +31,14 @@ class Store:
             CREATE TABLE IF NOT EXISTS search_attempts(id INTEGER PRIMARY KEY AUTOINCREMENT, job_id TEXT NOT NULL REFERENCES jobs(id), data TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS cache(key TEXT PRIMARY KEY, kind TEXT NOT NULL, created REAL NOT NULL, expires REAL NOT NULL, data TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS idempotency_keys(key TEXT PRIMARY KEY, request_hash TEXT NOT NULL, job_id TEXT NOT NULL REFERENCES jobs(id));
+            CREATE TABLE IF NOT EXISTS job_consumers(job_id TEXT NOT NULL REFERENCES jobs(id), consumer_key TEXT NOT NULL, PRIMARY KEY(job_id,consumer_key));
             CREATE INDEX IF NOT EXISTS evidence_job_resource ON evidence(job_id,resource_id);
             CREATE INDEX IF NOT EXISTS jobs_status ON jobs(status);
         """)
+        if not had_consumers:
+            # Ownership of pre-migration jobs is unknown. A project must never
+            # infer that an old task is exclusive merely because it reuses it.
+            self.connection.execute("INSERT INTO job_consumers SELECT id,'legacy' FROM jobs")
         self.connection.commit()
 
     def recover(self):
@@ -45,14 +52,27 @@ class Store:
         self.connection.execute("INSERT INTO jobs VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,data=excluded.data", (job["job_id"], job["status"], dumps(job)))
         self.connection.commit()
 
-    def create_job(self, job: dict, idempotency_key: str | None = None, request_hash: str | None = None):
+    def create_job(self, job: dict, idempotency_key: str | None = None, request_hash: str | None = None, *, consumer_key: str = "manual"):
         # The queue must never see a job without all of its knowledge-point rows.
         with self.connection:
             self.connection.execute("INSERT INTO jobs VALUES(?,?,?)", (job["job_id"], job["status"], dumps(job)))
             self.connection.executemany("INSERT INTO knowledge_points VALUES(?,?,?)", [
                 (point["knowledge_point_id"], job["job_id"], point["text"]) for point in job["knowledge_points"]])
+            self.connection.execute("INSERT INTO job_consumers VALUES(?,?)", (job["job_id"], consumer_key))
             if idempotency_key:
                 self.connection.execute("INSERT INTO idempotency_keys VALUES(?,?,?)", (idempotency_key, request_hash, job["job_id"]))
+
+    def add_job_consumer(self, job_id: str, consumer_key: str):
+        with self.connection:
+            self.connection.execute("INSERT OR IGNORE INTO job_consumers VALUES(?,?)", (job_id, consumer_key))
+
+    def release_job_consumer(self, job_id: str, consumer_key: str) -> bool:
+        """Return true only when a known last consumer was actually released."""
+        with self.connection:
+            removed = self.connection.execute("DELETE FROM job_consumers WHERE job_id=? AND consumer_key=?",
+                                               (job_id, consumer_key)).rowcount
+            remaining = self.connection.execute("SELECT 1 FROM job_consumers WHERE job_id=? LIMIT 1", (job_id,)).fetchone()
+        return removed == 1 and remaining is None
 
     def idempotent_request(self, key: str) -> dict | None:
         row = self.connection.execute("SELECT request_hash,job_id FROM idempotency_keys WHERE key=?", (key,)).fetchone()

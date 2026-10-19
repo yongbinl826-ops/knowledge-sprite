@@ -1,0 +1,59 @@
+{
+  "outcome": "not_all_passed",
+  "mode": "independent_complete_integrated_r7_pytest",
+  "reported_pytest": {
+    "passed": 2676,
+    "failed": 3,
+    "subtests_passed": 26,
+    "warnings": 1,
+    "seconds": 71.85
+  },
+  "xml_suites": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "3",
+      "skipped": "0",
+      "tests": "2705",
+      "time": "71.797",
+      "timestamp": "2026-10-19T03:15:24.143522+08:00",
+      "hostname": "LAPTOP-UT2FMDJK"
+    }
+  ],
+  "failures": [
+    {
+      "class": "tests.test_project_search_context",
+      "name": "test_search_name_preserves_unit_scoped_tool[pygame\\u952e\\u76d8\\u79fb\\u52a8-concepts11-pygame-pygame\\u952e\\u76d8\\u79fb\\u52a8]",
+      "message": "AssertionError: assert 'pygame 键盘移动' == 'pygame键盘移动'\n  \n  - pygame键盘移动\n  + pygame 键盘移动\n  ?       +",
+      "traceback": "name = 'pygame键盘移动', concepts = ['pygame.key.get_pressed'], plan = 'pygame'\nexpected = 'pygame键盘移动'\n\n    @pytest.mark.parametrize(\"name,concepts,plan,expected\", [\n        (\"分数统计与文字显示\", [\"pygame.font.Font 渲染\", \"blit 绘制文字\"], \"\", \"pygame 分数统计与文字显示\"),\n        (\"Rect 矩形与坐标定位绘制\", [\"pygame.Rect 属性\"], \"\", \"pygame Rect 矩形与坐标定位绘制\"),\n        (\"键盘长按移动挡板与边界限制\", [\"key.get_pressed 按键状态\", \"rect.clamp_ip 或边界判断\"], \"Python 3 与 pygame\", \"pygame 键盘长按移动挡板与边界限制\"),\n        (\"游戏结束、空格重开与状态管理\", [\"KEYDOWN 事件判断空格\", \"重置函数\"], \"采用 pygame\", \"pygame 游戏结束、空格重开与状态管理\"),\n        (\"键盘输入\", [\"KEYDOWN 事件\"], \"SDL\", \"键盘输入\"),\n        (\"状态管理\", [\"变量与状态\"], \"pygame\", \"状态管理\"),\n        (\"游戏状态标记与漏接结束画面\", [\"状态变量 playing/game_over\"], \"Python + pygame\", \"pygame 游戏状态标记与漏接结束画面\"),\n        (\"空格重开与数据重置\", [\"重置函数\"], \"pygame 本地游戏\", \"pygame 空格重开与数据重置\"),\n        (\"游戏状态标记\", [\"状态变量\"], \"pygame 或 Unity\", \"游戏状态标记\"),\n        (\"JavaScript 键盘移动\", [\"pygame.key.get_pressed\"], \"pygame\", \"JavaScript 键盘移动\"),\n        (\"pygame 键盘移动\", [\"pygame.key.get_pressed\"], \"pygame\", \"pygame 键盘移动\"),\n        (\"pygame键盘移动\", [\"pygame.key.get_pressed\"], \"pygame\", \"pygame键盘移动\"),\n        (\"重开\", [\"KEYDOWN事件\"], \"用pygame做游戏\", \"pygame 重开\"),\n        (\"分数显示\", [\"使用pygame.font.Font\"], \"\", \"pygame 分数显示\"),\n        (\"绘图\", [\"matplotlib.pyplot.plot\"], \"\", \"matplotlib 绘图\"),\n        (\"数据输入\", [\"pandas.read_csv\", \"numpy.array\"], \"\", \"数据输入\"),\n        (\"历史单元\", [], \"pygame\", \"历史单元\"),\n        (\"空格重开\", [\"文档链接 https://pygame.example/KEYDOWN\"], \"\", \"空格重开\"),\n    ])\n    def test_search_name_preserves_unit_scoped_tool(name, concepts, plan, expected):\n        point = {\"name\": name, \"concepts\": concepts}\n>       assert searchable_unit_name(point, plan) == expected\nE       AssertionError: assert 'pygame 键盘移动' == 'pygame键盘移动'\nE         \nE         - pygame键盘移动\nE         + pygame 键盘移动\nE         ?       +\n\ntests\\test_project_search_context.py:28: AssertionError"
+    },
+    {
+      "class": "tests.test_project_search_context",
+      "name": "test_explicit_unit_technology_is_independent_of_the_project_stack[pygame-pygame\\u521d\\u59cb\\u5316-pygame\\u521d\\u59cb\\u5316]",
+      "message": "AssertionError: assert 'pygame 初始化' == 'pygame初始化'\n  \n  - pygame初始化\n  + pygame 初始化\n  ?       +",
+      "traceback": "technology = 'pygame', name = 'pygame初始化', expected = 'pygame初始化'\n\n    @pytest.mark.parametrize(\"technology,name,expected\", [\n        (\"Arduino\", \"串口命令缓冲\", \"Arduino 串口命令缓冲\"),\n        (\"pandas\", \"分组聚合\", \"pandas 分组聚合\"),\n        (\"JavaScript\", \"表单校验与 fetch 请求\", \"JavaScript 表单校验与 fetch 请求\"),\n        (\"Bevy\", \"角色碰撞\", \"Bevy 角色碰撞\"),\n        (\"pygame\", \"pygame初始化\", \"pygame初始化\"),\n        (\"C++\", \"C++对象与构造\", \"C++对象与构造\"),\n        (\"\", \"概率与随机\", \"概率与随机\"),\n        (\"通用\", \"概率与随机\", \"概率与随机\"),\n    ])\n    def test_explicit_unit_technology_is_independent_of_the_project_stack(technology, name, expected):\n>       assert searchable_unit_name({\"name\": name, \"technology\": technology}, \"Python + pygame + Arduino + JavaScript\") == expected\nE       AssertionError: assert 'pygame 初始化' == 'pygame初始化'\nE         \nE         - pygame初始化\nE         + pygame 初始化\nE         ?       +\n\ntests\\test_project_search_context.py:48: AssertionError"
+    },
+    {
+      "class": "tests.test_project_search_context",
+      "name": "test_explicit_unit_technology_is_independent_of_the_project_stack[C++-C++\\u5bf9\\u8c61\\u4e0e\\u6784\\u9020-C++\\u5bf9\\u8c61\\u4e0e\\u6784\\u9020]",
+      "message": "AssertionError: assert 'C++ 对象与构造' == 'C++对象与构造'\n  \n  - C++对象与构造\n  + C++ 对象与构造\n  ?    +",
+      "traceback": "technology = 'C++', name = 'C++对象与构造', expected = 'C++对象与构造'\n\n    @pytest.mark.parametrize(\"technology,name,expected\", [\n        (\"Arduino\", \"串口命令缓冲\", \"Arduino 串口命令缓冲\"),\n        (\"pandas\", \"分组聚合\", \"pandas 分组聚合\"),\n        (\"JavaScript\", \"表单校验与 fetch 请求\", \"JavaScript 表单校验与 fetch 请求\"),\n        (\"Bevy\", \"角色碰撞\", \"Bevy 角色碰撞\"),\n        (\"pygame\", \"pygame初始化\", \"pygame初始化\"),\n        (\"C++\", \"C++对象与构造\", \"C++对象与构造\"),\n        (\"\", \"概率与随机\", \"概率与随机\"),\n        (\"通用\", \"概率与随机\", \"概率与随机\"),\n    ])\n    def test_explicit_unit_technology_is_independent_of_the_project_stack(technology, name, expected):\n>       assert searchable_unit_name({\"name\": name, \"technology\": technology}, \"Python + pygame + Arduino + JavaScript\") == expected\nE       AssertionError: assert 'C++ 对象与构造' == 'C++对象与构造'\nE         \nE         - C++对象与构造\nE         + C++ 对象与构造\nE         ?    +\n\ntests\\test_project_search_context.py:48: AssertionError"
+    }
+  ],
+  "source_tree_sha256": "4aef7ae9bb961785fe417f32f73cf993f11721ea867bd6ed784877b18ae0e2f8",
+  "source_python_files": 132,
+  "all_backend_test_py_unchanged": true,
+  "r7_34file_integration_mismatches": {},
+  "production_or_assertion_changes_by_reviewer": false,
+  "service_26048_touched": false,
+  "dotenv_disabled": true,
+  "pyc_disabled": true,
+  "scratch": "tmp/backend-final-r7",
+  "diagnosis": {
+    "category": "old search-name expectations conflict with integrated canonical search-name contract",
+    "mechanism": "project_search.py:47 now calls canonical_search_name, technical_prefix.py normalizes a complete leading owner at ASCII/CJK boundary into owner + space + body. The three old tests expect the pre-normalized search name.",
+    "evidence_for_intent": "tests/test_technical_prefix.py:32–42 asserts canonical search/target key agreement, point and original display/concepts unchanged; this new case passed.",
+    "scope": "No CSS, Clock, source binding, raw summary, probe, cache or confirmed-target boundary failures were reported. This is not a complete production acceptance claim.",
+    "next_step": "Root decides whether to update the three exact old search-name expected strings and retain independent display immutability checks. Do not weaken teaching/coverage assertions; rerun full regression afterward."
+  }
+}

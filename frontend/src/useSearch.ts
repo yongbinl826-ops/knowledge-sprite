@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, ApiError } from './api';
+import { openSnapshotStream } from './snapshotStream';
 import { pendingRequest, readPendingCreation, savePendingCreation } from './pendingCreation';
 import type { Capabilities, SearchJob, SearchRequest, SearchResults, JobCreated, JobCancelled } from './types';
 
 const terminal = new Set(['completed', 'partial', 'failed', 'interrupted', 'cancelled']);
+const resultsTerminal = (snapshot: SearchResults) => snapshot.pipeline?.terminal ?? terminal.has(snapshot.status);
 export function useSearch() {
   const [capabilities, setCapabilities] = useState<Capabilities | null>(null);
   const [capabilityError, setCapabilityError] = useState('');
@@ -58,6 +60,14 @@ export function useSearch() {
     const current = () => mounted.current && !controller.signal.aborted && generation === pollGeneration.current;
     let timer = 0;
     let failures = 0;
+    let allowStream = true;
+    let closeStream = () => {};
+    const applySnapshot = (snapshot: SearchResults) => {
+      if (!current()) return;
+      if (snapshot.job_id !== jobId || !snapshot.job || snapshot.job.job_id !== jobId || snapshot.job.status !== snapshot.status) throw new Error('返回的任务状态不一致，未替换当前结果。');
+      setJob(snapshot.job); setResults(snapshot); setPollError(''); failures = 0;
+      if (resultsTerminal(snapshot)) { closeStream(); void refreshCapabilities(); }
+    };
     const poll = async () => {
       if (!current()) return;
       const round = new AbortController();
@@ -76,7 +86,17 @@ export function useSearch() {
         if (!current()) return;
         if (nextJob.job_id !== jobId || coherentResults.job_id !== jobId) throw new Error('返回的任务编号不一致，未替换当前结果。');
         setJob(nextJob); setResults(coherentResults); setPollError(''); failures = 0;
-        if (terminal.has(nextJob.status)) { void refreshCapabilities(); return; }
+        if (coherentResults.pipeline?.terminal ?? terminal.has(nextJob.status)) { void refreshCapabilities(); return; }
+        if (allowStream && coherentResults.pipeline) {
+          allowStream = false;
+          closeStream = openSnapshotStream<SearchResults>({
+            url: `/api/search-jobs/${encodeURIComponent(jobId)}/events`, signal: controller.signal,
+            onSnapshot: applySnapshot,
+            onComplete: snapshot => { if (!snapshot || !resultsTerminal(snapshot)) throw new Error('缺少最终任务状态'); applySnapshot(snapshot); },
+            onFallback: () => { if (current()) void poll(); },
+          });
+          return;
+        }
       } catch (err) {
         if (!current()) return;
         failures += 1;
@@ -89,7 +109,7 @@ export function useSearch() {
       if (current()) timer = window.setTimeout(poll, 1500);
     };
     void poll();
-    return () => { controller.abort(); window.clearTimeout(timer); };
+    return () => { controller.abort(); closeStream(); window.clearTimeout(timer); };
   }, [jobId, pollRevision, refreshCapabilities]);
 
   const stopPolling = () => { pollGeneration.current += 1; pollController.current?.abort(); };
@@ -131,7 +151,7 @@ export function useSearch() {
   };
 
   const cancel = async () => {
-    if (!jobId || cancelLock.current || submissionLock.current || (job && terminal.has(job.status))) return;
+    if (!jobId || cancelLock.current || submissionLock.current || (results?.pipeline?.terminal ?? (job && terminal.has(job.status)))) return;
     cancelLock.current = true;
     const controller = new AbortController();
     actionController.current = controller;
@@ -151,7 +171,7 @@ export function useSearch() {
   return { capabilities, capabilityError, jobId, job, results, error: error || pollError, notice, submitting, cancelling, submit, cancel,
     recoveryRequest: pendingRequest(savedCreation), recoveryStorageError, discardPending,
     resumePending: () => { const request = pendingRequest(pendingCreation.current); if (request) return submit(request); },
-    canCancel: !!jobId && !submitting && (!job || !terminal.has(job.status)),
-    busy: submitting || cancelling || (!!jobId && !job && !error && !pollError) || (!!job && !terminal.has(job.status)),
+    canCancel: !!jobId && !submitting && !(results?.pipeline?.terminal ?? (job && terminal.has(job.status))),
+    busy: submitting || cancelling || (!!jobId && !job && !error && !pollError) || (results?.pipeline ? !results.pipeline.terminal : !!job && !terminal.has(job.status)),
     refreshCapabilities, retryPoll: () => { setError(''); setPollError(''); setPollRevision(value => value + 1); } };
 }

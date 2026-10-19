@@ -1,0 +1,3597 @@
+{
+  "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+  "original_input": {
+    "name": "离线番茄钟学习网页",
+    "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "input": {
+    "name": "离线番茄钟学习网页",
+    "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "current_version": 3,
+  "created_at": "2026-10-18T16:36:25.218819+00:00",
+  "updated_at": "2026-10-18T18:41:22.307120+00:00",
+  "versions": [
+    {
+      "version": 3,
+      "status": "running",
+      "created_at": "2026-10-18T16:59:59.971515+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+    },
+    {
+      "version": 2,
+      "status": "analysis_failed",
+      "created_at": "2026-10-18T16:51:11.756174+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 1,
+      "status": "analyzed",
+      "created_at": "2026-10-18T16:36:25.223939+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+    }
+  ],
+  "version": {
+    "version": 3,
+    "input": {
+      "name": "离线番茄钟学习网页",
+      "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+      "student_level": "beginner",
+      "language": "zh",
+      "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "status": "running",
+    "analysis": {
+      "scope": "用 HTML、CSS、JavaScript 制作一个纯本机浏览器运行的番茄钟网页：专注固定 25 分钟、休息固定 5 分钟；支持开始、暂停、继续、重置；阶段倒计时结束自动切换到下一阶段并暂停等待用户开始；每完成一个专注阶段计数加 1；显示当前阶段、剩余时间与已完成次数；切换标签页后剩余时间仍准确；手机窄屏可用；键盘可操作所有按钮。不含账号、联网、通知、音效或后端。",
+      "technical_plan": "单一静态页面（index.html + style.css + script.js），按要求使用原生 HTML/CSS/JavaScript，不引入框架或构建工具。倒计时以每阶段结束的绝对时间戳为目标，每次显示刷新用 Date.now() 求剩余毫秒并取整格式化，setInterval 只负责定期刷新显示，避免累减。用一个状态对象记录阶段（专注/休息）、是否运行、结束时间戳、暂停剩余毫秒、已完成专注次数；集中渲染函数更新阶段文字、mm:ss 与次数，并据此更新按钮可用状态。开始/暂停/继续/重置由原生 <button> 点击事件驱动，保留浏览器默认键盘激活与 focus-visible 焦点样式，不拦截默认按键行为，保证 Tab/Enter/空格可用。窄屏用 viewport meta 与弹性/相对单位布局。",
+      "assumptions": [
+        "未指定 CSS 框架、构建工具或图形库，采用原生 CSS 与单个 script.js 文件；如学生更换工具可重新生成。",
+        "休息结束后同样切回专注并暂停，等待用户点开始；这是对“切换到下一阶段并暂停”的对称解释，可修改。",
+        "仅完成专注阶段时次数加 1，休息阶段完成不加。",
+        "按钮采用原生 <button>，优先用浏览器默认键盘激活而非自定义快捷键。",
+        "不做页面关闭后的持久化，刷新即重置。",
+        "暂停后继续时以保存的剩余毫秒重新计算结束时间戳。"
+      ],
+      "learner_profile": {
+        "student_level": "beginner",
+        "assumed_knowledge": [
+          "基础 HTML 标签与页面结构",
+          "基础 CSS 选择器与样式",
+          "JavaScript 变量与 if 判断",
+          "尚未做过完整交互项目"
+        ],
+        "adjustment_note": "当前按初学者与“会基础 HTML/CSS 和 JavaScript 变量、if”的背景设计，先补少量基础再进入实际功能。你可以修改学习阶段、项目背景或技术选择后重新生成。"
+      },
+      "functions": [
+        {
+          "id": "f1",
+          "name": "开始、暂停、继续控制倒计时",
+          "original_requirement": "能开始、暂停、继续和重置",
+          "acceptance_criteria": "点击开始后倒计时按真实时间递减；暂停后显示冻结；继续后从冻结的剩余时间接着走，不跳变。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2",
+          "name": "固定时长阶段与结束自动切换并暂停",
+          "original_requirement": "专注固定25分钟、休息固定5分钟……倒计时结束后切换到下一阶段并暂停等待用户开始",
+          "acceptance_criteria": "专注到 00:00 后自动切到休息并处于暂停态；休息结束后切回专注并暂停；两者均需用户点开始才继续计时。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3",
+          "name": "完成专注计数",
+          "original_requirement": "每完成一个专注阶段次数加1",
+          "acceptance_criteria": "每完成一次专注阶段次数恰好加 1；休息阶段结束不加；重置时是否清零见假设。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4",
+          "name": "阶段、剩余时间与次数显示",
+          "original_requirement": "显示当前阶段、剩余时间和已完成次数",
+          "acceptance_criteria": "页面始终显示当前阶段名称、mm:ss 格式剩余时间与已完成次数，状态变化后立即更新。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5",
+          "name": "切后台后剩余时间仍准确",
+          "original_requirement": "切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1",
+          "acceptance_criteria": "计时中切到其他标签页停留一段时间再回来，显示剩余时间与真实经过时间一致（误差在 1 秒显示取整内）。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f6",
+          "name": "窄屏可用布局",
+          "original_requirement": "手机窄屏可用",
+          "acceptance_criteria": "在约 360px 宽视口下，阶段、时间、次数与全部按钮完整可见且不横向溢出。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f7",
+          "name": "键盘操作所有按钮",
+          "original_requirement": "键盘能操作所有按钮",
+          "acceptance_criteria": "仅用 Tab 可依次聚焦所有按钮并有可见焦点；Enter 或空格能触发每个按钮，功能与鼠标点击一致。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f8",
+          "name": "重置",
+          "original_requirement": "能开始、暂停、继续和重置",
+          "acceptance_criteria": "重置后回到专注阶段初始 25:00 且处于暂停态，计时停止。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1",
+          "name": "番茄钟页面结构与语义化按钮",
+          "description": "用 HTML 搭建阶段、时间、次数三个显示区域与开始/暂停/继续/重置四个原生 button，并配可读标签。",
+          "function_ids": [
+            "f4",
+            "f7"
+          ],
+          "why_needed": "显示区域与语义化按钮是后续 JS 更新和键盘操作的基础。",
+          "learning_goal": "理解语义化 HTML 结构如何同时服务于显示更新和无障碍键盘操作。",
+          "technology": "HTML",
+          "project_task": "写出包含阶段文字、时间显示、次数显示和四个 <button> 的静态页面骨架。",
+          "concepts": [
+            "语义化分区与文本占位",
+            "原生 button 元素",
+            "可读标签"
+          ],
+          "practice_check": "打开页面能看到三块显示内容和四个可用 Tab 聚焦的按钮。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "CSS 弹性布局与窄屏适配",
+          "description": "用相对单位、flex 布局与 viewport meta 让内容在窄屏下纵向排列不溢出。",
+          "function_ids": [
+            "f6"
+          ],
+          "why_needed": "用户要求手机窄屏可用，需要布局而不只是功能。",
+          "learning_goal": "理解 viewport 设置、弹性布局和相对字号如何保证小屏可读。",
+          "technology": "CSS",
+          "project_task": "为页面骨架加样式，使宽屏横排、窄屏纵向堆叠，时间数字足够大。",
+          "concepts": [
+            "viewport meta",
+            "flex 布局与换行",
+            "相对单位与媒体查询"
+          ],
+          "practice_check": "浏览器缩到约 360px 宽，所有内容与按钮可见且无横向滚动条。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "JavaScript 状态对象与阶段时长常量",
+          "description": "用对象记录当前阶段、是否运行、剩余毫秒与完成次数，并定义 25/5 分钟常量。",
+          "function_ids": [
+            "f2",
+            "f3",
+            "f4"
+          ],
+          "why_needed": "分离状态与显示是正确实现切换、计数和暂停的前提。",
+          "learning_goal": "理解用单一状态对象驱动界面，而不是散落的全局变量。",
+          "technology": "JavaScript",
+          "project_task": "定义专注/休息常量、初始状态对象和一个根据状态更新页面文本的渲染函数。",
+          "concepts": [
+            "状态对象",
+            "常量与毫秒换算",
+            "渲染函数集中更新 DOM"
+          ],
+          "practice_check": "手动修改状态值后调用渲染函数，页面阶段、时间、次数同步变化。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "时间戳倒计时与后台标签页准确性",
+          "description": "保存阶段结束的绝对时间戳，用 Date.now() 计算剩余毫秒并渲染，而非每次减 1。",
+          "function_ids": [
+            "f1",
+            "f5"
+          ],
+          "why_needed": "setInterval 在后台会被节流，只有按真实时间差计算才能保证切回后准确。",
+          "learning_goal": "理解基于截止时间戳与时间差计算剩余量，比累减计数器更稳健。",
+          "technology": "JavaScript",
+          "project_task": "实现用结束时间戳和 Date.now() 求剩余毫秒、格式化为 mm:ss 并更新的渲染。",
+          "concepts": [
+            "Date.now() 与绝对截止时间",
+            "剩余毫秒计算与显示取整",
+            "setInterval 仅用于刷新显示"
+          ],
+          "practice_check": "计时中切到其他标签页等十几秒再回来，剩余时间与真实经过一致。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "开始暂停继续重置的状态转换",
+          "description": "用按钮事件切换运行标志，暂停时冻结剩余毫秒，继续时重算截止时间，重置回初始状态。",
+          "function_ids": [
+            "f1",
+            "f8"
+          ],
+          "why_needed": "暂停继续与重置是本项目核心交互，需要明确的状态转换。",
+          "learning_goal": "理解暂停保存剩余量、继续重建截止时间戳、重置恢复初始状态的逻辑。",
+          "technology": "JavaScript",
+          "project_task": "为四个按钮绑定点击处理，实现开始、暂停、继续、重置并调用渲染。",
+          "concepts": [
+            "addEventListener 点击事件",
+            "运行标志与暂停剩余量",
+            "继续时重算截止时间戳",
+            "重置状态"
+          ],
+          "practice_check": "依次点开始、暂停、继续、重置，观察显示按预期冻结、续走并回到 25:00。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "k6",
+          "name": "阶段结束切换与专注计数",
+          "description": "剩余归零时切换专注/休息、置为暂停并等待开始，完成专注时次数加 1。",
+          "function_ids": [
+            "f2",
+            "f3"
+          ],
+          "why_needed": "固定 25/5 切换、结束后暂停、专注计数都需要在归零时正确处理。",
+          "learning_goal": "理解在倒计时归零时执行阶段切换、暂停与按阶段条件计数的组合逻辑。",
+          "technology": "JavaScript",
+          "project_task": "在渲染检测到剩余小于等于 0 时切阶段、暂停并仅对专注阶段加 1。",
+          "concepts": [
+            "归零判定与阶段切换",
+            "结束后暂停等待开始",
+            "按阶段条件计数"
+          ],
+          "practice_check": "用缩短的时长测试：专注结束切休息并暂停、次数加 1；休息结束切专注且次数不变。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k5"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        },
+        {
+          "id": "k7",
+          "name": "原生按钮键盘操作与焦点样式",
+          "description": "保留原生 button 默认键盘激活，保证 Tab 顺序和可见焦点样式。",
+          "function_ids": [
+            "f7"
+          ],
+          "why_needed": "用户要求键盘能操作所有按钮，需验证不破坏默认行为。",
+          "learning_goal": "理解原生按钮自带的键盘激活，以及为何不应自定义拦截按键。",
+          "technology": "CSS",
+          "project_task": "添加清晰的 :focus-visible 焦点样式，并检查按钮未被脚本阻止默认键盘行为。",
+          "concepts": [
+            "Tab 聚焦顺序",
+            "Enter/空格触发原生按钮",
+            "focus-visible 样式"
+          ],
+          "practice_check": "仅用键盘 Tab 到每个按钮并按 Enter/空格，功能与鼠标一致且焦点清晰可见。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1",
+            "k5"
+          ],
+          "learning_order": 7,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": {
+      "confirmation_version": 3,
+      "confirmed_at": "2026-10-18T18:40:51.575622+00:00",
+      "selected_ids": [
+        "k1",
+        "k2",
+        "k3",
+        "k4",
+        "k5",
+        "k6",
+        "k7"
+      ],
+      "selections": {
+        "k1": "learn",
+        "k2": "learn",
+        "k3": "learn",
+        "k4": "learn",
+        "k5": "learn",
+        "k6": "learn",
+        "k7": "learn"
+      },
+      "acknowledged_skipped_prerequisites": [],
+      "analysis": {
+        "scope": "用 HTML、CSS、JavaScript 制作一个纯本机浏览器运行的番茄钟网页：专注固定 25 分钟、休息固定 5 分钟；支持开始、暂停、继续、重置；阶段倒计时结束自动切换到下一阶段并暂停等待用户开始；每完成一个专注阶段计数加 1；显示当前阶段、剩余时间与已完成次数；切换标签页后剩余时间仍准确；手机窄屏可用；键盘可操作所有按钮。不含账号、联网、通知、音效或后端。",
+        "technical_plan": "单一静态页面（index.html + style.css + script.js），按要求使用原生 HTML/CSS/JavaScript，不引入框架或构建工具。倒计时以每阶段结束的绝对时间戳为目标，每次显示刷新用 Date.now() 求剩余毫秒并取整格式化，setInterval 只负责定期刷新显示，避免累减。用一个状态对象记录阶段（专注/休息）、是否运行、结束时间戳、暂停剩余毫秒、已完成专注次数；集中渲染函数更新阶段文字、mm:ss 与次数，并据此更新按钮可用状态。开始/暂停/继续/重置由原生 <button> 点击事件驱动，保留浏览器默认键盘激活与 focus-visible 焦点样式，不拦截默认按键行为，保证 Tab/Enter/空格可用。窄屏用 viewport meta 与弹性/相对单位布局。",
+        "assumptions": [
+          "未指定 CSS 框架、构建工具或图形库，采用原生 CSS 与单个 script.js 文件；如学生更换工具可重新生成。",
+          "休息结束后同样切回专注并暂停，等待用户点开始；这是对“切换到下一阶段并暂停”的对称解释，可修改。",
+          "仅完成专注阶段时次数加 1，休息阶段完成不加。",
+          "按钮采用原生 <button>，优先用浏览器默认键盘激活而非自定义快捷键。",
+          "不做页面关闭后的持久化，刷新即重置。",
+          "暂停后继续时以保存的剩余毫秒重新计算结束时间戳。"
+        ],
+        "learner_profile": {
+          "student_level": "beginner",
+          "assumed_knowledge": [
+            "基础 HTML 标签与页面结构",
+            "基础 CSS 选择器与样式",
+            "JavaScript 变量与 if 判断",
+            "尚未做过完整交互项目"
+          ],
+          "adjustment_note": "当前按初学者与“会基础 HTML/CSS 和 JavaScript 变量、if”的背景设计，先补少量基础再进入实际功能。你可以修改学习阶段、项目背景或技术选择后重新生成。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "开始、暂停、继续控制倒计时",
+            "original_requirement": "能开始、暂停、继续和重置",
+            "acceptance_criteria": "点击开始后倒计时按真实时间递减；暂停后显示冻结；继续后从冻结的剩余时间接着走，不跳变。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "固定时长阶段与结束自动切换并暂停",
+            "original_requirement": "专注固定25分钟、休息固定5分钟……倒计时结束后切换到下一阶段并暂停等待用户开始",
+            "acceptance_criteria": "专注到 00:00 后自动切到休息并处于暂停态；休息结束后切回专注并暂停；两者均需用户点开始才继续计时。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "完成专注计数",
+            "original_requirement": "每完成一个专注阶段次数加1",
+            "acceptance_criteria": "每完成一次专注阶段次数恰好加 1；休息阶段结束不加；重置时是否清零见假设。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "阶段、剩余时间与次数显示",
+            "original_requirement": "显示当前阶段、剩余时间和已完成次数",
+            "acceptance_criteria": "页面始终显示当前阶段名称、mm:ss 格式剩余时间与已完成次数，状态变化后立即更新。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "切后台后剩余时间仍准确",
+            "original_requirement": "切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1",
+            "acceptance_criteria": "计时中切到其他标签页停留一段时间再回来，显示剩余时间与真实经过时间一致（误差在 1 秒显示取整内）。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f6",
+            "name": "窄屏可用布局",
+            "original_requirement": "手机窄屏可用",
+            "acceptance_criteria": "在约 360px 宽视口下，阶段、时间、次数与全部按钮完整可见且不横向溢出。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f7",
+            "name": "键盘操作所有按钮",
+            "original_requirement": "键盘能操作所有按钮",
+            "acceptance_criteria": "仅用 Tab 可依次聚焦所有按钮并有可见焦点；Enter 或空格能触发每个按钮，功能与鼠标点击一致。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f8",
+            "name": "重置",
+            "original_requirement": "能开始、暂停、继续和重置",
+            "acceptance_criteria": "重置后回到专注阶段初始 25:00 且处于暂停态，计时停止。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "番茄钟页面结构与语义化按钮",
+            "description": "用 HTML 搭建阶段、时间、次数三个显示区域与开始/暂停/继续/重置四个原生 button，并配可读标签。",
+            "function_ids": [
+              "f4",
+              "f7"
+            ],
+            "why_needed": "显示区域与语义化按钮是后续 JS 更新和键盘操作的基础。",
+            "learning_goal": "理解语义化 HTML 结构如何同时服务于显示更新和无障碍键盘操作。",
+            "technology": "HTML",
+            "project_task": "写出包含阶段文字、时间显示、次数显示和四个 <button> 的静态页面骨架。",
+            "concepts": [
+              "语义化分区与文本占位",
+              "原生 button 元素",
+              "可读标签"
+            ],
+            "practice_check": "打开页面能看到三块显示内容和四个可用 Tab 聚焦的按钮。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "CSS 弹性布局与窄屏适配",
+            "description": "用相对单位、flex 布局与 viewport meta 让内容在窄屏下纵向排列不溢出。",
+            "function_ids": [
+              "f6"
+            ],
+            "why_needed": "用户要求手机窄屏可用，需要布局而不只是功能。",
+            "learning_goal": "理解 viewport 设置、弹性布局和相对字号如何保证小屏可读。",
+            "technology": "CSS",
+            "project_task": "为页面骨架加样式，使宽屏横排、窄屏纵向堆叠，时间数字足够大。",
+            "concepts": [
+              "viewport meta",
+              "flex 布局与换行",
+              "相对单位与媒体查询"
+            ],
+            "practice_check": "浏览器缩到约 360px 宽，所有内容与按钮可见且无横向滚动条。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "JavaScript 状态对象与阶段时长常量",
+            "description": "用对象记录当前阶段、是否运行、剩余毫秒与完成次数，并定义 25/5 分钟常量。",
+            "function_ids": [
+              "f2",
+              "f3",
+              "f4"
+            ],
+            "why_needed": "分离状态与显示是正确实现切换、计数和暂停的前提。",
+            "learning_goal": "理解用单一状态对象驱动界面，而不是散落的全局变量。",
+            "technology": "JavaScript",
+            "project_task": "定义专注/休息常量、初始状态对象和一个根据状态更新页面文本的渲染函数。",
+            "concepts": [
+              "状态对象",
+              "常量与毫秒换算",
+              "渲染函数集中更新 DOM"
+            ],
+            "practice_check": "手动修改状态值后调用渲染函数，页面阶段、时间、次数同步变化。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "时间戳倒计时与后台标签页准确性",
+            "description": "保存阶段结束的绝对时间戳，用 Date.now() 计算剩余毫秒并渲染，而非每次减 1。",
+            "function_ids": [
+              "f1",
+              "f5"
+            ],
+            "why_needed": "setInterval 在后台会被节流，只有按真实时间差计算才能保证切回后准确。",
+            "learning_goal": "理解基于截止时间戳与时间差计算剩余量，比累减计数器更稳健。",
+            "technology": "JavaScript",
+            "project_task": "实现用结束时间戳和 Date.now() 求剩余毫秒、格式化为 mm:ss 并更新的渲染。",
+            "concepts": [
+              "Date.now() 与绝对截止时间",
+              "剩余毫秒计算与显示取整",
+              "setInterval 仅用于刷新显示"
+            ],
+            "practice_check": "计时中切到其他标签页等十几秒再回来，剩余时间与真实经过一致。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "开始暂停继续重置的状态转换",
+            "description": "用按钮事件切换运行标志，暂停时冻结剩余毫秒，继续时重算截止时间，重置回初始状态。",
+            "function_ids": [
+              "f1",
+              "f8"
+            ],
+            "why_needed": "暂停继续与重置是本项目核心交互，需要明确的状态转换。",
+            "learning_goal": "理解暂停保存剩余量、继续重建截止时间戳、重置恢复初始状态的逻辑。",
+            "technology": "JavaScript",
+            "project_task": "为四个按钮绑定点击处理，实现开始、暂停、继续、重置并调用渲染。",
+            "concepts": [
+              "addEventListener 点击事件",
+              "运行标志与暂停剩余量",
+              "继续时重算截止时间戳",
+              "重置状态"
+            ],
+            "practice_check": "依次点开始、暂停、继续、重置，观察显示按预期冻结、续走并回到 25:00。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "k6",
+            "name": "阶段结束切换与专注计数",
+            "description": "剩余归零时切换专注/休息、置为暂停并等待开始，完成专注时次数加 1。",
+            "function_ids": [
+              "f2",
+              "f3"
+            ],
+            "why_needed": "固定 25/5 切换、结束后暂停、专注计数都需要在归零时正确处理。",
+            "learning_goal": "理解在倒计时归零时执行阶段切换、暂停与按阶段条件计数的组合逻辑。",
+            "technology": "JavaScript",
+            "project_task": "在渲染检测到剩余小于等于 0 时切阶段、暂停并仅对专注阶段加 1。",
+            "concepts": [
+              "归零判定与阶段切换",
+              "结束后暂停等待开始",
+              "按阶段条件计数"
+            ],
+            "practice_check": "用缩短的时长测试：专注结束切休息并暂停、次数加 1；休息结束切专注且次数不变。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k5"
+            ],
+            "learning_order": 6,
+            "selection": "learn"
+          },
+          {
+            "id": "k7",
+            "name": "原生按钮键盘操作与焦点样式",
+            "description": "保留原生 button 默认键盘激活，保证 Tab 顺序和可见焦点样式。",
+            "function_ids": [
+              "f7"
+            ],
+            "why_needed": "用户要求键盘能操作所有按钮，需验证不破坏默认行为。",
+            "learning_goal": "理解原生按钮自带的键盘激活，以及为何不应自定义拦截按键。",
+            "technology": "CSS",
+            "project_task": "添加清晰的 :focus-visible 焦点样式，并检查按钮未被脚本阻止默认键盘行为。",
+            "concepts": [
+              "Tab 聚焦顺序",
+              "Enter/空格触发原生按钮",
+              "focus-visible 样式"
+            ],
+            "practice_check": "仅用键盘 Tab 到每个按钮并按 Enter/空格，功能与鼠标一致且焦点清晰可见。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1",
+              "k5"
+            ],
+            "learning_order": 7,
+            "selection": "learn"
+          }
+        ]
+      },
+      "input": {
+        "name": "离线番茄钟学习网页",
+        "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      }
+    },
+    "batches": [
+      {
+        "batch_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae-v3-b1",
+        "ordinal": 1,
+        "project_knowledge_point_ids": [
+          "k1",
+          "k2",
+          "k3",
+          "k4",
+          "k5"
+        ],
+        "status": "submitted",
+        "job_id": "71cd1084-d480-43b1-b25d-1006b6715aa8",
+        "mappings": [
+          {
+            "project_knowledge_point_id": "k1",
+            "knowledge_point_id": "56cb84b6-8df7-4c71-9628-58343728704a"
+          },
+          {
+            "project_knowledge_point_id": "k2",
+            "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305"
+          },
+          {
+            "project_knowledge_point_id": "k3",
+            "knowledge_point_id": "c6391c03-a84d-4ab5-ab2b-874dd0587fc6"
+          },
+          {
+            "project_knowledge_point_id": "k4",
+            "knowledge_point_id": "1102f06d-7fb8-4f10-adbf-23af7495451f"
+          },
+          {
+            "project_knowledge_point_id": "k5",
+            "knowledge_point_id": "7b445826-d65e-405a-8c4a-d8ae395c66a1"
+          }
+        ],
+        "error": null,
+        "reused": false,
+        "job_status": "running",
+        "progress": {
+          "queries_planned": 30,
+          "queries_completed": 6,
+          "search_requests": 13,
+          "search_successes": 6,
+          "search_failures": 0,
+          "candidates_discovered": 36,
+          "resources_discovered": 34,
+          "details_attempted": 1,
+          "details_completed": 1,
+          "details_cached": 0,
+          "cache_hits": 0,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0
+        },
+        "warnings": [
+          "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限"
+        ],
+        "errors": []
+      },
+      {
+        "batch_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae-v3-b2",
+        "ordinal": 2,
+        "project_knowledge_point_ids": [
+          "k6",
+          "k7"
+        ],
+        "status": "pending",
+        "job_id": null,
+        "mappings": [],
+        "error": null,
+        "reused": false
+      }
+    ],
+    "budgets": {
+      "batch_size": 5,
+      "batch_count": 2,
+      "selected_count": 7,
+      "reserved_search_requests": 60,
+      "reserved_detail_pages": 80,
+      "reserved_task_seconds": 480,
+      "max_batches": 6,
+      "max_search_requests": 180,
+      "max_detail_pages": 240,
+      "deadline_seconds": 1800,
+      "per_batch_search_requests": 30,
+      "per_batch_deadline_seconds": 240,
+      "per_batch_detail_pages": 40,
+      "actual_search_requests": 13,
+      "actual_detail_pages": 1
+    },
+    "error": null,
+    "warnings": [],
+    "created_at": "2026-10-18T16:59:59.971515+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+    "origin": "analysis",
+    "search_started_at": "2026-10-18T18:40:51.588855+00:00",
+    "cancel_requested": false,
+    "updated_at": "2026-10-18T18:41:22.306939+00:00"
+  },
+  "points": [
+    {
+      "project_knowledge_point_id": "k1",
+      "name": "番茄钟页面结构与语义化按钮",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae-v3-b1",
+      "job_id": "71cd1084-d480-43b1-b25d-1006b6715aa8",
+      "knowledge_point_id": "56cb84b6-8df7-4c71-9628-58343728704a",
+      "result": {
+        "knowledge_point_id": "56cb84b6-8df7-4c71-9628-58343728704a",
+        "text": "HTML 番茄钟页面结构与语义化按钮",
+        "learning_targets": [
+          "语义化分区与文本占位",
+          "原生 button 元素",
+          "可读标签"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 1,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [
+          {
+            "resource": {
+              "resource_id": "res_88eb80face09151d0b23a758",
+              "title": "HTML基础入门11：HTML语义化（2023）",
+              "url": "https://www.bilibili.com/video/BV17C4y1R76B/?uid=425631374334793152373642",
+              "canonical_url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+              "resolved_url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "page_verified",
+              "author": "CodeWizards",
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "evidence_ids": [
+                  "ev_7ce1afc5-810c-470f-bbf0-49153a2715b6"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "HTML基础入门11：HTML语义化（2023）, 视频播放量 77、弹幕量 0、点赞数 6、投硬币枚数 8、收藏人数 1、转发人数 0, 视频作者 CodeWizards, 作者简介 欢迎一起交流学习～，qq群：482517032，相关视频：把iPhone 18 Pro当相机用了几天，我发现它真正变的不是画质！，HTML基础入门10：form表单介绍（2023），HTML基础入门5：video标签介绍（2023），HTML基础入门4：audio标签介绍（2023），HTML基础入门3：img标签介绍（2023），HTML基础入门8：表格介绍（2023），HTML基础入门7：容器和列表介绍（2023），HTML基础入门9：按钮（2023），HTML基础入门6：文本相关标签介绍（2023），HTML基础入门1：HTML基本介绍（2023）",
+              "video_topic_summary": null,
+              "thumbnail_url": "http://i0.hdslb.com/bfs/archive/7abda85d94b1778bf19f6f5d977076a62b13670f.jpg",
+              "language": "zh-Hans",
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:41:05.617546+00:00",
+              "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+              "fetch_status": "fetched",
+              "metadata_evidence_level": "catalog",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [
+                {
+                  "title": "HTML基础入门11：HTML语义化（2023）",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/?p=1",
+                  "start_seconds": null,
+                  "end_seconds": null,
+                  "source_url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "duration_seconds": 346,
+                  "page_number": 1,
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "evidence_id": "ev_f8ae3a2e-3421-4261-a5c8-898cc7c68548"
+                }
+              ],
+              "catalog_kind": "video_parts",
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                  "source": "html.bilibili.video_title",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                },
+                "url": {
+                  "evidence_id": "ev_b5117ae8-f1bc-4547-8f2d-e625ab8be7f8",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/?uid=425631374334793152373642"
+                },
+                "description": {
+                  "evidence_id": "ev_4f9124a3-0d4a-4401-890d-25c472d27bea",
+                  "source": "meta.og:description",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_f6b30790-6815-4d33-9ad3-1cf11dc46c06",
+                  "source": "meta.og:type",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_7ce1afc5-810c-470f-bbf0-49153a2715b6",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_5fd5070c-2a44-4cf7-97a1-69f909074eef",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                },
+                "author": {
+                  "evidence_id": "ev_f6f13f20-23ed-4ed1-8c38-df70dae8c01f",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                },
+                "language": {
+                  "evidence_id": "ev_12d2a4b3-b831-4316-9ec1-1d9552d319dd",
+                  "source": "html.lang",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                },
+                "chapters": {
+                  "evidence_id": "ev_ceebae56-c0c6-4401-af2c-8c75c67b2246",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "56cb84b6-8df7-4c71-9628-58343728704a",
+              "resource_id": "res_88eb80face09151d0b23a758",
+              "ranking_score": 56.94,
+              "recommendation_reason": "与“HTML 番茄钟页面结构与语义化按钮”相关：已有来源证据：语义化按钮。尚未确认：番茄钟页面结构、语义化分区与文本占位、原生 button 元素、可读标签。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 来源标注为入门，与当前学习阶段相符。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+              "matched_evidence_ids": [
+                "ev_b5117ae8-f1bc-4547-8f2d-e625ab8be7f8",
+                "ev_ffe84ea0-f335-4f21-bfbe-1096f7810b1e",
+                "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                "ev_4f9124a3-0d4a-4401-890d-25c472d27bea",
+                "ev_f8ae3a2e-3421-4261-a5c8-898cc7c68548",
+                "ev_ceebae56-c0c6-4401-af2c-8c75c67b2246"
+              ],
+              "coverage_basis": [
+                "title",
+                "snippet",
+                "description",
+                "catalog"
+              ],
+              "topic_match_rules": [
+                "search_related_recommendations_excluded"
+              ],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                    "ev_4f9124a3-0d4a-4401-890d-25c472d27bea"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                "ev_4f9124a3-0d4a-4401-890d-25c472d27bea"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "subtopic_1",
+                  "text": "番茄钟页面结构",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                },
+                {
+                  "id": "subtopic_2",
+                  "text": "语义化按钮",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                    "ev_4f9124a3-0d4a-4401-890d-25c472d27bea"
+                  ],
+                  "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "语义化分区与文本占位",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "原生 button 元素",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "可读标签",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_b5117ae8-f1bc-4547-8f2d-e625ab8be7f8",
+                "candidate_id": "7a07206a4fa8301c2be66787",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "56cb84b6-8df7-4c71-9628-58343728704a",
+                "query": "site:bilibili.com/video HTML 番茄钟页面结构与语义化按钮 视频教程",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/?uid=425631374334793152373642",
+                "title": "HTML基础入门11：HTML语义化（2023）",
+                "snippet": "HTML基础入门11：HTML语义化（2023）, 视频播放量 75、弹幕量 0、点赞数 6、投硬币枚数 8、收藏人数 1、转发人数 0, 视频作者 CodeWizards, 作者简介 欢迎一起交流学习～，qq群：482517032，相关视频：HTML基础入门10：form表单介绍（2023），HTML基础入门5：video标签介绍（2023 ...",
+                "observed_at": "2026-10-18T18:41:05.617546+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.5tFEpxpQBOhy0Zpo0yWZ9wIIFX?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              },
+              {
+                "evidence_id": "ev_ffe84ea0-f335-4f21-bfbe-1096f7810b1e",
+                "candidate_id": "29c0bf42d75f5be2dff37a8b",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "56cb84b6-8df7-4c71-9628-58343728704a",
+                "query": "HTML 语义化分区与文本占位 视频教程",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/?uid=425631374334793152373642",
+                "title": "HTML基础入门11：HTML语义化（2023）",
+                "snippet": "HTML基础入门11：HTML语义化（2023）, 视频播放量 75、弹幕量 0、点赞数 6、投硬币枚数 8、收藏人数 1、转发人数 0, 视频作者 CodeWizards, 作者简介 欢迎一起交流学习～，qq群：482517032，相关视频：HTML基础入门10：form表单介绍（2023），HTML基础入门5：video标签介绍（2023 ...",
+                "observed_at": "2026-10-18T18:41:17.689977+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.5tFEpxpQBOhy0Zpo0yWZ9wIIFX?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              },
+              {
+                "id": "ev_8193419d4085048b34c2",
+                "evidence_id": "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "field": "title",
+                "source": "html.bilibili.video_title",
+                "text": "HTML基础入门11：HTML语义化（2023）",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_a3c281a4a10b288a0ab6",
+                "evidence_id": "ev_5fd5070c-2a44-4cf7-97a1-69f909074eef",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "field": "thumbnail_url",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                "text": "http://i0.hdslb.com/bfs/archive/7abda85d94b1778bf19f6f5d977076a62b13670f.jpg",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_8c2357c0252849a3ecf9",
+                "evidence_id": "ev_f6f13f20-23ed-4ed1-8c38-df70dae8c01f",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "field": "author",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                "text": "CodeWizards",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_6f99c73cb751edf95cbb",
+                "evidence_id": "ev_4f9124a3-0d4a-4401-890d-25c472d27bea",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "field": "description",
+                "source": "meta.og:description",
+                "text": "HTML基础入门11：HTML语义化（2023）, 视频播放量 77、弹幕量 0、点赞数 6、投硬币枚数 8、收藏人数 1、转发人数 0, 视频作者 CodeWizards, 作者简介 欢迎一起交流学习～，qq群：482517032，相关视频：把iPhone 18 Pro当相机用了几天，我发现它真正变的不是画质！，HTML基础入门10：form表单介绍（2023），HTML基础入门5：video标签介绍（2023），HTML基础入门4：audio标签介绍（2023），HTML基础入门3：img标签介绍（2023），HTML基础入门8：表格介绍（2023），HTML基础入门7：容器和列表介绍（2023），HTML基础入门9：按钮（2023），HTML基础入门6：文本相关标签介绍（2023），HTML基础入门1：HTML基本介绍（2023）",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_beec4756f4c20132124d",
+                "evidence_id": "ev_12d2a4b3-b831-4316-9ec1-1d9552d319dd",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "field": "language",
+                "source": "html.lang",
+                "text": "zh-Hans",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_b4ff9d3f7b6a02bc5b49",
+                "evidence_id": "ev_f6b30790-6815-4d33-9ad3-1cf11dc46c06",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "field": "resource_type",
+                "source": "meta.og:type",
+                "text": "video",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_f226307cc3900926c66a",
+                "evidence_id": "ev_7ce1afc5-810c-470f-bbf0-49153a2715b6",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "field": "video_evidence_status",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_de65b2a0e1f8c9864b05",
+                "evidence_id": "ev_f8ae3a2e-3421-4261-a5c8-898cc7c68548",
+                "kind": "catalog",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "field": "chapters.0",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "text": "{\"duration_seconds\": 346, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV17C4y1R76B/\", \"start_seconds\": null, \"title\": \"HTML基础入门11：HTML语义化（2023）\", \"url\": \"https://www.bilibili.com/video/BV17C4y1R76B/?p=1\"}",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_7d08048da90697942c70",
+                "evidence_id": "ev_ceebae56-c0c6-4401-af2c-8c75c67b2246",
+                "kind": "catalog",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "field": "chapters",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "text": "[{'title': 'HTML基础入门11：HTML语义化（2023）', 'url': 'https://www.bilibili.com/video/BV17C4y1R76B/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV17C4y1R76B/', 'duration_seconds': 346, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_de65b2a0e1f8c9864b05'}]",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              }
+            ]
+          }
+        ],
+        "partial_platform_items": {
+          "bilibili": [
+            {
+              "resource": {
+                "resource_id": "res_88eb80face09151d0b23a758",
+                "title": "HTML基础入门11：HTML语义化（2023）",
+                "url": "https://www.bilibili.com/video/BV17C4y1R76B/?uid=425631374334793152373642",
+                "canonical_url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "resolved_url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "page_verified",
+                "author": "CodeWizards",
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "evidence_ids": [
+                    "ev_7ce1afc5-810c-470f-bbf0-49153a2715b6"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "HTML基础入门11：HTML语义化（2023）, 视频播放量 77、弹幕量 0、点赞数 6、投硬币枚数 8、收藏人数 1、转发人数 0, 视频作者 CodeWizards, 作者简介 欢迎一起交流学习～，qq群：482517032，相关视频：把iPhone 18 Pro当相机用了几天，我发现它真正变的不是画质！，HTML基础入门10：form表单介绍（2023），HTML基础入门5：video标签介绍（2023），HTML基础入门4：audio标签介绍（2023），HTML基础入门3：img标签介绍（2023），HTML基础入门8：表格介绍（2023），HTML基础入门7：容器和列表介绍（2023），HTML基础入门9：按钮（2023），HTML基础入门6：文本相关标签介绍（2023），HTML基础入门1：HTML基本介绍（2023）",
+                "video_topic_summary": null,
+                "thumbnail_url": "http://i0.hdslb.com/bfs/archive/7abda85d94b1778bf19f6f5d977076a62b13670f.jpg",
+                "language": "zh-Hans",
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:41:05.617546+00:00",
+                "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                "fetch_status": "fetched",
+                "metadata_evidence_level": "catalog",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [
+                  {
+                    "title": "HTML基础入门11：HTML语义化（2023）",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/?p=1",
+                    "start_seconds": null,
+                    "end_seconds": null,
+                    "source_url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                    "duration_seconds": 346,
+                    "page_number": 1,
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                    "evidence_id": "ev_f8ae3a2e-3421-4261-a5c8-898cc7c68548"
+                  }
+                ],
+                "catalog_kind": "video_parts",
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                    "source": "html.bilibili.video_title",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                    "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                  },
+                  "url": {
+                    "evidence_id": "ev_b5117ae8-f1bc-4547-8f2d-e625ab8be7f8",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/?uid=425631374334793152373642"
+                  },
+                  "description": {
+                    "evidence_id": "ev_4f9124a3-0d4a-4401-890d-25c472d27bea",
+                    "source": "meta.og:description",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                    "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_f6b30790-6815-4d33-9ad3-1cf11dc46c06",
+                    "source": "meta.og:type",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                    "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_7ce1afc5-810c-470f-bbf0-49153a2715b6",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                    "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_5fd5070c-2a44-4cf7-97a1-69f909074eef",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                    "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                  },
+                  "author": {
+                    "evidence_id": "ev_f6f13f20-23ed-4ed1-8c38-df70dae8c01f",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                    "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                  },
+                  "language": {
+                    "evidence_id": "ev_12d2a4b3-b831-4316-9ec1-1d9552d319dd",
+                    "source": "html.lang",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                    "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                  },
+                  "chapters": {
+                    "evidence_id": "ev_ceebae56-c0c6-4401-af2c-8c75c67b2246",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                    "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                    "fetched_at": "2026-10-18T18:41:21.778213+00:00"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "56cb84b6-8df7-4c71-9628-58343728704a",
+                "resource_id": "res_88eb80face09151d0b23a758",
+                "ranking_score": 56.94,
+                "recommendation_reason": "与“HTML 番茄钟页面结构与语义化按钮”相关：已有来源证据：语义化按钮。尚未确认：番茄钟页面结构、语义化分区与文本占位、原生 button 元素、可读标签。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 来源标注为入门，与当前学习阶段相符。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+                "matched_evidence_ids": [
+                  "ev_b5117ae8-f1bc-4547-8f2d-e625ab8be7f8",
+                  "ev_ffe84ea0-f335-4f21-bfbe-1096f7810b1e",
+                  "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                  "ev_4f9124a3-0d4a-4401-890d-25c472d27bea",
+                  "ev_f8ae3a2e-3421-4261-a5c8-898cc7c68548",
+                  "ev_ceebae56-c0c6-4401-af2c-8c75c67b2246"
+                ],
+                "coverage_basis": [
+                  "title",
+                  "snippet",
+                  "description",
+                  "catalog"
+                ],
+                "topic_match_rules": [
+                  "search_related_recommendations_excluded"
+                ],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                      "ev_4f9124a3-0d4a-4401-890d-25c472d27bea"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                  "ev_4f9124a3-0d4a-4401-890d-25c472d27bea"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "subtopic_1",
+                    "text": "番茄钟页面结构",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                  },
+                  {
+                    "id": "subtopic_2",
+                    "text": "语义化按钮",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                      "ev_4f9124a3-0d4a-4401-890d-25c472d27bea"
+                    ],
+                    "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "语义化分区与文本占位",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "原生 button 元素",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "可读标签",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_b5117ae8-f1bc-4547-8f2d-e625ab8be7f8",
+                  "candidate_id": "7a07206a4fa8301c2be66787",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "56cb84b6-8df7-4c71-9628-58343728704a",
+                  "query": "site:bilibili.com/video HTML 番茄钟页面结构与语义化按钮 视频教程",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/?uid=425631374334793152373642",
+                  "title": "HTML基础入门11：HTML语义化（2023）",
+                  "snippet": "HTML基础入门11：HTML语义化（2023）, 视频播放量 75、弹幕量 0、点赞数 6、投硬币枚数 8、收藏人数 1、转发人数 0, 视频作者 CodeWizards, 作者简介 欢迎一起交流学习～，qq群：482517032，相关视频：HTML基础入门10：form表单介绍（2023），HTML基础入门5：video标签介绍（2023 ...",
+                  "observed_at": "2026-10-18T18:41:05.617546+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.5tFEpxpQBOhy0Zpo0yWZ9wIIFX?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                },
+                {
+                  "evidence_id": "ev_ffe84ea0-f335-4f21-bfbe-1096f7810b1e",
+                  "candidate_id": "29c0bf42d75f5be2dff37a8b",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "56cb84b6-8df7-4c71-9628-58343728704a",
+                  "query": "HTML 语义化分区与文本占位 视频教程",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/?uid=425631374334793152373642",
+                  "title": "HTML基础入门11：HTML语义化（2023）",
+                  "snippet": "HTML基础入门11：HTML语义化（2023）, 视频播放量 75、弹幕量 0、点赞数 6、投硬币枚数 8、收藏人数 1、转发人数 0, 视频作者 CodeWizards, 作者简介 欢迎一起交流学习～，qq群：482517032，相关视频：HTML基础入门10：form表单介绍（2023），HTML基础入门5：video标签介绍（2023 ...",
+                  "observed_at": "2026-10-18T18:41:17.689977+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.5tFEpxpQBOhy0Zpo0yWZ9wIIFX?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                },
+                {
+                  "id": "ev_8193419d4085048b34c2",
+                  "evidence_id": "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "field": "title",
+                  "source": "html.bilibili.video_title",
+                  "text": "HTML基础入门11：HTML语义化（2023）",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                  "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_a3c281a4a10b288a0ab6",
+                  "evidence_id": "ev_5fd5070c-2a44-4cf7-97a1-69f909074eef",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "field": "thumbnail_url",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                  "text": "http://i0.hdslb.com/bfs/archive/7abda85d94b1778bf19f6f5d977076a62b13670f.jpg",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                  "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_8c2357c0252849a3ecf9",
+                  "evidence_id": "ev_f6f13f20-23ed-4ed1-8c38-df70dae8c01f",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "field": "author",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                  "text": "CodeWizards",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                  "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_6f99c73cb751edf95cbb",
+                  "evidence_id": "ev_4f9124a3-0d4a-4401-890d-25c472d27bea",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "field": "description",
+                  "source": "meta.og:description",
+                  "text": "HTML基础入门11：HTML语义化（2023）, 视频播放量 77、弹幕量 0、点赞数 6、投硬币枚数 8、收藏人数 1、转发人数 0, 视频作者 CodeWizards, 作者简介 欢迎一起交流学习～，qq群：482517032，相关视频：把iPhone 18 Pro当相机用了几天，我发现它真正变的不是画质！，HTML基础入门10：form表单介绍（2023），HTML基础入门5：video标签介绍（2023），HTML基础入门4：audio标签介绍（2023），HTML基础入门3：img标签介绍（2023），HTML基础入门8：表格介绍（2023），HTML基础入门7：容器和列表介绍（2023），HTML基础入门9：按钮（2023），HTML基础入门6：文本相关标签介绍（2023），HTML基础入门1：HTML基本介绍（2023）",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                  "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_beec4756f4c20132124d",
+                  "evidence_id": "ev_12d2a4b3-b831-4316-9ec1-1d9552d319dd",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "field": "language",
+                  "source": "html.lang",
+                  "text": "zh-Hans",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                  "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_b4ff9d3f7b6a02bc5b49",
+                  "evidence_id": "ev_f6b30790-6815-4d33-9ad3-1cf11dc46c06",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "field": "resource_type",
+                  "source": "meta.og:type",
+                  "text": "video",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                  "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_f226307cc3900926c66a",
+                  "evidence_id": "ev_7ce1afc5-810c-470f-bbf0-49153a2715b6",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "field": "video_evidence_status",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                  "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                  "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_de65b2a0e1f8c9864b05",
+                  "evidence_id": "ev_f8ae3a2e-3421-4261-a5c8-898cc7c68548",
+                  "kind": "catalog",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "field": "chapters.0",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "text": "{\"duration_seconds\": 346, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV17C4y1R76B/\", \"start_seconds\": null, \"title\": \"HTML基础入门11：HTML语义化（2023）\", \"url\": \"https://www.bilibili.com/video/BV17C4y1R76B/?p=1\"}",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                  "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_7d08048da90697942c70",
+                  "evidence_id": "ev_ceebae56-c0c6-4401-af2c-8c75c67b2246",
+                  "kind": "catalog",
+                  "url": "https://www.bilibili.com/video/BV17C4y1R76B/",
+                  "field": "chapters",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "text": "[{'title': 'HTML基础入门11：HTML语义化（2023）', 'url': 'https://www.bilibili.com/video/BV17C4y1R76B/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV17C4y1R76B/', 'duration_seconds': 346, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_de65b2a0e1f8c9864b05'}]",
+                  "fetched_at": "2026-10-18T18:41:21.778213+00:00",
+                  "observed_at": "2026-10-18T18:41:21.778213+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "HTML"
+          ],
+          "subtopics": [
+            {
+              "id": "subtopic_1",
+              "text": "番茄钟页面结构",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "subtopic_2",
+              "text": "语义化按钮",
+              "status": "supported",
+              "resource_ids": [
+                "res_88eb80face09151d0b23a758"
+              ],
+              "evidence_ids": [
+                "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                "ev_4f9124a3-0d4a-4401-890d-25c472d27bea"
+              ]
+            },
+            {
+              "id": "learning_target_1",
+              "text": "语义化分区与文本占位",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "原生 button 元素",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "可读标签",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "some_subtopics_supported",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {
+          "bilibili": {
+            "decomposition_status": "applied",
+            "shared_context": [
+              "HTML"
+            ],
+            "subtopics": [
+              {
+                "id": "subtopic_1",
+                "text": "番茄钟页面结构",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "subtopic_2",
+                "text": "语义化按钮",
+                "status": "supported",
+                "resource_ids": [
+                  "res_88eb80face09151d0b23a758"
+                ],
+                "evidence_ids": [
+                  "ev_a853d273-87af-4389-a6b9-c8b03efd2632",
+                  "ev_4f9124a3-0d4a-4401-890d-25c472d27bea"
+                ]
+              },
+              {
+                "id": "learning_target_1",
+                "text": "语义化分区与文本占位",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_2",
+                "text": "原生 button 元素",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_3",
+                "text": "可读标签",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              }
+            ],
+            "status": "some_subtopics_supported",
+            "single_resource_full_coverage": false,
+            "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+          }
+        }
+      }
+    },
+    {
+      "project_knowledge_point_id": "k2",
+      "name": "CSS 弹性布局与窄屏适配",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae-v3-b1",
+      "job_id": "71cd1084-d480-43b1-b25d-1006b6715aa8",
+      "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+      "result": {
+        "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+        "text": "CSS 弹性布局与窄屏适配",
+        "learning_targets": [
+          "viewport meta",
+          "flex 布局与换行",
+          "相对单位与媒体查询"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 3,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [
+          {
+            "resource": {
+              "resource_id": "res_553a8a99a34f2368fa4d7b01",
+              "title": "2023最新前端Flex/CSS3零基础-响应式布局实战教程 | WEB前端移动端适配合集 已完结（弹性布局/CSS/网页设计/案列)s0029",
+              "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+              "canonical_url": "https://www.bilibili.com/video/BV1EM411m71m/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1EM411m71m/",
+                "evidence_ids": [
+                  "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "需要源码以及其他前端资料的可以加我V：itit920领取!",
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.LQkbPhPeNMX07SwxBtHjwgIIFF?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:41:08.338575+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D"
+                },
+                "url": {
+                  "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D"
+                },
+                "description": {
+                  "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+                  "observed_at": "2026-10-18T18:41:08.338575+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+              "resource_id": "res_553a8a99a34f2368fa4d7b01",
+              "ranking_score": 54.56,
+              "recommendation_reason": "与“CSS 弹性布局与窄屏适配”相关：已有来源证据：弹性布局。尚未确认：窄屏适配、viewport meta、flex 布局与换行、相对单位与媒体查询。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 来源标注为入门，与当前学习阶段相符。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+              ],
+              "coverage_basis": [
+                "title"
+              ],
+              "topic_match_rules": [],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "subtopic_1",
+                  "text": "弹性布局",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+                  ],
+                  "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                },
+                {
+                  "id": "subtopic_2",
+                  "text": "窄屏适配",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "viewport meta",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "flex 布局与换行",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "相对单位与媒体查询",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                "candidate_id": "da64e46f463ecfa97accf0a2",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+                "query": "site:bilibili.com/video CSS 弹性布局与窄屏适配 视频教程",
+                "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+                "title": "2023最新前端Flex/CSS3零基础-响应式布局实战教程 | WEB前端移动端适配合集 已完结（弹性布局/CSS/网页设计/案列)s0029",
+                "snippet": "需要源码以及其他前端资料的可以加我V：itit920领取!",
+                "observed_at": "2026-10-18T18:41:08.338575+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.LQkbPhPeNMX07SwxBtHjwgIIFF?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "res_ac7310d0973f13ca93962ed2",
+              "title": "2023年度最新前端Flex/CSS3林基础-响应式布局实战教程 | Web前端移动端适配合集（Html/网页设计/CSS/弹性布局）S0029",
+              "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+              "canonical_url": "https://www.bilibili.com/video/BV1iB4y1Z7At/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1iB4y1Z7At/",
+                "evidence_ids": [
+                  "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "2023年度最新前端Flex/CSS3林基础-响应式布局实战教程 | Web前端移动端适配合集（Html/网页设计/CSS/弹性布局）S0029共计90条视频，包括：01_order属性、02_flex-grow属性、03_flex-shrink属性等，UP主更多精彩视频，请关注UP账号。",
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.H2GiBJI3d2S9jUQnpzjwCgEsC8?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:41:08.338839+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174"
+                },
+                "url": {
+                  "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174"
+                },
+                "description": {
+                  "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+                  "observed_at": "2026-10-18T18:41:08.338839+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+              "resource_id": "res_ac7310d0973f13ca93962ed2",
+              "ranking_score": 46.56,
+              "recommendation_reason": "与“CSS 弹性布局与窄屏适配”相关：已有来源证据：弹性布局。尚未确认：窄屏适配、viewport meta、flex 布局与换行、相对单位与媒体查询。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+              ],
+              "coverage_basis": [
+                "title",
+                "snippet"
+              ],
+              "topic_match_rules": [],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "subtopic_1",
+                  "text": "弹性布局",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+                  ],
+                  "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                },
+                {
+                  "id": "subtopic_2",
+                  "text": "窄屏适配",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "viewport meta",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "flex 布局与换行",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "相对单位与媒体查询",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                "candidate_id": "8a872cc246b221cc24ebd408",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+                "query": "site:bilibili.com/video CSS 弹性布局与窄屏适配 视频教程",
+                "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+                "title": "2023年度最新前端Flex/CSS3林基础-响应式布局实战教程 | Web前端移动端适配合集（Html/网页设计/CSS/弹性布局）S0029",
+                "snippet": "2023年度最新前端Flex/CSS3林基础-响应式布局实战教程 | Web前端移动端适配合集（Html/网页设计/CSS/弹性布局）S0029共计90条视频，包括：01_order属性、02_flex-grow属性、03_flex-shrink属性等，UP主更多精彩视频，请关注UP账号。",
+                "observed_at": "2026-10-18T18:41:08.338839+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.H2GiBJI3d2S9jUQnpzjwCgEsC8?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "res_29b8d8d9fcfa4389db483648",
+              "title": "flex弹性布局 动画详解系列 css科普教程",
+              "url": "https://www.bilibili.com/video/av570192231/",
+              "canonical_url": "https://www.bilibili.com/video/av570192231/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/av570192231/",
+                "evidence_ids": [
+                  "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "flex属性有很多，视频里只列举了常用的，flex-grow/shrink/basis可能表达不太清楚，欢迎讨论和建议，本期肝了好久，喜欢就点个赞吧",
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.M0wBcbpcb8pLuWa0y-Ie1gIIFF?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:41:08.338487+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/av570192231/"
+                },
+                "url": {
+                  "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/av570192231/"
+                },
+                "description": {
+                  "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/av570192231/"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/av570192231/",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/av570192231/",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/av570192231/",
+                  "observed_at": "2026-10-18T18:41:08.338487+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+              "resource_id": "res_29b8d8d9fcfa4389db483648",
+              "ranking_score": 44.42,
+              "recommendation_reason": "与“CSS 弹性布局与窄屏适配”相关：已有来源证据：弹性布局。尚未确认：窄屏适配、viewport meta、flex 布局与换行、相对单位与媒体查询。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+              ],
+              "coverage_basis": [
+                "title"
+              ],
+              "topic_match_rules": [],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "subtopic_1",
+                  "text": "弹性布局",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+                  ],
+                  "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                },
+                {
+                  "id": "subtopic_2",
+                  "text": "窄屏适配",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "viewport meta",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "flex 布局与换行",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "相对单位与媒体查询",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                "candidate_id": "eb7c3b8190a9cf11c3c495bb",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+                "query": "site:bilibili.com/video CSS 弹性布局与窄屏适配 视频教程",
+                "url": "https://www.bilibili.com/video/av570192231/",
+                "title": "flex弹性布局 动画详解系列 css科普教程",
+                "snippet": "flex属性有很多，视频里只列举了常用的，flex-grow/shrink/basis可能表达不太清楚，欢迎讨论和建议，本期肝了好久，喜欢就点个赞吧",
+                "observed_at": "2026-10-18T18:41:08.338487+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.M0wBcbpcb8pLuWa0y-Ie1gIIFF?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          }
+        ],
+        "partial_platform_items": {
+          "bilibili": [
+            {
+              "resource": {
+                "resource_id": "res_553a8a99a34f2368fa4d7b01",
+                "title": "2023最新前端Flex/CSS3零基础-响应式布局实战教程 | WEB前端移动端适配合集 已完结（弹性布局/CSS/网页设计/案列)s0029",
+                "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+                "canonical_url": "https://www.bilibili.com/video/BV1EM411m71m/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1EM411m71m/",
+                  "evidence_ids": [
+                    "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "需要源码以及其他前端资料的可以加我V：itit920领取!",
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.LQkbPhPeNMX07SwxBtHjwgIIFF?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:41:08.338575+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D"
+                  },
+                  "url": {
+                    "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D"
+                  },
+                  "description": {
+                    "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+                    "observed_at": "2026-10-18T18:41:08.338575+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+                "resource_id": "res_553a8a99a34f2368fa4d7b01",
+                "ranking_score": 54.56,
+                "recommendation_reason": "与“CSS 弹性布局与窄屏适配”相关：已有来源证据：弹性布局。尚未确认：窄屏适配、viewport meta、flex 布局与换行、相对单位与媒体查询。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 来源标注为入门，与当前学习阶段相符。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+                ],
+                "coverage_basis": [
+                  "title"
+                ],
+                "topic_match_rules": [],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "subtopic_1",
+                    "text": "弹性布局",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868"
+                    ],
+                    "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                  },
+                  {
+                    "id": "subtopic_2",
+                    "text": "窄屏适配",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "viewport meta",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "flex 布局与换行",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "相对单位与媒体查询",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                  "candidate_id": "da64e46f463ecfa97accf0a2",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+                  "query": "site:bilibili.com/video CSS 弹性布局与窄屏适配 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1EM411m71m/?uid=425631454D3431316D37316D",
+                  "title": "2023最新前端Flex/CSS3零基础-响应式布局实战教程 | WEB前端移动端适配合集 已完结（弹性布局/CSS/网页设计/案列)s0029",
+                  "snippet": "需要源码以及其他前端资料的可以加我V：itit920领取!",
+                  "observed_at": "2026-10-18T18:41:08.338575+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.LQkbPhPeNMX07SwxBtHjwgIIFF?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            },
+            {
+              "resource": {
+                "resource_id": "res_ac7310d0973f13ca93962ed2",
+                "title": "2023年度最新前端Flex/CSS3林基础-响应式布局实战教程 | Web前端移动端适配合集（Html/网页设计/CSS/弹性布局）S0029",
+                "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+                "canonical_url": "https://www.bilibili.com/video/BV1iB4y1Z7At/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1iB4y1Z7At/",
+                  "evidence_ids": [
+                    "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "2023年度最新前端Flex/CSS3林基础-响应式布局实战教程 | Web前端移动端适配合集（Html/网页设计/CSS/弹性布局）S0029共计90条视频，包括：01_order属性、02_flex-grow属性、03_flex-shrink属性等，UP主更多精彩视频，请关注UP账号。",
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.H2GiBJI3d2S9jUQnpzjwCgEsC8?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:41:08.338839+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174"
+                  },
+                  "url": {
+                    "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174"
+                  },
+                  "description": {
+                    "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+                    "observed_at": "2026-10-18T18:41:08.338839+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+                "resource_id": "res_ac7310d0973f13ca93962ed2",
+                "ranking_score": 46.56,
+                "recommendation_reason": "与“CSS 弹性布局与窄屏适配”相关：已有来源证据：弹性布局。尚未确认：窄屏适配、viewport meta、flex 布局与换行、相对单位与媒体查询。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+                ],
+                "coverage_basis": [
+                  "title",
+                  "snippet"
+                ],
+                "topic_match_rules": [],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "subtopic_1",
+                    "text": "弹性布局",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a"
+                    ],
+                    "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                  },
+                  {
+                    "id": "subtopic_2",
+                    "text": "窄屏适配",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "viewport meta",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "flex 布局与换行",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "相对单位与媒体查询",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                  "candidate_id": "8a872cc246b221cc24ebd408",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+                  "query": "site:bilibili.com/video CSS 弹性布局与窄屏适配 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1iB4y1Z7At/?uid=42563169423479315A374174",
+                  "title": "2023年度最新前端Flex/CSS3林基础-响应式布局实战教程 | Web前端移动端适配合集（Html/网页设计/CSS/弹性布局）S0029",
+                  "snippet": "2023年度最新前端Flex/CSS3林基础-响应式布局实战教程 | Web前端移动端适配合集（Html/网页设计/CSS/弹性布局）S0029共计90条视频，包括：01_order属性、02_flex-grow属性、03_flex-shrink属性等，UP主更多精彩视频，请关注UP账号。",
+                  "observed_at": "2026-10-18T18:41:08.338839+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.H2GiBJI3d2S9jUQnpzjwCgEsC8?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            },
+            {
+              "resource": {
+                "resource_id": "res_29b8d8d9fcfa4389db483648",
+                "title": "flex弹性布局 动画详解系列 css科普教程",
+                "url": "https://www.bilibili.com/video/av570192231/",
+                "canonical_url": "https://www.bilibili.com/video/av570192231/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/av570192231/",
+                  "evidence_ids": [
+                    "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "flex属性有很多，视频里只列举了常用的，flex-grow/shrink/basis可能表达不太清楚，欢迎讨论和建议，本期肝了好久，喜欢就点个赞吧",
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.M0wBcbpcb8pLuWa0y-Ie1gIIFF?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:41:08.338487+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/av570192231/"
+                  },
+                  "url": {
+                    "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/av570192231/"
+                  },
+                  "description": {
+                    "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/av570192231/"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/av570192231/",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/av570192231/",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/av570192231/",
+                    "observed_at": "2026-10-18T18:41:08.338487+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+                "resource_id": "res_29b8d8d9fcfa4389db483648",
+                "ranking_score": 44.42,
+                "recommendation_reason": "与“CSS 弹性布局与窄屏适配”相关：已有来源证据：弹性布局。尚未确认：窄屏适配、viewport meta、flex 布局与换行、相对单位与媒体查询。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+                ],
+                "coverage_basis": [
+                  "title"
+                ],
+                "topic_match_rules": [],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "subtopic_1",
+                    "text": "弹性布局",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+                    ],
+                    "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                  },
+                  {
+                    "id": "subtopic_2",
+                    "text": "窄屏适配",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "viewport meta",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "flex 布局与换行",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "相对单位与媒体查询",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_6b25194d-45af-415a-80d5-12ecf0bd703f",
+                  "candidate_id": "eb7c3b8190a9cf11c3c495bb",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "a1cb8cfe-0d0d-4833-914a-37f0e6f56305",
+                  "query": "site:bilibili.com/video CSS 弹性布局与窄屏适配 视频教程",
+                  "url": "https://www.bilibili.com/video/av570192231/",
+                  "title": "flex弹性布局 动画详解系列 css科普教程",
+                  "snippet": "flex属性有很多，视频里只列举了常用的，flex-grow/shrink/basis可能表达不太清楚，欢迎讨论和建议，本期肝了好久，喜欢就点个赞吧",
+                  "observed_at": "2026-10-18T18:41:08.338487+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.M0wBcbpcb8pLuWa0y-Ie1gIIFF?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            }
+          ]
+        },
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "CSS"
+          ],
+          "subtopics": [
+            {
+              "id": "subtopic_1",
+              "text": "弹性布局",
+              "status": "supported",
+              "resource_ids": [
+                "res_553a8a99a34f2368fa4d7b01",
+                "res_ac7310d0973f13ca93962ed2",
+                "res_29b8d8d9fcfa4389db483648"
+              ],
+              "evidence_ids": [
+                "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+              ]
+            },
+            {
+              "id": "subtopic_2",
+              "text": "窄屏适配",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "viewport meta",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "flex 布局与换行",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "相对单位与媒体查询",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "some_subtopics_supported",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {
+          "bilibili": {
+            "decomposition_status": "applied",
+            "shared_context": [
+              "CSS"
+            ],
+            "subtopics": [
+              {
+                "id": "subtopic_1",
+                "text": "弹性布局",
+                "status": "supported",
+                "resource_ids": [
+                  "res_553a8a99a34f2368fa4d7b01",
+                  "res_ac7310d0973f13ca93962ed2",
+                  "res_29b8d8d9fcfa4389db483648"
+                ],
+                "evidence_ids": [
+                  "ev_c30fbfa3-9e10-48e1-a6fe-4fb0d195c868",
+                  "ev_daed080c-c8ac-4fb9-b261-641cf1e9565a",
+                  "ev_6b25194d-45af-415a-80d5-12ecf0bd703f"
+                ]
+              },
+              {
+                "id": "subtopic_2",
+                "text": "窄屏适配",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_1",
+                "text": "viewport meta",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_2",
+                "text": "flex 布局与换行",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_3",
+                "text": "相对单位与媒体查询",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              }
+            ],
+            "status": "some_subtopics_supported",
+            "single_resource_full_coverage": false,
+            "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+          }
+        }
+      }
+    },
+    {
+      "project_knowledge_point_id": "k3",
+      "name": "JavaScript 状态对象与阶段时长常量",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae-v3-b1",
+      "job_id": "71cd1084-d480-43b1-b25d-1006b6715aa8",
+      "knowledge_point_id": "c6391c03-a84d-4ab5-ab2b-874dd0587fc6",
+      "result": {
+        "knowledge_point_id": "c6391c03-a84d-4ab5-ab2b-874dd0587fc6",
+        "text": "JavaScript 状态对象与阶段时长常量",
+        "learning_targets": [
+          "状态对象",
+          "常量与毫秒换算",
+          "渲染函数集中更新 DOM"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 1,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [
+          {
+            "resource": {
+              "resource_id": "res_bdf05b79ad43a8e7125b41e1",
+              "title": "EP.07｜JavaScript 对象与属性",
+              "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+              "canonical_url": "https://www.bilibili.com/video/BV138ev6uEC8/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV138ev6uEC8/",
+                "evidence_ids": [
+                  "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "光有数组还不够，真实业务里的数据都是有结构的：一条记录有客户名、金额、状态。这一集讲对象 —— 怎么用 key-value 组织信息、怎么读取和修改属性、对象和数组怎么搭配使用。搞懂对象，你才能真正理解多维表格里每条记录是怎么被脚本读写的 ...",
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.OV6jY2GSBQAMkKDOrrNEqAIIEk?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:41:10.750640+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338"
+                },
+                "url": {
+                  "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338"
+                },
+                "description": {
+                  "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+                  "observed_at": "2026-10-18T18:41:10.750640+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "c6391c03-a84d-4ab5-ab2b-874dd0587fc6",
+              "resource_id": "res_bdf05b79ad43a8e7125b41e1",
+              "ranking_score": 39.18,
+              "recommendation_reason": "与“JavaScript 状态对象与阶段时长常量”相关：已有来源证据：状态对象。尚未确认：阶段时长常量、状态对象、常量与毫秒换算、渲染函数集中更新 DOM。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+              ],
+              "coverage_basis": [
+                "title",
+                "snippet"
+              ],
+              "topic_match_rules": [],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "subtopic_1",
+                  "text": "状态对象",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+                  ],
+                  "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                },
+                {
+                  "id": "subtopic_2",
+                  "text": "阶段时长常量",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "状态对象",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "常量与毫秒换算",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "渲染函数集中更新 DOM",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                "candidate_id": "cd9e87dab0be4c83d9c0daf7",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "c6391c03-a84d-4ab5-ab2b-874dd0587fc6",
+                "query": "site:bilibili.com/video JavaScript 状态对象与阶段时长常量 视频教程",
+                "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+                "title": "EP.07｜JavaScript 对象与属性",
+                "snippet": "光有数组还不够，真实业务里的数据都是有结构的：一条记录有客户名、金额、状态。这一集讲对象 —— 怎么用 key-value 组织信息、怎么读取和修改属性、对象和数组怎么搭配使用。搞懂对象，你才能真正理解多维表格里每条记录是怎么被脚本读写的 ...",
+                "observed_at": "2026-10-18T18:41:10.750640+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.OV6jY2GSBQAMkKDOrrNEqAIIEk?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          }
+        ],
+        "partial_platform_items": {
+          "bilibili": [
+            {
+              "resource": {
+                "resource_id": "res_bdf05b79ad43a8e7125b41e1",
+                "title": "EP.07｜JavaScript 对象与属性",
+                "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+                "canonical_url": "https://www.bilibili.com/video/BV138ev6uEC8/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV138ev6uEC8/",
+                  "evidence_ids": [
+                    "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "光有数组还不够，真实业务里的数据都是有结构的：一条记录有客户名、金额、状态。这一集讲对象 —— 怎么用 key-value 组织信息、怎么读取和修改属性、对象和数组怎么搭配使用。搞懂对象，你才能真正理解多维表格里每条记录是怎么被脚本读写的 ...",
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.OV6jY2GSBQAMkKDOrrNEqAIIEk?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:41:10.750640+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338"
+                  },
+                  "url": {
+                    "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338"
+                  },
+                  "description": {
+                    "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+                    "observed_at": "2026-10-18T18:41:10.750640+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "c6391c03-a84d-4ab5-ab2b-874dd0587fc6",
+                "resource_id": "res_bdf05b79ad43a8e7125b41e1",
+                "ranking_score": 39.18,
+                "recommendation_reason": "与“JavaScript 状态对象与阶段时长常量”相关：已有来源证据：状态对象。尚未确认：阶段时长常量、状态对象、常量与毫秒换算、渲染函数集中更新 DOM。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+                ],
+                "coverage_basis": [
+                  "title",
+                  "snippet"
+                ],
+                "topic_match_rules": [],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "subtopic_1",
+                    "text": "状态对象",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+                    ],
+                    "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                  },
+                  {
+                    "id": "subtopic_2",
+                    "text": "阶段时长常量",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "状态对象",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "常量与毫秒换算",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "渲染函数集中更新 DOM",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c",
+                  "candidate_id": "cd9e87dab0be4c83d9c0daf7",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "c6391c03-a84d-4ab5-ab2b-874dd0587fc6",
+                  "query": "site:bilibili.com/video JavaScript 状态对象与阶段时长常量 视频教程",
+                  "url": "https://www.bilibili.com/video/BV138ev6uEC8/?uid=425631333865763675454338",
+                  "title": "EP.07｜JavaScript 对象与属性",
+                  "snippet": "光有数组还不够，真实业务里的数据都是有结构的：一条记录有客户名、金额、状态。这一集讲对象 —— 怎么用 key-value 组织信息、怎么读取和修改属性、对象和数组怎么搭配使用。搞懂对象，你才能真正理解多维表格里每条记录是怎么被脚本读写的 ...",
+                  "observed_at": "2026-10-18T18:41:10.750640+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.OV6jY2GSBQAMkKDOrrNEqAIIEk?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            }
+          ]
+        },
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "JavaScript"
+          ],
+          "subtopics": [
+            {
+              "id": "subtopic_1",
+              "text": "状态对象",
+              "status": "supported",
+              "resource_ids": [
+                "res_bdf05b79ad43a8e7125b41e1"
+              ],
+              "evidence_ids": [
+                "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+              ]
+            },
+            {
+              "id": "subtopic_2",
+              "text": "阶段时长常量",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "状态对象",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "常量与毫秒换算",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "渲染函数集中更新 DOM",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "some_subtopics_supported",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {
+          "bilibili": {
+            "decomposition_status": "applied",
+            "shared_context": [
+              "JavaScript"
+            ],
+            "subtopics": [
+              {
+                "id": "subtopic_1",
+                "text": "状态对象",
+                "status": "supported",
+                "resource_ids": [
+                  "res_bdf05b79ad43a8e7125b41e1"
+                ],
+                "evidence_ids": [
+                  "ev_caa4e336-a5ca-44f3-961e-60ee56f1c89c"
+                ]
+              },
+              {
+                "id": "subtopic_2",
+                "text": "阶段时长常量",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_1",
+                "text": "状态对象",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_2",
+                "text": "常量与毫秒换算",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_3",
+                "text": "渲染函数集中更新 DOM",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              }
+            ],
+            "status": "some_subtopics_supported",
+            "single_resource_full_coverage": false,
+            "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+          }
+        }
+      }
+    },
+    {
+      "project_knowledge_point_id": "k4",
+      "name": "时间戳倒计时与后台标签页准确性",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae-v3-b1",
+      "job_id": "71cd1084-d480-43b1-b25d-1006b6715aa8",
+      "knowledge_point_id": "1102f06d-7fb8-4f10-adbf-23af7495451f",
+      "result": {
+        "knowledge_point_id": "1102f06d-7fb8-4f10-adbf-23af7495451f",
+        "text": "JavaScript 时间戳倒计时与后台标签页准确性",
+        "learning_targets": [
+          "Date.now() 与绝对截止时间",
+          "剩余毫秒计算与显示取整",
+          "setInterval 仅用于刷新显示"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "JavaScript"
+          ],
+          "subtopics": [
+            {
+              "id": "subtopic_1",
+              "text": "时间戳倒计时",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "subtopic_2",
+              "text": "后台标签页准确性",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "Date.now() 与绝对截止时间",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "剩余毫秒计算与显示取整",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "setInterval 仅用于刷新显示",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k5",
+      "name": "开始暂停继续重置的状态转换",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae-v3-b1",
+      "job_id": "71cd1084-d480-43b1-b25d-1006b6715aa8",
+      "knowledge_point_id": "7b445826-d65e-405a-8c4a-d8ae395c66a1",
+      "result": {
+        "knowledge_point_id": "7b445826-d65e-405a-8c4a-d8ae395c66a1",
+        "text": "JavaScript 开始暂停继续重置的状态转换",
+        "learning_targets": [
+          "addEventListener 点击事件",
+          "运行标志与暂停剩余量",
+          "继续时重算截止时间戳",
+          "重置状态"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "not_applicable",
+          "shared_context": [],
+          "subtopics": [
+            {
+              "id": "whole_topic",
+              "text": "JavaScript 开始暂停继续重置的状态转换",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "addEventListener 点击事件",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "运行标志与暂停剩余量",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "继续时重算截止时间戳",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "重置状态",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k6",
+      "name": "阶段结束切换与专注计数",
+      "selection": "learn",
+      "status": "pending",
+      "batch_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae-v3-b2",
+      "job_id": null,
+      "knowledge_point_id": null,
+      "result": null
+    },
+    {
+      "project_knowledge_point_id": "k7",
+      "name": "原生按钮键盘操作与焦点样式",
+      "selection": "learn",
+      "status": "pending",
+      "batch_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae-v3-b2",
+      "job_id": null,
+      "knowledge_point_id": null,
+      "result": null
+    }
+  ],
+  "functions": [
+    {
+      "id": "f1",
+      "name": "开始、暂停、继续控制倒计时",
+      "original_requirement": "能开始、暂停、继续和重置",
+      "acceptance_criteria": "点击开始后倒计时按真实时间递减；暂停后显示冻结；继续后从冻结的剩余时间接着走，不跳变。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f2",
+      "name": "固定时长阶段与结束自动切换并暂停",
+      "original_requirement": "专注固定25分钟、休息固定5分钟……倒计时结束后切换到下一阶段并暂停等待用户开始",
+      "acceptance_criteria": "专注到 00:00 后自动切到休息并处于暂停态；休息结束后切回专注并暂停；两者均需用户点开始才继续计时。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f3",
+      "name": "完成专注计数",
+      "original_requirement": "每完成一个专注阶段次数加1",
+      "acceptance_criteria": "每完成一次专注阶段次数恰好加 1；休息阶段结束不加；重置时是否清零见假设。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f4",
+      "name": "阶段、剩余时间与次数显示",
+      "original_requirement": "显示当前阶段、剩余时间和已完成次数",
+      "acceptance_criteria": "页面始终显示当前阶段名称、mm:ss 格式剩余时间与已完成次数，状态变化后立即更新。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f5",
+      "name": "切后台后剩余时间仍准确",
+      "original_requirement": "切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1",
+      "acceptance_criteria": "计时中切到其他标签页停留一段时间再回来，显示剩余时间与真实经过时间一致（误差在 1 秒显示取整内）。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f6",
+      "name": "窄屏可用布局",
+      "original_requirement": "手机窄屏可用",
+      "acceptance_criteria": "在约 360px 宽视口下，阶段、时间、次数与全部按钮完整可见且不横向溢出。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f7",
+      "name": "键盘操作所有按钮",
+      "original_requirement": "键盘能操作所有按钮",
+      "acceptance_criteria": "仅用 Tab 可依次聚焦所有按钮并有可见焦点；Enter 或空格能触发每个按钮，功能与鼠标点击一致。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f8",
+      "name": "重置",
+      "original_requirement": "能开始、暂停、继续和重置",
+      "acceptance_criteria": "重置后回到专注阶段初始 25:00 且处于暂停态，计时停止。",
+      "no_new_learning_reason": null
+    }
+  ]
+}

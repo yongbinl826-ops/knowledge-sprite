@@ -1,0 +1,97 @@
+{
+  "mode": "independent static review and synthetic pure metadata probes; no source edits",
+  "recorded_at": "2026-10-18T22:12:59.169469+00:00",
+  "http_requests": 0,
+  "model_requests": 0,
+  "database_writes": 0,
+  "review_end_observed_files": {
+    "tmp\\phase3-work\\backend\\app\\learning_support.py": {
+      "bytes_sha256": "3fd38fc843239e7514c793e9033219f1faada2693445754126e9b8ea0783035b",
+      "functions": {
+        "learning_skill_assessment": 9,
+        "summarize_learning_support": 39
+      }
+    },
+    "tmp\\phase3-work\\backend\\app\\teaching_match.py": {
+      "bytes_sha256": "9701d96bdc190ed0a937f83696493f50da54127e65f7d9373a386a8e973133e6",
+      "functions": {
+        "_prepare_pair": 141,
+        "_valid_quote": 314,
+        "_validate_pair_decision": 362,
+        "literal_decision": 412
+      }
+    },
+    "tmp\\phase3-work\\backend\\app\\ranking.py": {
+      "bytes_sha256": "6a362ba386a16288dcd5a4f895cf2f844c1c33a5876c615cae8c049496e9d2c0",
+      "functions": {}
+    },
+    "tmp\\phase3-work\\backend\\app\\service.py": {
+      "bytes_sha256": "8a2a752f4c6693800432f61b7013e370f575808201828dc33419c30689be18af",
+      "functions": {}
+    },
+    "tmp\\phase3-work\\backend\\app\\read_rank_cache.py": {
+      "bytes_sha256": "b5e6d6bd51d11946a9bc8678f631b2eaef85331127f4fc386b459e286d891f64",
+      "functions": {}
+    },
+    "tmp\\phase3-work\\backend\\app\\config.py": {
+      "bytes_sha256": "f8493d47eabb218ff088aa668c219a5ce08177d74d13a1bfafb945f744a31f0a",
+      "functions": {}
+    }
+  },
+  "findings": [
+    {
+      "id": "P3-V1",
+      "severity": "medium",
+      "status": "reproduced; reported to root and backend owner",
+      "file": "teaching_match.py",
+      "function": "_valid_quote",
+      "problem": "Expression substring and unordered numeric literal checks accept end < starter for end < start and 5/25 for 25/5.",
+      "evidence": "evidence/phase3-audit/semantic-independent-boundary-probe.json",
+      "recommendation": "Require complete operand boundaries and ordered numeric composite/range syntax. Preserve original values; fail unknown."
+    },
+    {
+      "id": "P3-V2",
+      "severity": "medium",
+      "status": "reproduced; reported to root and backend owner",
+      "file": "teaching_match.py",
+      "function": "_valid_quote",
+      "problem": "Standalone Prerequisites/Next lesson heading without colon does not govern following skill quote.",
+      "evidence": "evidence/phase3-audit/semantic-independent-boundary-probe.json",
+      "recommendation": "Track explicit source section headings, including no-colon forms, until a new peer own teaching section. Do not rely on truncated quote or last two lines."
+    },
+    {
+      "id": "P3-V3",
+      "severity": "medium",
+      "status": "reproduced; reported to root and backend owner",
+      "file": "teaching_match.py",
+      "function": "_validate_pair_decision and literal_decision",
+      "problem": "Title support survives same-resource own description that explicitly excludes the very skill or marks it prerequisite/future. The literal fallback reproduces it without any model error.",
+      "evidence": "evidence/phase3-audit/semantic-independent-read-binding-probe.json",
+      "recommendation": "Apply target-aware own-scope contradiction/prerequisite/future veto before accepting a title or body support, while preserving independent other taught skills."
+    },
+    {
+      "id": "P3-V4",
+      "severity": "medium",
+      "status": "code policy concern; no retained production example with flag true observed",
+      "file": "teaching_match.py",
+      "function": "_prepare_pair",
+      "problem": "requires_login=True always removes even fetched, identity-bound video teaching metadata from the learning-skills branch. This can suppress a legitimate platform destination rather than exposing its access requirement.",
+      "evidence": "stage guard and test_teaching_match.py unconfirmed-source parametrization",
+      "recommendation": "Separate playback access from available own teaching metadata, keep login/pay/region as truthful notices or review states; never label them invalid solely for access."
+    }
+  ],
+  "checks_without_high_medium_issue": [
+    "Read path calls prepare_pair/validate_decision and literal fallback only; no HTTP/judge/model call in results or rank.",
+    "Fingerprint includes point identity, exact skill strings, unit technology, student stage, resource identity/canonical, proof fields and raw source/own projection hashes.",
+    "Eight mutations of point/skill/tool/stage/resource/raw source/canonical/provenance correctly reject a saved old decision.",
+    "ReadRankCache hashes complete point/resource/observed/eligibility/request and deepcopies results; no DB connection or mutable raw input retained as cache key.",
+    "Course/playlist media requires same-page video identity plus bound own catalog; FCC/TWT require their own strict scoped adapters, not Article or directory fallback.",
+    "Calls capped by settings validation at 0..2 per job; source payload/output/pairs/quotes bounded, outer job deadline wraps execution; cancellation propagates.",
+    "Canonical URL handling correctly normalizes observed Bili uid query parameters; a retained genuine CSV video remains admissible."
+  ],
+  "limits": [
+    "This is not real semantic model accuracy validation. Synthetic plausible bad verdicts test local hard boundaries only.",
+    "No live acceptance counts changed, no source HTML or persisted original results rewritten.",
+    "Pending owner fixes require a focused independent recheck before claiming the new branch has no known medium issue."
+  ]
+}

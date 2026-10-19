@@ -1,0 +1,311 @@
+{
+  "project_id": "fe4ca7d2-1674-475e-b20d-ac262e4269c6",
+  "original_input": {
+    "name": "Excel 成绩分析工具",
+    "requirements": "读取本地 Excel 成绩表，每行是一名学生，各科成绩分别为一列。\n统计各科平均分、最高分和及格率，及格线为60分。\n绘制各科平均分柱状图。\n把统计结果导出为 Excel，把图表保存为图片。\n只在本机运行，不需要登录、数据库或云部署。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "input": {
+    "name": "Excel 成绩分析工具",
+    "requirements": "读取本地 Excel 成绩表，每行是一名学生，各科成绩分别为一列。\n统计各科平均分、最高分和及格率，及格线为60分。\n绘制各科平均分柱状图。\n把统计结果导出为 Excel，把图表保存为图片。\n只在本机运行，不需要登录、数据库或云部署。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "current_version": 1,
+  "created_at": "2026-10-18T12:20:13.473163+00:00",
+  "updated_at": "2026-10-18T12:20:13.473328+00:00",
+  "versions": [
+    {
+      "version": 1,
+      "status": "analyzed",
+      "created_at": "2026-10-18T12:20:13.472031+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v1"
+    }
+  ],
+  "version": {
+    "version": 1,
+    "input": {
+      "name": "Excel 成绩分析工具",
+      "requirements": "读取本地 Excel 成绩表，每行是一名学生，各科成绩分别为一列。\n统计各科平均分、最高分和及格率，及格线为60分。\n绘制各科平均分柱状图。\n把统计结果导出为 Excel，把图表保存为图片。\n只在本机运行，不需要登录、数据库或云部署。",
+      "student_level": "beginner",
+      "language": "zh",
+      "project_context": "",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "status": "analyzed",
+    "analysis": {
+      "scope": "实现一个仅在本机运行的 Excel 成绩分析小工具：读取本地 Excel 成绩表，按科目计算平均分、最高分和及格率（及格线 60 分），绘制各科平均分柱状图，将统计结果导出为 Excel，并将图表保存为图片。不包含登录、数据库、云部署或额外产品功能。",
+      "technical_plan": "默认技术方案（可修改假设）：使用 Python 3 + pandas 读取 Excel 并完成分科统计，使用 matplotlib 绘制平均分柱状图并保存图片，使用 openpyxl 作为 pandas 写出 Excel 的引擎。项目组织为单个 Python 脚本，输入 Excel 路径和输出目录由用户在本机指定；全部处理在本地完成，不上传数据、不登录、不使用数据库或云服务。",
+      "assumptions": [
+        "假设使用 Python 3，以及 pandas、matplotlib、openpyxl 三个库；这是可修改的默认技术方案。",
+        "假设输入为本地 .xlsx 文件，首个工作表含表头，每行一名学生，除姓名/学号等标识列外，其余列均为各科成绩列。",
+        "假设及格率 = 有效成绩中 >=60 分的人数 / 有效成绩人数；空值或非数字成绩按无效值处理并在统计中排除。",
+        "假设统计结果导出为一个 Excel 文件中的一张统计表，图表保存为 PNG 图片。",
+        "不处理合并单元格、多工作表汇总、加密文件或异常格式自动修复。"
+      ],
+      "functions": [
+        {
+          "id": "f1",
+          "name": "读取本地 Excel 成绩表并识别成绩列",
+          "original_requirement": "读取本地 Excel 成绩表，每行是一名学生，各科成绩分别为一列。",
+          "acceptance_criteria": "给定本地 .xlsx 文件路径后，程序能成功读取数据表，每行对应一名学生，并能区分姓名/学号等标识列与各科成绩列；文件不可读或缺少成绩列时给出明确错误提示。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2",
+          "name": "计算各科平均分、最高分和及格率",
+          "original_requirement": "统计各科平均分、最高分和及格率，及格线为60分。",
+          "acceptance_criteria": "对每个成绩列输出平均分、最高分和及格率，其中及格率按有效成绩中 >=60 分的人数比例计算，结果与手工核对一致。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3",
+          "name": "绘制各科平均分柱状图",
+          "original_requirement": "绘制各科平均分柱状图。",
+          "acceptance_criteria": "生成横轴为科目、纵轴为平均分的柱状图，图中包含标题和坐标轴标签，柱高与统计结果一致。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4",
+          "name": "导出统计结果到 Excel",
+          "original_requirement": "把统计结果导出为 Excel。",
+          "acceptance_criteria": "将各科统计表写入指定 .xlsx 文件，重新打开后列名、科目顺序和数值与统计结果一致。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5",
+          "name": "保存柱状图为图片",
+          "original_requirement": "把图表保存为图片。",
+          "acceptance_criteria": "将柱状图保存为指定 PNG 图片文件，文件存在、可正常打开且内容与生成的图表一致。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1",
+          "name": "Python 脚本基础语法与运行",
+          "description": "变量、基本数据类型、列表、print 输出，以及运行本地 .py 脚本。",
+          "function_ids": [],
+          "why_needed": "项目需要编写可运行的 Python 脚本，后续所有读取、统计、绘图和保存操作都依赖基础语法。",
+          "learning_goal": "能编写并运行一个简单 .py 脚本，使用变量保存数据并输出结果。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "Python 本地文件路径处理",
+          "description": "使用字符串或 pathlib 表示本地文件路径，区分输入 Excel 路径和输出 Excel、图片路径。",
+          "function_ids": [
+            "f1",
+            "f4",
+            "f5"
+          ],
+          "why_needed": "读取输入 Excel、导出统计结果和保存图表都需要准确定位本地文件路径。",
+          "learning_goal": "能用 pathlib 或字符串构造本地输入输出路径，并确认目标目录存在。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "pandas 读取 Excel 文件",
+          "description": "使用 pandas.read_excel 读取本地 .xlsx 工作表为 DataFrame，理解表头和工作表参数。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "读取 Excel 是获取原始成绩数据的第一步。",
+          "learning_goal": "能用 pandas.read_excel 将本地 Excel 成绩表读入 DataFrame 并查看前几行。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "pandas DataFrame 列选择与列名处理",
+          "description": "查看列名、选择成绩列、区分姓名/学号列与科目列，必要时重命名列。",
+          "function_ids": [
+            "f1",
+            "f2"
+          ],
+          "why_needed": "需要区分标识列和各科成绩列，才能按科目逐一统计。",
+          "learning_goal": "能选择、查看和重命名 DataFrame 列，明确哪些列参与成绩统计。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "pandas 数值类型转换与缺失值检查",
+          "description": "使用 to_numeric 转换成绩列，使用 isna/dropna 识别和处理空值或非数字成绩。",
+          "function_ids": [
+            "f1",
+            "f2"
+          ],
+          "why_needed": "Excel 中的分数可能被读成文本或包含空值，直接统计会导致错误。",
+          "learning_goal": "能将成绩列转换为数值类型，并检查或排除无效成绩后再统计。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "k6",
+          "name": "pandas 分科平均分、最高分与及格率统计",
+          "description": "对每个成绩列计算 mean、max，并用布尔条件计算 >=60 分的及格率，组织成统计表。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "核心需求是计算各科平均分、最高分和及格率。",
+          "learning_goal": "能对每个成绩列计算平均分、最高分和及格率，并生成结构清晰的统计表。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k5"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        },
+        {
+          "id": "k7",
+          "name": "matplotlib 柱状图绘制",
+          "description": "使用 plt.bar 绘制科目平均分柱状图，设置标题、横轴科目名和纵轴平均分。",
+          "function_ids": [
+            "f3"
+          ],
+          "why_needed": "核心需求要求用柱状图展示各科平均分。",
+          "learning_goal": "能用 matplotlib 根据科目和平均分数据绘制带标题和坐标轴标签的柱状图。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k6"
+          ],
+          "learning_order": 7,
+          "selection": "learn"
+        },
+        {
+          "id": "k8",
+          "name": "matplotlib 中文标签与坐标轴设置",
+          "description": "设置中文字体，正确显示中文标题、科目名和坐标轴标签。",
+          "function_ids": [
+            "f3"
+          ],
+          "why_needed": "科目名和图表标题为中文，默认字体可能无法正常显示。",
+          "learning_goal": "能配置 matplotlib 中文字体并设置图表标题和坐标轴标签。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k7"
+          ],
+          "learning_order": 8,
+          "selection": "learn"
+        },
+        {
+          "id": "k9",
+          "name": "matplotlib 图表保存为图片",
+          "description": "使用 plt.savefig 将柱状图保存为 PNG，设置分辨率并避免标签被裁切。",
+          "function_ids": [
+            "f5"
+          ],
+          "why_needed": "需求要求把图表保存为图片文件，而不是只在窗口中显示。",
+          "learning_goal": "能用 plt.savefig 将图表保存为可正常打开的 PNG 图片。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k7",
+            "k2"
+          ],
+          "learning_order": 9,
+          "selection": "learn"
+        },
+        {
+          "id": "k10",
+          "name": "pandas 统计结果导出 Excel",
+          "description": "使用 DataFrame.to_excel 将统计表写入 .xlsx 文件，设置是否包含索引并指定写出引擎。",
+          "function_ids": [
+            "f4"
+          ],
+          "why_needed": "需求要求把统计结果导出为 Excel 文件。",
+          "learning_goal": "能将统计结果 DataFrame 导出为 Excel 文件，并在重新打开后核对内容。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k6",
+            "k2"
+          ],
+          "learning_order": 10,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": null,
+    "batches": [],
+    "budgets": null,
+    "error": null,
+    "warnings": [
+      "本次搜课复验沿用上一轮真实模型分析；尚未确认，且本轮未重新调用项目分析模型。"
+    ],
+    "created_at": "2026-10-18T12:20:13.472031+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v1",
+    "origin": "retained_analysis",
+    "search_started_at": null,
+    "cancel_requested": false,
+    "retained_analysis": {
+      "source_file": "D:\\项目制知识引导小精灵\\reports\\project-deepseek-live-20261017\\project-results.json",
+      "source_file_sha256": "d5d81d09174ad9c627c1bdea2986d070663d2201593584c26d0603d8807a7273",
+      "source_project_id": "df08803b-9bea-4ac7-92d1-59a1874c1695",
+      "source_analysis_version": 1,
+      "source_confirmation_version": 1,
+      "source_confirmed_at": "2026-10-17T08:42:43.361432+00:00",
+      "source_model": "deepseek-flash",
+      "source_prompt_version": "project-analysis-v1",
+      "source_analysis_sha256": "6e83e833ff51b88489e40647c2d1de844da28d470b980380d67dac81c2991f63",
+      "source_point_ids": [
+        "k1",
+        "k2",
+        "k3",
+        "k4",
+        "k5",
+        "k6",
+        "k7",
+        "k8",
+        "k9",
+        "k10"
+      ],
+      "analysis_reused": true,
+      "new_model_analysis_performed": false,
+      "source_confirmation_imported": false,
+      "source_search_data_imported": false
+    },
+    "updated_at": "2026-10-18T12:20:13.473236+00:00"
+  }
+}

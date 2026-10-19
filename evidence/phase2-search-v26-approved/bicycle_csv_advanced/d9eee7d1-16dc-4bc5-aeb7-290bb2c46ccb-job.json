@@ -1,0 +1,2393 @@
+{
+  "job_id": "d9eee7d1-16dc-4bc5-aeb7-290bb2c46ccb",
+  "status": "partial",
+  "phase": "done",
+  "created_at": "2026-10-18T17:01:11.625718+00:00",
+  "updated_at": "2026-10-18T17:03:31.386512+00:00",
+  "request": {
+    "knowledge_points": [
+      "pandas 读取骑行 CSV 与列结构检查",
+      "pandas trip_id 去重与删除行数统计",
+      "pandas 时间列解析与无效行分离",
+      "pandas 时间差计算骑行分钟时长",
+      "pandas 按出发小时分组计数"
+    ],
+    "student_level": "advanced",
+    "language": "zh",
+    "project_context": "共享单车出行 CSV 分析报告 使用 Python + pandas + Matplotlib 的单一本地脚本，按阶段拆分函数：load_and_dedupe 读取 CSV 并保留首个 trip_id、返回删除行数；parse_and_split 用 pd.to_datetime 解析两列时间并统计解析失败行；split_invalid 单独收集缺失时间行与 end<start 行（end==start 合法）；add_duration 计算 (end-start) 的分钟数；hourly_summary 用 dt.hour 分组计数；station_bar 用 value_counts().head(10) 画横向条形图并设置标题与轴标签；最后统一写出三个产物文件并打印各项计数以便复核。所有口径（去重、无效判定、单位、Top10 顺序）在打印日志与 CSV 中保持一致。 已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。 用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "knowledge_points": [
+    {
+      "knowledge_point_id": "c836b015-4caa-431f-9632-8fddc0c89b65",
+      "text": "pandas 读取骑行 CSV 与列结构检查"
+    },
+    {
+      "knowledge_point_id": "fbda3a1f-644b-4bd7-8a08-e87f0b929080",
+      "text": "pandas trip_id 去重与删除行数统计"
+    },
+    {
+      "knowledge_point_id": "daa0d309-ce41-4693-b1a6-3b4bfcfd3dff",
+      "text": "pandas 时间列解析与无效行分离"
+    },
+    {
+      "knowledge_point_id": "fc4be951-d788-464b-ad28-875e21451289",
+      "text": "pandas 时间差计算骑行分钟时长"
+    },
+    {
+      "knowledge_point_id": "68d337b8-b7dc-4237-b89f-1b5d34c40474",
+      "text": "pandas 按出发小时分组计数"
+    }
+  ],
+  "progress": {
+    "queries_planned": 30,
+    "queries_completed": 19,
+    "search_requests": 30,
+    "search_successes": 18,
+    "search_failures": 1,
+    "candidates_discovered": 102,
+    "resources_discovered": 69,
+    "details_attempted": 10,
+    "details_completed": 10,
+    "details_cached": 0,
+    "cache_hits": 0,
+    "catalog_pages_attempted": 0,
+    "catalog_pages_completed": 0,
+    "discovery_dns_requests": 6
+  },
+  "budgets": {
+    "max_search_requests": 30,
+    "max_detail_pages": 40,
+    "deadline_seconds": 240
+  },
+  "warnings": [
+    "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+    "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+    "59 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+    "7 个候选缺少课程或视频类型依据，未作为学习资源展示"
+  ],
+  "errors": [
+    {
+      "code": "upstream_engine_failed",
+      "message": "SearXNG 上游引擎故障且没有候选，不能确认正常无结果"
+    }
+  ],
+  "queue_wait_seconds": 0.003,
+  "fetch_diagnostics": {
+    "available": true,
+    "started_at": "2026-10-18T17:01:11.628857+00:00",
+    "finished_at": "2026-10-18T17:03:31.386494+00:00",
+    "counts_delta": {
+      "dns_started": 14,
+      "dns_completed": 14,
+      "http_started": 14,
+      "http_transport": 14,
+      "http_completed": 14
+    },
+    "events": [
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:01:48.741523+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:01:50.373672+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:01:50.373729+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:01:50.373970+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:01:50.373962+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:01:50.607168+00:00",
+              "elapsed_seconds": 0.233223
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:01:50.611280+00:00",
+              "elapsed_seconds": 0.237325
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:01:50.611313+00:00",
+              "elapsed_seconds": 0.237354
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:01:51.356312+00:00",
+              "elapsed_seconds": 0.982368
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:01:51.358168+00:00",
+              "elapsed_seconds": 0.984214
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:01:51.358385+00:00",
+              "elapsed_seconds": 0.984429
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:01:51.358398+00:00",
+              "elapsed_seconds": 0.984439
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:01:51.358454+00:00",
+              "elapsed_seconds": 0.984496
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:01:51.358463+00:00",
+              "elapsed_seconds": 0.984504
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:01:51.874957+00:00",
+              "elapsed_seconds": 1.501022
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:01:51.875503+00:00",
+              "elapsed_seconds": 1.501544
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:01:51.875598+00:00",
+              "elapsed_seconds": 1.501638
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:01:51.876918+00:00",
+              "elapsed_seconds": 1.502963
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:01:51.876971+00:00",
+              "elapsed_seconds": 1.503012
+            }
+          ],
+          "bytes_read": 65,
+          "body_complete": true,
+          "body_sha256": "3c7225a7df79889d6fa7392f0798c1c001b0d0a83aea2dbf50214767e2610e3b",
+          "max_bytes": 256000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 65,
+          "decoded_bytes_read": 65,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "3c7225a7df79889d6fa7392f0798c1c001b0d0a83aea2dbf50214767e2610e3b",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:01:51.875419+00:00",
+          "headers_elapsed_seconds": 1.501461,
+          "body_total_budget_seconds": 5.00396728515625,
+          "body_idle_budget_seconds": 5,
+          "content_length": 65,
+          "body_size_basis_bytes": 65,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:01:51.877974+00:00",
+          "finished_at": "2026-10-18T17:01:51.879176+00:00",
+          "elapsed_seconds": 1.505222,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:01:51.879217+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 65
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:01:51.879505+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/",
+        "url_sha256": "6ec07083e2ac87afc2231abf7ccdb6d374fa2fa291c4366bbdf50c1a4f850bf5",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:01:53.584154+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/",
+        "url_sha256": "6ec07083e2ac87afc2231abf7ccdb6d374fa2fa291c4366bbdf50c1a4f850bf5",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:01:53.584177+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/",
+        "url_sha256": "6ec07083e2ac87afc2231abf7ccdb6d374fa2fa291c4366bbdf50c1a4f850bf5",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:01:53.584352+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/",
+        "url_sha256": "6ec07083e2ac87afc2231abf7ccdb6d374fa2fa291c4366bbdf50c1a4f850bf5",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:01:53.584346+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:01:53.775837+00:00",
+              "elapsed_seconds": 0.191506
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:01:53.779281+00:00",
+              "elapsed_seconds": 0.194943
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:01:53.779314+00:00",
+              "elapsed_seconds": 0.194971
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:01:54.491292+00:00",
+              "elapsed_seconds": 0.906964
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:01:54.492731+00:00",
+              "elapsed_seconds": 0.908393
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:01:54.493098+00:00",
+              "elapsed_seconds": 0.908761
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:01:54.493134+00:00",
+              "elapsed_seconds": 0.908792
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:01:54.493217+00:00",
+              "elapsed_seconds": 0.908876
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:01:54.493236+00:00",
+              "elapsed_seconds": 0.908892
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:01:55.142172+00:00",
+              "elapsed_seconds": 1.55784
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:01:55.142636+00:00",
+              "elapsed_seconds": 1.558292
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:01:55.552154+00:00",
+              "elapsed_seconds": 1.967825
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:01:55.553848+00:00",
+              "elapsed_seconds": 1.969511
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:01:55.553947+00:00",
+              "elapsed_seconds": 1.969605
+            }
+          ],
+          "bytes_read": 51822,
+          "body_complete": true,
+          "body_sha256": "2359981f988618634de9aea1a7cd199923d363006e207ccfecfcbd0a4af14b71",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 51822,
+          "decoded_bytes_read": 185604,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "c4e3c689f06a12ea162cd5ef67dd4d486824beedf336ea8d3a371a2bb90d3507",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:01:55.142552+00:00",
+          "headers_elapsed_seconds": 1.558211,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:01:55.555111+00:00",
+          "finished_at": "2026-10-18T17:01:55.556278+00:00",
+          "elapsed_seconds": 1.971941,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:01:55.556329+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/",
+        "url_sha256": "6ec07083e2ac87afc2231abf7ccdb6d374fa2fa291c4366bbdf50c1a4f850bf5",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 185604
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:02:07.855514+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ux421Q7MU/",
+        "url_sha256": "596cfdf0dad61689f7171f4a37ba94a7a4ab090b45e15d9f4028b545370fe081",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:02:10.505859+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ux421Q7MU/",
+        "url_sha256": "596cfdf0dad61689f7171f4a37ba94a7a4ab090b45e15d9f4028b545370fe081",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:02:10.505896+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ux421Q7MU/",
+        "url_sha256": "596cfdf0dad61689f7171f4a37ba94a7a4ab090b45e15d9f4028b545370fe081",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:02:10.506141+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ux421Q7MU/",
+        "url_sha256": "596cfdf0dad61689f7171f4a37ba94a7a4ab090b45e15d9f4028b545370fe081",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:02:10.506133+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:02:10.728567+00:00",
+              "elapsed_seconds": 0.22245
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:02:10.730647+00:00",
+              "elapsed_seconds": 0.224523
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:02:10.730694+00:00",
+              "elapsed_seconds": 0.224565
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:02:11.837328+00:00",
+              "elapsed_seconds": 1.331215
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:11.839409+00:00",
+              "elapsed_seconds": 1.333287
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:11.839744+00:00",
+              "elapsed_seconds": 1.333622
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:11.839768+00:00",
+              "elapsed_seconds": 1.333638
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:11.839837+00:00",
+              "elapsed_seconds": 1.333708
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:11.839847+00:00",
+              "elapsed_seconds": 1.333717
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:12.859263+00:00",
+              "elapsed_seconds": 2.353149
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:12.859760+00:00",
+              "elapsed_seconds": 2.35363
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:13.661966+00:00",
+              "elapsed_seconds": 3.155847
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:02:13.663492+00:00",
+              "elapsed_seconds": 3.157368
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:02:13.663553+00:00",
+              "elapsed_seconds": 3.157424
+            }
+          ],
+          "bytes_read": 66536,
+          "body_complete": true,
+          "body_sha256": "19cf1c8171cc81cfd67459cc738b6fedced28c03fcff9d51130e18fabb456241",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 66536,
+          "decoded_bytes_read": 342421,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "7d155306a6ae53379620ebb3c72bf28b6152ceac193ddc4570136c17138320c5",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:02:12.859678+00:00",
+          "headers_elapsed_seconds": 2.35355,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:02:13.665012+00:00",
+          "finished_at": "2026-10-18T17:02:13.666513+00:00",
+          "elapsed_seconds": 3.160389,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:02:13.666568+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ux421Q7MU/",
+        "url_sha256": "596cfdf0dad61689f7171f4a37ba94a7a4ab090b45e15d9f4028b545370fe081",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 342421
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:02:17.278269+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV14T2cB8EXT/",
+        "url_sha256": "7d7279d71ffc5602f8b99d00600b54cd8643afa820f91bf0e60bd2f958e5e83b",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:02:18.984822+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV14T2cB8EXT/",
+        "url_sha256": "7d7279d71ffc5602f8b99d00600b54cd8643afa820f91bf0e60bd2f958e5e83b",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:02:18.984856+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV14T2cB8EXT/",
+        "url_sha256": "7d7279d71ffc5602f8b99d00600b54cd8643afa820f91bf0e60bd2f958e5e83b",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:02:18.985114+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV14T2cB8EXT/",
+        "url_sha256": "7d7279d71ffc5602f8b99d00600b54cd8643afa820f91bf0e60bd2f958e5e83b",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:02:18.985107+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:02:19.182747+00:00",
+              "elapsed_seconds": 0.197652
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:02:19.185687+00:00",
+              "elapsed_seconds": 0.200588
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:02:19.185718+00:00",
+              "elapsed_seconds": 0.200614
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:02:19.891623+00:00",
+              "elapsed_seconds": 0.906534
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:19.893573+00:00",
+              "elapsed_seconds": 0.908477
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:19.893832+00:00",
+              "elapsed_seconds": 0.908734
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:19.893853+00:00",
+              "elapsed_seconds": 0.908749
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:19.893911+00:00",
+              "elapsed_seconds": 0.908807
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:19.893920+00:00",
+              "elapsed_seconds": 0.908815
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:20.567400+00:00",
+              "elapsed_seconds": 1.582313
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:20.568095+00:00",
+              "elapsed_seconds": 1.582991
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:20.973979+00:00",
+              "elapsed_seconds": 1.988891
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:02:20.975748+00:00",
+              "elapsed_seconds": 1.99065
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:02:20.975811+00:00",
+              "elapsed_seconds": 1.990706
+            }
+          ],
+          "bytes_read": 56405,
+          "body_complete": true,
+          "body_sha256": "d76c2a55d8634d207357e7707e3dd06c2c4d529983b49e6f072ceadeb589efc4",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 56405,
+          "decoded_bytes_read": 195571,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "5a1512fc111e18b2407b0023024d6722083f81025f88c86f31750c7daecad4fe",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:02:20.568005+00:00",
+          "headers_elapsed_seconds": 1.582902,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:02:20.976878+00:00",
+          "finished_at": "2026-10-18T17:02:20.977788+00:00",
+          "elapsed_seconds": 1.992688,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:02:20.977831+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV14T2cB8EXT/",
+        "url_sha256": "7d7279d71ffc5602f8b99d00600b54cd8643afa820f91bf0e60bd2f958e5e83b",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 195571
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:02:21.028373+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/robots.txt",
+        "url_sha256": "277f0a0be844a7e7132d378e7fc1460efb7ab28bc1adf3c944317f52faa3894b",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:02:22.457267+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/robots.txt",
+        "url_sha256": "277f0a0be844a7e7132d378e7fc1460efb7ab28bc1adf3c944317f52faa3894b",
+        "kind": "robots",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:02:22.458972+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/robots.txt",
+        "url_sha256": "277f0a0be844a7e7132d378e7fc1460efb7ab28bc1adf3c944317f52faa3894b",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:02:22.459241+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/robots.txt",
+        "url_sha256": "277f0a0be844a7e7132d378e7fc1460efb7ab28bc1adf3c944317f52faa3894b",
+        "kind": "robots",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:02:22.459223+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:02:22.637124+00:00",
+              "elapsed_seconds": 0.177916
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:02:22.641096+00:00",
+              "elapsed_seconds": 0.181882
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:02:22.641130+00:00",
+              "elapsed_seconds": 0.18191
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:02:24.411210+00:00",
+              "elapsed_seconds": 1.952007
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:24.412770+00:00",
+              "elapsed_seconds": 1.953554
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:24.412989+00:00",
+              "elapsed_seconds": 1.95377
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:24.412997+00:00",
+              "elapsed_seconds": 1.953777
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:24.413037+00:00",
+              "elapsed_seconds": 1.953816
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:24.413041+00:00",
+              "elapsed_seconds": 1.95382
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:25.053299+00:00",
+              "elapsed_seconds": 2.594103
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:25.053707+00:00",
+              "elapsed_seconds": 2.594488
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:25.053997+00:00",
+              "elapsed_seconds": 2.59479
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:02:25.055645+00:00",
+              "elapsed_seconds": 2.596428
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:02:25.055687+00:00",
+              "elapsed_seconds": 2.596467
+            }
+          ],
+          "bytes_read": 79,
+          "body_complete": true,
+          "body_sha256": "de522c446fc2f5028d58a4389d130b55ca5895d58afca45d818e923ca415ca5c",
+          "max_bytes": 256000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 79,
+          "decoded_bytes_read": 79,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "de522c446fc2f5028d58a4389d130b55ca5895d58afca45d818e923ca415ca5c",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:02:25.053633+00:00",
+          "headers_elapsed_seconds": 2.594414,
+          "body_total_budget_seconds": 20.625,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 256000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:02:25.056437+00:00",
+          "finished_at": "2026-10-18T17:02:25.057031+00:00",
+          "elapsed_seconds": 2.597813,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:02:25.057057+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/robots.txt",
+        "url_sha256": "277f0a0be844a7e7132d378e7fc1460efb7ab28bc1adf3c944317f52faa3894b",
+        "kind": "robots",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 79
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:02:25.057192+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/pandas/",
+        "url_sha256": "913faa31957dbdc61f638cd76f6e78a72b6799a0f1f46f539569ce4528678616",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:02:26.848468+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/pandas/",
+        "url_sha256": "913faa31957dbdc61f638cd76f6e78a72b6799a0f1f46f539569ce4528678616",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:02:26.849055+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/pandas/",
+        "url_sha256": "913faa31957dbdc61f638cd76f6e78a72b6799a0f1f46f539569ce4528678616",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:02:26.849284+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/pandas/",
+        "url_sha256": "913faa31957dbdc61f638cd76f6e78a72b6799a0f1f46f539569ce4528678616",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:02:26.849277+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:02:27.076620+00:00",
+              "elapsed_seconds": 0.22736
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:02:27.079159+00:00",
+              "elapsed_seconds": 0.2299
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:02:27.079220+00:00",
+              "elapsed_seconds": 0.229949
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:02:28.045542+00:00",
+              "elapsed_seconds": 1.196285
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:28.047253+00:00",
+              "elapsed_seconds": 1.197985
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:28.047522+00:00",
+              "elapsed_seconds": 1.198252
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:28.047538+00:00",
+              "elapsed_seconds": 1.198264
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:28.047598+00:00",
+              "elapsed_seconds": 1.198324
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:28.047605+00:00",
+              "elapsed_seconds": 1.19833
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:28.352821+00:00",
+              "elapsed_seconds": 1.503561
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:28.353138+00:00",
+              "elapsed_seconds": 1.503863
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:29.190039+00:00",
+              "elapsed_seconds": 2.340781
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:02:29.192102+00:00",
+              "elapsed_seconds": 2.342834
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:02:29.192163+00:00",
+              "elapsed_seconds": 2.34289
+            }
+          ],
+          "bytes_read": 93124,
+          "body_complete": true,
+          "body_sha256": "d8a60ce9939f0c1f20f2f925b04f4b3de70fdc7f1513e272a6e499a499aabe3a",
+          "max_bytes": 750000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 93124,
+          "decoded_bytes_read": 93124,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "d8a60ce9939f0c1f20f2f925b04f4b3de70fdc7f1513e272a6e499a499aabe3a",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:02:28.353073+00:00",
+          "headers_elapsed_seconds": 1.503799,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 750000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:02:29.193410+00:00",
+          "finished_at": "2026-10-18T17:02:29.194384+00:00",
+          "elapsed_seconds": 2.345114,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:02:29.194425+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/pandas/",
+        "url_sha256": "913faa31957dbdc61f638cd76f6e78a72b6799a0f1f46f539569ce4528678616",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 93124
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:02:29.230690+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/youtube/",
+        "url_sha256": "e3afff3ab3fab48ef0c7892dabb8d509deec0b6780e1df6923cf77c0260d3ed6",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:02:30.993114+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/youtube/",
+        "url_sha256": "e3afff3ab3fab48ef0c7892dabb8d509deec0b6780e1df6923cf77c0260d3ed6",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:02:30.994405+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/youtube/",
+        "url_sha256": "e3afff3ab3fab48ef0c7892dabb8d509deec0b6780e1df6923cf77c0260d3ed6",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:02:30.994707+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/youtube/",
+        "url_sha256": "e3afff3ab3fab48ef0c7892dabb8d509deec0b6780e1df6923cf77c0260d3ed6",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:02:30.994697+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:02:31.248045+00:00",
+              "elapsed_seconds": 0.253364
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:02:31.251909+00:00",
+              "elapsed_seconds": 0.257219
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:02:31.251939+00:00",
+              "elapsed_seconds": 0.257246
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:02:31.822513+00:00",
+              "elapsed_seconds": 0.827837
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:31.824018+00:00",
+              "elapsed_seconds": 0.82933
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:31.824353+00:00",
+              "elapsed_seconds": 0.829663
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:31.824367+00:00",
+              "elapsed_seconds": 0.829674
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:31.824426+00:00",
+              "elapsed_seconds": 0.829733
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:31.824437+00:00",
+              "elapsed_seconds": 0.829744
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:33.054515+00:00",
+              "elapsed_seconds": 2.059853
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:33.055165+00:00",
+              "elapsed_seconds": 2.060473
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:33.671498+00:00",
+              "elapsed_seconds": 2.676816
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:02:33.672934+00:00",
+              "elapsed_seconds": 2.678246
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:02:33.672990+00:00",
+              "elapsed_seconds": 2.678297
+            }
+          ],
+          "bytes_read": 106040,
+          "body_complete": true,
+          "body_sha256": "25b04e65c14a9f4163e9708415fafcfe0a8d6c4ef9024357a668e993ec911607",
+          "max_bytes": 750000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 106040,
+          "decoded_bytes_read": 106040,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "25b04e65c14a9f4163e9708415fafcfe0a8d6c4ef9024357a668e993ec911607",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:02:33.055057+00:00",
+          "headers_elapsed_seconds": 2.06037,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 750000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:02:33.674026+00:00",
+          "finished_at": "2026-10-18T17:02:33.674962+00:00",
+          "elapsed_seconds": 2.680273,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:02:33.675005+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/tag/youtube/",
+        "url_sha256": "e3afff3ab3fab48ef0c7892dabb8d509deec0b6780e1df6923cf77c0260d3ed6",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 106040
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:02:37.755674+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+        "url_sha256": "0c5b0b72fc95e1255b81766117b7584de819b0c5f9ffc506e2e9e0078747e6ef",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:02:39.691102+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+        "url_sha256": "0c5b0b72fc95e1255b81766117b7584de819b0c5f9ffc506e2e9e0078747e6ef",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:02:39.691134+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+        "url_sha256": "0c5b0b72fc95e1255b81766117b7584de819b0c5f9ffc506e2e9e0078747e6ef",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:02:39.691345+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+        "url_sha256": "0c5b0b72fc95e1255b81766117b7584de819b0c5f9ffc506e2e9e0078747e6ef",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:02:39.691337+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:02:39.949018+00:00",
+              "elapsed_seconds": 0.257696
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:02:39.952788+00:00",
+              "elapsed_seconds": 0.261461
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:02:39.952827+00:00",
+              "elapsed_seconds": 0.261493
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:02:41.544481+00:00",
+              "elapsed_seconds": 1.853161
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:41.545758+00:00",
+              "elapsed_seconds": 1.854431
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:41.546006+00:00",
+              "elapsed_seconds": 1.854674
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:41.546018+00:00",
+              "elapsed_seconds": 1.854683
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:41.546061+00:00",
+              "elapsed_seconds": 1.854727
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:41.546066+00:00",
+              "elapsed_seconds": 1.854731
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:44.274241+00:00",
+              "elapsed_seconds": 4.582928
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:44.274837+00:00",
+              "elapsed_seconds": 4.583505
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:49.588926+00:00",
+              "elapsed_seconds": 9.897603
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:02:49.590411+00:00",
+              "elapsed_seconds": 9.899085
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:02:49.590482+00:00",
+              "elapsed_seconds": 9.899149
+            }
+          ],
+          "bytes_read": 230445,
+          "body_complete": true,
+          "body_sha256": "dc16150997df39d7284a9054b9cc42c21c00bf553d7427cce17f78c49ea1252c",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 230445,
+          "decoded_bytes_read": 230445,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "dc16150997df39d7284a9054b9cc42c21c00bf553d7427cce17f78c49ea1252c",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:02:44.274681+00:00",
+          "headers_elapsed_seconds": 4.583354,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:02:49.591832+00:00",
+          "finished_at": "2026-10-18T17:02:49.593029+00:00",
+          "elapsed_seconds": 9.9017,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:02:49.593117+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+        "url_sha256": "0c5b0b72fc95e1255b81766117b7584de819b0c5f9ffc506e2e9e0078747e6ef",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 230445
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:02:56.233230+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-drop-column-in-pandas-how-to-remove-columns-from-dataframes/",
+        "url_sha256": "126af3ed2c01c26b211c16bdaf15d37e163bdee450c86a0659a42141456fc82f",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:02:57.570241+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-drop-column-in-pandas-how-to-remove-columns-from-dataframes/",
+        "url_sha256": "126af3ed2c01c26b211c16bdaf15d37e163bdee450c86a0659a42141456fc82f",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:02:57.570274+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-drop-column-in-pandas-how-to-remove-columns-from-dataframes/",
+        "url_sha256": "126af3ed2c01c26b211c16bdaf15d37e163bdee450c86a0659a42141456fc82f",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:02:57.570578+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-drop-column-in-pandas-how-to-remove-columns-from-dataframes/",
+        "url_sha256": "126af3ed2c01c26b211c16bdaf15d37e163bdee450c86a0659a42141456fc82f",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:02:57.570565+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:02:57.776720+00:00",
+              "elapsed_seconds": 0.206171
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:02:57.779164+00:00",
+              "elapsed_seconds": 0.208609
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:02:57.779199+00:00",
+              "elapsed_seconds": 0.208639
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:02:58.333378+00:00",
+              "elapsed_seconds": 0.762831
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:58.335883+00:00",
+              "elapsed_seconds": 0.765331
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:58.336268+00:00",
+              "elapsed_seconds": 0.765714
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:58.336291+00:00",
+              "elapsed_seconds": 0.765731
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:58.336366+00:00",
+              "elapsed_seconds": 0.765814
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:02:58.336395+00:00",
+              "elapsed_seconds": 0.765836
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:02:58.731868+00:00",
+              "elapsed_seconds": 1.161323
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:02:58.732233+00:00",
+              "elapsed_seconds": 1.161672
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:02:59.235823+00:00",
+              "elapsed_seconds": 1.665274
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:02:59.237072+00:00",
+              "elapsed_seconds": 1.666516
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:02:59.237130+00:00",
+              "elapsed_seconds": 1.66657
+            }
+          ],
+          "bytes_read": 87248,
+          "body_complete": true,
+          "body_sha256": "6f4ab3a9bee031a6cd68c6e900736dbc6dea81bc7345de3e062cf849ad1ee0f9",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 87248,
+          "decoded_bytes_read": 87248,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "6f4ab3a9bee031a6cd68c6e900736dbc6dea81bc7345de3e062cf849ad1ee0f9",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:02:58.732158+00:00",
+          "headers_elapsed_seconds": 1.161598,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:02:59.238501+00:00",
+          "finished_at": "2026-10-18T17:02:59.239757+00:00",
+          "elapsed_seconds": 1.669202,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:02:59.239801+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-drop-column-in-pandas-how-to-remove-columns-from-dataframes/",
+        "url_sha256": "126af3ed2c01c26b211c16bdaf15d37e163bdee450c86a0659a42141456fc82f",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 87248
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:03:02.492675+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-to-csv-how-to-save-pandas-dataframes-by-exporting/",
+        "url_sha256": "1d818f11c925467fd3b4708b1d4c1563bfeca80e4187a9250a6a686e95ea4a6d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:03:04.092540+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-to-csv-how-to-save-pandas-dataframes-by-exporting/",
+        "url_sha256": "1d818f11c925467fd3b4708b1d4c1563bfeca80e4187a9250a6a686e95ea4a6d",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:03:04.092572+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-to-csv-how-to-save-pandas-dataframes-by-exporting/",
+        "url_sha256": "1d818f11c925467fd3b4708b1d4c1563bfeca80e4187a9250a6a686e95ea4a6d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:03:04.092820+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-to-csv-how-to-save-pandas-dataframes-by-exporting/",
+        "url_sha256": "1d818f11c925467fd3b4708b1d4c1563bfeca80e4187a9250a6a686e95ea4a6d",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:03:04.092813+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:03:04.330435+00:00",
+              "elapsed_seconds": 0.237637
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:03:04.332847+00:00",
+              "elapsed_seconds": 0.240043
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:03:04.332879+00:00",
+              "elapsed_seconds": 0.240069
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:03:04.931664+00:00",
+              "elapsed_seconds": 0.83887
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:04.933503+00:00",
+              "elapsed_seconds": 0.8407
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:04.933885+00:00",
+              "elapsed_seconds": 0.841094
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:04.933934+00:00",
+              "elapsed_seconds": 0.841128
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:04.934096+00:00",
+              "elapsed_seconds": 0.841294
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:04.934123+00:00",
+              "elapsed_seconds": 0.841315
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:05.704239+00:00",
+              "elapsed_seconds": 1.611449
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:05.704761+00:00",
+              "elapsed_seconds": 1.611952
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:06.657493+00:00",
+              "elapsed_seconds": 2.564709
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:03:06.658989+00:00",
+              "elapsed_seconds": 2.566184
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:03:06.659044+00:00",
+              "elapsed_seconds": 2.566234
+            }
+          ],
+          "bytes_read": 83682,
+          "body_complete": true,
+          "body_sha256": "88f06a95b9474c36513fadf5f5c836832588958a603e222238664882ec98d7de",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 83682,
+          "decoded_bytes_read": 83682,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "88f06a95b9474c36513fadf5f5c836832588958a603e222238664882ec98d7de",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:03:05.704657+00:00",
+          "headers_elapsed_seconds": 1.611854,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:03:06.660106+00:00",
+          "finished_at": "2026-10-18T17:03:06.661282+00:00",
+          "elapsed_seconds": 2.568478,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:03:06.661328+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/dataframe-to-csv-how-to-save-pandas-dataframes-by-exporting/",
+        "url_sha256": "1d818f11c925467fd3b4708b1d4c1563bfeca80e4187a9250a6a686e95ea4a6d",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 83682
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:03:08.611239+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+        "url_sha256": "74bb1cd727c6e81bd80c0d6b95b5e9647c539ba4c0758855d872d520aa43711d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:03:11.078622+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+        "url_sha256": "74bb1cd727c6e81bd80c0d6b95b5e9647c539ba4c0758855d872d520aa43711d",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:03:11.078657+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+        "url_sha256": "74bb1cd727c6e81bd80c0d6b95b5e9647c539ba4c0758855d872d520aa43711d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:03:11.078915+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+        "url_sha256": "74bb1cd727c6e81bd80c0d6b95b5e9647c539ba4c0758855d872d520aa43711d",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:03:11.078905+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:03:11.334018+00:00",
+              "elapsed_seconds": 0.255127
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:03:11.337605+00:00",
+              "elapsed_seconds": 0.258707
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:03:11.337639+00:00",
+              "elapsed_seconds": 0.258737
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:03:12.051990+00:00",
+              "elapsed_seconds": 0.973104
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:12.053527+00:00",
+              "elapsed_seconds": 0.974629
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:12.053760+00:00",
+              "elapsed_seconds": 0.974864
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:12.053779+00:00",
+              "elapsed_seconds": 0.974877
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:12.053838+00:00",
+              "elapsed_seconds": 0.974936
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:12.053846+00:00",
+              "elapsed_seconds": 0.974943
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:12.493974+00:00",
+              "elapsed_seconds": 1.415084
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:12.494350+00:00",
+              "elapsed_seconds": 1.415448
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:12.497073+00:00",
+              "elapsed_seconds": 1.418176
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:03:12.498808+00:00",
+              "elapsed_seconds": 1.419921
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:03:12.498927+00:00",
+              "elapsed_seconds": 1.42003
+            }
+          ],
+          "bytes_read": 84341,
+          "body_complete": true,
+          "body_sha256": "a4c16c77d47f0c0d45277950042cb09dce352632cfd574274fa0bd1f71f3068f",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 84341,
+          "decoded_bytes_read": 84341,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "a4c16c77d47f0c0d45277950042cb09dce352632cfd574274fa0bd1f71f3068f",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:03:12.494277+00:00",
+          "headers_elapsed_seconds": 1.415378,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:03:12.500630+00:00",
+          "finished_at": "2026-10-18T17:03:12.501837+00:00",
+          "elapsed_seconds": 1.422941,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:03:12.501882+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+        "url_sha256": "74bb1cd727c6e81bd80c0d6b95b5e9647c539ba4c0758855d872d520aa43711d",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 84341
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:03:12.685888+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/data-cleaning-and-preprocessing-with-pandasbdvhj/",
+        "url_sha256": "75c6f08bdec202b6ef89f797e56dda9384a642d7fdfc1de398cc511aba5f835d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:03:14.661449+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/data-cleaning-and-preprocessing-with-pandasbdvhj/",
+        "url_sha256": "75c6f08bdec202b6ef89f797e56dda9384a642d7fdfc1de398cc511aba5f835d",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:03:14.661494+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/data-cleaning-and-preprocessing-with-pandasbdvhj/",
+        "url_sha256": "75c6f08bdec202b6ef89f797e56dda9384a642d7fdfc1de398cc511aba5f835d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:03:14.661715+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/data-cleaning-and-preprocessing-with-pandasbdvhj/",
+        "url_sha256": "75c6f08bdec202b6ef89f797e56dda9384a642d7fdfc1de398cc511aba5f835d",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:03:14.661708+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:03:14.843814+00:00",
+              "elapsed_seconds": 0.18212
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:03:14.848433+00:00",
+              "elapsed_seconds": 0.186734
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:03:14.848466+00:00",
+              "elapsed_seconds": 0.186762
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:03:15.772824+00:00",
+              "elapsed_seconds": 1.111132
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:15.774003+00:00",
+              "elapsed_seconds": 1.112301
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:15.774171+00:00",
+              "elapsed_seconds": 1.112466
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:15.774178+00:00",
+              "elapsed_seconds": 1.112472
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:15.774217+00:00",
+              "elapsed_seconds": 1.112511
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:15.774222+00:00",
+              "elapsed_seconds": 1.112516
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:16.963958+00:00",
+              "elapsed_seconds": 2.302276
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:16.964448+00:00",
+              "elapsed_seconds": 2.302743
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:22.978660+00:00",
+              "elapsed_seconds": 8.317005
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:03:22.980270+00:00",
+              "elapsed_seconds": 8.318574
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:03:22.980353+00:00",
+              "elapsed_seconds": 8.318649
+            }
+          ],
+          "bytes_read": 95217,
+          "body_complete": true,
+          "body_sha256": "36708c5071d48a207f78149f44e1737f479ef676b21c75c93f009baa1fd3c43e",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 95217,
+          "decoded_bytes_read": 95217,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "36708c5071d48a207f78149f44e1737f479ef676b21c75c93f009baa1fd3c43e",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:03:16.964372+00:00",
+          "headers_elapsed_seconds": 2.302668,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:03:22.981909+00:00",
+          "finished_at": "2026-10-18T17:03:22.983082+00:00",
+          "elapsed_seconds": 8.321385,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:03:22.983135+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/data-cleaning-and-preprocessing-with-pandasbdvhj/",
+        "url_sha256": "75c6f08bdec202b6ef89f797e56dda9384a642d7fdfc1de398cc511aba5f835d",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 95217
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:03:23.277945+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+        "url_sha256": "8c507f240b99ca2623702e70461ec6a9ac43cb64bfd03db910867ac16f8e8361",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:03:24.995170+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+        "url_sha256": "8c507f240b99ca2623702e70461ec6a9ac43cb64bfd03db910867ac16f8e8361",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:03:24.995190+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+        "url_sha256": "8c507f240b99ca2623702e70461ec6a9ac43cb64bfd03db910867ac16f8e8361",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:03:24.995340+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+        "url_sha256": "8c507f240b99ca2623702e70461ec6a9ac43cb64bfd03db910867ac16f8e8361",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:03:24.995335+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:03:25.164641+00:00",
+              "elapsed_seconds": 0.169319
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:03:25.168041+00:00",
+              "elapsed_seconds": 0.172715
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:03:25.168078+00:00",
+              "elapsed_seconds": 0.172746
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:03:25.743841+00:00",
+              "elapsed_seconds": 0.748522
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:25.745166+00:00",
+              "elapsed_seconds": 0.749838
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:25.745390+00:00",
+              "elapsed_seconds": 0.75006
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:25.745403+00:00",
+              "elapsed_seconds": 0.750071
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:25.745463+00:00",
+              "elapsed_seconds": 0.750131
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:25.745471+00:00",
+              "elapsed_seconds": 0.750139
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:26.893867+00:00",
+              "elapsed_seconds": 1.898559
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:26.894367+00:00",
+              "elapsed_seconds": 1.899035
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:27.601819+00:00",
+              "elapsed_seconds": 2.606499
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:03:27.602816+00:00",
+              "elapsed_seconds": 2.607486
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:03:27.602856+00:00",
+              "elapsed_seconds": 2.607523
+            }
+          ],
+          "bytes_read": 83006,
+          "body_complete": true,
+          "body_sha256": "aba768d1213eec291684a2202a9c8af3c9c7f70262450fee5dae0e9328ecbf3b",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 83006,
+          "decoded_bytes_read": 83006,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "aba768d1213eec291684a2202a9c8af3c9c7f70262450fee5dae0e9328ecbf3b",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:03:26.894289+00:00",
+          "headers_elapsed_seconds": 1.898958,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:03:27.603581+00:00",
+          "finished_at": "2026-10-18T17:03:27.604147+00:00",
+          "elapsed_seconds": 2.608816,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:03:27.604176+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+        "url_sha256": "8c507f240b99ca2623702e70461ec6a9ac43cb64bfd03db910867ac16f8e8361",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 83006
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T17:03:27.730568+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+        "url_sha256": "c971a216427fdd7b1aaebd52faedcc033d3627785124e616a050e7b8b7b3df2e",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T17:03:29.227369+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+        "url_sha256": "c971a216427fdd7b1aaebd52faedcc033d3627785124e616a050e7b8b7b3df2e",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T17:03:29.227405+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+        "url_sha256": "c971a216427fdd7b1aaebd52faedcc033d3627785124e616a050e7b8b7b3df2e",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T17:03:29.227810+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+        "url_sha256": "c971a216427fdd7b1aaebd52faedcc033d3627785124e616a050e7b8b7b3df2e",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T17:03:29.227795+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T17:03:29.490745+00:00",
+              "elapsed_seconds": 0.262966
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T17:03:29.495176+00:00",
+              "elapsed_seconds": 0.267391
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T17:03:29.495218+00:00",
+              "elapsed_seconds": 0.267427
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T17:03:30.074296+00:00",
+              "elapsed_seconds": 0.846524
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:30.075836+00:00",
+              "elapsed_seconds": 0.848051
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:30.076143+00:00",
+              "elapsed_seconds": 0.848359
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:30.076163+00:00",
+              "elapsed_seconds": 0.848373
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:30.076220+00:00",
+              "elapsed_seconds": 0.848428
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T17:03:30.076226+00:00",
+              "elapsed_seconds": 0.848435
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T17:03:30.638756+00:00",
+              "elapsed_seconds": 1.41098
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T17:03:30.639165+00:00",
+              "elapsed_seconds": 1.411375
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T17:03:31.220438+00:00",
+              "elapsed_seconds": 1.992662
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T17:03:31.221895+00:00",
+              "elapsed_seconds": 1.994111
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T17:03:31.221955+00:00",
+              "elapsed_seconds": 1.994164
+            }
+          ],
+          "bytes_read": 89104,
+          "body_complete": true,
+          "body_sha256": "4510681a0f768a35e30182319ecde48d26af4a11cfab9dfa4e86e7ab1d4c093a",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 89104,
+          "decoded_bytes_read": 89104,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "4510681a0f768a35e30182319ecde48d26af4a11cfab9dfa4e86e7ab1d4c093a",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T17:03:30.639087+00:00",
+          "headers_elapsed_seconds": 1.411298,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T17:03:31.223127+00:00",
+          "finished_at": "2026-10-18T17:03:31.224264+00:00",
+          "elapsed_seconds": 1.996479,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T17:03:31.224314+00:00",
+        "host": "www.freecodecamp.org",
+        "url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+        "url_sha256": "c971a216427fdd7b1aaebd52faedcc033d3627785124e616a050e7b8b7b3df2e",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 89104
+      }
+    ],
+    "truncated": false,
+    "scope": "target HTML/XML+robots only; DoH HTTP separately traced for official discovery"
+  }
+}

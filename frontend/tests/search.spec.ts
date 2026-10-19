@@ -1,4 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import type { Capabilities, Chapter, Evidence, SearchJob, SearchResults, ResourceItem } from '../src/types';
 
 // These isolated transport fixtures are tests only. The production app has no fixture or demo import.
@@ -79,7 +81,7 @@ test('未配置状态、必填和知识点预算校验；无假结果', async ({
   const consoleErrors: string[] = [];
   page.on('pageerror', error => consoleErrors.push(error.message));
   await setup(page, { ...caps, search: { ...caps.search, status: 'unconfigured', message: '请先在服务端接入 SearXNG，或启用已配置的 Tavily。' } });
-  await page.goto('/');
+  await page.goto('/?mode=manual');
   await expect(page).toHaveTitle('项目制知识引导小精灵 · 课程与视频发现');
   await expect(page.getByText('搜索服务暂不可用')).toBeVisible();
   await expect(page.locator('.resource-card')).toHaveCount(0);
@@ -102,7 +104,7 @@ test('多知识点提交、分组筛选、简洁占位封面与安全原平台�
     pollCount += 1;
     return route.fulfill({ json: pollCount === 1 ? { ...baseJob, status: 'running', phase: 'searching', progress: { ...baseJob.progress, queries_completed: 1 } } : baseJob });
   });
-  await page.goto('/');
+  await page.goto('/?mode=manual');
   await page.getByLabel('知识点', { exact: true }).fill('非预设知识点：空间哈希\n边界条件\n边界条件');
   await page.getByText('更多筛选', { exact: true }).click();
   await page.getByLabel('技术版本').fill('WebGL 2');
@@ -161,8 +163,8 @@ test('部分失败保留结果、任务中断如实显示', async ({ page }) => 
 test('移动端无横向溢出，表单可用', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await setup(page, { ...caps, search: { ...caps.search, status: 'unconfigured', message: '请先在服务端接入 SearXNG，或启用已配置的 Tavily。' } });
-  await page.goto('/');
-  await expect(page.getByRole('heading', { name: '想学的知识，去哪里学？' })).toBeVisible();
+  await page.goto('/?mode=manual');
+  await expect(page.getByRole('heading', { name: /想学的知识，\s*从这里开始。/ })).toBeVisible();
   await page.getByLabel('知识点', { exact: true }).fill('任意新知识点');
   await page.getByLabel('学习语言').selectOption('en');
   await expect(page.getByLabel('学习语言')).toHaveValue('en');
@@ -173,7 +175,7 @@ test('移动端无横向溢出，表单可用', async ({ page }, testInfo) => {
 test('请求出错明确显示错误', async ({ page }) => {
   await setup(page);
   await page.route('**/api/search-jobs', route => route.fulfill({ status: 503, json: { detail: '当前搜索服务不可用' } }));
-  await page.goto('/');
+  await page.goto('/?mode=manual');
   await page.getByLabel('知识点', { exact: true }).fill('任意新知识点');
   await page.getByRole('button', { name: '开始查找' }).click();
   await expect(page.getByRole('alert')).toContainText('当前搜索服务不可用');
@@ -199,10 +201,166 @@ test('封面按来源图片展示，加载失败回退；点击入口保留原�
   await expect(cards.nth(0).locator('.course-cover')).toHaveAttribute('href', picture.resource.url);
   await cards.nth(1).scrollIntoViewIfNeeded();
   await expect(cards.nth(1).locator('.cover-placeholder')).toBeVisible();
+  await expect(cards.nth(1).locator('.cover-placeholder')).toContainText('封面暂不可用');
   await expect(cards.nth(1).locator('.course-cover img')).toHaveCount(0);
   await expect(cards.nth(2).locator('.cover-placeholder')).toBeVisible();
+  await expect(cards.nth(2).locator('.cover-placeholder')).toContainText('封面暂不可用');
   await expect(cards.nth(2).locator('a')).toHaveCount(0);
   await expect(page.locator('.chapter-list, .evidence-details, video, iframe')).toHaveCount(0);
+});
+
+test('封面请求一直挂起时十秒回退，课程入口仍可在新窗口打开', async ({ page }, testInfo) => {
+  const imageUrl = 'https://images.example.org/isolated-pending-cover.png';
+  const pending: ResourceItem = { ...otherItem, resource: { ...otherItem.resource,
+    resource_id: 'pending-cover', title: '隔离挂起封面 fixture', thumbnail_url: imageUrl } };
+  await page.clock.install();
+  await setup(page, caps, baseJob, { ...results, groups: [{ ...results.groups[0], items: [pending] }] });
+  const requests: string[] = [];
+  // Deliberately neither fulfill nor abort: this represents an image request
+  // that remains pending, not an HTTP error or an unavailable real CDN.
+  await page.route(imageUrl, route => { requests.push(route.request().url()); });
+  await page.goto('/?job=test-job', { waitUntil: 'domcontentloaded' });
+  const card = page.locator('[data-resource-id="pending-cover"]');
+  await expect(card.locator('img')).toBeVisible();
+  await expect.poll(() => requests).toEqual([imageUrl]);
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+  await page.clock.runFor(100);
+  await expect(card.locator('.cover-placeholder')).toHaveCount(0);
+  await page.clock.fastForward(10_001);
+  await expect(card.locator('img')).toHaveCount(0);
+  await expect(card.locator('.cover-placeholder')).toHaveText(/封面暂不可用/);
+  const link = card.locator('.course-outbound');
+  await expect(link).toHaveAttribute('href', pending.resource.url);
+  await expect(link).toHaveAttribute('target', '_blank');
+  await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  await page.context().route(pending.resource.url, route => route.fulfill({
+    contentType: 'text/html', body: '<title>Isolated course landing fixture</title><p>Fixture only</p>',
+  }));
+  const popupPromise = page.waitForEvent('popup');
+  await link.click();
+  const popup = await popupPromise;
+  await popup.waitForLoadState('domcontentloaded');
+  await expect(popup).toHaveURL(pending.resource.url);
+  await expect(popup).toHaveTitle('Isolated course landing fixture');
+  await popup.close();
+  const evidenceRoot = resolve(process.cwd(), process.env.QA_EVIDENCE_ROOT || '../evidence/browser');
+  await mkdir(evidenceRoot, { recursive: true });
+  await writeFile(resolve(evidenceRoot, 'cover-pending-timeout-observations.json'), JSON.stringify({
+    kind: 'isolated pending image and course landing fixtures, not live CDN or course evidence',
+    pendingImageRequests: requests, advancedMilliseconds: 10_001, unavailableCoverVisible: true,
+    originalCourseUrl: pending.resource.url, originalCourseOpenedInNewWindow: true,
+  }, null, 2));
+  await page.screenshot({ path: testInfo.outputPath('pending-cover-timeout.png'), fullPage: true, animations: 'disabled' });
+});
+
+test('成功加载的封面在十秒等待窗口后仍显示，不被误判超时', async ({ page }) => {
+  const imageUrl = 'https://images.example.org/isolated-loaded-cover.png';
+  const loaded: ResourceItem = { ...otherItem, resource: { ...otherItem.resource,
+    resource_id: 'loaded-cover', title: '隔离成功封面 fixture', thumbnail_url: imageUrl } };
+  await page.clock.install();
+  await setup(page, caps, baseJob, { ...results, groups: [{ ...results.groups[0], items: [loaded] }] });
+  await page.route(imageUrl, route => route.fulfill({ contentType: 'image/png',
+    body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=', 'base64') }));
+  await page.goto('/?job=test-job');
+  const card = page.locator('[data-resource-id="loaded-cover"]');
+  await expect.poll(() => card.locator('img').evaluate(image =>
+    (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0)).toBe(true);
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+  await page.clock.fastForward(30_000);
+  await expect(card.locator('img')).toBeVisible();
+  expect(await card.locator('img').evaluate(image => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  await expect(card.locator('.cover-placeholder')).toHaveCount(0);
+  await expect(card.locator('.course-outbound')).toHaveAttribute('href', loaded.resource.url);
+  const evidenceRoot = resolve(process.cwd(), process.env.QA_EVIDENCE_ROOT || '../evidence/browser');
+  await mkdir(evidenceRoot, { recursive: true });
+  await writeFile(resolve(evidenceRoot, 'cover-loaded-timeout-observations.json'), JSON.stringify({
+    kind: 'isolated image fixture, not live CDN evidence', advancedMilliseconds: 30_000,
+    loadedImageRemainsVisible: true, unavailableCoverCount: 0,
+  }, null, 2));
+});
+
+test('离屏延迟加载封面不会提前超时，进入视口后才计入十秒等待', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const imageUrl = 'https://images.example.org/isolated-offscreen-cover.png';
+  const fillers = Array.from({ length: 4 }, (_, index): ResourceItem => ({ ...otherItem,
+    resource: { ...otherItem.resource, resource_id: `cover-spacer-${index}`, title: `隔离占位课程 ${index + 1}` } }));
+  const lazy: ResourceItem = { ...otherItem, resource: { ...otherItem.resource,
+    resource_id: 'offscreen-cover', title: '隔离离屏封面 fixture', thumbnail_url: imageUrl } };
+  await page.clock.install();
+  await setup(page, caps, baseJob, { ...results, groups: [{ ...results.groups[0], items: [...fillers, lazy] }] });
+  await page.route(imageUrl, () => {}); // Intentionally pending, including after scrolling.
+  await page.goto('/?job=test-job', { waitUntil: 'domcontentloaded' });
+  const card = page.locator('[data-resource-id="offscreen-cover"]');
+  const image = card.locator('img');
+  await expect(image).toHaveAttribute('loading', 'lazy');
+  const initialGeometry = await image.evaluate(element => ({ top: element.getBoundingClientRect().top, viewportHeight: innerHeight }));
+  expect(initialGeometry.top).toBeGreaterThan(initialGeometry.viewportHeight + 200);
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
+  await page.clock.fastForward(30_000);
+  await expect(image).toHaveCount(1);
+  await expect(card.locator('.cover-placeholder')).toHaveCount(0);
+  await image.scrollIntoViewIfNeeded();
+  // Let a real rendering frame deliver IntersectionObserver notifications.
+  // No observer or visibility implementation is replaced by the test.
+  await page.clock.runFor(100);
+  await expect(image).toBeInViewport();
+  await page.clock.fastForward(10_001);
+  await expect(image).toHaveCount(0);
+  await expect(card.locator('.cover-placeholder')).toBeVisible();
+  await expect(card.locator('.cover-placeholder')).toHaveText(/封面暂不可用/);
+  await expect(card.locator('.course-outbound')).toHaveAttribute('href', lazy.resource.url);
+  const evidenceRoot = resolve(process.cwd(), process.env.QA_EVIDENCE_ROOT || '../evidence/browser');
+  await mkdir(evidenceRoot, { recursive: true });
+  await writeFile(resolve(evidenceRoot, 'cover-lazy-timeout-observations.json'), JSON.stringify({
+    kind: 'isolated pending image fixture with native IntersectionObserver, not live CDN evidence',
+    initialGeometry, offscreenAdvancedMilliseconds: 30_000, offscreenPrematureFailure: false,
+    afterVisibilityAdvancedMilliseconds: 10_001, unavailableCoverVisibleAfterWait: true,
+  }, null, 2));
+});
+
+test('HTTPS图片CSP下仅已观察B站CDN封面升级，未知HTTP不请求且失败封面如实占位', async ({ page }, testInfo) => {
+  const observedHttp = 'http://i2.hdslb.com/bfs/archive/isolated-cover.png?sig=fixture%2Btoken&x=1';
+  const observedHttps = observedHttp.replace(/^http:/, 'https:');
+  const brokenHttp = 'http://i0.hdslb.com/bfs/archive/isolated-missing.png';
+  const brokenHttps = brokenHttp.replace(/^http:/, 'https:');
+  const unknownHttp = 'http://images.example.org/unavailable.png';
+  const lookalikeHttp = 'http://i2.hdslb.com.evil.example/unavailable.png';
+  const images = [observedHttp, unknownHttp, lookalikeHttp, brokenHttp];
+  const items = images.map((thumbnail_url, index): ResourceItem => ({ ...otherItem, resource: { ...otherItem.resource,
+    resource_id: `csp-cover-${index}`, title: `隔离 HTTPS 封面 fixture ${index + 1}`, thumbnail_url } }));
+  await setup(page, caps, baseJob, { ...results, groups: [{ ...results.groups[0], items }] });
+  // Match security.py's image directive, including the existing data favicon,
+  // while retaining Vite's dev bootstrap.
+  // All image responses below are local fixtures; no CDN is actually contacted.
+  const imagePolicy = "img-src 'self' https: data:";
+  await page.route(url => url.origin === uiOrigin && url.pathname === '/' && url.search === '?job=test-job', async route => {
+    const response = await route.fetch();
+    await route.fulfill({ response, headers: { ...response.headers(), 'content-security-policy': imagePolicy } });
+  });
+  const imageRequests: string[] = [];
+  page.on('request', request => { if (request.resourceType() === 'image') imageRequests.push(request.url()); });
+  await page.route(observedHttps, route => route.fulfill({ contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=', 'base64') }));
+  await page.route(brokenHttps, route => route.fulfill({ status: 404, body: 'isolated fixture image unavailable' }));
+  const response = await page.goto('/?job=test-job');
+  expect(response?.headers()['content-security-policy']).toBe(imagePolicy);
+  const cards = page.locator('.resource-card');
+  await expect(cards).toHaveCount(4);
+  await expect(cards.first().locator('.course-cover img')).toHaveAttribute('src', observedHttps);
+  await expect.poll(() => cards.first().locator('.course-cover img').evaluate(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0)).toBe(true);
+  await expect(cards.first().locator('.course-cover')).toHaveAttribute('href', otherItem.resource.url);
+  for (let index = 1; index < 4; index += 1) {
+    await cards.nth(index).scrollIntoViewIfNeeded();
+    await expect(cards.nth(index).locator('.cover-placeholder')).toContainText('封面暂不可用');
+    await expect(cards.nth(index).locator('.course-cover img')).toHaveCount(0);
+  }
+  expect([...imageRequests].sort()).toEqual([observedHttps, brokenHttps].sort());
+  const policyErrors = diagnostics.get(page)!.console.filter(message => /Content Security Policy|Mixed Content|Refused to load|insecure/i.test(message));
+  expect(policyErrors).toEqual([]);
+  const evidenceRoot = resolve(process.cwd(), process.env.QA_EVIDENCE_ROOT || '../evidence/browser');
+  await mkdir(evidenceRoot, { recursive: true });
+  await writeFile(resolve(evidenceRoot, 'course-image-browser-observations.json'), JSON.stringify({ kind: 'isolated browser fixtures under HTTPS image CSP, not live CDN availability evidence', policy: imagePolicy,
+    inputImages: images, imageRequests, unavailableCoverCount: 3, policyErrors }, null, 2));
+  await page.screenshot({ path: testInfo.outputPath('https-cover-policy.png'), fullPage: true, animations: 'disabled' });
 });
 
 test('目录仅用于最多两条知识点匹配章节，标题转义且不展示播放器或完整目录', async ({ page }, testInfo) => {
@@ -385,7 +543,7 @@ test('重复提交锁与后端复用原任务提示', async ({ page }) => {
     submissions += 1; await gate;
     await route.fulfill({ status: 202, json: { job_id: 'test-job', status: 'running', reused: true } });
   });
-  await page.goto('/');
+  await page.goto('/?mode=manual');
   await page.getByLabel('知识点', { exact: true }).fill('隔离重复提交测试');
   await page.locator('form').evaluate(form => {
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
@@ -411,7 +569,7 @@ test('创建超时重试沿用幂等key，明确重新检索使用新key', async
   });
   await page.route('**/api/search-jobs/new-job', route => route.fulfill({ json: { ...baseJob, job_id: 'new-job' } }));
   await page.route('**/api/search-jobs/new-job/results', route => route.fulfill({ json: { ...results, job_id: 'new-job' } }));
-  await page.goto('/');
+  await page.goto('/?mode=manual');
   await page.getByLabel('知识点', { exact: true }).fill('隔离创建超时测试');
   await page.getByRole('button', { name: '开始查找' }).click();
   await expect.poll(() => keys.length).toBe(1);
@@ -572,7 +730,7 @@ test('创建响应丢失后刷新可按原幂等key恢复已结束任务，确�
     if (requests.length === 1) return route.abort('connectionreset');
     return route.fulfill({ status: 202, json: { job_id: 'test-job', status: 'completed', reused: true } });
   });
-  await page.goto('/');
+  await page.goto('/?mode=manual');
   await page.getByLabel('知识点', { exact: true }).fill('响应丢失后的原知识点');
   await page.getByLabel('学生基础').selectOption('intermediate');
   await page.getByLabel('学习语言').selectOption('en');
@@ -613,7 +771,7 @@ test('刷新后的不同需求不会使用旧幂等key，清除入口不会请�
     if (keys.length < 3) return route.abort('connectionreset');
     return route.fulfill({ status: 202, json: { job_id: 'test-job', status: 'completed' } });
   });
-  await page.goto('/');
+  await page.goto('/?mode=manual');
   await page.getByLabel('知识点', { exact: true }).fill('旧的未确认需求');
   await page.getByRole('button', { name: '开始查找' }).click();
   await expect(page.getByText(/创建状态尚未确认/)).toBeVisible();

@@ -1,0 +1,986 @@
+{
+  "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+  "original_input": {
+    "name": "Arduino LED 按钮反应时间小游戏",
+    "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "input": {
+    "name": "Arduino LED 按钮反应时间小游戏",
+    "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "current_version": 3,
+  "created_at": "2026-10-18T16:36:53.029359+00:00",
+  "updated_at": "2026-10-18T18:49:53.951796+00:00",
+  "versions": [
+    {
+      "version": 3,
+      "status": "partial",
+      "created_at": "2026-10-18T17:00:28.668581+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+    },
+    {
+      "version": 2,
+      "status": "analysis_failed",
+      "created_at": "2026-10-18T16:52:15.143368+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 1,
+      "status": "analyzed",
+      "created_at": "2026-10-18T16:36:53.036133+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+    }
+  ],
+  "version": {
+    "version": 3,
+    "input": {
+      "name": "Arduino LED 按钮反应时间小游戏",
+      "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+      "student_level": "beginner",
+      "language": "zh",
+      "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "status": "partial",
+    "analysis": {
+      "scope": "使用Arduino Uno、一个带限流电阻的LED和一个按钮制作低压反应时间小游戏。按钮采用INPUT_PULLUP接地，串口监视器显示提示和结果。游戏流程：按按钮开始一轮，随机等待2到5秒后点亮LED，亮灯后按按钮显示反应毫秒数；若等待期间按下则判为抢按，之后可再按按钮开始新一轮。全程必须能识别按钮，不得用delay阻塞随机等待；按钮需去抖，长按不能连续启动多轮。包含断电接线、LED极性、共地说明，不涉及市电、电机或继电器。",
+      "technical_plan": "使用Arduino Uno、一个LED（串联限流电阻）和一个按钮。按钮接法：一端接GND，另一端接D2引脚，使用pinMode(2, INPUT_PULLUP)。LED阳极经电阻接D9引脚，阴极接GND，注意极性和共地。程序采用非阻塞状态机：状态包括IDLE（等待开始）、WAITING（随机等待2-5秒）、LIGHT_ON（灯亮等待反应）、EARLY（抢按提示）。随机等待使用random(2000, 5001)获取毫秒数，配合millis()计时，不使用delay。按钮去抖采用稳定时间窗口：每5ms采样一次，连续4次（20ms）电平相同才确认状态变化，从去抖后的下降沿检测一次按下。主循环始终运行，不阻塞按钮采样。串口监视器9600波特率，显示提示和反应时间。",
+      "assumptions": [
+        "使用Arduino Uno和Arduino IDE，串口监视器波特率设为9600。",
+        "按钮和LED的引脚可修改，方案中默认按钮接D2、LED接D9。",
+        "随机等待范围2到5秒包含端点，程序使用random(2000, 5001)实现。",
+        "去抖参数（稳定采样次数和间隔）是可修改假设，默认每5ms采样一次，连续4次相同电平确认。",
+        "硬件接线为低压直流，不涉及市电、电机或继电器。",
+        "学生可更换开发板型号、引脚或去抖参数并重新生成方案。"
+      ],
+      "learner_profile": {
+        "student_level": "beginner",
+        "assumed_knowledge": [
+          "能在Arduino IDE中编写并上传简单程序",
+          "知道LED需要串联限流电阻并区分极性",
+          "了解Arduino基本数字输入输出函数"
+        ],
+        "adjustment_note": "你是初学者，假设你只做过点亮LED。如果实际经验不同，或想调整项目范围、硬件引脚和去抖参数，可以随时修改并重新生成学习方案。"
+      },
+      "functions": [
+        {
+          "id": "f1",
+          "name": "安全断电接线与LED/按钮电路搭建",
+          "original_requirement": "说明断电接线、LED极性和共地，不接市电、电机或继电器。按钮使用INPUT_PULLUP接地。",
+          "acceptance_criteria": "在断电状态下完成接线：LED阳极经限流电阻接D9，阴极接GND；按钮一端接GND，另一端接D2；所有地线共地；上电后LED不异常常亮，按钮可被读取；不接入市电、电机或继电器。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2",
+          "name": "按钮去抖与单次按下检测",
+          "original_requirement": "按钮需要去抖，长按不能连续启动多轮。",
+          "acceptance_criteria": "按住按钮不放时，串口只打印一次按下事件，不会连续触发开始；松开后再次按下可产生新事件。去抖采用稳定时间窗口，而非仅比较上次电平。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3",
+          "name": "非阻塞随机等待与提前按下判定",
+          "original_requirement": "随机等待2到5秒再亮LED；等待期间若提前按下则判抢按；全程仍能识别按钮，不能用delay阻塞随机等待。",
+          "acceptance_criteria": "在等待期间按下按钮，串口立即显示抢按提示；等待期间按钮检测正常，不因等待而丢失按下；到达随机时间后LED点亮。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4",
+          "name": "亮灯后测量并显示反应毫秒数",
+          "original_requirement": "亮灯后按按钮显示反应毫秒数。",
+          "acceptance_criteria": "LED点亮后按下按钮，串口显示反应时间（毫秒），数值为非负整数；按钮去抖后只记录第一次有效按下。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5",
+          "name": "抢按后开始新一轮",
+          "original_requirement": "等待期间若提前按下则判抢按，之后可按按钮开始新一轮。",
+          "acceptance_criteria": "抢按提示后，再次按下按钮可开始新一轮随机等待；长按不会连续启动多轮。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1",
+          "name": "Arduino低压电路安全接线与LED极性",
+          "description": "学习断电接线顺序、LED阳极阴极识别、限流电阻作用与共地连接，完成安全的上电前检查。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "正确接线是项目运行和安全的前提，避免LED损坏或短路。",
+          "learning_goal": "理解LED极性、限流电阻和共地的作用，能独立完成并检查低压接线。",
+          "technology": "Arduino",
+          "project_task": "在断电状态下将LED经电阻接D9，按钮一端接GND另一端接D2，确认所有地线共地。",
+          "concepts": [
+            "LED阳极阴极识别",
+            "限流电阻计算与连接",
+            "共地连接",
+            "断电接线检查"
+          ],
+          "practice_check": "上电后LED不异常常亮，按钮可被读取；用万用表检查GND连通。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+          "description": "学习pinMode(INPUT_PULLUP)配置内部上拉，用digitalRead读取按钮状态，并通过串口监视器打印状态变化。",
+          "function_ids": [
+            "f1",
+            "f2"
+          ],
+          "why_needed": "项目需要可靠读取按钮并观察去抖效果，串口是主要反馈工具。",
+          "learning_goal": "能配置内部上拉按钮，并在串口监视器中正确打印按钮原始状态。",
+          "technology": "Arduino",
+          "project_task": "编写程序读取D2按钮状态，并每100ms在串口监视器打印一次原始电平值。",
+          "concepts": [
+            "pinMode INPUT_PULLUP",
+            "digitalRead",
+            "Serial.begin与Serial.println",
+            "按钮按下为LOW"
+          ],
+          "practice_check": "串口监视器显示：未按时为1，按下时为0。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "按钮去抖的稳定时间窗口实现",
+          "description": "学习用millis()定时采样，连续多次电平一致才确认按钮状态变化，并检测从松开到按下的单次边沿。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "机械按钮会产生抖动，不处理会导致一次按下被误判为多次，长按也会连续触发。",
+          "learning_goal": "理解去抖需要稳定时间窗口而非仅比较上次电平，并能实现单次按下检测。",
+          "technology": "Arduino",
+          "project_task": "在程序中每5ms读取按钮，连续4次电平相同才更新稳定状态；在稳定状态从HIGH变为LOW时产生一次按下事件。",
+          "concepts": [
+            "millis()非阻塞定时采样",
+            "稳定时间窗口去抖",
+            "下降沿单次触发",
+            "长按不重复触发"
+          ],
+          "practice_check": "快速按下松开一次，串口只打印一次“按下”；按住不放3秒，也只打印一次；抖动时不会打印多次。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "非阻塞随机等待与millis计时",
+          "description": "学习用random()生成2到5秒的毫秒数，用millis()记录开始时间，在主循环中检查是否达到等待时间，避免delay阻塞。",
+          "function_ids": [
+            "f3"
+          ],
+          "why_needed": "随机等待期间仍需持续检测按钮，用delay会导致无法识别提前按下。",
+          "learning_goal": "理解非阻塞等待模式，能实现不冻结按钮检测的随机延时。",
+          "technology": "Arduino",
+          "project_task": "在等待状态中生成2000到5000毫秒的随机等待时长，用millis()比较已过时间，同时持续执行按钮去抖检测。",
+          "concepts": [
+            "random(2000, 5001)范围",
+            "millis()记录时间戳",
+            "非阻塞条件检查",
+            "状态变量控制流程"
+          ],
+          "practice_check": "等待期间按下按钮能立即被检测到，3次测试亮灯时间随机分布在2-5秒内且不阻塞。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "反应时间游戏状态机与主循环",
+          "description": "设计IDLE、WAITING、LIGHT_ON、EARLY四个状态的状态机，在loop中根据状态和按钮事件切换，LED亮灭与串口提示对应。",
+          "function_ids": [
+            "f3",
+            "f4",
+            "f5"
+          ],
+          "why_needed": "整合按钮事件、随机等待、抢按处理、反应计时和重新开始，需要清晰的状态管理。",
+          "learning_goal": "能将游戏规则转化为状态机，并在不阻塞主循环的前提下管理状态切换。",
+          "technology": "Arduino",
+          "project_task": "实现状态机：IDLE等待按钮，WAITING随机等待，LIGHT_ON记录反应并显示毫秒数，EARLY提示抢按后可再按开始。",
+          "concepts": [
+            "状态枚举或常量",
+            "switch-case状态切换",
+            "LED输出控制",
+            "反应时间计算：millis()差值"
+          ],
+          "practice_check": "完整流程可运行：按按钮→等待→亮灯→再按显示反应毫秒；等待中抢按显示提示，再按可开始新一轮。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3",
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": {
+      "confirmation_version": 3,
+      "confirmed_at": "2026-10-18T18:47:41.480368+00:00",
+      "selected_ids": [
+        "k1",
+        "k2",
+        "k3",
+        "k4",
+        "k5"
+      ],
+      "selections": {
+        "k1": "learn",
+        "k2": "learn",
+        "k3": "learn",
+        "k4": "learn",
+        "k5": "learn"
+      },
+      "acknowledged_skipped_prerequisites": [],
+      "analysis": {
+        "scope": "使用Arduino Uno、一个带限流电阻的LED和一个按钮制作低压反应时间小游戏。按钮采用INPUT_PULLUP接地，串口监视器显示提示和结果。游戏流程：按按钮开始一轮，随机等待2到5秒后点亮LED，亮灯后按按钮显示反应毫秒数；若等待期间按下则判为抢按，之后可再按按钮开始新一轮。全程必须能识别按钮，不得用delay阻塞随机等待；按钮需去抖，长按不能连续启动多轮。包含断电接线、LED极性、共地说明，不涉及市电、电机或继电器。",
+        "technical_plan": "使用Arduino Uno、一个LED（串联限流电阻）和一个按钮。按钮接法：一端接GND，另一端接D2引脚，使用pinMode(2, INPUT_PULLUP)。LED阳极经电阻接D9引脚，阴极接GND，注意极性和共地。程序采用非阻塞状态机：状态包括IDLE（等待开始）、WAITING（随机等待2-5秒）、LIGHT_ON（灯亮等待反应）、EARLY（抢按提示）。随机等待使用random(2000, 5001)获取毫秒数，配合millis()计时，不使用delay。按钮去抖采用稳定时间窗口：每5ms采样一次，连续4次（20ms）电平相同才确认状态变化，从去抖后的下降沿检测一次按下。主循环始终运行，不阻塞按钮采样。串口监视器9600波特率，显示提示和反应时间。",
+        "assumptions": [
+          "使用Arduino Uno和Arduino IDE，串口监视器波特率设为9600。",
+          "按钮和LED的引脚可修改，方案中默认按钮接D2、LED接D9。",
+          "随机等待范围2到5秒包含端点，程序使用random(2000, 5001)实现。",
+          "去抖参数（稳定采样次数和间隔）是可修改假设，默认每5ms采样一次，连续4次相同电平确认。",
+          "硬件接线为低压直流，不涉及市电、电机或继电器。",
+          "学生可更换开发板型号、引脚或去抖参数并重新生成方案。"
+        ],
+        "learner_profile": {
+          "student_level": "beginner",
+          "assumed_knowledge": [
+            "能在Arduino IDE中编写并上传简单程序",
+            "知道LED需要串联限流电阻并区分极性",
+            "了解Arduino基本数字输入输出函数"
+          ],
+          "adjustment_note": "你是初学者，假设你只做过点亮LED。如果实际经验不同，或想调整项目范围、硬件引脚和去抖参数，可以随时修改并重新生成学习方案。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "安全断电接线与LED/按钮电路搭建",
+            "original_requirement": "说明断电接线、LED极性和共地，不接市电、电机或继电器。按钮使用INPUT_PULLUP接地。",
+            "acceptance_criteria": "在断电状态下完成接线：LED阳极经限流电阻接D9，阴极接GND；按钮一端接GND，另一端接D2；所有地线共地；上电后LED不异常常亮，按钮可被读取；不接入市电、电机或继电器。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "按钮去抖与单次按下检测",
+            "original_requirement": "按钮需要去抖，长按不能连续启动多轮。",
+            "acceptance_criteria": "按住按钮不放时，串口只打印一次按下事件，不会连续触发开始；松开后再次按下可产生新事件。去抖采用稳定时间窗口，而非仅比较上次电平。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "非阻塞随机等待与提前按下判定",
+            "original_requirement": "随机等待2到5秒再亮LED；等待期间若提前按下则判抢按；全程仍能识别按钮，不能用delay阻塞随机等待。",
+            "acceptance_criteria": "在等待期间按下按钮，串口立即显示抢按提示；等待期间按钮检测正常，不因等待而丢失按下；到达随机时间后LED点亮。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "亮灯后测量并显示反应毫秒数",
+            "original_requirement": "亮灯后按按钮显示反应毫秒数。",
+            "acceptance_criteria": "LED点亮后按下按钮，串口显示反应时间（毫秒），数值为非负整数；按钮去抖后只记录第一次有效按下。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "抢按后开始新一轮",
+            "original_requirement": "等待期间若提前按下则判抢按，之后可按按钮开始新一轮。",
+            "acceptance_criteria": "抢按提示后，再次按下按钮可开始新一轮随机等待；长按不会连续启动多轮。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "Arduino低压电路安全接线与LED极性",
+            "description": "学习断电接线顺序、LED阳极阴极识别、限流电阻作用与共地连接，完成安全的上电前检查。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "正确接线是项目运行和安全的前提，避免LED损坏或短路。",
+            "learning_goal": "理解LED极性、限流电阻和共地的作用，能独立完成并检查低压接线。",
+            "technology": "Arduino",
+            "project_task": "在断电状态下将LED经电阻接D9，按钮一端接GND另一端接D2，确认所有地线共地。",
+            "concepts": [
+              "LED阳极阴极识别",
+              "限流电阻计算与连接",
+              "共地连接",
+              "断电接线检查"
+            ],
+            "practice_check": "上电后LED不异常常亮，按钮可被读取；用万用表检查GND连通。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+            "description": "学习pinMode(INPUT_PULLUP)配置内部上拉，用digitalRead读取按钮状态，并通过串口监视器打印状态变化。",
+            "function_ids": [
+              "f1",
+              "f2"
+            ],
+            "why_needed": "项目需要可靠读取按钮并观察去抖效果，串口是主要反馈工具。",
+            "learning_goal": "能配置内部上拉按钮，并在串口监视器中正确打印按钮原始状态。",
+            "technology": "Arduino",
+            "project_task": "编写程序读取D2按钮状态，并每100ms在串口监视器打印一次原始电平值。",
+            "concepts": [
+              "pinMode INPUT_PULLUP",
+              "digitalRead",
+              "Serial.begin与Serial.println",
+              "按钮按下为LOW"
+            ],
+            "practice_check": "串口监视器显示：未按时为1，按下时为0。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "按钮去抖的稳定时间窗口实现",
+            "description": "学习用millis()定时采样，连续多次电平一致才确认按钮状态变化，并检测从松开到按下的单次边沿。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "机械按钮会产生抖动，不处理会导致一次按下被误判为多次，长按也会连续触发。",
+            "learning_goal": "理解去抖需要稳定时间窗口而非仅比较上次电平，并能实现单次按下检测。",
+            "technology": "Arduino",
+            "project_task": "在程序中每5ms读取按钮，连续4次电平相同才更新稳定状态；在稳定状态从HIGH变为LOW时产生一次按下事件。",
+            "concepts": [
+              "millis()非阻塞定时采样",
+              "稳定时间窗口去抖",
+              "下降沿单次触发",
+              "长按不重复触发"
+            ],
+            "practice_check": "快速按下松开一次，串口只打印一次“按下”；按住不放3秒，也只打印一次；抖动时不会打印多次。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "非阻塞随机等待与millis计时",
+            "description": "学习用random()生成2到5秒的毫秒数，用millis()记录开始时间，在主循环中检查是否达到等待时间，避免delay阻塞。",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "随机等待期间仍需持续检测按钮，用delay会导致无法识别提前按下。",
+            "learning_goal": "理解非阻塞等待模式，能实现不冻结按钮检测的随机延时。",
+            "technology": "Arduino",
+            "project_task": "在等待状态中生成2000到5000毫秒的随机等待时长，用millis()比较已过时间，同时持续执行按钮去抖检测。",
+            "concepts": [
+              "random(2000, 5001)范围",
+              "millis()记录时间戳",
+              "非阻塞条件检查",
+              "状态变量控制流程"
+            ],
+            "practice_check": "等待期间按下按钮能立即被检测到，3次测试亮灯时间随机分布在2-5秒内且不阻塞。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "反应时间游戏状态机与主循环",
+            "description": "设计IDLE、WAITING、LIGHT_ON、EARLY四个状态的状态机，在loop中根据状态和按钮事件切换，LED亮灭与串口提示对应。",
+            "function_ids": [
+              "f3",
+              "f4",
+              "f5"
+            ],
+            "why_needed": "整合按钮事件、随机等待、抢按处理、反应计时和重新开始，需要清晰的状态管理。",
+            "learning_goal": "能将游戏规则转化为状态机，并在不阻塞主循环的前提下管理状态切换。",
+            "technology": "Arduino",
+            "project_task": "实现状态机：IDLE等待按钮，WAITING随机等待，LIGHT_ON记录反应并显示毫秒数，EARLY提示抢按后可再按开始。",
+            "concepts": [
+              "状态枚举或常量",
+              "switch-case状态切换",
+              "LED输出控制",
+              "反应时间计算：millis()差值"
+            ],
+            "practice_check": "完整流程可运行：按按钮→等待→亮灯→再按显示反应毫秒；等待中抢按显示提示，再按可开始新一轮。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3",
+              "k4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          }
+        ]
+      },
+      "input": {
+        "name": "Arduino LED 按钮反应时间小游戏",
+        "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      }
+    },
+    "batches": [
+      {
+        "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v3-b1",
+        "ordinal": 1,
+        "project_knowledge_point_ids": [
+          "k1",
+          "k2",
+          "k3",
+          "k4",
+          "k5"
+        ],
+        "status": "partial",
+        "job_id": "2ff973b9-2667-4e28-b30c-047be017de15",
+        "mappings": [
+          {
+            "project_knowledge_point_id": "k1",
+            "knowledge_point_id": "dc9d9f19-7887-4069-8bc7-fcfd2972ca24"
+          },
+          {
+            "project_knowledge_point_id": "k2",
+            "knowledge_point_id": "816a7339-74c1-4237-a155-e9e1f4cb3e73"
+          },
+          {
+            "project_knowledge_point_id": "k3",
+            "knowledge_point_id": "99347a07-8d1d-4b53-ad93-2ae36f4b76c2"
+          },
+          {
+            "project_knowledge_point_id": "k4",
+            "knowledge_point_id": "e45534af-4010-4e00-9ba2-8719975d022f"
+          },
+          {
+            "project_knowledge_point_id": "k5",
+            "knowledge_point_id": "0cc0a8b7-172a-4b3c-9416-a4ac74c8b622"
+          }
+        ],
+        "error": null,
+        "reused": false,
+        "job_status": "partial",
+        "progress": {
+          "queries_planned": 30,
+          "queries_completed": 20,
+          "search_requests": 30,
+          "search_successes": 20,
+          "search_failures": 0,
+          "candidates_discovered": 120,
+          "resources_discovered": 92,
+          "details_attempted": 24,
+          "details_completed": 24,
+          "details_cached": 0,
+          "cache_hits": 0,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0,
+          "discovery_dns_requests": 2
+        },
+        "warnings": [
+          "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+          "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+          "部分公开目录页未完成补全，已保存主页证据；目录状态与失败原因可在资源详情查看",
+          "68 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "5 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "errors": []
+      }
+    ],
+    "budgets": {
+      "batch_size": 5,
+      "batch_count": 1,
+      "selected_count": 5,
+      "reserved_search_requests": 30,
+      "reserved_detail_pages": 40,
+      "reserved_task_seconds": 240,
+      "max_batches": 6,
+      "max_search_requests": 180,
+      "max_detail_pages": 240,
+      "deadline_seconds": 1800,
+      "per_batch_search_requests": 30,
+      "per_batch_deadline_seconds": 240,
+      "per_batch_detail_pages": 40,
+      "actual_search_requests": 30,
+      "actual_detail_pages": 24
+    },
+    "error": null,
+    "warnings": [],
+    "created_at": "2026-10-18T17:00:28.668581+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+    "origin": "analysis",
+    "search_started_at": "2026-10-18T18:47:41.495551+00:00",
+    "cancel_requested": false,
+    "updated_at": "2026-10-18T18:49:53.951579+00:00"
+  },
+  "points": [
+    {
+      "project_knowledge_point_id": "k1",
+      "name": "Arduino低压电路安全接线与LED极性",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v3-b1",
+      "job_id": "2ff973b9-2667-4e28-b30c-047be017de15",
+      "knowledge_point_id": "dc9d9f19-7887-4069-8bc7-fcfd2972ca24",
+      "result": {
+        "knowledge_point_id": "dc9d9f19-7887-4069-8bc7-fcfd2972ca24",
+        "text": "Arduino低压电路安全接线与LED极性",
+        "learning_targets": [
+          "LED阳极阴极识别",
+          "限流电阻计算与连接",
+          "共地连接",
+          "断电接线检查"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "unknown",
+          "shared_context": [],
+          "subtopics": [
+            {
+              "id": "whole_topic",
+              "text": "Arduino低压电路安全接线与LED极性",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "LED阳极阴极识别",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "限流电阻计算与连接",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "共地连接",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "断电接线检查",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k2",
+      "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v3-b1",
+      "job_id": "2ff973b9-2667-4e28-b30c-047be017de15",
+      "knowledge_point_id": "816a7339-74c1-4237-a155-e9e1f4cb3e73",
+      "result": {
+        "knowledge_point_id": "816a7339-74c1-4237-a155-e9e1f4cb3e73",
+        "text": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+        "learning_targets": [
+          "pinMode INPUT_PULLUP",
+          "digitalRead",
+          "Serial.begin与Serial.println",
+          "按钮按下为LOW"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "unknown",
+          "shared_context": [],
+          "subtopics": [
+            {
+              "id": "whole_topic",
+              "text": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "pinMode INPUT_PULLUP",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "digitalRead",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "Serial.begin与Serial.println",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "按钮按下为LOW",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k3",
+      "name": "按钮去抖的稳定时间窗口实现",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v3-b1",
+      "job_id": "2ff973b9-2667-4e28-b30c-047be017de15",
+      "knowledge_point_id": "99347a07-8d1d-4b53-ad93-2ae36f4b76c2",
+      "result": {
+        "knowledge_point_id": "99347a07-8d1d-4b53-ad93-2ae36f4b76c2",
+        "text": "Arduino 按钮去抖的稳定时间窗口实现",
+        "learning_targets": [
+          "millis()非阻塞定时采样",
+          "稳定时间窗口去抖",
+          "下降沿单次触发",
+          "长按不重复触发"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "not_applicable",
+          "shared_context": [],
+          "subtopics": [
+            {
+              "id": "whole_topic",
+              "text": "Arduino 按钮去抖的稳定时间窗口实现",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "millis()非阻塞定时采样",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "稳定时间窗口去抖",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "下降沿单次触发",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "长按不重复触发",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k4",
+      "name": "非阻塞随机等待与millis计时",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v3-b1",
+      "job_id": "2ff973b9-2667-4e28-b30c-047be017de15",
+      "knowledge_point_id": "e45534af-4010-4e00-9ba2-8719975d022f",
+      "result": {
+        "knowledge_point_id": "e45534af-4010-4e00-9ba2-8719975d022f",
+        "text": "Arduino 非阻塞随机等待与millis计时",
+        "learning_targets": [
+          "random(2000, 5001)范围",
+          "millis()记录时间戳",
+          "非阻塞条件检查",
+          "状态变量控制流程"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "unknown",
+          "shared_context": [],
+          "subtopics": [
+            {
+              "id": "whole_topic",
+              "text": "Arduino 非阻塞随机等待与millis计时",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "random(2000, 5001)范围",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "millis()记录时间戳",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "非阻塞条件检查",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "状态变量控制流程",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k5",
+      "name": "反应时间游戏状态机与主循环",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v3-b1",
+      "job_id": "2ff973b9-2667-4e28-b30c-047be017de15",
+      "knowledge_point_id": "0cc0a8b7-172a-4b3c-9416-a4ac74c8b622",
+      "result": {
+        "knowledge_point_id": "0cc0a8b7-172a-4b3c-9416-a4ac74c8b622",
+        "text": "Arduino 反应时间游戏状态机与主循环",
+        "learning_targets": [
+          "状态枚举或常量",
+          "switch-case状态切换",
+          "LED输出控制",
+          "反应时间计算：millis()差值"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "Arduino"
+          ],
+          "subtopics": [
+            {
+              "id": "subtopic_1",
+              "text": "反应时间游戏状态机",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "subtopic_2",
+              "text": "主循环",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "状态枚举或常量",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "switch-case状态切换",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "LED输出控制",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "反应时间计算：millis()差值",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    }
+  ],
+  "functions": [
+    {
+      "id": "f1",
+      "name": "安全断电接线与LED/按钮电路搭建",
+      "original_requirement": "说明断电接线、LED极性和共地，不接市电、电机或继电器。按钮使用INPUT_PULLUP接地。",
+      "acceptance_criteria": "在断电状态下完成接线：LED阳极经限流电阻接D9，阴极接GND；按钮一端接GND，另一端接D2；所有地线共地；上电后LED不异常常亮，按钮可被读取；不接入市电、电机或继电器。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f2",
+      "name": "按钮去抖与单次按下检测",
+      "original_requirement": "按钮需要去抖，长按不能连续启动多轮。",
+      "acceptance_criteria": "按住按钮不放时，串口只打印一次按下事件，不会连续触发开始；松开后再次按下可产生新事件。去抖采用稳定时间窗口，而非仅比较上次电平。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f3",
+      "name": "非阻塞随机等待与提前按下判定",
+      "original_requirement": "随机等待2到5秒再亮LED；等待期间若提前按下则判抢按；全程仍能识别按钮，不能用delay阻塞随机等待。",
+      "acceptance_criteria": "在等待期间按下按钮，串口立即显示抢按提示；等待期间按钮检测正常，不因等待而丢失按下；到达随机时间后LED点亮。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f4",
+      "name": "亮灯后测量并显示反应毫秒数",
+      "original_requirement": "亮灯后按按钮显示反应毫秒数。",
+      "acceptance_criteria": "LED点亮后按下按钮，串口显示反应时间（毫秒），数值为非负整数；按钮去抖后只记录第一次有效按下。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f5",
+      "name": "抢按后开始新一轮",
+      "original_requirement": "等待期间若提前按下则判抢按，之后可按按钮开始新一轮。",
+      "acceptance_criteria": "抢按提示后，再次按下按钮可开始新一轮随机等待；长按不会连续启动多轮。",
+      "no_new_learning_reason": null
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "mode": "read_only_local_source",
+  "network_requests_performed": false,
+  "known_response_text": "Suspended: timeout",
+  "known_response_sha256": "6c90b1014a9eabe5143c08002e6186b5aba390f3a48fb460c186e520be6071c2",
+  "files": [
+    {
+      "path": "/usr/local/searxng/searx/webutils.py",
+      "sha256": "0c193cc553ed8e7db20ddc6b2072f0226e4b2a408fc8e30a5a9e369a9ff14851",
+      "lines": {
+        "69": "def get_translated_errors(unresponsive_engines: \"Iterable[UnresponsiveEngine]\"):",
+        "70": "    translated_errors = []",
+        "71": "",
+        "72": "    for unresponsive_engine in unresponsive_engines:",
+        "73": "        error_user_text = exception_classname_to_text.get(unresponsive_engine.error_type)",
+        "74": "        if not error_user_text:",
+        "75": "            error_user_text = exception_classname_to_text[None]",
+        "76": "        error_msg = gettext(error_user_text)",
+        "77": "        if unresponsive_engine.suspended:",
+        "78": "            error_msg = gettext('Suspended') + ': ' + error_msg",
+        "79": "        translated_errors.append((unresponsive_engine.engine, error_msg))"
+      }
+    },
+    {
+      "path": "/usr/local/searxng/searx/search/processors/abstract.py",
+      "sha256": "eb06c4bb029fa9794bf8a4bc1d21c61f3b87c5cfbd24d6aae93ec15c7776556c",
+      "lines": {
+        "239": "    def extend_container_if_suspended(self, result_container: \"ResultContainer\") -> bool:",
+        "240": "        if self.suspended_status.is_suspended:",
+        "241": "            result_container.add_unresponsive_engine(",
+        "242": "                self.engine.name, self.suspended_status.suspend_reason, suspended=True",
+        "243": "            )",
+        "244": "            return True",
+        "245": "        return False"
+      }
+    }
+  ],
+  "observed_at": "2026-10-18T12:17:51.554Z",
+  "source_container": "knowledge-sprite-searxng-1",
+  "inference": "The recorded unknown reason hash equals the exact UTF-8 string Suspended: timeout; local source confirms this form describes an engine suspension after timeout. The raw recorded reason_code remains unknown.",
+  "no_configuration_or_pause_changed": true
+}

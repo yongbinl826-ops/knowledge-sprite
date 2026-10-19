@@ -1,0 +1,741 @@
+{
+  "project_id": "bb01c9ec-8b25-4425-832e-ccd9fa7d0a60",
+  "original_input": {
+    "name": "校园自习室使用情况本地看板",
+    "requirements": "用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率以百分比保留1位小数，不能平均各行百分比；有效零到访记录必须保留。按room汇总到访人次并用Streamlit自带条形图显示。尚未上传、CSV缺列或格式错误、筛选无匹配时给清晰提示且页面可继续操作；空结果时指标显示“—”，不算除零或显示NaN，不画误导性图。只用本地文件，不需要账号、联网数据、数据库、预测、地图或云部署。",
+    "student_level": "intermediate",
+    "language": "zh",
+    "project_context": "已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "input": {
+    "name": "校园自习室使用情况本地看板",
+    "requirements": "用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率以百分比保留1位小数，不能平均各行百分比；有效零到访记录必须保留。按room汇总到访人次并用Streamlit自带条形图显示。尚未上传、CSV缺列或格式错误、筛选无匹配时给清晰提示且页面可继续操作；空结果时指标显示“—”，不算除零或显示NaN，不画误导性图。只用本地文件，不需要账号、联网数据、数据库、预测、地图或云部署。",
+    "student_level": "intermediate",
+    "language": "zh",
+    "project_context": "已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "current_version": 5,
+  "created_at": "2026-10-18T18:44:39.651007+00:00",
+  "updated_at": "2026-10-18T23:43:21.567670+00:00",
+  "versions": [
+    {
+      "version": 5,
+      "status": "partial",
+      "created_at": "2026-10-18T23:41:00.204184+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v3.1-consistent-recovery-observation"
+    },
+    {
+      "version": 4,
+      "status": "partial",
+      "created_at": "2026-10-18T22:58:42.497548+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v3.1-consistent-recovery-observation"
+    },
+    {
+      "version": 3,
+      "status": "analyzed",
+      "created_at": "2026-10-18T22:52:49.367653+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v3.1-consistent-recovery-observation"
+    },
+    {
+      "version": 2,
+      "status": "partial",
+      "created_at": "2026-10-18T20:13:04.426549+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+    },
+    {
+      "version": 1,
+      "status": "partial",
+      "created_at": "2026-10-18T18:44:39.657563+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+    }
+  ],
+  "version": {
+    "version": 5,
+    "input": {
+      "name": "校园自习室使用情况本地看板",
+      "requirements": "用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率以百分比保留1位小数，不能平均各行百分比；有效零到访记录必须保留。按room汇总到访人次并用Streamlit自带条形图显示。尚未上传、CSV缺列或格式错误、筛选无匹配时给清晰提示且页面可继续操作；空结果时指标显示“—”，不算除零或显示NaN，不画误导性图。只用本地文件，不需要账号、联网数据、数据库、预测、地图或云部署。",
+      "student_level": "intermediate",
+      "language": "zh",
+      "project_context": "已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "status": "partial",
+    "analysis": {
+      "scope": "用 Python + pandas + Streamlit 构建仅在本机浏览器运行的自习室 CSV 看板：上传合成 CSV，按规则逐行校验并剔除不合格行并显示数量；起止日期（两端包含）与房间多选筛选，选空即无结果；用同一份筛选后有效数据计算到访总人次、占用座位分钟和加权使用率（百分比1位小数），并按 room 汇总到访人次用 st.bar_chart 展示；未上传、缺列/格式错误、无匹配时给出清晰提示，空结果指标为“—”且不画图。不含账号、联网、数据库、预测、地图或云部署。",
+      "technical_plan": "单文件 Streamlit 应用：st.set_page_config 后依次处理 st.file_uploader 上传 → pd.read_csv 读取 → 列名集合校验（缺列给错误提示并 st.stop 或返回空）→ 逐行校验：date 用 pd.to_datetime(format='%Y-%m-%d', errors='coerce') 解析失败即剔除；room 去空白后为空即剔除；visits 需为非负整数；capacity、open_minutes 为正整数；occupied_seat_minutes 非负且不超过 capacity*open_minutes；非法行剔除并显示数量，不做去重。全部校验通过行组成有效数据。随后 st.sidebar 用 st.date_input 提供起止日期（默认有效数据最小/最大日期，闭区间过滤），st.multiselect 提供房间多选（默认全部房间，选空得空结果）。筛选后 DataFrame 作为唯一数据源：指标区用 sum(visits)、sum(occupied_seat_minutes)、加权使用率=sum(occupied)/sum(capacity*open_minutes)*100 保留1位小数，空结果时均显示“—”；图表区在非空时按 room groupby sum(visits) 后用 st.bar_chart 绘制，空结果不画图。零到访记录属于有效数据，保留计入。挑选框用纯函数式步骤（validate、filter、aggregate）便于在 Streamlit 中调试。假定允许生成的合成 CSV 测试文件；默认日期/房间来源为有效数据本身，该行为为可修改假设。",
+      "assumptions": [
+        "技术栈采用用户指定的 Python、pandas 与 Streamlit，不引入其他可视化库或数据库。",
+        "起止日期控件默认值取有效数据最小/最大日期（可改为固定值），属可修改假设。",
+        "房间多选默认值取有效数据中所有房间；选空即空结果为明确需求。",
+        "CSV 编码按 UTF-8 读取，若出现乱码可调整，属可修改假设。",
+        "不合格行策略为逐行剔除并计数，不做去重，符合原始需求。"
+      ],
+      "learner_profile": {
+        "student_level": "intermediate",
+        "assumed_knowledge": [
+          "Python 函数编写与基本数据结构",
+          "pandas read_csv 读取、布尔筛选",
+          "pandas groupby 聚合",
+          "了解基本 HTML/浏览器操作"
+        ],
+        "adjustment_note": "当前按中级设定：已会 Python 与 pandas 基础，首次使用 Streamlit，不重上 Python/pandas 入门。若你实际基础不同、想换数据字段或筛选口径，可修改学习等级或项目背景后重新生成。"
+      },
+      "functions": [
+        {
+          "id": "f1",
+          "name": "CSV 文件上传与读取",
+          "original_requirement": "通过文件上传读取合成CSV；尚未上传、CSV缺列或格式错误时给清晰提示且页面可继续操作",
+          "acceptance_criteria": "上传合法 CSV 后可读到 DataFrame；未上传显示提示；缺列或解析失败显示清晰错误，页面不崩溃仍可重新上传。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2",
+          "name": "逐行数据校验与不合格行剔除",
+          "original_requirement": "date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重",
+          "acceptance_criteria": "构造含各类非法行（日期格式错、room空、负 visits、capacity=0、occupied 超 capacity*open_minutes 等）的 CSV，被剔除且显示剔除数量；不做去重；零到访行保留。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3",
+          "name": "日期区间与房间多选筛选",
+          "original_requirement": "提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部",
+          "acceptance_criteria": "日期两端包含；默认选中全部有效日期与房间；房间选空时筛选结果为空而非回退为全部。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4",
+          "name": "指标计算与展示",
+          "original_requirement": "显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率百分比保留1位小数，不能平均各行百分比；空结果指标显示“—”",
+          "acceptance_criteria": "非空时到访总人次、占用座位分钟为列求和；使用率为加权比并保留1位小数百分比；空结果为“—”无 NaN/除零。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5",
+          "name": "按房间到访人次条形图",
+          "original_requirement": "按room汇总到访人次并用Streamlit自带条形图显示；空结果不画误导性图",
+          "acceptance_criteria": "非空时按 room 汇总 sum(visits) 并用 st.bar_chart 展示；空结果不绘制任何图。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1",
+          "name": "Streamlit 应用结构与文件上传控件",
+          "description": "搭建本地 Streamlit 页面骨架，使用 st.file_uploader 读取上传文件，理解脚本自上而下重运行机制。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "项目以本机浏览器运行，需要先掌握 Streamlit 页面与上传控件。",
+          "learning_goal": "理解 Streamlit 脚本模型、上传控件返回值以及重运行时机，能搭出可上传文件的页面。",
+          "technology": "Streamlit",
+          "project_task": "创建单文件应用，用 st.file_uploader 接收 CSV 并在未上传时给出提示。",
+          "concepts": [
+            "st.set_page_config 与页面结构",
+            "st.file_uploader 返回 UploadedFile 或 None",
+            "脚本自上而下重运行",
+            "未上传提示与早退（st.stop/返回）"
+          ],
+          "learning_skills": [
+            "Streamlit 单文件应用骨架搭建",
+            "st.file_uploader 上传文件读取",
+            "条件早退避免空输入下游报错"
+          ],
+          "practice_check": "打开本地页面：未上传时看到提示，上传一个小 CSV 后能在页面打印其前几行。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "pandas 读取上传 CSV 与列校验",
+          "description": "用 pandas 从上传对象读取 CSV，校验必须列 date/room/visits/capacity/open_minutes/occupied_seat_minutes 是否存在。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "缺列或格式错误需给出清晰提示而非崩溃。",
+          "learning_goal": "掌握从内存文件对象读取 CSV 并做列集合校验与错误提示。",
+          "technology": "pandas",
+          "project_task": "把上传对象读成 DataFrame，对比列名集合，缺列显示缺失列名且不继续计算。",
+          "concepts": [
+            "pd.read_csv 读取文件对象",
+            "df.columns 集合比较",
+            "缺列缺失清单展示",
+            "错误时早退"
+          ],
+          "learning_skills": [
+            "pandas 从内存对象读取 CSV",
+            "DataFrame 列集合校验与缺失列报告"
+          ],
+          "practice_check": "分别上传缺列与完整 CSV，缺列时列出缺失列名，完整时进入下一步。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "逐行数据校验与不合格行剔除",
+          "description": "按列类型与范围规则逐行校验，剔除不合格行并统计剔除数量，保留零到访等合法行，不做去重。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "所有指标与图只能基于有效数据，校验口径决定后续正确性。",
+          "learning_goal": "掌握用 pandas 构造布尔掩码表达多列复合校验条件并统计剔除数。",
+          "technology": "pandas",
+          "project_task": "实现 validate(df) 返回 (有效df, 剔除数)：date 用 format 严格解析、room 去空、visits/capacity/open_minutes 整数与范围、occupied 非负且不超容量乘积。",
+          "concepts": [
+            "pd.to_datetime(format='%Y-%m-%d',errors='coerce')",
+            "非空与去空字符串判断",
+            "非负/正整数与容量上限复合条件",
+            "布尔掩码取有效行并计数剔除"
+          ],
+          "learning_skills": [
+            "pandas 严格日期解析与缺失值识别",
+            "pandas 多条件布尔掩码组合筛选",
+            "数值列范围校验与非法行计数"
+          ],
+          "practice_check": "用含各类非法行的测试 CSV 运行校验函数，页面显示剔除数量与剩余行数，零到访行仍在。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "日期区间与房间多选筛选",
+          "description": "用 st.date_input 与 st.multiselect 提供筛选，实现日期两端包含与房间选空即空结果，所有下游共享同一份筛选后数据。",
+          "function_ids": [
+            "f3"
+          ],
+          "why_needed": "需求要求筛选默认全选、选空即无结果，且指标与图共享同一数据源。",
+          "learning_goal": "理解 Streamlit 控件返回值与重运行，掌握闭区间日期过滤和选空语义。",
+          "technology": "Streamlit",
+          "project_task": "默认日期取有效数据最小/最大日期，房间取全部房间；用布尔掩码 did 日期且 room 在所选集合内得筛选后数据。",
+          "concepts": [
+            "st.sidebar、st.date_input 返回日期范围",
+            "st.multiselect 默认全选与空列表语义",
+            "闭区间布尔过滤 (date>=起) & (date<=止)",
+            "一个 filtered_df 贯穿指标与图"
+          ],
+          "learning_skills": [
+            "Streamlit date_input/multiselect 返回值处理",
+            "pandas 闭区间日期与集合包含过滤",
+            "筛选空结果语义控制（空即无结果）"
+          ],
+          "practice_check": "选择单一房间与窄日期区间，页面行数变化正确；清空房间多选时显示空结果且不回退为全部。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "加权指标计算与空结果展示",
+          "description": "基于筛选后数据计算到访总人次、占用座位分钟与加权使用率（百分比保留1位小数），空结果显示“—”。",
+          "function_ids": [
+            "f4"
+          ],
+          "why_needed": "需求明确加权比不可平均各行百分比，且空结果不能除零或 NaN。",
+          "learning_goal": "掌握总量求和与加权比计算，并显式处理空数据展示。",
+          "technology": "pandas",
+          "project_task": "计算 sum(visits)、sum(occupied_seat_minutes)、sum(occupied)/sum(capacity*open_minutes)*100 并保留1位小数；空时三指标均为“—”。",
+          "concepts": [
+            "列求和与容量乘积求和",
+            "加权比而非行百分比均值",
+            "round(…,1) 与百分号格式化",
+            "空 DataFrame 早分支显示“—”"
+          ],
+          "learning_skills": [
+            "pandas 列求和与加权比率计算",
+            "百分比数值格式化与空数据分支展示"
+          ],
+          "practice_check": "非空筛选下手工核对使用率；使筛选无匹配时三指标显示“—”且无 NaN/报错。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "k6",
+          "name": "按房间汇总与 Streamlit 条形图",
+          "description": "用 groupby 按 room 汇总到访人次并以 st.bar_chart 展示，空结果不画图。",
+          "function_ids": [
+            "f5"
+          ],
+          "why_needed": "需求要求按房间汇总到访并使用自带条形图，空结果不能画误导性图。",
+          "learning_goal": "掌握 pandas groupby 汇总到 index 后直接绘制 Streamlit 条形图，并处理空数据不绘图。",
+          "technology": "Streamlit",
+          "project_task": "在非空筛选数据上按 room 聚合 sum(visits) 后 st.bar_chart 展示；空结果跳过绘图。",
+          "concepts": [
+            "groupby('room')['visits'].sum()",
+            "索引即类别的条形图数据形态",
+            "st.bar_chart 绘制",
+            "空数据不调用绘图"
+          ],
+          "learning_skills": [
+            "pandas 按类别分组求和",
+            "Streamlit 条形图数据形态与绘制",
+            "空结果分支跳过绘图"
+          ],
+          "practice_check": "非空时看到按房间的到访人次条形图；清空筛选后页面无图但指标与控件仍可用。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k5"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": {
+      "confirmation_version": 5,
+      "confirmed_at": "2026-10-18T23:41:00.216433+00:00",
+      "selected_ids": [
+        "k1",
+        "k2",
+        "k3",
+        "k4",
+        "k5",
+        "k6"
+      ],
+      "selections": {
+        "k1": "learn",
+        "k2": "learn",
+        "k3": "learn",
+        "k4": "learn",
+        "k5": "learn",
+        "k6": "learn"
+      },
+      "acknowledged_skipped_prerequisites": [],
+      "analysis": {
+        "scope": "用 Python + pandas + Streamlit 构建仅在本机浏览器运行的自习室 CSV 看板：上传合成 CSV，按规则逐行校验并剔除不合格行并显示数量；起止日期（两端包含）与房间多选筛选，选空即无结果；用同一份筛选后有效数据计算到访总人次、占用座位分钟和加权使用率（百分比1位小数），并按 room 汇总到访人次用 st.bar_chart 展示；未上传、缺列/格式错误、无匹配时给出清晰提示，空结果指标为“—”且不画图。不含账号、联网、数据库、预测、地图或云部署。",
+        "technical_plan": "单文件 Streamlit 应用：st.set_page_config 后依次处理 st.file_uploader 上传 → pd.read_csv 读取 → 列名集合校验（缺列给错误提示并 st.stop 或返回空）→ 逐行校验：date 用 pd.to_datetime(format='%Y-%m-%d', errors='coerce') 解析失败即剔除；room 去空白后为空即剔除；visits 需为非负整数；capacity、open_minutes 为正整数；occupied_seat_minutes 非负且不超过 capacity*open_minutes；非法行剔除并显示数量，不做去重。全部校验通过行组成有效数据。随后 st.sidebar 用 st.date_input 提供起止日期（默认有效数据最小/最大日期，闭区间过滤），st.multiselect 提供房间多选（默认全部房间，选空得空结果）。筛选后 DataFrame 作为唯一数据源：指标区用 sum(visits)、sum(occupied_seat_minutes)、加权使用率=sum(occupied)/sum(capacity*open_minutes)*100 保留1位小数，空结果时均显示“—”；图表区在非空时按 room groupby sum(visits) 后用 st.bar_chart 绘制，空结果不画图。零到访记录属于有效数据，保留计入。挑选框用纯函数式步骤（validate、filter、aggregate）便于在 Streamlit 中调试。假定允许生成的合成 CSV 测试文件；默认日期/房间来源为有效数据本身，该行为为可修改假设。",
+        "assumptions": [
+          "技术栈采用用户指定的 Python、pandas 与 Streamlit，不引入其他可视化库或数据库。",
+          "起止日期控件默认值取有效数据最小/最大日期（可改为固定值），属可修改假设。",
+          "房间多选默认值取有效数据中所有房间；选空即空结果为明确需求。",
+          "CSV 编码按 UTF-8 读取，若出现乱码可调整，属可修改假设。",
+          "不合格行策略为逐行剔除并计数，不做去重，符合原始需求。"
+        ],
+        "learner_profile": {
+          "student_level": "intermediate",
+          "assumed_knowledge": [
+            "Python 函数编写与基本数据结构",
+            "pandas read_csv 读取、布尔筛选",
+            "pandas groupby 聚合",
+            "了解基本 HTML/浏览器操作"
+          ],
+          "adjustment_note": "当前按中级设定：已会 Python 与 pandas 基础，首次使用 Streamlit，不重上 Python/pandas 入门。若你实际基础不同、想换数据字段或筛选口径，可修改学习等级或项目背景后重新生成。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "CSV 文件上传与读取",
+            "original_requirement": "通过文件上传读取合成CSV；尚未上传、CSV缺列或格式错误时给清晰提示且页面可继续操作",
+            "acceptance_criteria": "上传合法 CSV 后可读到 DataFrame；未上传显示提示；缺列或解析失败显示清晰错误，页面不崩溃仍可重新上传。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "逐行数据校验与不合格行剔除",
+            "original_requirement": "date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重",
+            "acceptance_criteria": "构造含各类非法行（日期格式错、room空、负 visits、capacity=0、occupied 超 capacity*open_minutes 等）的 CSV，被剔除且显示剔除数量；不做去重；零到访行保留。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "日期区间与房间多选筛选",
+            "original_requirement": "提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部",
+            "acceptance_criteria": "日期两端包含；默认选中全部有效日期与房间；房间选空时筛选结果为空而非回退为全部。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "指标计算与展示",
+            "original_requirement": "显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率百分比保留1位小数，不能平均各行百分比；空结果指标显示“—”",
+            "acceptance_criteria": "非空时到访总人次、占用座位分钟为列求和；使用率为加权比并保留1位小数百分比；空结果为“—”无 NaN/除零。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "按房间到访人次条形图",
+            "original_requirement": "按room汇总到访人次并用Streamlit自带条形图显示；空结果不画误导性图",
+            "acceptance_criteria": "非空时按 room 汇总 sum(visits) 并用 st.bar_chart 展示；空结果不绘制任何图。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "Streamlit 应用结构与文件上传控件",
+            "description": "搭建本地 Streamlit 页面骨架，使用 st.file_uploader 读取上传文件，理解脚本自上而下重运行机制。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "项目以本机浏览器运行，需要先掌握 Streamlit 页面与上传控件。",
+            "learning_goal": "理解 Streamlit 脚本模型、上传控件返回值以及重运行时机，能搭出可上传文件的页面。",
+            "technology": "Streamlit",
+            "project_task": "创建单文件应用，用 st.file_uploader 接收 CSV 并在未上传时给出提示。",
+            "concepts": [
+              "st.set_page_config 与页面结构",
+              "st.file_uploader 返回 UploadedFile 或 None",
+              "脚本自上而下重运行",
+              "未上传提示与早退（st.stop/返回）"
+            ],
+            "learning_skills": [
+              "Streamlit 单文件应用骨架搭建",
+              "st.file_uploader 上传文件读取",
+              "条件早退避免空输入下游报错"
+            ],
+            "practice_check": "打开本地页面：未上传时看到提示，上传一个小 CSV 后能在页面打印其前几行。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "pandas 读取上传 CSV 与列校验",
+            "description": "用 pandas 从上传对象读取 CSV，校验必须列 date/room/visits/capacity/open_minutes/occupied_seat_minutes 是否存在。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "缺列或格式错误需给出清晰提示而非崩溃。",
+            "learning_goal": "掌握从内存文件对象读取 CSV 并做列集合校验与错误提示。",
+            "technology": "pandas",
+            "project_task": "把上传对象读成 DataFrame，对比列名集合，缺列显示缺失列名且不继续计算。",
+            "concepts": [
+              "pd.read_csv 读取文件对象",
+              "df.columns 集合比较",
+              "缺列缺失清单展示",
+              "错误时早退"
+            ],
+            "learning_skills": [
+              "pandas 从内存对象读取 CSV",
+              "DataFrame 列集合校验与缺失列报告"
+            ],
+            "practice_check": "分别上传缺列与完整 CSV，缺列时列出缺失列名，完整时进入下一步。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "逐行数据校验与不合格行剔除",
+            "description": "按列类型与范围规则逐行校验，剔除不合格行并统计剔除数量，保留零到访等合法行，不做去重。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "所有指标与图只能基于有效数据，校验口径决定后续正确性。",
+            "learning_goal": "掌握用 pandas 构造布尔掩码表达多列复合校验条件并统计剔除数。",
+            "technology": "pandas",
+            "project_task": "实现 validate(df) 返回 (有效df, 剔除数)：date 用 format 严格解析、room 去空、visits/capacity/open_minutes 整数与范围、occupied 非负且不超容量乘积。",
+            "concepts": [
+              "pd.to_datetime(format='%Y-%m-%d',errors='coerce')",
+              "非空与去空字符串判断",
+              "非负/正整数与容量上限复合条件",
+              "布尔掩码取有效行并计数剔除"
+            ],
+            "learning_skills": [
+              "pandas 严格日期解析与缺失值识别",
+              "pandas 多条件布尔掩码组合筛选",
+              "数值列范围校验与非法行计数"
+            ],
+            "practice_check": "用含各类非法行的测试 CSV 运行校验函数，页面显示剔除数量与剩余行数，零到访行仍在。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "日期区间与房间多选筛选",
+            "description": "用 st.date_input 与 st.multiselect 提供筛选，实现日期两端包含与房间选空即空结果，所有下游共享同一份筛选后数据。",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "需求要求筛选默认全选、选空即无结果，且指标与图共享同一数据源。",
+            "learning_goal": "理解 Streamlit 控件返回值与重运行，掌握闭区间日期过滤和选空语义。",
+            "technology": "Streamlit",
+            "project_task": "默认日期取有效数据最小/最大日期，房间取全部房间；用布尔掩码 did 日期且 room 在所选集合内得筛选后数据。",
+            "concepts": [
+              "st.sidebar、st.date_input 返回日期范围",
+              "st.multiselect 默认全选与空列表语义",
+              "闭区间布尔过滤 (date>=起) & (date<=止)",
+              "一个 filtered_df 贯穿指标与图"
+            ],
+            "learning_skills": [
+              "Streamlit date_input/multiselect 返回值处理",
+              "pandas 闭区间日期与集合包含过滤",
+              "筛选空结果语义控制（空即无结果）"
+            ],
+            "practice_check": "选择单一房间与窄日期区间，页面行数变化正确；清空房间多选时显示空结果且不回退为全部。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "加权指标计算与空结果展示",
+            "description": "基于筛选后数据计算到访总人次、占用座位分钟与加权使用率（百分比保留1位小数），空结果显示“—”。",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "需求明确加权比不可平均各行百分比，且空结果不能除零或 NaN。",
+            "learning_goal": "掌握总量求和与加权比计算，并显式处理空数据展示。",
+            "technology": "pandas",
+            "project_task": "计算 sum(visits)、sum(occupied_seat_minutes)、sum(occupied)/sum(capacity*open_minutes)*100 并保留1位小数；空时三指标均为“—”。",
+            "concepts": [
+              "列求和与容量乘积求和",
+              "加权比而非行百分比均值",
+              "round(…,1) 与百分号格式化",
+              "空 DataFrame 早分支显示“—”"
+            ],
+            "learning_skills": [
+              "pandas 列求和与加权比率计算",
+              "百分比数值格式化与空数据分支展示"
+            ],
+            "practice_check": "非空筛选下手工核对使用率；使筛选无匹配时三指标显示“—”且无 NaN/报错。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "k6",
+            "name": "按房间汇总与 Streamlit 条形图",
+            "description": "用 groupby 按 room 汇总到访人次并以 st.bar_chart 展示，空结果不画图。",
+            "function_ids": [
+              "f5"
+            ],
+            "why_needed": "需求要求按房间汇总到访并使用自带条形图，空结果不能画误导性图。",
+            "learning_goal": "掌握 pandas groupby 汇总到 index 后直接绘制 Streamlit 条形图，并处理空数据不绘图。",
+            "technology": "Streamlit",
+            "project_task": "在非空筛选数据上按 room 聚合 sum(visits) 后 st.bar_chart 展示；空结果跳过绘图。",
+            "concepts": [
+              "groupby('room')['visits'].sum()",
+              "索引即类别的条形图数据形态",
+              "st.bar_chart 绘制",
+              "空数据不调用绘图"
+            ],
+            "learning_skills": [
+              "pandas 按类别分组求和",
+              "Streamlit 条形图数据形态与绘制",
+              "空结果分支跳过绘图"
+            ],
+            "practice_check": "非空时看到按房间的到访人次条形图；清空筛选后页面无图但指标与控件仍可用。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k5"
+            ],
+            "learning_order": 6,
+            "selection": "learn"
+          }
+        ]
+      },
+      "input": {
+        "name": "校园自习室使用情况本地看板",
+        "requirements": "用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率以百分比保留1位小数，不能平均各行百分比；有效零到访记录必须保留。按room汇总到访人次并用Streamlit自带条形图显示。尚未上传、CSV缺列或格式错误、筛选无匹配时给清晰提示且页面可继续操作；空结果时指标显示“—”，不算除零或显示NaN，不画误导性图。只用本地文件，不需要账号、联网数据、数据库、预测、地图或云部署。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      }
+    },
+    "batches": [
+      {
+        "batch_id": "bb01c9ec-8b25-4425-832e-ccd9fa7d0a60-v5-b1",
+        "ordinal": 1,
+        "project_knowledge_point_ids": [
+          "k1",
+          "k2",
+          "k3",
+          "k4",
+          "k5"
+        ],
+        "status": "partial",
+        "job_id": "dd3a3156-3ebb-4473-b84a-ce76632d1109",
+        "mappings": [
+          {
+            "project_knowledge_point_id": "k1",
+            "knowledge_point_id": "304b7ef0-0794-48f1-a38a-fb7288cf96b9"
+          },
+          {
+            "project_knowledge_point_id": "k2",
+            "knowledge_point_id": "2a6a6d67-f8cc-4549-9b45-74252f1a4f71"
+          },
+          {
+            "project_knowledge_point_id": "k3",
+            "knowledge_point_id": "3146dff0-3c8f-4f21-908a-498266d0d0cf"
+          },
+          {
+            "project_knowledge_point_id": "k4",
+            "knowledge_point_id": "77b4ebcf-003a-4efc-a353-e60deb353490"
+          },
+          {
+            "project_knowledge_point_id": "k5",
+            "knowledge_point_id": "f2e33106-9257-41ca-8304-206206a28226"
+          }
+        ],
+        "error": null,
+        "reused": false,
+        "job_status": "partial",
+        "progress": {
+          "queries_planned": 33,
+          "queries_completed": 20,
+          "search_requests": 30,
+          "search_successes": 20,
+          "search_failures": 0,
+          "candidates_discovered": 110,
+          "resources_discovered": 96,
+          "details_attempted": 21,
+          "details_completed": 21,
+          "details_cached": 9,
+          "cache_hits": 9,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0,
+          "teaching_match_calls": 2,
+          "teaching_pairs_evaluated": 20,
+          "teaching_cache_hits": 0,
+          "teaching_review_calls": 0,
+          "teaching_claims_reviewed": 0,
+          "teaching_claims_accepted": 0,
+          "teaching_pair_validation_failures": 0
+        },
+        "warnings": [
+          "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+          "部分公开目录页未完成补全，已保存主页证据；目录状态与失败原因可在资源详情查看",
+          "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+          "67 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "10 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "errors": []
+      },
+      {
+        "batch_id": "bb01c9ec-8b25-4425-832e-ccd9fa7d0a60-v5-b2",
+        "ordinal": 2,
+        "project_knowledge_point_ids": [
+          "k6"
+        ],
+        "status": "partial",
+        "job_id": "0b099bc1-c3e8-49df-b157-b5b617fb51be",
+        "mappings": [
+          {
+            "project_knowledge_point_id": "k6",
+            "knowledge_point_id": "9d9e6add-7131-4a35-b009-b481af11d0ec"
+          }
+        ],
+        "error": null,
+        "reused": false,
+        "job_status": "partial",
+        "progress": {
+          "queries_planned": 7,
+          "queries_completed": 7,
+          "search_requests": 12,
+          "search_successes": 7,
+          "search_failures": 0,
+          "candidates_discovered": 31,
+          "resources_discovered": 28,
+          "details_attempted": 6,
+          "details_completed": 6,
+          "details_cached": 2,
+          "cache_hits": 2,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0,
+          "teaching_match_calls": 1,
+          "teaching_pairs_evaluated": 4,
+          "teaching_cache_hits": 0,
+          "teaching_review_calls": 0,
+          "teaching_claims_reviewed": 0,
+          "teaching_claims_accepted": 0,
+          "teaching_pair_validation_failures": 0
+        },
+        "warnings": [
+          "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+          "部分公开目录页未完成补全，已保存主页证据；目录状态与失败原因可在资源详情查看",
+          "20 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "1 个候选缺少课程或视频类型依据，未作为学习资源展示",
+          "部分技能匹配未返回可核对结论，已保留原始来源；可到平台核对或稍后重试。"
+        ],
+        "errors": []
+      }
+    ],
+    "budgets": {
+      "batch_size": 5,
+      "batch_count": 2,
+      "selected_count": 6,
+      "reserved_search_requests": 60,
+      "reserved_detail_pages": 80,
+      "reserved_task_seconds": 480,
+      "reserved_teaching_match_calls": 4,
+      "reserved_teaching_review_calls": 2,
+      "reserved_teaching_model_total_calls": 6,
+      "reserved_teaching_match_pairs": 40,
+      "max_batches": 6,
+      "max_search_requests": 180,
+      "max_detail_pages": 240,
+      "deadline_seconds": 1800,
+      "per_batch_search_requests": 30,
+      "per_batch_deadline_seconds": 240,
+      "per_batch_detail_pages": 40
+    },
+    "error": null,
+    "warnings": [
+      "原检索接口的项目背景上限为1000字符，本次传递项目名称和建议技术方案优先的摘要；完整原始需求与确认方案仍保存在该版本。"
+    ],
+    "created_at": "2026-10-18T23:41:00.204184+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v3.1-consistent-recovery-observation",
+    "origin": "student_edit",
+    "search_started_at": "2026-10-18T23:41:00.221985+00:00",
+    "cancel_requested": false,
+    "parent_version": 4,
+    "updated_at": "2026-10-18T23:43:21.567425+00:00"
+  }
+}

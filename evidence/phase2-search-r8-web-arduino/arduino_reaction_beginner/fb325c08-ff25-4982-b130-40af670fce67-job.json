@@ -1,0 +1,1795 @@
+{
+  "job_id": "fb325c08-ff25-4982-b130-40af670fce67",
+  "status": "partial",
+  "phase": "done",
+  "created_at": "2026-10-18T20:18:54.806276+00:00",
+  "updated_at": "2026-10-18T20:20:19.503223+00:00",
+  "request": {
+    "knowledge_points": [
+      "Arduino 低压电路安全接线与LED极性",
+      "Arduino 按钮INPUT_PULLUP与串口监视器调试",
+      "Arduino 按钮去抖的稳定时间窗口实现",
+      "Arduino 非阻塞随机等待与millis计时",
+      "Arduino 反应时间游戏状态机与主循环"
+    ],
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "Arduino LED 按钮反应时间小游戏 使用Arduino Uno、一个LED（串联限流电阻）和一个按钮。按钮接法：一端接GND，另一端接D2引脚，使用pinMode(2, INPUT_PULLUP)。LED阳极经电阻接D9引脚，阴极接GND，注意极性和共地。程序采用非阻塞状态机：状态包括IDLE（等待开始）、WAITING（随机等待2-5秒）、LIGHT_ON（灯亮等待反应）、EARLY（抢按提示）。随机等待使用random(2000, 5001)获取毫秒数，配合millis()计时，不使用delay。按钮去抖采用稳定时间窗口：每5ms采样一次，连续4次（20ms）电平相同才确认状态变化，从去抖后的下降沿检测一次按下。主循环始终运行，不阻塞按钮采样。串口监视器9600波特率，显示提示和反应时间。 做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。 用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ],
+    "learning_targets": {
+      "Arduino 低压电路安全接线与LED极性": [
+        "LED阳极阴极识别",
+        "限流电阻计算与连接",
+        "共地连接",
+        "断电接线检查"
+      ],
+      "Arduino 按钮INPUT_PULLUP与串口监视器调试": [
+        "pinMode INPUT_PULLUP",
+        "digitalRead",
+        "Serial.begin与Serial.println",
+        "按钮按下为LOW"
+      ],
+      "Arduino 按钮去抖的稳定时间窗口实现": [
+        "millis()非阻塞定时采样",
+        "稳定时间窗口去抖",
+        "下降沿单次触发",
+        "长按不重复触发"
+      ],
+      "Arduino 非阻塞随机等待与millis计时": [
+        "random(2000, 5001)范围",
+        "millis()记录时间戳",
+        "非阻塞条件检查",
+        "状态变量控制流程"
+      ],
+      "Arduino 反应时间游戏状态机与主循环": [
+        "状态枚举或常量",
+        "switch-case状态切换",
+        "LED输出控制",
+        "反应时间计算：millis()差值"
+      ]
+    }
+  },
+  "knowledge_points": [
+    {
+      "knowledge_point_id": "5fa98e43-64ce-4ee8-9c29-2fe342c0ff9d",
+      "text": "Arduino 低压电路安全接线与LED极性",
+      "learning_targets": [
+        "LED阳极阴极识别",
+        "限流电阻计算与连接",
+        "共地连接",
+        "断电接线检查"
+      ]
+    },
+    {
+      "knowledge_point_id": "bec4b746-6da0-4aac-99dc-f8609a0c04e9",
+      "text": "Arduino 按钮INPUT_PULLUP与串口监视器调试",
+      "learning_targets": [
+        "pinMode INPUT_PULLUP",
+        "digitalRead",
+        "Serial.begin与Serial.println",
+        "按钮按下为LOW"
+      ]
+    },
+    {
+      "knowledge_point_id": "a176905f-59b7-4697-b37f-c38ac7ca0506",
+      "text": "Arduino 按钮去抖的稳定时间窗口实现",
+      "learning_targets": [
+        "millis()非阻塞定时采样",
+        "稳定时间窗口去抖",
+        "下降沿单次触发",
+        "长按不重复触发"
+      ]
+    },
+    {
+      "knowledge_point_id": "1914eb01-0f1a-49cd-a5b1-f93f51eba52f",
+      "text": "Arduino 非阻塞随机等待与millis计时",
+      "learning_targets": [
+        "random(2000, 5001)范围",
+        "millis()记录时间戳",
+        "非阻塞条件检查",
+        "状态变量控制流程"
+      ]
+    },
+    {
+      "knowledge_point_id": "2e222a9b-a856-4cf8-bc7b-1de81c88cba0",
+      "text": "Arduino 反应时间游戏状态机与主循环",
+      "learning_targets": [
+        "状态枚举或常量",
+        "switch-case状态切换",
+        "LED输出控制",
+        "反应时间计算：millis()差值"
+      ]
+    }
+  ],
+  "progress": {
+    "queries_planned": 30,
+    "queries_completed": 20,
+    "search_requests": 30,
+    "search_successes": 20,
+    "search_failures": 0,
+    "candidates_discovered": 120,
+    "resources_discovered": 94,
+    "details_attempted": 8,
+    "details_completed": 8,
+    "details_cached": 23,
+    "cache_hits": 23,
+    "catalog_pages_attempted": 0,
+    "catalog_pages_completed": 0
+  },
+  "budgets": {
+    "max_search_requests": 30,
+    "max_detail_pages": 40,
+    "deadline_seconds": 240
+  },
+  "warnings": [
+    "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+    "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+    "64 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+    "5 个候选缺少课程或视频类型依据，未作为学习资源展示"
+  ],
+  "errors": [],
+  "queue_wait_seconds": 0.002,
+  "fetch_diagnostics": {
+    "available": true,
+    "started_at": "2026-10-18T20:18:54.808672+00:00",
+    "finished_at": "2026-10-18T20:20:19.503209+00:00",
+    "counts_delta": {
+      "dns_started": 10,
+      "dns_completed": 10,
+      "http_started": 10,
+      "http_transport": 10,
+      "http_completed": 9,
+      "http_stopped": 1
+    },
+    "events": [
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:19:20.071087+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1FYtJ68Eo8/",
+        "url_sha256": "2105eef12f7e24c577b01b6734c9568617a500a64068ff3413efc13236d1f827",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:19:21.390118+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1FYtJ68Eo8/",
+        "url_sha256": "2105eef12f7e24c577b01b6734c9568617a500a64068ff3413efc13236d1f827",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:19:21.390178+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1FYtJ68Eo8/",
+        "url_sha256": "2105eef12f7e24c577b01b6734c9568617a500a64068ff3413efc13236d1f827",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:19:21.390440+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1FYtJ68Eo8/",
+        "url_sha256": "2105eef12f7e24c577b01b6734c9568617a500a64068ff3413efc13236d1f827",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:19:21.390429+00:00",
+          "status": "failed",
+          "http_status": 200,
+          "phase": "receive_response_body",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:19:21.588257+00:00",
+              "elapsed_seconds": 0.197842
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:19:21.591722+00:00",
+              "elapsed_seconds": 0.201299
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:19:21.591754+00:00",
+              "elapsed_seconds": 0.201328
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:19:22.520721+00:00",
+              "elapsed_seconds": 1.130298
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:22.521741+00:00",
+              "elapsed_seconds": 1.131318
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:22.521939+00:00",
+              "elapsed_seconds": 1.131517
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:22.521953+00:00",
+              "elapsed_seconds": 1.131527
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:22.521999+00:00",
+              "elapsed_seconds": 1.131573
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:22.522005+00:00",
+              "elapsed_seconds": 1.131578
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:23.293471+00:00",
+              "elapsed_seconds": 1.90306
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:23.293981+00:00",
+              "elapsed_seconds": 1.903555
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:19:24.020306+00:00",
+              "elapsed_seconds": 2.62989
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:19:24.020466+00:00",
+              "elapsed_seconds": 2.63004
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "failed",
+              "at": "2026-10-18T20:19:24.320732+00:00",
+              "elapsed_seconds": 2.930312,
+              "error_type": "GeneratorExit"
+            }
+          ],
+          "bytes_read": 188545,
+          "body_complete": false,
+          "body_sha256": "77fe867c9163ce1d1b356cf486450c6bafb7688808570828613243c9c5771686",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 188545,
+          "decoded_bytes_read": 1000001,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "e0a3e7f9c2a02514216e8b53f7bc71d62aa32589f728452e6af8fe58e40e7d80",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:19:23.293892+00:00",
+          "headers_elapsed_seconds": 1.903468,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "error_type": "FetchStopped",
+          "stop_status": "too_large",
+          "finished_at": "2026-10-18T20:19:24.021792+00:00",
+          "elapsed_seconds": 2.63137,
+          "partial_body": true
+        }
+      },
+      {
+        "event": "http_stopped",
+        "at": "2026-10-18T20:19:24.021819+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1FYtJ68Eo8/",
+        "url_sha256": "2105eef12f7e24c577b01b6734c9568617a500a64068ff3413efc13236d1f827",
+        "kind": "page",
+        "attempt": 0,
+        "status": "too_large"
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:19:26.617669+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1fz411b7Ur/",
+        "url_sha256": "add7d7168684de0df095c811564f2f883875954310d41d122a816fce49e19cbb",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:19:27.896908+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1fz411b7Ur/",
+        "url_sha256": "add7d7168684de0df095c811564f2f883875954310d41d122a816fce49e19cbb",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:19:27.896933+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1fz411b7Ur/",
+        "url_sha256": "add7d7168684de0df095c811564f2f883875954310d41d122a816fce49e19cbb",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:19:27.897104+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1fz411b7Ur/",
+        "url_sha256": "add7d7168684de0df095c811564f2f883875954310d41d122a816fce49e19cbb",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:19:27.897099+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:19:28.077672+00:00",
+              "elapsed_seconds": 0.180586
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:19:28.080415+00:00",
+              "elapsed_seconds": 0.183322
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:19:28.080444+00:00",
+              "elapsed_seconds": 0.183348
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:19:28.815096+00:00",
+              "elapsed_seconds": 0.918012
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:28.816303+00:00",
+              "elapsed_seconds": 0.91921
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:28.816481+00:00",
+              "elapsed_seconds": 0.919386
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:28.816488+00:00",
+              "elapsed_seconds": 0.919392
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:28.816530+00:00",
+              "elapsed_seconds": 0.919433
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:28.816534+00:00",
+              "elapsed_seconds": 0.919437
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:29.637865+00:00",
+              "elapsed_seconds": 1.740773
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:29.638307+00:00",
+              "elapsed_seconds": 1.741211
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:30.059384+00:00",
+              "elapsed_seconds": 2.162308
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:19:30.060927+00:00",
+              "elapsed_seconds": 2.163837
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:19:30.060991+00:00",
+              "elapsed_seconds": 2.163896
+            }
+          ],
+          "bytes_read": 36001,
+          "body_complete": true,
+          "body_sha256": "48d0ebdb4ca1b9f898ad121a771abaa15b363ba65f7a3087a0d2b6a1420bbdb7",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 36001,
+          "decoded_bytes_read": 105574,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "559112aa4e282ab43b74a91b714ec3f156120af8fd7aaa527f394cb827535922",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:19:29.638231+00:00",
+          "headers_elapsed_seconds": 1.741137,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:19:30.062281+00:00",
+          "finished_at": "2026-10-18T20:19:30.064000+00:00",
+          "elapsed_seconds": 2.166908,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:19:30.064044+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1fz411b7Ur/",
+        "url_sha256": "add7d7168684de0df095c811564f2f883875954310d41d122a816fce49e19cbb",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 105574
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:19:32.547818+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Q741137E8/",
+        "url_sha256": "66a351d3a75303ad0bf69fbaf6580c9908e833f7fe387bd82a14c173c9b205c3",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:19:33.825096+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Q741137E8/",
+        "url_sha256": "66a351d3a75303ad0bf69fbaf6580c9908e833f7fe387bd82a14c173c9b205c3",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:19:33.825121+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Q741137E8/",
+        "url_sha256": "66a351d3a75303ad0bf69fbaf6580c9908e833f7fe387bd82a14c173c9b205c3",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:19:33.825290+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Q741137E8/",
+        "url_sha256": "66a351d3a75303ad0bf69fbaf6580c9908e833f7fe387bd82a14c173c9b205c3",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:19:33.825285+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:19:33.990810+00:00",
+              "elapsed_seconds": 0.165537
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:19:33.993752+00:00",
+              "elapsed_seconds": 0.168499
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:19:33.993815+00:00",
+              "elapsed_seconds": 0.168534
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:19:34.652581+00:00",
+              "elapsed_seconds": 0.827313
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:34.653742+00:00",
+              "elapsed_seconds": 0.828463
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:34.653910+00:00",
+              "elapsed_seconds": 0.828629
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:34.653919+00:00",
+              "elapsed_seconds": 0.828636
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:34.653963+00:00",
+              "elapsed_seconds": 0.828681
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:34.653969+00:00",
+              "elapsed_seconds": 0.828686
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:35.334257+00:00",
+              "elapsed_seconds": 1.508988
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:35.334742+00:00",
+              "elapsed_seconds": 1.509461
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:35.719504+00:00",
+              "elapsed_seconds": 1.894233
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:19:35.721089+00:00",
+              "elapsed_seconds": 1.895814
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:19:35.721153+00:00",
+              "elapsed_seconds": 1.895872
+            }
+          ],
+          "bytes_read": 50160,
+          "body_complete": true,
+          "body_sha256": "e1d13c0e23dc7df1de5048c5e917862a20905f1c3e9356a54e6e98fcc29ce8c6",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 50160,
+          "decoded_bytes_read": 186611,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "8e33846a0ce3c8e1d96f0b960a1e247686a31ed6546fd72e62788ac743fb571a",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:19:35.334646+00:00",
+          "headers_elapsed_seconds": 1.509368,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:19:35.722493+00:00",
+          "finished_at": "2026-10-18T20:19:35.724063+00:00",
+          "elapsed_seconds": 1.898796,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:19:35.724138+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Q741137E8/",
+        "url_sha256": "66a351d3a75303ad0bf69fbaf6580c9908e833f7fe387bd82a14c173c9b205c3",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 186611
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:19:38.327254+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@programx/video/7325472343403334918",
+        "url_sha256": "a245f47d6d34c86c012bf14ca5c0fa367c5beede0ccdea1fb896fc5bbee206a9",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:19:39.656532+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@programx/video/7325472343403334918",
+        "url_sha256": "a245f47d6d34c86c012bf14ca5c0fa367c5beede0ccdea1fb896fc5bbee206a9",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 9
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:19:39.656555+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@programx/video/7325472343403334918",
+        "url_sha256": "a245f47d6d34c86c012bf14ca5c0fa367c5beede0ccdea1fb896fc5bbee206a9",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:19:39.656718+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@programx/video/7325472343403334918",
+        "url_sha256": "a245f47d6d34c86c012bf14ca5c0fa367c5beede0ccdea1fb896fc5bbee206a9",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:19:39.656712+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:19:39.821878+00:00",
+              "elapsed_seconds": 0.165177
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:19:39.825328+00:00",
+              "elapsed_seconds": 0.168624
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:19:39.825368+00:00",
+              "elapsed_seconds": 0.168659
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:19:40.387888+00:00",
+              "elapsed_seconds": 0.731192
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:40.389103+00:00",
+              "elapsed_seconds": 0.732396
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:40.389284+00:00",
+              "elapsed_seconds": 0.732576
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:40.389293+00:00",
+              "elapsed_seconds": 0.732583
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:40.389338+00:00",
+              "elapsed_seconds": 0.732628
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:40.389343+00:00",
+              "elapsed_seconds": 0.732633
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:41.129870+00:00",
+              "elapsed_seconds": 1.473175
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:41.130359+00:00",
+              "elapsed_seconds": 1.473649
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:41.272497+00:00",
+              "elapsed_seconds": 1.615795
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:19:41.273507+00:00",
+              "elapsed_seconds": 1.6168
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:19:41.273547+00:00",
+              "elapsed_seconds": 1.616837
+            }
+          ],
+          "bytes_read": 395243,
+          "body_complete": true,
+          "body_sha256": "a08af6e8264c156f33b650c61fc32b181093812d6aea3b9e266c80719c78c6d4",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 395243,
+          "decoded_bytes_read": 395243,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "a08af6e8264c156f33b650c61fc32b181093812d6aea3b9e266c80719c78c6d4",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:19:41.130294+00:00",
+          "headers_elapsed_seconds": 1.473587,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:19:41.274358+00:00",
+          "finished_at": "2026-10-18T20:19:41.275057+00:00",
+          "elapsed_seconds": 1.61835,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:19:41.275094+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@programx/video/7325472343403334918",
+        "url_sha256": "a245f47d6d34c86c012bf14ca5c0fa367c5beede0ccdea1fb896fc5bbee206a9",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 395243
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:19:43.918259+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ho4y1p7mn/",
+        "url_sha256": "f39e6ecac21e536003397c68e6d571a6ea66c14397143d6507f5ede931edbd6c",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:19:45.192167+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ho4y1p7mn/",
+        "url_sha256": "f39e6ecac21e536003397c68e6d571a6ea66c14397143d6507f5ede931edbd6c",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:19:45.192191+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ho4y1p7mn/",
+        "url_sha256": "f39e6ecac21e536003397c68e6d571a6ea66c14397143d6507f5ede931edbd6c",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:19:45.192358+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ho4y1p7mn/",
+        "url_sha256": "f39e6ecac21e536003397c68e6d571a6ea66c14397143d6507f5ede931edbd6c",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:19:45.192352+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:19:45.363485+00:00",
+              "elapsed_seconds": 0.171149
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:19:45.367001+00:00",
+              "elapsed_seconds": 0.174654
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:19:45.367027+00:00",
+              "elapsed_seconds": 0.174677
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:19:46.016105+00:00",
+              "elapsed_seconds": 0.823769
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:46.017246+00:00",
+              "elapsed_seconds": 0.8249
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:46.017410+00:00",
+              "elapsed_seconds": 0.825061
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:46.017418+00:00",
+              "elapsed_seconds": 0.825068
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:46.017461+00:00",
+              "elapsed_seconds": 0.825111
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:46.017467+00:00",
+              "elapsed_seconds": 0.825117
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:46.696854+00:00",
+              "elapsed_seconds": 1.504518
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:46.697274+00:00",
+              "elapsed_seconds": 1.504924
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:47.100308+00:00",
+              "elapsed_seconds": 1.907967
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:19:47.101375+00:00",
+              "elapsed_seconds": 1.909029
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:19:47.101418+00:00",
+              "elapsed_seconds": 1.909068
+            }
+          ],
+          "bytes_read": 59015,
+          "body_complete": true,
+          "body_sha256": "ef8fc4cfe68edba247d9c24c33512c23a82e18efd8a3f2f8a5c809b695c00569",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 59015,
+          "decoded_bytes_read": 251878,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "f2aa993deadf222fa64f0def2a4e4bc7c388da348063b1e5512b889f3f2f457b",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:19:46.697196+00:00",
+          "headers_elapsed_seconds": 1.504849,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:19:47.102479+00:00",
+          "finished_at": "2026-10-18T20:19:47.103165+00:00",
+          "elapsed_seconds": 1.910818,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:19:47.103209+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1ho4y1p7mn/",
+        "url_sha256": "f39e6ecac21e536003397c68e6d571a6ea66c14397143d6507f5ede931edbd6c",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 251878
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:19:49.743657+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/robots.txt",
+        "url_sha256": "4ff3d7a3e23cd1db349e80fcedefc8203192ee6bc852b8c67aac775de4e408f6",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:19:51.256744+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/robots.txt",
+        "url_sha256": "4ff3d7a3e23cd1db349e80fcedefc8203192ee6bc852b8c67aac775de4e408f6",
+        "kind": "robots",
+        "attempt": 0,
+        "address_count": 2
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:19:51.256784+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/robots.txt",
+        "url_sha256": "4ff3d7a3e23cd1db349e80fcedefc8203192ee6bc852b8c67aac775de4e408f6",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:19:51.257004+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/robots.txt",
+        "url_sha256": "4ff3d7a3e23cd1db349e80fcedefc8203192ee6bc852b8c67aac775de4e408f6",
+        "kind": "robots",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:19:51.256997+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:19:51.444595+00:00",
+              "elapsed_seconds": 0.187611
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:19:51.499089+00:00",
+              "elapsed_seconds": 0.242103
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:19:51.499122+00:00",
+              "elapsed_seconds": 0.242127
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:19:52.075226+00:00",
+              "elapsed_seconds": 0.818246
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:52.076401+00:00",
+              "elapsed_seconds": 0.81941
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:52.076580+00:00",
+              "elapsed_seconds": 0.819587
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:52.076589+00:00",
+              "elapsed_seconds": 0.819594
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:52.076633+00:00",
+              "elapsed_seconds": 0.819638
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:52.076638+00:00",
+              "elapsed_seconds": 0.819642
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:52.482442+00:00",
+              "elapsed_seconds": 1.225463
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:52.483184+00:00",
+              "elapsed_seconds": 1.226194
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:52.483431+00:00",
+              "elapsed_seconds": 1.226439
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:19:52.485264+00:00",
+              "elapsed_seconds": 1.228278
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:19:52.485360+00:00",
+              "elapsed_seconds": 1.228368
+            }
+          ],
+          "bytes_read": 493,
+          "body_complete": true,
+          "body_sha256": "e632ee0342311a30314dca4beddfe590de4d91c8f05905c3ba5008cf84ca2362",
+          "max_bytes": 256000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 493,
+          "decoded_bytes_read": 493,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "e632ee0342311a30314dca4beddfe590de4d91c8f05905c3ba5008cf84ca2362",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:19:52.483029+00:00",
+          "headers_elapsed_seconds": 1.226059,
+          "body_total_budget_seconds": 20.625,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 256000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:19:52.486722+00:00",
+          "finished_at": "2026-10-18T20:19:52.488414+00:00",
+          "elapsed_seconds": 1.231424,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:19:52.488477+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/robots.txt",
+        "url_sha256": "4ff3d7a3e23cd1db349e80fcedefc8203192ee6bc852b8c67aac775de4e408f6",
+        "kind": "robots",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 493
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:19:52.488646+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/post/using-switches-with-an-arduino-input-pull-up-pull-down",
+        "url_sha256": "e29e30ea7a73fc4f887fb8742b5f2d3067ac181910fff9b163c5d99b69fc0794",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:19:53.988272+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/post/using-switches-with-an-arduino-input-pull-up-pull-down",
+        "url_sha256": "e29e30ea7a73fc4f887fb8742b5f2d3067ac181910fff9b163c5d99b69fc0794",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 2
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:19:53.988297+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/post/using-switches-with-an-arduino-input-pull-up-pull-down",
+        "url_sha256": "e29e30ea7a73fc4f887fb8742b5f2d3067ac181910fff9b163c5d99b69fc0794",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:19:53.988474+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/post/using-switches-with-an-arduino-input-pull-up-pull-down",
+        "url_sha256": "e29e30ea7a73fc4f887fb8742b5f2d3067ac181910fff9b163c5d99b69fc0794",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:19:53.988469+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:19:54.157335+00:00",
+              "elapsed_seconds": 0.168879
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:19:54.188485+00:00",
+              "elapsed_seconds": 0.200021
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:19:54.188513+00:00",
+              "elapsed_seconds": 0.200047
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:19:54.854029+00:00",
+              "elapsed_seconds": 0.865584
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:54.855325+00:00",
+              "elapsed_seconds": 0.866861
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:54.855527+00:00",
+              "elapsed_seconds": 0.867065
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:54.855542+00:00",
+              "elapsed_seconds": 0.867075
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:54.855591+00:00",
+              "elapsed_seconds": 0.867125
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:19:54.855598+00:00",
+              "elapsed_seconds": 0.867131
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:19:56.180256+00:00",
+              "elapsed_seconds": 2.1918
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:19:56.180677+00:00",
+              "elapsed_seconds": 2.19221
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:19:56.391856+00:00",
+              "elapsed_seconds": 2.403401
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:19:56.393340+00:00",
+              "elapsed_seconds": 2.404879
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:19:56.393400+00:00",
+              "elapsed_seconds": 2.404934
+            }
+          ],
+          "bytes_read": 683799,
+          "body_complete": true,
+          "body_sha256": "ccc3da608e409a317136480b39b80ca1a19e0b6e88b2efce6c4de51e47275483",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 683799,
+          "decoded_bytes_read": 683799,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "ccc3da608e409a317136480b39b80ca1a19e0b6e88b2efce6c4de51e47275483",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:19:56.180618+00:00",
+          "headers_elapsed_seconds": 2.192152,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:19:56.394683+00:00",
+          "finished_at": "2026-10-18T20:19:56.396087+00:00",
+          "elapsed_seconds": 2.407625,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:19:56.396123+00:00",
+        "host": "www.brainy-bits.com",
+        "url": "https://www.brainy-bits.com/post/using-switches-with-an-arduino-input-pull-up-pull-down",
+        "url_sha256": "e29e30ea7a73fc4f887fb8742b5f2d3067ac181910fff9b163c5d99b69fc0794",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 683799
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:19:59.200163+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/robots.txt",
+        "url_sha256": "eff74e39438f11c0a4536e5e13f3b2f767954f555e77595fd4f9de9bd7e3b578",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:20:00.520198+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/robots.txt",
+        "url_sha256": "eff74e39438f11c0a4536e5e13f3b2f767954f555e77595fd4f9de9bd7e3b578",
+        "kind": "robots",
+        "attempt": 0,
+        "address_count": 1
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:20:00.520221+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/robots.txt",
+        "url_sha256": "eff74e39438f11c0a4536e5e13f3b2f767954f555e77595fd4f9de9bd7e3b578",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:20:00.520408+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/robots.txt",
+        "url_sha256": "eff74e39438f11c0a4536e5e13f3b2f767954f555e77595fd4f9de9bd7e3b578",
+        "kind": "robots",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:20:00.520402+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:20:00.688506+00:00",
+              "elapsed_seconds": 0.168118
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:20:00.691628+00:00",
+              "elapsed_seconds": 0.171232
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:20:00.691672+00:00",
+              "elapsed_seconds": 0.171275
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:20:01.305540+00:00",
+              "elapsed_seconds": 0.785146
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:20:01.306575+00:00",
+              "elapsed_seconds": 0.786178
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:20:01.306734+00:00",
+              "elapsed_seconds": 0.786336
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:20:01.306742+00:00",
+              "elapsed_seconds": 0.786343
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:20:01.306781+00:00",
+              "elapsed_seconds": 0.786381
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:20:01.306786+00:00",
+              "elapsed_seconds": 0.786386
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:20:02.827718+00:00",
+              "elapsed_seconds": 2.307341
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:20:02.828087+00:00",
+              "elapsed_seconds": 2.307688
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:20:02.828158+00:00",
+              "elapsed_seconds": 2.307758
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:20:02.829302+00:00",
+              "elapsed_seconds": 2.308905
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:20:02.829344+00:00",
+              "elapsed_seconds": 2.308945
+            }
+          ],
+          "bytes_read": 250,
+          "body_complete": true,
+          "body_sha256": "9538c4c60912c5885486c3f621f43224a3c3544690efc40c8728804b919bee87",
+          "max_bytes": 256000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 250,
+          "decoded_bytes_read": 250,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "9538c4c60912c5885486c3f621f43224a3c3544690efc40c8728804b919bee87",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:20:02.828022+00:00",
+          "headers_elapsed_seconds": 2.307624,
+          "body_total_budget_seconds": 20.625,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 256000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:20:02.830132+00:00",
+          "finished_at": "2026-10-18T20:20:02.830872+00:00",
+          "elapsed_seconds": 2.310475,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:20:02.830907+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/robots.txt",
+        "url_sha256": "eff74e39438f11c0a4536e5e13f3b2f767954f555e77595fd4f9de9bd7e3b578",
+        "kind": "robots",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 250
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:20:02.831042+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/using-random-numbers-with-arduino/",
+        "url_sha256": "47aaddd7dab609e5b056a97adf1d931aba37ab1c0a1341a0540876e1900f08ee",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:20:04.378572+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/using-random-numbers-with-arduino/",
+        "url_sha256": "47aaddd7dab609e5b056a97adf1d931aba37ab1c0a1341a0540876e1900f08ee",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 1
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:20:04.378595+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/using-random-numbers-with-arduino/",
+        "url_sha256": "47aaddd7dab609e5b056a97adf1d931aba37ab1c0a1341a0540876e1900f08ee",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:20:04.378764+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/using-random-numbers-with-arduino/",
+        "url_sha256": "47aaddd7dab609e5b056a97adf1d931aba37ab1c0a1341a0540876e1900f08ee",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:20:04.378759+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:20:04.547907+00:00",
+              "elapsed_seconds": 0.169161
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:20:04.551856+00:00",
+              "elapsed_seconds": 0.173106
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:20:04.551893+00:00",
+              "elapsed_seconds": 0.173138
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:20:05.441773+00:00",
+              "elapsed_seconds": 1.06303
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:20:05.442814+00:00",
+              "elapsed_seconds": 1.064061
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:20:05.442989+00:00",
+              "elapsed_seconds": 1.064233
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:20:05.442997+00:00",
+              "elapsed_seconds": 1.06424
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:20:05.443041+00:00",
+              "elapsed_seconds": 1.064284
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:20:05.443046+00:00",
+              "elapsed_seconds": 1.064289
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:20:05.798518+00:00",
+              "elapsed_seconds": 1.419771
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:20:05.798776+00:00",
+              "elapsed_seconds": 1.420019
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:20:06.557407+00:00",
+              "elapsed_seconds": 2.17866
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:20:06.558222+00:00",
+              "elapsed_seconds": 2.179468
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:20:06.558280+00:00",
+              "elapsed_seconds": 2.179523
+            }
+          ],
+          "bytes_read": 239268,
+          "body_complete": true,
+          "body_sha256": "aa549778c19fa0e98dc7d45ee05091cf3f3a12881dd79c9a73ce89b6e42844b4",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 239268,
+          "decoded_bytes_read": 239268,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "aa549778c19fa0e98dc7d45ee05091cf3f3a12881dd79c9a73ce89b6e42844b4",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:20:05.798718+00:00",
+          "headers_elapsed_seconds": 1.419962,
+          "body_total_budget_seconds": 19.603759765625,
+          "body_idle_budget_seconds": 5,
+          "content_length": 239268,
+          "body_size_basis_bytes": 239268,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:20:06.559018+00:00",
+          "finished_at": "2026-10-18T20:20:06.559660+00:00",
+          "elapsed_seconds": 2.180907,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:20:06.559692+00:00",
+        "host": "www.programmingelectronics.com",
+        "url": "https://www.programmingelectronics.com/using-random-numbers-with-arduino/",
+        "url_sha256": "47aaddd7dab609e5b056a97adf1d931aba37ab1c0a1341a0540876e1900f08ee",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 239268
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:20:09.279911+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV19h411s7in/",
+        "url_sha256": "b2e46f64129a34b8f2c3fba40a8224aa09f7fad4a14526ada7d1853be07f6baf",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:20:11.351944+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV19h411s7in/",
+        "url_sha256": "b2e46f64129a34b8f2c3fba40a8224aa09f7fad4a14526ada7d1853be07f6baf",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:20:11.351973+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV19h411s7in/",
+        "url_sha256": "b2e46f64129a34b8f2c3fba40a8224aa09f7fad4a14526ada7d1853be07f6baf",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:20:11.352150+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV19h411s7in/",
+        "url_sha256": "b2e46f64129a34b8f2c3fba40a8224aa09f7fad4a14526ada7d1853be07f6baf",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:20:11.352145+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:20:11.559841+00:00",
+              "elapsed_seconds": 0.207709
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:20:11.561932+00:00",
+              "elapsed_seconds": 0.209805
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:20:11.561996+00:00",
+              "elapsed_seconds": 0.209858
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:20:12.555977+00:00",
+              "elapsed_seconds": 1.203858
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:20:12.557428+00:00",
+              "elapsed_seconds": 1.205288
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:20:12.557591+00:00",
+              "elapsed_seconds": 1.20545
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:20:12.557600+00:00",
+              "elapsed_seconds": 1.205458
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:20:12.557645+00:00",
+              "elapsed_seconds": 1.205502
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:20:12.557650+00:00",
+              "elapsed_seconds": 1.205507
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:20:13.144230+00:00",
+              "elapsed_seconds": 1.792106
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:20:13.144765+00:00",
+              "elapsed_seconds": 1.792622
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:20:13.317138+00:00",
+              "elapsed_seconds": 1.965012
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:20:13.318352+00:00",
+              "elapsed_seconds": 1.966212
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:20:13.318393+00:00",
+              "elapsed_seconds": 1.966251
+            }
+          ],
+          "bytes_read": 40241,
+          "body_complete": true,
+          "body_sha256": "1dc8a610d2b27e9ef546c85007b96a79ccffcc96edf08bdc24442bbb8012d62c",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 40241,
+          "decoded_bytes_read": 142903,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "8a9258dd62df68f4655363d1eadd307ed0fa7bafaf70091e59563d812fb70fd2",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:20:13.144698+00:00",
+          "headers_elapsed_seconds": 1.792556,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:20:13.319186+00:00",
+          "finished_at": "2026-10-18T20:20:13.319841+00:00",
+          "elapsed_seconds": 1.967701,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:20:13.319875+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV19h411s7in/",
+        "url_sha256": "b2e46f64129a34b8f2c3fba40a8224aa09f7fad4a14526ada7d1853be07f6baf",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 142903
+      }
+    ],
+    "truncated": false,
+    "scope": "target HTML/XML+robots only; DoH HTTP separately traced for official discovery"
+  }
+}

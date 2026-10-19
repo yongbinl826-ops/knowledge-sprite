@@ -1,0 +1,1999 @@
+{
+  "kind": "offline_actual_source_derived_single_candidate_full_jobservice_results_replay",
+  "created_at": "2026-10-18T20:31:34.503635+00:00",
+  "network_requests": 0,
+  "model_calls": 0,
+  "database_reads": 0,
+  "database_writes": 0,
+  "fresh_search": false,
+  "production_response": false,
+  "scope": "Normal JobService.results with a read-only in-memory facade selecting the retained actual r8 Data v6 k3 and actual res_5659617259cfc15963a12d97 only. Other candidates and historical attempts are deliberately not simulated.",
+  "producer": {
+    "script": "tmp\\phase2-confirmed-api-core\\replay_actual.py",
+    "script_sha256": "0aff3efa4f1821a7f1213cc42f8bbfb78518fe4b44c818b4c43a0a8313085bb9",
+    "candidate_ranking_sha256": "1c45962f3eb90afe95e7617cd03d3b497cc61403c975ce8e1d83aefc07bb3490",
+    "baseline_ranking_sha256": "1d452b78a21ad1cf7bed3eeaa9153a4d39b4df7bff96ba2bdcb0414eae7ad2a8",
+    "service_sha256": "e71fc13d86e78f89c51607422cbf0292282adfec719a944ec4af129c24c6c782",
+    "topic_operations_sha256": "bd5636cf4399afcf65535c24b8a5213d06e48a0b7d878ce7f6ecd4286ee38714"
+  },
+  "source": {
+    "fixture": "tmp\\phase2-confirmed-api-core\\dropin\\tests\\fixtures\\confirmed_api_core_actual_v6.json",
+    "fixture_sha256": "14c9bf9a4bf39c08d60f2b6aae7a6a738677f0091e9e2f3e058a62da49cd4441",
+    "result": "evidence\\phase2-search-r8-data-maze\\bicycle_csv_advanced\\project-results.json",
+    "result_sha256": "80205627b63404076e1ab23866feb881a55f850917a3a00e569d8b77a8379760",
+    "review": "evidence\\phase2\\search-independent\\data-v6-final-review.json",
+    "review_sha256": "72517c51f574e94ab8416b97add9809ab7a6c291dc0be6f4ff5aa3f8a9c990a7"
+  },
+  "baseline": {
+    "match": null,
+    "original_plan": {
+      "decomposition_status": "applied",
+      "shared_context": [
+        "pandas"
+      ],
+      "subtopics": [
+        {
+          "id": "subtopic_1",
+          "text": "时间列解析"
+        },
+        {
+          "id": "subtopic_2",
+          "text": "无效行分离"
+        },
+        {
+          "id": "operation_core",
+          "text": "pandas 日期时间转换"
+        },
+        {
+          "id": "operation_qualification",
+          "text": "时间列与无效行分离"
+        },
+        {
+          "id": "learning_target_1",
+          "text": "pd.to_datetime(errors)"
+        },
+        {
+          "id": "learning_target_2",
+          "text": "isna 与缺失筛选"
+        },
+        {
+          "id": "learning_target_3",
+          "text": "布尔条件 end < start"
+        },
+        {
+          "id": "learning_target_4",
+          "text": "相等时间的边界判断"
+        }
+      ]
+    }
+  },
+  "planned": {
+    "id": "k3",
+    "name": "pandas 时间列解析与无效行分离",
+    "description": "用 to_datetime 解析起止时间，分别筛出缺失/解析失败行与严格 end<start 行并保留明细。",
+    "function_ids": [
+      "f2"
+    ],
+    "why_needed": "需单独记录缺失或结束早于开始的无效行，且相等时间仍属有效，必须精确处理边界。",
+    "learning_goal": "理解 errors 处理与布尔筛选，能严格区分缺失、end<start 与 end==start 三种情况。",
+    "technology": "pandas",
+    "project_task": "解析两列时间，生成两个无效行子集并计数，同时验证 end==start 行不被误剔除。",
+    "concepts": [
+      "pd.to_datetime(errors)",
+      "isna 与缺失筛选",
+      "布尔条件 end < start",
+      "相等时间的边界判断"
+    ],
+    "practice_check": "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+    "necessity": "required",
+    "prerequisite_ids": [
+      "k2"
+    ],
+    "learning_order": 3,
+    "selection": "learn"
+  },
+  "result_group": {
+    "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+    "text": "pandas 时间列解析与无效行分离",
+    "learning_targets": [
+      "pd.to_datetime(errors)",
+      "isna 与缺失筛选",
+      "布尔条件 end < start",
+      "相等时间的边界判断"
+    ],
+    "total_matches": 0,
+    "total_partial_matches": 1,
+    "total_review_matches": 0,
+    "section_limit": 5,
+    "items": [],
+    "platform_items": {},
+    "partial_items": [
+      {
+        "resource": {
+          "resource_id": "res_5659617259cfc15963a12d97",
+          "title": "Python pandas.to_datetime函数方法的使用",
+          "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159",
+          "canonical_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+          "resolved_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+          "platform": "bilibili",
+          "resource_type": "video",
+          "video_evidence_status": "page_verified",
+          "author": "cjavapy",
+          "author_role": null,
+          "parent_course_url": null,
+          "course_identity": {
+            "status": "partial",
+            "family_id": null,
+            "offering_id": null,
+            "lesson_id": null,
+            "family_url": null,
+            "offering_url": null,
+            "role": "video",
+            "basis": "unknown",
+            "source_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "evidence_ids": [
+              "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d"
+            ],
+            "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+          },
+          "description": "Python pandas.to_datetime函数方法的使用, 视频播放量 479、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python 在Windows、Mac和Linux上安装pip的方法，Java 文件操作读取文本(txt)文件内容的方法代码总结，Java 通过ProcessBuilder或Runtime.exec()调用(cmd/sh)系统命令方法代码，Python math.sqrt() 方法，.Net(C#)后台发送Get和Post请求的几种方法总结，Java EasyExcel写入Excel中复杂头(head)表中的标题的方法及示例代码，Python math.perm() 方法，Python math.remainder() 方法，Java 使用Apache POI常用操作word的方法及示例代码，.NET Framework 和 .NET Core区别总结",
+          "video_topic_summary": null,
+          "thumbnail_url": "http://i1.hdslb.com/bfs/archive/f24e7010ee42e10b710cd88dae562bd1fe1fe23c.jpg",
+          "language": "zh-Hans",
+          "duration_seconds": null,
+          "published_at": null,
+          "discovered_at": "2026-10-18T20:13:50.901958+00:00",
+          "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "catalog",
+          "requires_login": null,
+          "requires_payment": null,
+          "requires_enrollment": null,
+          "access_notice": null,
+          "chapters": [
+            {
+              "title": "522",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1",
+              "start_seconds": null,
+              "end_seconds": null,
+              "source_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "duration_seconds": 156,
+              "page_number": 1,
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+              "evidence_id": "ev_4f290a9c-87fb-42c2-b29a-49f272cadf75"
+            }
+          ],
+          "catalog_kind": "video_parts",
+          "catalog_fetch_status": null,
+          "render_diagnostics": null,
+          "field_provenance": {
+            "title": {
+              "evidence_id": "ev_97acf7a0-6039-4a12-80b2-ab7005d84960",
+              "source": "html.bilibili.video_title",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+            },
+            "url": {
+              "evidence_id": "ev_e1e718ca-01ff-4513-990f-0b7a32632d7e",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159"
+            },
+            "description": {
+              "evidence_id": "ev_b6e585cf-7fa5-4f83-8acb-81525f9fb14f",
+              "source": "meta.og:description",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+            },
+            "resource_type": {
+              "evidence_id": "ev_b6f66fc9-abc5-41b6-8b34-442f993724d1",
+              "source": "meta.og:type",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+            },
+            "video_evidence_status": {
+              "evidence_id": "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d",
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+            },
+            "thumbnail_url": {
+              "evidence_id": "ev_e2bc56d7-2b78-4b90-8c9b-f177dc42ef4c",
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+            },
+            "author": {
+              "evidence_id": "ev_bf4ca705-e38c-4418-9b38-09effdc05b89",
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+            },
+            "language": {
+              "evidence_id": "ev_9bdec627-2ac7-4380-b4d2-693d3baeda5b",
+              "source": "html.lang",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+            },
+            "chapters": {
+              "evidence_id": "ev_155f4a62-537f-4f40-8a61-946ec414b925",
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+            }
+          },
+          "cache": {
+            "hit": false,
+            "cached_at": null,
+            "stale": false
+          },
+          "playback_verified": false
+        },
+        "match": {
+          "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+          "resource_id": "res_5659617259cfc15963a12d97",
+          "ranking_score": 44.36,
+          "recommendation_reason": "与“pandas 时间列解析与无效行分离”相关：已有来源证据：pandas.to_datetime API 使用核心（参数未确认）。尚未确认：时间列解析、无效行分离、pandas 日期时间转换、时间列与无效行分离。此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：pd.to_datetime(errors)、isna 与缺失筛选、布尔条件 end < start、相等时间的边界判断；项目行为仍需分别取证。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+          "matched_evidence_ids": [
+            "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+          ],
+          "coverage_basis": [],
+          "topic_match_rules": [
+            "search_related_recommendations_excluded",
+            "page_related_recommendations_excluded"
+          ],
+          "topic_evidence_status": "partial",
+          "topic_evidence_reasons": [
+            {
+              "code": "confirmed_api_operation_core",
+              "message": "此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：pd.to_datetime(errors)、isna 与缺失筛选、布尔条件 end < start、相等时间的边界判断；项目行为仍需分别取证。",
+              "evidence_ids": [
+                "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+              ]
+            }
+          ],
+          "supporting_evidence_ids": [
+            "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+          ],
+          "subtopic_coverage": [
+            {
+              "id": "subtopic_1",
+              "text": "时间列解析",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "原项目要求仍缺少教学证据。"
+            },
+            {
+              "id": "subtopic_2",
+              "text": "无效行分离",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "原项目要求仍缺少教学证据。"
+            },
+            {
+              "id": "operation_core",
+              "text": "pandas 日期时间转换",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "原项目要求仍缺少教学证据。"
+            },
+            {
+              "id": "operation_qualification",
+              "text": "时间列与无效行分离",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "原项目要求仍缺少教学证据。"
+            },
+            {
+              "id": "learning_target_1",
+              "text": "pd.to_datetime(errors)",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "该项已确认技能仍需补充来源证据。"
+            },
+            {
+              "id": "learning_target_2",
+              "text": "isna 与缺失筛选",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "该项已确认技能仍需补充来源证据。"
+            },
+            {
+              "id": "learning_target_3",
+              "text": "布尔条件 end < start",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "该项已确认技能仍需补充来源证据。"
+            },
+            {
+              "id": "learning_target_4",
+              "text": "相等时间的边界判断",
+              "status": "unknown",
+              "evidence_ids": [],
+              "reason": "该项已确认技能仍需补充来源证据。"
+            },
+            {
+              "id": "api_operation_core_1",
+              "text": "pandas.to_datetime API 使用核心（参数未确认）",
+              "status": "supported",
+              "evidence_ids": [
+                "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+              ],
+              "reason": "仅来源自己的已验证视频标题明确讲授这一原拼写 API 的使用核心；不是别名或参数等价，原确认目标和项目限定仍未知。"
+            }
+          ]
+        },
+        "evidence": [
+          {
+            "evidence_id": "ev_e1e718ca-01ff-4513-990f-0b7a32632d7e",
+            "candidate_id": "466591fd1ef13c3ceacfc068",
+            "kind": "search",
+            "source": "searxng",
+            "source_engines": [
+              "duckduckgo videos"
+            ],
+            "type_source": "search_template",
+            "resource_type_hint": "video",
+            "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+            "query": "pandas pd.to_datetime errors 视频教程",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159",
+            "title": "Python pandas.to_datetime函数方法的使用",
+            "snippet": "Python pandas.to_datetime函数方法的使用, 视频播放量 477、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python math.trunc() 方法，Python math.tanh() 方法，Python math.log2() 方法，.NET(C#)使用 ...",
+            "observed_at": "2026-10-18T20:13:50.901958+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            },
+            "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.tpUdkkeQEALHKdB9_MclmwEsC7?pid=Api",
+            "thumbnail_source": "search.thumbnail"
+          },
+          {
+            "id": "ev_7defe5ea90690972e969",
+            "evidence_id": "ev_97acf7a0-6039-4a12-80b2-ab7005d84960",
+            "kind": "page",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "field": "title",
+            "source": "html.bilibili.video_title",
+            "text": "Python pandas.to_datetime函数方法的使用",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "observed_at": "2026-10-18T20:13:59.921513+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            }
+          },
+          {
+            "id": "ev_913fc846ba1b6d991684",
+            "evidence_id": "ev_e2bc56d7-2b78-4b90-8c9b-f177dc42ef4c",
+            "kind": "page",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "field": "thumbnail_url",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+            "text": "http://i1.hdslb.com/bfs/archive/f24e7010ee42e10b710cd88dae562bd1fe1fe23c.jpg",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "observed_at": "2026-10-18T20:13:59.921513+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            }
+          },
+          {
+            "id": "ev_79b33e9f94edf84481cb",
+            "evidence_id": "ev_bf4ca705-e38c-4418-9b38-09effdc05b89",
+            "kind": "page",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "field": "author",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+            "text": "cjavapy",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "observed_at": "2026-10-18T20:13:59.921513+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            }
+          },
+          {
+            "id": "ev_43c767b5109b49e18e69",
+            "evidence_id": "ev_b6e585cf-7fa5-4f83-8acb-81525f9fb14f",
+            "kind": "page",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "field": "description",
+            "source": "meta.og:description",
+            "text": "Python pandas.to_datetime函数方法的使用, 视频播放量 479、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python 在Windows、Mac和Linux上安装pip的方法，Java 文件操作读取文本(txt)文件内容的方法代码总结，Java 通过ProcessBuilder或Runtime.exec()调用(cmd/sh)系统命令方法代码，Python math.sqrt() 方法，.Net(C#)后台发送Get和Post请求的几种方法总结，Java EasyExcel写入Excel中复杂头(head)表中的标题的方法及示例代码，Python math.perm() 方法，Python math.remainder() 方法，Java 使用Apache POI常用操作word的方法及示例代码，.NET Framework 和 .NET Core区别总结",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "observed_at": "2026-10-18T20:13:59.921513+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            }
+          },
+          {
+            "id": "ev_db5b0c09c46c318e26e2",
+            "evidence_id": "ev_9bdec627-2ac7-4380-b4d2-693d3baeda5b",
+            "kind": "page",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "field": "language",
+            "source": "html.lang",
+            "text": "zh-Hans",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "observed_at": "2026-10-18T20:13:59.921513+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            }
+          },
+          {
+            "id": "ev_e4019916c34b03e2ea5e",
+            "evidence_id": "ev_b6f66fc9-abc5-41b6-8b34-442f993724d1",
+            "kind": "page",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "field": "resource_type",
+            "source": "meta.og:type",
+            "text": "video",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "observed_at": "2026-10-18T20:13:59.921513+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            }
+          },
+          {
+            "id": "ev_128578f65072330592b0",
+            "evidence_id": "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d",
+            "kind": "page",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "field": "video_evidence_status",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+            "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "observed_at": "2026-10-18T20:13:59.921513+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            }
+          },
+          {
+            "id": "ev_d4bd5d4a9bdcce0ef94d",
+            "evidence_id": "ev_4f290a9c-87fb-42c2-b29a-49f272cadf75",
+            "kind": "catalog",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "field": "chapters.0",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+            "text": "{\"duration_seconds\": 156, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1eL4y1g7qY/\", \"start_seconds\": null, \"title\": \"522\", \"url\": \"https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1\"}",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "observed_at": "2026-10-18T20:13:59.921513+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            }
+          },
+          {
+            "id": "ev_84e8765fe6d8fff64e02",
+            "evidence_id": "ev_155f4a62-537f-4f40-8a61-946ec414b925",
+            "kind": "catalog",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "field": "chapters",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+            "text": "[{'title': '522', 'url': 'https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV1eL4y1g7qY/', 'duration_seconds': 156, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_d4bd5d4a9bdcce0ef94d'}]",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "observed_at": "2026-10-18T20:13:59.921513+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            }
+          }
+        ]
+      }
+    ],
+    "partial_platform_items": {
+      "bilibili": [
+        {
+          "resource": {
+            "resource_id": "res_5659617259cfc15963a12d97",
+            "title": "Python pandas.to_datetime函数方法的使用",
+            "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159",
+            "canonical_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "resolved_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+            "platform": "bilibili",
+            "resource_type": "video",
+            "video_evidence_status": "page_verified",
+            "author": "cjavapy",
+            "author_role": null,
+            "parent_course_url": null,
+            "course_identity": {
+              "status": "partial",
+              "family_id": null,
+              "offering_id": null,
+              "lesson_id": null,
+              "family_url": null,
+              "offering_url": null,
+              "role": "video",
+              "basis": "unknown",
+              "source_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "evidence_ids": [
+                "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d"
+              ],
+              "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+            },
+            "description": "Python pandas.to_datetime函数方法的使用, 视频播放量 479、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python 在Windows、Mac和Linux上安装pip的方法，Java 文件操作读取文本(txt)文件内容的方法代码总结，Java 通过ProcessBuilder或Runtime.exec()调用(cmd/sh)系统命令方法代码，Python math.sqrt() 方法，.Net(C#)后台发送Get和Post请求的几种方法总结，Java EasyExcel写入Excel中复杂头(head)表中的标题的方法及示例代码，Python math.perm() 方法，Python math.remainder() 方法，Java 使用Apache POI常用操作word的方法及示例代码，.NET Framework 和 .NET Core区别总结",
+            "video_topic_summary": null,
+            "thumbnail_url": "http://i1.hdslb.com/bfs/archive/f24e7010ee42e10b710cd88dae562bd1fe1fe23c.jpg",
+            "language": "zh-Hans",
+            "duration_seconds": null,
+            "published_at": null,
+            "discovered_at": "2026-10-18T20:13:50.901958+00:00",
+            "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+            "fetch_status": "fetched",
+            "metadata_evidence_level": "catalog",
+            "requires_login": null,
+            "requires_payment": null,
+            "requires_enrollment": null,
+            "access_notice": null,
+            "chapters": [
+              {
+                "title": "522",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1",
+                "start_seconds": null,
+                "end_seconds": null,
+                "source_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "duration_seconds": 156,
+                "page_number": 1,
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "evidence_id": "ev_4f290a9c-87fb-42c2-b29a-49f272cadf75"
+              }
+            ],
+            "catalog_kind": "video_parts",
+            "catalog_fetch_status": null,
+            "render_diagnostics": null,
+            "field_provenance": {
+              "title": {
+                "evidence_id": "ev_97acf7a0-6039-4a12-80b2-ab7005d84960",
+                "source": "html.bilibili.video_title",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+              },
+              "url": {
+                "evidence_id": "ev_e1e718ca-01ff-4513-990f-0b7a32632d7e",
+                "source": "search",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159"
+              },
+              "description": {
+                "evidence_id": "ev_b6e585cf-7fa5-4f83-8acb-81525f9fb14f",
+                "source": "meta.og:description",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+              },
+              "resource_type": {
+                "evidence_id": "ev_b6f66fc9-abc5-41b6-8b34-442f993724d1",
+                "source": "meta.og:type",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+              },
+              "video_evidence_status": {
+                "evidence_id": "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+              },
+              "thumbnail_url": {
+                "evidence_id": "ev_e2bc56d7-2b78-4b90-8c9b-f177dc42ef4c",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+              },
+              "author": {
+                "evidence_id": "ev_bf4ca705-e38c-4418-9b38-09effdc05b89",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+              },
+              "language": {
+                "evidence_id": "ev_9bdec627-2ac7-4380-b4d2-693d3baeda5b",
+                "source": "html.lang",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+              },
+              "chapters": {
+                "evidence_id": "ev_155f4a62-537f-4f40-8a61-946ec414b925",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+              }
+            },
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            },
+            "playback_verified": false
+          },
+          "match": {
+            "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+            "resource_id": "res_5659617259cfc15963a12d97",
+            "ranking_score": 44.36,
+            "recommendation_reason": "与“pandas 时间列解析与无效行分离”相关：已有来源证据：pandas.to_datetime API 使用核心（参数未确认）。尚未确认：时间列解析、无效行分离、pandas 日期时间转换、时间列与无效行分离。此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：pd.to_datetime(errors)、isna 与缺失筛选、布尔条件 end < start、相等时间的边界判断；项目行为仍需分别取证。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+            "matched_evidence_ids": [
+              "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+            ],
+            "coverage_basis": [],
+            "topic_match_rules": [
+              "search_related_recommendations_excluded",
+              "page_related_recommendations_excluded"
+            ],
+            "topic_evidence_status": "partial",
+            "topic_evidence_reasons": [
+              {
+                "code": "confirmed_api_operation_core",
+                "message": "此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：pd.to_datetime(errors)、isna 与缺失筛选、布尔条件 end < start、相等时间的边界判断；项目行为仍需分别取证。",
+                "evidence_ids": [
+                  "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+                ]
+              }
+            ],
+            "supporting_evidence_ids": [
+              "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+            ],
+            "subtopic_coverage": [
+              {
+                "id": "subtopic_1",
+                "text": "时间列解析",
+                "status": "unknown",
+                "evidence_ids": [],
+                "reason": "原项目要求仍缺少教学证据。"
+              },
+              {
+                "id": "subtopic_2",
+                "text": "无效行分离",
+                "status": "unknown",
+                "evidence_ids": [],
+                "reason": "原项目要求仍缺少教学证据。"
+              },
+              {
+                "id": "operation_core",
+                "text": "pandas 日期时间转换",
+                "status": "unknown",
+                "evidence_ids": [],
+                "reason": "原项目要求仍缺少教学证据。"
+              },
+              {
+                "id": "operation_qualification",
+                "text": "时间列与无效行分离",
+                "status": "unknown",
+                "evidence_ids": [],
+                "reason": "原项目要求仍缺少教学证据。"
+              },
+              {
+                "id": "learning_target_1",
+                "text": "pd.to_datetime(errors)",
+                "status": "unknown",
+                "evidence_ids": [],
+                "reason": "该项已确认技能仍需补充来源证据。"
+              },
+              {
+                "id": "learning_target_2",
+                "text": "isna 与缺失筛选",
+                "status": "unknown",
+                "evidence_ids": [],
+                "reason": "该项已确认技能仍需补充来源证据。"
+              },
+              {
+                "id": "learning_target_3",
+                "text": "布尔条件 end < start",
+                "status": "unknown",
+                "evidence_ids": [],
+                "reason": "该项已确认技能仍需补充来源证据。"
+              },
+              {
+                "id": "learning_target_4",
+                "text": "相等时间的边界判断",
+                "status": "unknown",
+                "evidence_ids": [],
+                "reason": "该项已确认技能仍需补充来源证据。"
+              },
+              {
+                "id": "api_operation_core_1",
+                "text": "pandas.to_datetime API 使用核心（参数未确认）",
+                "status": "supported",
+                "evidence_ids": [
+                  "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+                ],
+                "reason": "仅来源自己的已验证视频标题明确讲授这一原拼写 API 的使用核心；不是别名或参数等价，原确认目标和项目限定仍未知。"
+              }
+            ]
+          },
+          "evidence": [
+            {
+              "evidence_id": "ev_e1e718ca-01ff-4513-990f-0b7a32632d7e",
+              "candidate_id": "466591fd1ef13c3ceacfc068",
+              "kind": "search",
+              "source": "searxng",
+              "source_engines": [
+                "duckduckgo videos"
+              ],
+              "type_source": "search_template",
+              "resource_type_hint": "video",
+              "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+              "query": "pandas pd.to_datetime errors 视频教程",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159",
+              "title": "Python pandas.to_datetime函数方法的使用",
+              "snippet": "Python pandas.to_datetime函数方法的使用, 视频播放量 477、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python math.trunc() 方法，Python math.tanh() 方法，Python math.log2() 方法，.NET(C#)使用 ...",
+              "observed_at": "2026-10-18T20:13:50.901958+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.tpUdkkeQEALHKdB9_MclmwEsC7?pid=Api",
+              "thumbnail_source": "search.thumbnail"
+            },
+            {
+              "id": "ev_7defe5ea90690972e969",
+              "evidence_id": "ev_97acf7a0-6039-4a12-80b2-ab7005d84960",
+              "kind": "page",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "title",
+              "source": "html.bilibili.video_title",
+              "text": "Python pandas.to_datetime函数方法的使用",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            },
+            {
+              "id": "ev_913fc846ba1b6d991684",
+              "evidence_id": "ev_e2bc56d7-2b78-4b90-8c9b-f177dc42ef4c",
+              "kind": "page",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "thumbnail_url",
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+              "text": "http://i1.hdslb.com/bfs/archive/f24e7010ee42e10b710cd88dae562bd1fe1fe23c.jpg",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            },
+            {
+              "id": "ev_79b33e9f94edf84481cb",
+              "evidence_id": "ev_bf4ca705-e38c-4418-9b38-09effdc05b89",
+              "kind": "page",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "author",
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+              "text": "cjavapy",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            },
+            {
+              "id": "ev_43c767b5109b49e18e69",
+              "evidence_id": "ev_b6e585cf-7fa5-4f83-8acb-81525f9fb14f",
+              "kind": "page",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "description",
+              "source": "meta.og:description",
+              "text": "Python pandas.to_datetime函数方法的使用, 视频播放量 479、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python 在Windows、Mac和Linux上安装pip的方法，Java 文件操作读取文本(txt)文件内容的方法代码总结，Java 通过ProcessBuilder或Runtime.exec()调用(cmd/sh)系统命令方法代码，Python math.sqrt() 方法，.Net(C#)后台发送Get和Post请求的几种方法总结，Java EasyExcel写入Excel中复杂头(head)表中的标题的方法及示例代码，Python math.perm() 方法，Python math.remainder() 方法，Java 使用Apache POI常用操作word的方法及示例代码，.NET Framework 和 .NET Core区别总结",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            },
+            {
+              "id": "ev_db5b0c09c46c318e26e2",
+              "evidence_id": "ev_9bdec627-2ac7-4380-b4d2-693d3baeda5b",
+              "kind": "page",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "language",
+              "source": "html.lang",
+              "text": "zh-Hans",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            },
+            {
+              "id": "ev_e4019916c34b03e2ea5e",
+              "evidence_id": "ev_b6f66fc9-abc5-41b6-8b34-442f993724d1",
+              "kind": "page",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "resource_type",
+              "source": "meta.og:type",
+              "text": "video",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            },
+            {
+              "id": "ev_128578f65072330592b0",
+              "evidence_id": "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d",
+              "kind": "page",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "video_evidence_status",
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+              "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            },
+            {
+              "id": "ev_d4bd5d4a9bdcce0ef94d",
+              "evidence_id": "ev_4f290a9c-87fb-42c2-b29a-49f272cadf75",
+              "kind": "catalog",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "chapters.0",
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+              "text": "{\"duration_seconds\": 156, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1eL4y1g7qY/\", \"start_seconds\": null, \"title\": \"522\", \"url\": \"https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1\"}",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            },
+            {
+              "id": "ev_84e8765fe6d8fff64e02",
+              "evidence_id": "ev_155f4a62-537f-4f40-8a61-946ec414b925",
+              "kind": "catalog",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "chapters",
+              "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+              "text": "[{'title': '522', 'url': 'https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV1eL4y1g7qY/', 'duration_seconds': 156, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_d4bd5d4a9bdcce0ef94d'}]",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "review_items": [],
+    "review_platform_items": {},
+    "collection_coverage": {
+      "decomposition_status": "applied",
+      "shared_context": [
+        "pandas"
+      ],
+      "subtopics": [
+        {
+          "id": "subtopic_1",
+          "text": "时间列解析",
+          "status": "unknown",
+          "resource_ids": [],
+          "evidence_ids": []
+        },
+        {
+          "id": "subtopic_2",
+          "text": "无效行分离",
+          "status": "unknown",
+          "resource_ids": [],
+          "evidence_ids": []
+        },
+        {
+          "id": "operation_core",
+          "text": "pandas 日期时间转换",
+          "status": "unknown",
+          "resource_ids": [],
+          "evidence_ids": []
+        },
+        {
+          "id": "operation_qualification",
+          "text": "时间列与无效行分离",
+          "status": "unknown",
+          "resource_ids": [],
+          "evidence_ids": []
+        },
+        {
+          "id": "learning_target_1",
+          "text": "pd.to_datetime(errors)",
+          "status": "unknown",
+          "resource_ids": [],
+          "evidence_ids": []
+        },
+        {
+          "id": "learning_target_2",
+          "text": "isna 与缺失筛选",
+          "status": "unknown",
+          "resource_ids": [],
+          "evidence_ids": []
+        },
+        {
+          "id": "learning_target_3",
+          "text": "布尔条件 end < start",
+          "status": "unknown",
+          "resource_ids": [],
+          "evidence_ids": []
+        },
+        {
+          "id": "learning_target_4",
+          "text": "相等时间的边界判断",
+          "status": "unknown",
+          "resource_ids": [],
+          "evidence_ids": []
+        }
+      ],
+      "status": "unknown",
+      "single_resource_full_coverage": false,
+      "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+    },
+    "platform_collection_coverage": {
+      "bilibili": {
+        "decomposition_status": "applied",
+        "shared_context": [
+          "pandas"
+        ],
+        "subtopics": [
+          {
+            "id": "subtopic_1",
+            "text": "时间列解析",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "subtopic_2",
+            "text": "无效行分离",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "operation_core",
+            "text": "pandas 日期时间转换",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "operation_qualification",
+            "text": "时间列与无效行分离",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "learning_target_1",
+            "text": "pd.to_datetime(errors)",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "learning_target_2",
+            "text": "isna 与缺失筛选",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "learning_target_3",
+            "text": "布尔条件 end < start",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "learning_target_4",
+            "text": "相等时间的边界判断",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      }
+    }
+  },
+  "full_job_results": {
+    "job_id": "offline-retained-r8-data-v6-single-candidate",
+    "status": "completed",
+    "groups": [
+      {
+        "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+        "text": "pandas 时间列解析与无效行分离",
+        "learning_targets": [
+          "pd.to_datetime(errors)",
+          "isna 与缺失筛选",
+          "布尔条件 end < start",
+          "相等时间的边界判断"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 1,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [
+          {
+            "resource": {
+              "resource_id": "res_5659617259cfc15963a12d97",
+              "title": "Python pandas.to_datetime函数方法的使用",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159",
+              "canonical_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "resolved_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "page_verified",
+              "author": "cjavapy",
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "evidence_ids": [
+                  "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "Python pandas.to_datetime函数方法的使用, 视频播放量 479、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python 在Windows、Mac和Linux上安装pip的方法，Java 文件操作读取文本(txt)文件内容的方法代码总结，Java 通过ProcessBuilder或Runtime.exec()调用(cmd/sh)系统命令方法代码，Python math.sqrt() 方法，.Net(C#)后台发送Get和Post请求的几种方法总结，Java EasyExcel写入Excel中复杂头(head)表中的标题的方法及示例代码，Python math.perm() 方法，Python math.remainder() 方法，Java 使用Apache POI常用操作word的方法及示例代码，.NET Framework 和 .NET Core区别总结",
+              "video_topic_summary": null,
+              "thumbnail_url": "http://i1.hdslb.com/bfs/archive/f24e7010ee42e10b710cd88dae562bd1fe1fe23c.jpg",
+              "language": "zh-Hans",
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T20:13:50.901958+00:00",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "fetch_status": "fetched",
+              "metadata_evidence_level": "catalog",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [
+                {
+                  "title": "522",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1",
+                  "start_seconds": null,
+                  "end_seconds": null,
+                  "source_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "duration_seconds": 156,
+                  "page_number": 1,
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "evidence_id": "ev_4f290a9c-87fb-42c2-b29a-49f272cadf75"
+                }
+              ],
+              "catalog_kind": "video_parts",
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_97acf7a0-6039-4a12-80b2-ab7005d84960",
+                  "source": "html.bilibili.video_title",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                },
+                "url": {
+                  "evidence_id": "ev_e1e718ca-01ff-4513-990f-0b7a32632d7e",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159"
+                },
+                "description": {
+                  "evidence_id": "ev_b6e585cf-7fa5-4f83-8acb-81525f9fb14f",
+                  "source": "meta.og:description",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_b6f66fc9-abc5-41b6-8b34-442f993724d1",
+                  "source": "meta.og:type",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_e2bc56d7-2b78-4b90-8c9b-f177dc42ef4c",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                },
+                "author": {
+                  "evidence_id": "ev_bf4ca705-e38c-4418-9b38-09effdc05b89",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                },
+                "language": {
+                  "evidence_id": "ev_9bdec627-2ac7-4380-b4d2-693d3baeda5b",
+                  "source": "html.lang",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                },
+                "chapters": {
+                  "evidence_id": "ev_155f4a62-537f-4f40-8a61-946ec414b925",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+              "resource_id": "res_5659617259cfc15963a12d97",
+              "ranking_score": 44.36,
+              "recommendation_reason": "与“pandas 时间列解析与无效行分离”相关：已有来源证据：pandas.to_datetime API 使用核心（参数未确认）。尚未确认：时间列解析、无效行分离、pandas 日期时间转换、时间列与无效行分离。此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：pd.to_datetime(errors)、isna 与缺失筛选、布尔条件 end < start、相等时间的边界判断；项目行为仍需分别取证。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+              "matched_evidence_ids": [
+                "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+              ],
+              "coverage_basis": [],
+              "topic_match_rules": [
+                "search_related_recommendations_excluded",
+                "page_related_recommendations_excluded"
+              ],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_api_operation_core",
+                  "message": "此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：pd.to_datetime(errors)、isna 与缺失筛选、布尔条件 end < start、相等时间的边界判断；项目行为仍需分别取证。",
+                  "evidence_ids": [
+                    "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "subtopic_1",
+                  "text": "时间列解析",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "原项目要求仍缺少教学证据。"
+                },
+                {
+                  "id": "subtopic_2",
+                  "text": "无效行分离",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "原项目要求仍缺少教学证据。"
+                },
+                {
+                  "id": "operation_core",
+                  "text": "pandas 日期时间转换",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "原项目要求仍缺少教学证据。"
+                },
+                {
+                  "id": "operation_qualification",
+                  "text": "时间列与无效行分离",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "原项目要求仍缺少教学证据。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "pd.to_datetime(errors)",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "isna 与缺失筛选",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "布尔条件 end < start",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_4",
+                  "text": "相等时间的边界判断",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "api_operation_core_1",
+                  "text": "pandas.to_datetime API 使用核心（参数未确认）",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+                  ],
+                  "reason": "仅来源自己的已验证视频标题明确讲授这一原拼写 API 的使用核心；不是别名或参数等价，原确认目标和项目限定仍未知。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_e1e718ca-01ff-4513-990f-0b7a32632d7e",
+                "candidate_id": "466591fd1ef13c3ceacfc068",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+                "query": "pandas pd.to_datetime errors 视频教程",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159",
+                "title": "Python pandas.to_datetime函数方法的使用",
+                "snippet": "Python pandas.to_datetime函数方法的使用, 视频播放量 477、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python math.trunc() 方法，Python math.tanh() 方法，Python math.log2() 方法，.NET(C#)使用 ...",
+                "observed_at": "2026-10-18T20:13:50.901958+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.tpUdkkeQEALHKdB9_MclmwEsC7?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              },
+              {
+                "id": "ev_7defe5ea90690972e969",
+                "evidence_id": "ev_97acf7a0-6039-4a12-80b2-ab7005d84960",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "field": "title",
+                "source": "html.bilibili.video_title",
+                "text": "Python pandas.to_datetime函数方法的使用",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_913fc846ba1b6d991684",
+                "evidence_id": "ev_e2bc56d7-2b78-4b90-8c9b-f177dc42ef4c",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "field": "thumbnail_url",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                "text": "http://i1.hdslb.com/bfs/archive/f24e7010ee42e10b710cd88dae562bd1fe1fe23c.jpg",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_79b33e9f94edf84481cb",
+                "evidence_id": "ev_bf4ca705-e38c-4418-9b38-09effdc05b89",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "field": "author",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                "text": "cjavapy",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_43c767b5109b49e18e69",
+                "evidence_id": "ev_b6e585cf-7fa5-4f83-8acb-81525f9fb14f",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "field": "description",
+                "source": "meta.og:description",
+                "text": "Python pandas.to_datetime函数方法的使用, 视频播放量 479、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python 在Windows、Mac和Linux上安装pip的方法，Java 文件操作读取文本(txt)文件内容的方法代码总结，Java 通过ProcessBuilder或Runtime.exec()调用(cmd/sh)系统命令方法代码，Python math.sqrt() 方法，.Net(C#)后台发送Get和Post请求的几种方法总结，Java EasyExcel写入Excel中复杂头(head)表中的标题的方法及示例代码，Python math.perm() 方法，Python math.remainder() 方法，Java 使用Apache POI常用操作word的方法及示例代码，.NET Framework 和 .NET Core区别总结",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_db5b0c09c46c318e26e2",
+                "evidence_id": "ev_9bdec627-2ac7-4380-b4d2-693d3baeda5b",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "field": "language",
+                "source": "html.lang",
+                "text": "zh-Hans",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_e4019916c34b03e2ea5e",
+                "evidence_id": "ev_b6f66fc9-abc5-41b6-8b34-442f993724d1",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "field": "resource_type",
+                "source": "meta.og:type",
+                "text": "video",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_128578f65072330592b0",
+                "evidence_id": "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "field": "video_evidence_status",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_d4bd5d4a9bdcce0ef94d",
+                "evidence_id": "ev_4f290a9c-87fb-42c2-b29a-49f272cadf75",
+                "kind": "catalog",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "field": "chapters.0",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "text": "{\"duration_seconds\": 156, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1eL4y1g7qY/\", \"start_seconds\": null, \"title\": \"522\", \"url\": \"https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1\"}",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              },
+              {
+                "id": "ev_84e8765fe6d8fff64e02",
+                "evidence_id": "ev_155f4a62-537f-4f40-8a61-946ec414b925",
+                "kind": "catalog",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "field": "chapters",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "text": "[{'title': '522', 'url': 'https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV1eL4y1g7qY/', 'duration_seconds': 156, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_d4bd5d4a9bdcce0ef94d'}]",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                }
+              }
+            ]
+          }
+        ],
+        "partial_platform_items": {
+          "bilibili": [
+            {
+              "resource": {
+                "resource_id": "res_5659617259cfc15963a12d97",
+                "title": "Python pandas.to_datetime函数方法的使用",
+                "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159",
+                "canonical_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "resolved_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "page_verified",
+                "author": "cjavapy",
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "evidence_ids": [
+                    "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "Python pandas.to_datetime函数方法的使用, 视频播放量 479、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python 在Windows、Mac和Linux上安装pip的方法，Java 文件操作读取文本(txt)文件内容的方法代码总结，Java 通过ProcessBuilder或Runtime.exec()调用(cmd/sh)系统命令方法代码，Python math.sqrt() 方法，.Net(C#)后台发送Get和Post请求的几种方法总结，Java EasyExcel写入Excel中复杂头(head)表中的标题的方法及示例代码，Python math.perm() 方法，Python math.remainder() 方法，Java 使用Apache POI常用操作word的方法及示例代码，.NET Framework 和 .NET Core区别总结",
+                "video_topic_summary": null,
+                "thumbnail_url": "http://i1.hdslb.com/bfs/archive/f24e7010ee42e10b710cd88dae562bd1fe1fe23c.jpg",
+                "language": "zh-Hans",
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T20:13:50.901958+00:00",
+                "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                "fetch_status": "fetched",
+                "metadata_evidence_level": "catalog",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [
+                  {
+                    "title": "522",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1",
+                    "start_seconds": null,
+                    "end_seconds": null,
+                    "source_url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                    "duration_seconds": 156,
+                    "page_number": 1,
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                    "evidence_id": "ev_4f290a9c-87fb-42c2-b29a-49f272cadf75"
+                  }
+                ],
+                "catalog_kind": "video_parts",
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_97acf7a0-6039-4a12-80b2-ab7005d84960",
+                    "source": "html.bilibili.video_title",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                    "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                  },
+                  "url": {
+                    "evidence_id": "ev_e1e718ca-01ff-4513-990f-0b7a32632d7e",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159"
+                  },
+                  "description": {
+                    "evidence_id": "ev_b6e585cf-7fa5-4f83-8acb-81525f9fb14f",
+                    "source": "meta.og:description",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                    "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_b6f66fc9-abc5-41b6-8b34-442f993724d1",
+                    "source": "meta.og:type",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                    "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                    "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_e2bc56d7-2b78-4b90-8c9b-f177dc42ef4c",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                    "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                  },
+                  "author": {
+                    "evidence_id": "ev_bf4ca705-e38c-4418-9b38-09effdc05b89",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                    "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                  },
+                  "language": {
+                    "evidence_id": "ev_9bdec627-2ac7-4380-b4d2-693d3baeda5b",
+                    "source": "html.lang",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                    "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                  },
+                  "chapters": {
+                    "evidence_id": "ev_155f4a62-537f-4f40-8a61-946ec414b925",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                    "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                    "fetched_at": "2026-10-18T20:13:59.921513+00:00"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+                "resource_id": "res_5659617259cfc15963a12d97",
+                "ranking_score": 44.36,
+                "recommendation_reason": "与“pandas 时间列解析与无效行分离”相关：已有来源证据：pandas.to_datetime API 使用核心（参数未确认）。尚未确认：时间列解析、无效行分离、pandas 日期时间转换、时间列与无效行分离。此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：pd.to_datetime(errors)、isna 与缺失筛选、布尔条件 end < start、相等时间的边界判断；项目行为仍需分别取证。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+                "matched_evidence_ids": [
+                  "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+                ],
+                "coverage_basis": [],
+                "topic_match_rules": [
+                  "search_related_recommendations_excluded",
+                  "page_related_recommendations_excluded"
+                ],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_api_operation_core",
+                    "message": "此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：pd.to_datetime(errors)、isna 与缺失筛选、布尔条件 end < start、相等时间的边界判断；项目行为仍需分别取证。",
+                    "evidence_ids": [
+                      "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "subtopic_1",
+                    "text": "时间列解析",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "原项目要求仍缺少教学证据。"
+                  },
+                  {
+                    "id": "subtopic_2",
+                    "text": "无效行分离",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "原项目要求仍缺少教学证据。"
+                  },
+                  {
+                    "id": "operation_core",
+                    "text": "pandas 日期时间转换",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "原项目要求仍缺少教学证据。"
+                  },
+                  {
+                    "id": "operation_qualification",
+                    "text": "时间列与无效行分离",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "原项目要求仍缺少教学证据。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "pd.to_datetime(errors)",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "isna 与缺失筛选",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "布尔条件 end < start",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_4",
+                    "text": "相等时间的边界判断",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "api_operation_core_1",
+                    "text": "pandas.to_datetime API 使用核心（参数未确认）",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+                    ],
+                    "reason": "仅来源自己的已验证视频标题明确讲授这一原拼写 API 的使用核心；不是别名或参数等价，原确认目标和项目限定仍未知。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_e1e718ca-01ff-4513-990f-0b7a32632d7e",
+                  "candidate_id": "466591fd1ef13c3ceacfc068",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+                  "query": "pandas pd.to_datetime errors 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159",
+                  "title": "Python pandas.to_datetime函数方法的使用",
+                  "snippet": "Python pandas.to_datetime函数方法的使用, 视频播放量 477、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python math.trunc() 方法，Python math.tanh() 方法，Python math.log2() 方法，.NET(C#)使用 ...",
+                  "observed_at": "2026-10-18T20:13:50.901958+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.tpUdkkeQEALHKdB9_MclmwEsC7?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                },
+                {
+                  "id": "ev_7defe5ea90690972e969",
+                  "evidence_id": "ev_97acf7a0-6039-4a12-80b2-ab7005d84960",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "field": "title",
+                  "source": "html.bilibili.video_title",
+                  "text": "Python pandas.to_datetime函数方法的使用",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                  "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_913fc846ba1b6d991684",
+                  "evidence_id": "ev_e2bc56d7-2b78-4b90-8c9b-f177dc42ef4c",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "field": "thumbnail_url",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                  "text": "http://i1.hdslb.com/bfs/archive/f24e7010ee42e10b710cd88dae562bd1fe1fe23c.jpg",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                  "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_79b33e9f94edf84481cb",
+                  "evidence_id": "ev_bf4ca705-e38c-4418-9b38-09effdc05b89",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "field": "author",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                  "text": "cjavapy",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                  "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_43c767b5109b49e18e69",
+                  "evidence_id": "ev_b6e585cf-7fa5-4f83-8acb-81525f9fb14f",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "field": "description",
+                  "source": "meta.og:description",
+                  "text": "Python pandas.to_datetime函数方法的使用, 视频播放量 479、弹幕量 0、点赞数 1、投硬币枚数 0、收藏人数 0、转发人数 0, 视频作者 cjavapy, 作者简介 cjavapy.com，程序员编程爱好者，相关视频：Python 在Windows、Mac和Linux上安装pip的方法，Java 文件操作读取文本(txt)文件内容的方法代码总结，Java 通过ProcessBuilder或Runtime.exec()调用(cmd/sh)系统命令方法代码，Python math.sqrt() 方法，.Net(C#)后台发送Get和Post请求的几种方法总结，Java EasyExcel写入Excel中复杂头(head)表中的标题的方法及示例代码，Python math.perm() 方法，Python math.remainder() 方法，Java 使用Apache POI常用操作word的方法及示例代码，.NET Framework 和 .NET Core区别总结",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                  "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_db5b0c09c46c318e26e2",
+                  "evidence_id": "ev_9bdec627-2ac7-4380-b4d2-693d3baeda5b",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "field": "language",
+                  "source": "html.lang",
+                  "text": "zh-Hans",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                  "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_e4019916c34b03e2ea5e",
+                  "evidence_id": "ev_b6f66fc9-abc5-41b6-8b34-442f993724d1",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "field": "resource_type",
+                  "source": "meta.og:type",
+                  "text": "video",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                  "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_128578f65072330592b0",
+                  "evidence_id": "ev_6ea1ca60-8eda-4388-a809-5ed285f8f65d",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "field": "video_evidence_status",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                  "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                  "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_d4bd5d4a9bdcce0ef94d",
+                  "evidence_id": "ev_4f290a9c-87fb-42c2-b29a-49f272cadf75",
+                  "kind": "catalog",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "field": "chapters.0",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "text": "{\"duration_seconds\": 156, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1eL4y1g7qY/\", \"start_seconds\": null, \"title\": \"522\", \"url\": \"https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1\"}",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                  "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                },
+                {
+                  "id": "ev_84e8765fe6d8fff64e02",
+                  "evidence_id": "ev_155f4a62-537f-4f40-8a61-946ec414b925",
+                  "kind": "catalog",
+                  "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+                  "field": "chapters",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "text": "[{'title': '522', 'url': 'https://www.bilibili.com/video/BV1eL4y1g7qY/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV1eL4y1g7qY/', 'duration_seconds': 156, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_d4bd5d4a9bdcce0ef94d'}]",
+                  "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+                  "observed_at": "2026-10-18T20:13:59.921513+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "pandas"
+          ],
+          "subtopics": [
+            {
+              "id": "subtopic_1",
+              "text": "时间列解析",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "subtopic_2",
+              "text": "无效行分离",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "operation_core",
+              "text": "pandas 日期时间转换",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "operation_qualification",
+              "text": "时间列与无效行分离",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "pd.to_datetime(errors)",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "isna 与缺失筛选",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "布尔条件 end < start",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "相等时间的边界判断",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {
+          "bilibili": {
+            "decomposition_status": "applied",
+            "shared_context": [
+              "pandas"
+            ],
+            "subtopics": [
+              {
+                "id": "subtopic_1",
+                "text": "时间列解析",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "subtopic_2",
+                "text": "无效行分离",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "operation_core",
+                "text": "pandas 日期时间转换",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "operation_qualification",
+                "text": "时间列与无效行分离",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_1",
+                "text": "pd.to_datetime(errors)",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_2",
+                "text": "isna 与缺失筛选",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_3",
+                "text": "布尔条件 end < start",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_4",
+                "text": "相等时间的边界判断",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              }
+            ],
+            "status": "unknown",
+            "single_resource_full_coverage": false,
+            "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+          }
+        }
+      }
+    ],
+    "warnings": [],
+    "search_attempts": [],
+    "identity_summary": {
+      "resource_records": 1,
+      "identified_course_families": 0,
+      "identified_course_offerings": 0,
+      "identified_lessons": 0,
+      "unknown_course_family_resources": 1,
+      "unknown_offering_resources": 0,
+      "unknown_identity_resources": 0,
+      "scope": "observed_source_scoped_identities_not_global_course_deduplication"
+    }
+  },
+  "summary": {
+    "partial_materials": 1,
+    "original_supported_targets": 0,
+    "original_total_targets": 8,
+    "confirmed_concepts": 4,
+    "confirmed_supported_concepts": 0,
+    "supplemental_api_cores": 1
+  },
+  "checks": {
+    "baseline_rejected_this_candidate": true,
+    "candidate_bucket_one_partial_zero_full_zero_review": true,
+    "one_source_spelled_supplement": true,
+    "original_plan_unchanged": true,
+    "original_collection_ids_and_text_unchanged": true,
+    "original_eight_targets_all_unknown": true,
+    "collection_unknown_no_full_completion": true,
+    "supplement_not_in_original_plan": true,
+    "parameter_target_explicitly_unknown_in_reason": true,
+    "raw_fixture_unchanged": true
+  },
+  "frontend_contract": {
+    "changes_to_goal_denominator": false,
+    "new_schema_required": false,
+    "notice": "The API-core row is match-only and omitted by collection_coverage. Existing LearningCoverage correctly remains 0/8; its empty-support sentence must refer to these learning goals, while the partial card displays the independent core and explicit unknown concepts.",
+    "proposed_precise_empty_copy": "这些学习目标尚无足够的本课正文或目录依据。"
+  }
+}

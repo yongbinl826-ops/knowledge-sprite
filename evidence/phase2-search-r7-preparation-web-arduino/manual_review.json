@@ -1,0 +1,417 @@
+{
+  "mode": "inherited_exact_content_approval",
+  "inherited_at": "2026-10-18T19:29:34.579532+00:00",
+  "original_reviewed_at": "2026-10-18T17:03:44.733184+00:00",
+  "source_manual_review": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v261\\manual-review.json",
+  "source_manual_review_sha256": "2720f8c9e298fcab065d2444e053f85f15485dd735afcc1a7c30157d6eb2d2d3",
+  "new_independent_semantic_review": false,
+  "new_model_analysis": false,
+  "case_reviews": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "version": 4,
+      "api_status": "analyzed",
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+      "analysis_sha256": "99729fa69f61786176b5968ac8e218fecc57508c6dc7b1733ea4d826c7796a91",
+      "review_type": "inherited_exact_content_approval",
+      "verdict": "static_pass",
+      "requirements": [
+        {
+          "id": "w1",
+          "requirement": "Show phase, 25/5 duration, formatted remaining time and count",
+          "unit_ids": [
+            "k1",
+            "k3",
+            "k4"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "Concrete display placeholders, a state/render function and fixed-duration constants/formatting show all required information."
+        },
+        {
+          "id": "w2",
+          "requirement": "Start, pause and resume",
+          "unit_ids": [
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Pause stores remaining milliseconds; resume explicitly recomputes a new deadline. No paused wall time is subtracted."
+        },
+        {
+          "id": "w3",
+          "requirement": "On expiry switch phase and wait paused",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "On <=0, switch 25/5 phase and pause; user must explicitly start the next phase."
+        },
+        {
+          "id": "w4",
+          "requirement": "Increment count only for completed focus phases",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "Only completed focus increments exactly once; rest completion does not add to the count."
+        },
+        {
+          "id": "w5",
+          "requirement": "Background-tab return retains accurate remaining time",
+          "unit_ids": [
+            "k4"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "Deadline minus Date.now measures actual elapsed time; setInterval is display refresh only."
+        },
+        {
+          "id": "w6",
+          "requirement": "Mobile layout and full keyboard access",
+          "unit_ids": [
+            "k1",
+            "k2",
+            "k7"
+          ],
+          "function_ids": [
+            "f6",
+            "f7"
+          ],
+          "passed": true,
+          "reason": "Native buttons preserve Tab/Enter/Space; focus-visible, viewport and responsive layout have concrete keyboard/360px checks."
+        },
+        {
+          "id": "w7",
+          "requirement": "Reset clears active work and restores a usable initial state",
+          "unit_ids": [
+            "k5"
+          ],
+          "function_ids": [
+            "f8"
+          ],
+          "passed": true,
+          "reason": "Reset restores focus 25:00 and paused state; subsequent start/pause/resume is an observable practice."
+        }
+      ],
+      "unassessed_requirements": [],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "番茄钟页面结构与语义化按钮",
+          "technology": "HTML",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Build the three displays and semantic buttons as a visible page skeleton."
+        },
+        {
+          "id": "k2",
+          "name": "CSS 弹性布局与窄屏适配",
+          "technology": "CSS",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Adapt the actual layout to a narrow screen."
+        },
+        {
+          "id": "k3",
+          "name": "JavaScript 状态对象与阶段时长常量",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Group state, duration constants and centralized rendering."
+        },
+        {
+          "id": "k4",
+          "name": "时间戳倒计时与后台标签页准确性",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Teach the real clock-versus-refresh mechanism with a background-tab check."
+        },
+        {
+          "id": "k5",
+          "name": "开始暂停继续重置的状态转换",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Group all four timer actions with correct timestamp state transitions."
+        },
+        {
+          "id": "k6",
+          "name": "阶段结束切换与专注计数",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Implement stage completion, pause and conditional count together."
+        },
+        {
+          "id": "k7",
+          "name": "原生按钮键盘操作与焦点样式",
+          "technology": "CSS",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Preserve and test native keyboard activation plus visible focus."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Explicitly uses the stated beginner HTML/CSS and JS variable/if background, and teaches state, events and timing as project skills."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "Page structure precedes responsive style and state. State precedes timestamp countdown, which precedes controls and phase completion. Keyboard behavior uses existing buttons/handlers. Each branch has coherent foundations."
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "Pause/resume timestamp rebasing is explicit, preventing the earlier low-priority ambiguity. Countdown completion and phase counting retain the requested fixed times and paused transition, without permission-seeking notifications or backend."
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "f3 says count-reset behavior is in assumptions, but that list does not explicitly define whether reset clears the count. The input leaves this open; choose and label the intended policy rather than retaining a dangling reference."
+      ],
+      "not_executed": true,
+      "numeric_boundary_checks": [
+        {
+          "probe": "Exactly zero remaining time",
+          "expected": "Transition once to the next fixed-duration paused phase; only focus increments",
+          "passed": true
+        },
+        {
+          "probe": "Pause for additional wall-clock time then resume",
+          "expected": "Use saved remaining milliseconds and a newly calculated deadline",
+          "passed": true
+        }
+      ],
+      "approval": {
+        "type": "inherited_exact_content_approval",
+        "inherited_at": "2026-10-18T19:29:34.578722+00:00",
+        "inherited_from": {
+          "source_run": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v261\\run.json",
+          "source_run_sha256": "393d4517a21e4fc398cc150431d5e93ff56cac8f1cc875ce71f227c6efc17de5",
+          "source_record_sha256": "aeeb9a6f8e39c41156d43e938fb3e0dc07ee8c89ecda00ca5ff04ed1b170d998",
+          "manual_review": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v261\\manual-review.json",
+          "manual_review_sha256": "2720f8c9e298fcab065d2444e053f85f15485dd735afcc1a7c30157d6eb2d2d3",
+          "case_review_sha256": "ee192d9cee0127c25bf39dda3220e08fe766c34c332a50ba27953ca65e8c72f5",
+          "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+          "version": 3,
+          "input_sha256": "8578b758f3ea6b4ad5ae3b9786cc1b3f8bc12c30501ec7f70ca26a8490befe17",
+          "analysis_sha256": "99729fa69f61786176b5968ac8e218fecc57508c6dc7b1733ea4d826c7796a91",
+          "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+        },
+        "bound_version": 4,
+        "content_changes": false,
+        "new_model_analysis": false,
+        "new_independent_semantic_review": false
+      },
+      "original_review_type": "independent_static_semantic_review"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "version": 4,
+      "api_status": "analyzed",
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+      "analysis_sha256": "8b60141a6527ce27b2cef7cf983f1d718bfcaa7e12d6b1f185659de86fff703b",
+      "review_type": "inherited_exact_content_approval",
+      "verdict": "static_pass",
+      "requirements": [
+        {
+          "id": "h1",
+          "requirement": "Low-voltage safe LED/button wiring",
+          "unit_ids": [
+            "k1",
+            "k2"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Current limiting, LED polarity, common ground, unpowered wiring and INPUT_PULLUP-to-ground are explicit."
+        },
+        {
+          "id": "h2",
+          "requirement": "INPUT_PULLUP active-low button",
+          "unit_ids": [
+            "k2"
+          ],
+          "function_ids": [
+            "f1",
+            "f2"
+          ],
+          "passed": true,
+          "reason": "The raw-input check explicitly expects released=1 and pressed=0."
+        },
+        {
+          "id": "h3",
+          "requirement": "Actual debounce plus one event per held press",
+          "unit_ids": [
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "Multiple identical samples at a nonblocking interval are required before stable-state HIGH-to-LOW edges; held LOW cannot produce repeated presses."
+        },
+        {
+          "id": "h4",
+          "requirement": "Responsive random wait and early-press false start",
+          "unit_ids": [
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "random(2000,5001) and millis comparison keep button debounce running during WAITING; an early press is a distinct event."
+        },
+        {
+          "id": "h5",
+          "requirement": "Reaction milliseconds and readable serial output",
+          "unit_ids": [
+            "k2",
+            "k5"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "The LIGHT_ON behavior reports the first valid post-signal press as nonnegative reaction milliseconds through Serial."
+        },
+        {
+          "id": "h6",
+          "requirement": "A fresh press can start another round without long-hold repetition",
+          "unit_ids": [
+            "k3",
+            "k5"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "EARLY can accept a fresh press to begin another random wait; stable edge input prevents long-hold round repetition."
+        }
+      ],
+      "unassessed_requirements": [],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "Arduino低压电路安全接线与LED极性",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Build/check the specific LED-button circuit safely."
+        },
+        {
+          "id": "k2",
+          "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Read active-low input and observe it through Serial."
+        },
+        {
+          "id": "k3",
+          "name": "按钮去抖的稳定时间窗口实现",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Convert stable samples into one press event and verify a held press is not repeated."
+        },
+        {
+          "id": "k4",
+          "name": "非阻塞随机等待与millis计时",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Keep input sampling alive while waiting for a random elapsed interval."
+        },
+        {
+          "id": "k5",
+          "name": "反应时间游戏状态机与主循环",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Integrate wait, light, reaction result, early press and next-round behavior as one project game."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Preserves beginner and the single-LED/upload experience. Raw button observation, stable events, nonblocking waiting and a complete game state machine are taught in order rather than assumed mastered."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "Safe wiring precedes active-low observation; sampled stable input precedes responsive waiting and the final state machine. The final unit directly depends on both the debounced press event and timing behavior."
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "The chosen stable-sample mechanism is a real debounce condition, not raw state comparison alone. Active-low input, continued sampling, random wait endpoints and early-press handling are consistent across plan, tasks and checks."
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "Four samples spaced 5ms describe an approximate stability window; do not present a precise measured 20ms guarantee without clarifying interval/count semantics.",
+        "In executable firmware, verify reaction timing uses the actual LED-on timestamp rather than the earlier random-wait start. No hardware timing measurement is claimed here."
+      ],
+      "not_executed": true,
+      "numeric_boundary_checks": [
+        {
+          "probe": "INPUT_PULLUP pressed LOW",
+          "expected": "0 is a pressed input, not false/no-event semantics",
+          "passed": true
+        },
+        {
+          "probe": "Random 2-5 seconds",
+          "expected": "2000..5000 inclusive milliseconds via random upper bound 5001",
+          "passed": true
+        },
+        {
+          "probe": "Raw bounce or held press",
+          "expected": "Confirm repeated stable samples before an edge; hold produces one event until released",
+          "passed": true
+        }
+      ],
+      "approval": {
+        "type": "inherited_exact_content_approval",
+        "inherited_at": "2026-10-18T19:29:34.579251+00:00",
+        "inherited_from": {
+          "source_run": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v261\\run.json",
+          "source_run_sha256": "393d4517a21e4fc398cc150431d5e93ff56cac8f1cc875ce71f227c6efc17de5",
+          "source_record_sha256": "89a54f4a490381c5de564d48f95fb8c8cab905a32715381382eaf235de411247",
+          "manual_review": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v261\\manual-review.json",
+          "manual_review_sha256": "2720f8c9e298fcab065d2444e053f85f15485dd735afcc1a7c30157d6eb2d2d3",
+          "case_review_sha256": "391b1db4b19e75999a06fc7b10a33e91b106b1762f4a0877b6e08b9d42093080",
+          "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+          "version": 3,
+          "input_sha256": "317664081f9ac76b224542e4f602236b8c998f730777dcb77188805f35b5d23d",
+          "analysis_sha256": "8b60141a6527ce27b2cef7cf983f1d718bfcaa7e12d6b1f185659de86fff703b",
+          "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+        },
+        "bound_version": 4,
+        "content_changes": false,
+        "new_model_analysis": false,
+        "new_independent_semantic_review": false
+      },
+      "original_review_type": "independent_static_semantic_review"
+    }
+  ],
+  "assessed_requirements": 13,
+  "assessed_requirement_passes": 13,
+  "unassessed_requirements": 0,
+  "accepted_output_semantic_pass": true,
+  "limits": "Only version binding changed after exact input/analysis/prompt hash verification. Original independent judgments and low-priority notes are inherited; no new precision reading, project execution, search, video or production pass is claimed."
+}

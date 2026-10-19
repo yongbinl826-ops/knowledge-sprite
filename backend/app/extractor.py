@@ -13,10 +13,12 @@ from bs4 import BeautifulSoup
 
 from .url_utils import UnsafeURL, normalize_url, safe_thumbnail_url
 from .source_adapters import extract_source_facts
+from .source_adapters.freecodecamp import SUMMARY_SOURCE as FCC_SUMMARY_SOURCE
+from .source_adapters.techwithtim import SUMMARY_SOURCE as TWT_SUMMARY_SOURCE, SUMMARY_LIMIT as TWT_SUMMARY_LIMIT
 from .source_adapters.base import clean_text
 from .source_adapters.archive import archive_video_playlist  # Compatibility for existing imports.
-from .source_adapters.icourse163 import MOOC_CATALOG_LIMIT, extract_embedded_course_facts
-from .source_adapters.bilibili import BILIBILI_CATALOG_LIMIT, extract_embedded_video_facts, unavailable_video_fact
+from .source_adapters.icourse163 import MOOC_CATALOG_LIMIT, MOOC_STRUCT_SOURCE, extract_embedded_course_facts
+from .source_adapters.bilibili import BILIBILI_DESCRIPTION_LIMIT, BILIBILI_DESCRIPTION_SOURCE, BILIBILI_DESCRIPTION_STATUS_SOURCE, BILIBILI_CATALOG_LIMIT, UNAVAILABLE_NOTICE, extract_embedded_video_facts, unavailable_video_fact, unconfirmed_unavailable_video_fact
 
 
 def iso_duration(value: Any) -> int | None:
@@ -139,6 +141,16 @@ class MetadataExtractor:
         blocked = detect_access_page(soup, url)
         if blocked:
             return {"fetch_status": blocked, "video_evidence_status": "none", "requires_login": True if blocked == "login_required" else None}
+        uncertain = unconfirmed_unavailable_video_fact(soup, url)
+        if uncertain:
+            evidence_id = "ev_" + hashlib.sha256(f"{url}|{uncertain.source}|{uncertain.excerpt}".encode()).hexdigest()[:20]
+            return {"fetch_status": uncertain.value, "video_evidence_status": "none", "access_notice": UNAVAILABLE_NOTICE,
+                "fetched_at": fetched_at, "metadata_evidence_level": "page", "chapters": [],
+                "field_provenance": {"fetch_status": {"evidence_id": evidence_id, "source": uncertain.source,
+                    "url": url, "fetched_at": fetched_at}},
+                "evidence": [{"id": evidence_id, "evidence_id": evidence_id, "kind": "page", "url": url,
+                    "field": "fetch_status", "source": uncertain.source, "text": uncertain.excerpt,
+                    "fetched_at": fetched_at}]}
         # Strip executable and invisible nodes before any visible text / catalog read.
         json_nodes: list[dict] = []
         for script in soup.select('script[type="application/ld+json"]')[:20]:
@@ -155,14 +167,21 @@ class MetadataExtractor:
             "field_provenance": {}, "evidence": [], "chapters": [],
         }
 
+        bili_description_limited = False
+
         def put(field: str, value: Any, source: str, excerpt: str | None = None):
+            if field == "description" and bili_description_limited:
+                return
             if value is None or value == "" or field in metadata and field not in {"chapters"}:
                 return
             evidence_id = "ev_" + hashlib.sha256(f"{url}|{field}|{source}|{value}".encode()).hexdigest()[:20]
             metadata[field] = value
             metadata["field_provenance"][field] = {"evidence_id": evidence_id, "source": source, "url": url, "fetched_at": fetched_at}
             metadata["evidence"].append({"id": evidence_id, "evidence_id": evidence_id, "kind": "catalog" if field == "chapters" else "page",
-                                         "url": url, "field": field, "source": source, "text": (excerpt or str(value))[:2000], "fetched_at": fetched_at})
+                                         "url": url, "field": field, "source": source,
+                                         "text": (excerpt or str(value))[:TWT_SUMMARY_LIMIT if field == "video_topic_summary" and source == TWT_SUMMARY_SOURCE
+                                             else BILIBILI_DESCRIPTION_LIMIT if field == "description" and source == BILIBILI_DESCRIPTION_SOURCE else 2000],
+                                         "fetched_at": fetched_at})
 
         def put_catalog(chapters: list[dict], source: str, kind: str):
             if not chapters or metadata.get("catalog_fetch_status") in {"catalog_limit_exceeded", "catalog_payload_invalid"}:
@@ -183,6 +202,12 @@ class MetadataExtractor:
                     facts["duration_seconds"] = chapter["duration_seconds"]
                 if "page_number" in chapter:
                     facts["page_number"] = chapter["page_number"]
+                parent = chapter.get("outline_parent_index")
+                if (source == MOOC_STRUCT_SOURCE and type(parent) is int and 0 <= parent < index
+                        and facts.get("source_url") == url
+                        and verified_chapters[parent].get("source_url") == url
+                        and "outline_parent_index" not in chapters[parent]):
+                    facts["outline_parent_index"] = parent
                 text = json.dumps(facts, ensure_ascii=False, sort_keys=True)
                 evidence_id = "ev_" + hashlib.sha256(f"{url}|chapters.{index}|{source}|{text}".encode()).hexdigest()[:20]
                 verified_chapters.append(dict(facts, source=source, evidence_id=evidence_id))
@@ -193,6 +218,9 @@ class MetadataExtractor:
             metadata["catalog_kind"] = kind
 
         embedded_video_facts = extract_embedded_video_facts(soup, url)
+        bili_description_limited = any(fact.field == "description_extraction_status"
+            and fact.source == BILIBILI_DESCRIPTION_STATUS_SOURCE
+            and fact.value in {"limit_exceeded", "invalid_encoding"} for fact in embedded_video_facts.fields)
         # On a verified BV page, its own videoData is the resource identity.
         # Generic JSON-LD elsewhere on that page may describe related content.
         if embedded_video_facts.fields:
@@ -332,7 +360,8 @@ class MetadataExtractor:
             put_catalog(source_facts.chapters, source_facts.catalog_source, source_facts.catalog_kind)
         if source_facts.catalog_followup:
             metadata["_catalog_followup"] = source_facts.catalog_followup
-        if not metadata["chapters"] and metadata.get("catalog_fetch_status") not in {"catalog_limit_exceeded", "catalog_payload_invalid"}:
+        fcc_video_announcement = metadata["field_provenance"].get("video_topic_summary", {}).get("source") in {FCC_SUMMARY_SOURCE, TWT_SUMMARY_SOURCE}
+        if not metadata["chapters"] and not fcc_video_announcement and metadata.get("catalog_fetch_status") not in {"catalog_limit_exceeded", "catalog_payload_invalid"}:
             # Explicit course-outline containers only; a global navigation menu is not a catalog.
             outline = soup.select_one(".course-outline, .curriculum, .chapter-list, #course-outline, [data-course-outline]")
             chapters = []

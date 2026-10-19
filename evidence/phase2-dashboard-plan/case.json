@@ -1,0 +1,186 @@
+{
+  "created_at": "2026-10-18T18:38:03.087411+00:00",
+  "mode": "offline_unseen_dashboard_predeclared_case",
+  "case_id": "study_room_streamlit_intermediate",
+  "input": {
+    "name": "校园自习室使用情况本地看板",
+    "requirements": "用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率以百分比保留1位小数，不能平均各行百分比；有效零到访记录必须保留。按room汇总到访人次并用Streamlit自带条形图显示。尚未上传、CSV缺列或格式错误、筛选无匹配时给清晰提示且页面可继续操作；空结果时指标显示“—”，不算除零或显示NaN，不画误导性图。只用本地文件，不需要账号、联网数据、数据库、预测、地图或云部署。",
+    "student_level": "intermediate",
+    "language": "zh",
+    "project_context": "已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "synthetic_input": true,
+  "new_model_calls": 0,
+  "new_http_requests": 0,
+  "planned_max_learning_units": 6,
+  "independent_rubric": [
+    {
+      "id": "dashboard_1",
+      "requirement": "本地Streamlit入口、CSV上传与可恢复输入状态",
+      "expected": [
+        "本机Streamlit运行和st.file_uploader",
+        "未上传有提示而非异常",
+        "缺列/坏CSV显示错误，重新上传可恢复"
+      ],
+      "must_not": [
+        "联网API/账号/数据库/云部署替代本地CSV",
+        "只有泛Python文件读写课替代Streamlit上传流程"
+      ]
+    },
+    {
+      "id": "dashboard_2",
+      "requirement": "按明确字段条件清洗并报告排除行数",
+      "expected": [
+        "YYYY-MM-DD日期解析、非空room",
+        "visits非负整数；capacity/open_minutes正整数",
+        "occupied_seat_minutes>=0且<=capacity*open_minutes",
+        "不合格行排除并显示数量，不擅自去重",
+        "有效visits=0与占用分钟=0的行保留"
+      ],
+      "must_not": [
+        "以visits>0排掉零记录",
+        "非法行静默参与统计",
+        "对重复行擅自去重改变口径"
+      ]
+    },
+    {
+      "id": "dashboard_3",
+      "requirement": "含等号的日期范围与明确房间多选语义",
+      "expected": [
+        "开始<=date<=结束",
+        "默认有效日期全集与全部有效房间",
+        "选择空房间集合得到空结果",
+        "一个筛选DataFrame驱动指标与图，控件更新后重算"
+      ],
+      "must_not": [
+        "日期上界误用<",
+        "空选择自动恢复全选",
+        "图和指标使用不同过滤结果"
+      ]
+    },
+    {
+      "id": "dashboard_4",
+      "requirement": "三个指标及加权使用率边界",
+      "expected": [
+        "sum(visits)",
+        "sum(occupied_seat_minutes)",
+        "sum(occupied_seat_minutes)/sum(capacity*open_minutes)",
+        "百分比仅显示时保留1位小数",
+        "零到访有效行保留容量分母，非逐行百分比平均"
+      ],
+      "must_not": [
+        "mean(行使用率)替代加权比",
+        "有效零到访行被排掉导致使用率虚高",
+        "没有数据时计算除零或伪造0%"
+      ]
+    },
+    {
+      "id": "dashboard_5",
+      "requirement": "房间分组到访条形图与指标同口径",
+      "expected": [
+        "按room对visits求和",
+        "Streamlit内置bar_chart或等价明确同工具图表",
+        "图中总人次与指标sum(visits)一致",
+        "房间/日期变化后图同步更新"
+      ],
+      "must_not": [
+        "换成预测/复杂仪表盘系统",
+        "按记录行数代替到访人次",
+        "固定硬编码图与筛选无关"
+      ]
+    },
+    {
+      "id": "dashboard_6",
+      "requirement": "空结果、无效输入与重新选择的可用流程",
+      "expected": [
+        "无匹配给明确提示",
+        "空指标显示—而非NaN或虚假0%",
+        "空图不画误导柱",
+        "上传新文件/调整筛选后恢复正常数据展示"
+      ],
+      "must_not": [
+        "空DataFrame索引崩溃",
+        "用异常吞掉所有错误却不给学生下一步",
+        "必须刷新重启应用才能恢复"
+      ]
+    }
+  ],
+  "rubric_requirement_count": 6,
+  "fixture_csv": "evidence\\phase2-dashboard-plan\\synthetic-study-room.csv",
+  "fixture_csv_sha256": "f7f9cc67a29f2e5b449304c2efedf20b2023c404a957b2906ff9cd6fef395452",
+  "oracle": {
+    "all_dates_all_rooms": {
+      "valid_filtered_rows": 5,
+      "visits": 48,
+      "occupied_seat_minutes": 1800,
+      "capacity_seat_minutes": 4200,
+      "weighted_utilization_percent_display": "42.9%",
+      "by_room_visits": {
+        "A": 30,
+        "B": 18
+      },
+      "empty_indicators": null
+    },
+    "dates_12_through_13_all_rooms": {
+      "valid_filtered_rows": 4,
+      "visits": 48,
+      "occupied_seat_minutes": 1800,
+      "capacity_seat_minutes": 3600,
+      "weighted_utilization_percent_display": "50.0%",
+      "by_room_visits": {
+        "A": 30,
+        "B": 18
+      },
+      "empty_indicators": null
+    },
+    "dates_12_through_13_room_A": {
+      "valid_filtered_rows": 2,
+      "visits": 30,
+      "occupied_seat_minutes": 900,
+      "capacity_seat_minutes": 1200,
+      "weighted_utilization_percent_display": "75.0%",
+      "by_room_visits": {
+        "A": 30
+      },
+      "empty_indicators": null
+    },
+    "date_14_room_B_empty": {
+      "valid_filtered_rows": 0,
+      "visits": 0,
+      "occupied_seat_minutes": 0,
+      "capacity_seat_minutes": 0,
+      "weighted_utilization_percent_display": "—",
+      "by_room_visits": {},
+      "empty_indicators": "—"
+    },
+    "empty_room_selection": {
+      "valid_filtered_rows": 0,
+      "visits": 0,
+      "occupied_seat_minutes": 0,
+      "capacity_seat_minutes": 0,
+      "weighted_utilization_percent_display": "—",
+      "by_room_visits": {},
+      "empty_indicators": "—"
+    },
+    "invalid_rows": 4,
+    "valid_rows": 5,
+    "source_rows": 9,
+    "unweighted_mean_of_valid_row_percent_wrong_answer": "45.0%",
+    "default_correct_weighted_answer": "42.9%",
+    "zero_visit_row_effect": "2026-10-14/A contributes 600 capacity seat-minutes and must remain valid."
+  },
+  "scope": "This fifth case closes the missing dashboard type. It does not replace/relabel the original bicycle CSV report, which explicitly excluded dashboards. No analysis or search is submitted by this plan.",
+  "review_gate": [
+    "All six behaviors must map to concrete project subtask learning units or justified already-known prerequisites.",
+    "Respect prior Python/pandas knowledge while teaching first-use Streamlit concepts.",
+    "Do not add ML, database, authentication, cloud or unrelated libraries.",
+    "Do not turn a generic Streamlit introduction into proof of weighted metrics, inclusive bounds, zero rows or empty selection semantics.",
+    "A later real model result and video search need separate version/hash-bound independent review."
+  ]
+}

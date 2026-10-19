@@ -1,0 +1,547 @@
+{
+  "checked_at": "2026-10-19T10:09:20.432940+00:00",
+  "endpoints": {
+    "/health": {
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "mode": "live",
+        "single_worker": true,
+        "worker_alive": true,
+        "database_ok": true,
+        "accepting": true,
+        "queue_depth": 0,
+        "queue_capacity": 20,
+        "oldest_queue_wait_seconds": 0.0,
+        "active_jobs": 0,
+        "job_counts": {
+          "completed": 24,
+          "failed": 4,
+          "partial": 14
+        },
+        "admission_rejections": 0,
+        "recent_outcomes": [],
+        "source_cooldown_seconds": 0,
+        "source_access_denied": false,
+        "engine_cooldowns": {},
+        "search_sources": {
+          "searxng": {
+            "source_cooldown_seconds": 0,
+            "source_access_denied": false,
+            "engine_cooldowns": {}
+          },
+          "tavily": {
+            "source_cooldown_seconds": 41.133,
+            "source_access_denied": false,
+            "engine_cooldowns": {}
+          }
+        },
+        "project_analysis_pending": 0,
+        "project_search_pending": 0
+      }
+    },
+    "/health/ready": {
+      "status": 200,
+      "body": {
+        "status": "ready",
+        "infrastructure_ready": true,
+        "search_configured": true,
+        "analysis_configured": true,
+        "upstream_check": "configuration_and_last_observation_only"
+      }
+    },
+    "/api/capabilities": {
+      "status": 200,
+      "body": {
+        "mode": "live",
+        "search": {
+          "name": "searxng",
+          "status": "configured",
+          "message": "已配置，尚未验证真实搜索",
+          "configured": true,
+          "selected_provider": "searxng",
+          "providers": [
+            {
+              "name": "searxng",
+              "status": "configured",
+              "message": "已配置，尚未验证真实搜索",
+              "configured": true
+            },
+            {
+              "name": "tavily",
+              "status": "fault",
+              "message": "最近搜索请求故障，请查看任务错误；免密模式仅供有限试用，不代表生产可用性",
+              "configured": true,
+              "auth_mode": "keyless"
+            },
+            {
+              "name": "official_sitemap",
+              "status": "configured",
+              "message": "已配置，尚未验证真实搜索；仅 MIT 官方站点地图，其他平台不在此模式的发现范围",
+              "configured": true
+            }
+          ],
+          "platform_providers": {
+            "bilibili": {
+              "name": "searxng",
+              "status": "configured",
+              "message": "已配置，尚未验证真实搜索",
+              "configured": true
+            },
+            "icourse163": {
+              "name": "tavily",
+              "status": "fault",
+              "message": "最近搜索请求故障，请查看任务错误；免密模式仅供有限试用，不代表生产可用性",
+              "configured": true,
+              "auth_mode": "keyless"
+            }
+          }
+        },
+        "teaching_match_enabled": false,
+        "mooc_relevance": {
+          "schema_version": "mooc-outline-v1",
+          "enabled": true,
+          "policy": "outline_required",
+          "scope": "icourse163 public course outline; every selected subtopic must have bound catalog evidence",
+          "model_calls": 0,
+          "playback_verified": false
+        },
+        "platform_search": {
+          "parallel": true,
+          "providers": {
+            "bilibili": {
+              "name": "searxng",
+              "status": "configured",
+              "message": "已配置，尚未验证真实搜索",
+              "configured": true
+            },
+            "icourse163": {
+              "name": "tavily",
+              "status": "fault",
+              "message": "最近搜索请求故障，请查看任务错误；免密模式仅供有限试用，不代表生产可用性",
+              "configured": true,
+              "auth_mode": "keyless"
+            }
+          },
+          "initial_requests_per_point_per_platform": 1,
+          "followup_requests_per_point_per_platform": 1,
+          "initial_pass_before_followups": true
+        },
+        "llm": {
+          "status": "configured",
+          "message": "模型已配置，尚未实际验证"
+        },
+        "fetch": {
+          "status": "available",
+          "message": "公开元信息；独立站点策略与 robots 检查，受限时仅保留搜索证据",
+          "browser_fallback": false,
+          "stopped_hosts": [
+            "open.edu"
+          ],
+          "transport": {
+            "version": 3,
+            "phased_timeouts": true,
+            "bounded_content_encodings": [
+              "identity",
+              "gzip",
+              "deflate"
+            ],
+            "initial_timeout_seconds": 10,
+            "body_idle_timeout_seconds": 5,
+            "body_min_bytes_per_second": 16384,
+            "body_timeout_cap_seconds": 30
+          }
+        },
+        "js_render": {
+          "enabled": true,
+          "allowed_hosts": [
+            "microsoft.github.io"
+          ],
+          "allowed_entries": [
+            "https://microsoft.github.io/AI-For-Beginners/"
+          ],
+          "asset_hosts": [
+            "cdn.jsdelivr.net"
+          ],
+          "timeout_seconds": 90,
+          "max_resources": 6,
+          "max_target_requests": 10,
+          "max_doh_requests": 20,
+          "max_total_bytes": 2000000,
+          "max_dom_bytes": 1000000,
+          "settle_ms": 500,
+          "max_observed_data_resources": 2,
+          "status": "configured",
+          "profile_version": 6,
+          "mode": "anonymous_offline_manifest_fulfill",
+          "message": "仅显式允许来源；资源经安全采集后离线执行，配置不证明真实动态字段已取得",
+          "policy_and_robots_required": true,
+          "online_browser_fallback": false,
+          "process_network_egress": "unknown",
+          "playback_verified": false
+        },
+        "official_discovery": {
+          "selected": false,
+          "fallback_enabled": true,
+          "scope": "MIT official robots-declared sitemap links; page evidence required",
+          "children_per_query": 1,
+          "cache_ttl_seconds": 21600,
+          "dns_counter_scope": "discovery_dns_requests counts official discovery DoH HTTP only"
+        },
+        "public_catalog_discovery": {
+          "enabled": false,
+          "scope": "freeCodeCamp public tag cards and Tech With Tim category/series lesson links; independent video and topic page evidence required",
+          "max_indexes_per_query": 3,
+          "max_indexes_by_source": {
+            "freecodecamp": 2,
+            "techwithtim": 3
+          },
+          "max_series_per_query": 2,
+          "max_detail_probes_per_point": 2,
+          "cache_ttl_seconds": 21600,
+          "status": "disabled"
+        },
+        "learning_skill_matching": {
+          "judge_max_calls_per_job": 2,
+          "positive_claim_review_max_calls_per_job": 1,
+          "max_pairs_per_job": 20,
+          "max_candidates_per_point": 4,
+          "read_time_model_calls": 0,
+          "judge_timeout_seconds": 15,
+          "review_timeout_seconds": 15,
+          "judge_max_output_tokens": 3000,
+          "review_max_output_tokens": 1500,
+          "total_deadline_extended": false,
+          "decision_cache_ttl_seconds": 3600
+        },
+        "platforms": [
+          {
+            "id": "bilibili",
+            "name": "B站",
+            "discovery": "search",
+            "metadata": "public_video_metadata_only",
+            "search_provider": "searxng",
+            "search_status": "configured",
+            "playback": "unknown",
+            "policy_status": "explicit_permission_required",
+            "source_url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+            "reviewed_at": "2026-10-17",
+            "policy_basis": "本地自用模式已开启：读取匿名公开视频HTML中的元信息和分P目录，不因许可状态预先停止；实际登录、验证码、访问拒绝和robots规则仍独立检查。平台条款记录保留作来源说明。",
+            "policy_section": "5.6(3)、1.5",
+            "terms_date": "2025-04-30",
+            "effective_at": "2025-05-07",
+            "review_method": "browser_visible_terms"
+          },
+          {
+            "id": "icourse163",
+            "name": "中国大学 MOOC",
+            "discovery": "search",
+            "metadata": "public_course_metadata_only",
+            "search_provider": "tavily",
+            "search_status": "fault",
+            "playback": "unknown",
+            "policy_status": "public_course_metadata_only",
+            "source_url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+            "reviewed_at": "2026-10-17",
+            "policy_basis": "协议3.1允许浏览课程信息；5.2.7涉及第三方工具、服务接入，未明确列出匿名公开课程HTML读取。当前仅读取公开/course/课程页响应自带的介绍与大纲，逐次检查robots和访问限制；不接入登录学习、选课、播放或私有API，不代表取得平台自动聚合的广泛许可。",
+            "policy_section": "3.1、5.2.7",
+            "terms_date": "2021-07-16",
+            "effective_at": "2021-07-16",
+            "review_method": "browser_visible_terms"
+          },
+          {
+            "id": "xuetangx",
+            "name": "学堂在线",
+            "discovery": "search",
+            "metadata": "site_policy_blocked",
+            "search_provider": "searxng",
+            "search_status": "configured",
+            "playback": "unknown",
+            "policy_status": "explicit_scraping_prohibition",
+            "source_url": "https://www.xuetangx.com/app/protocol",
+            "reviewed_at": "2026-10-13",
+            "policy_basis": "官方用户协议“网络行为准则”明确约定不抓取和批量下载本产品内容；当前停止自动页面采集，保留搜索发现证据。公开课程可供用户访问不等于许可自动抓取。",
+            "policy_section": "网络行为准则",
+            "terms_date": "2021-01-05",
+            "effective_at": null,
+            "review_method": null
+          },
+          {
+            "id": "other",
+            "name": "其他公开网站",
+            "discovery": "search",
+            "metadata": "public_metadata_when_allowed",
+            "search_provider": "searxng",
+            "search_status": "configured",
+            "playback": "unknown",
+            "policy_status": "per_site_check_required",
+            "source_url": null,
+            "reviewed_at": null,
+            "policy_basis": null,
+            "policy_section": null,
+            "terms_date": null,
+            "effective_at": null,
+            "review_method": null
+          }
+        ],
+        "limits": {
+          "max_knowledge_points": 5,
+          "max_results_per_point": 5,
+          "max_search_requests": 30,
+          "max_detail_pages": 12,
+          "global_concurrency": 2,
+          "per_host_concurrency": 1
+        },
+        "deployment": {
+          "local_only": true,
+          "authentication": false,
+          "single_process": true,
+          "external_access_requires_authenticated_proxy": true
+        },
+        "project_analysis": {
+          "status": "configured",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v4.1-coherent-professional-terms",
+          "max_functions": 12,
+          "max_knowledge_points": 24,
+          "mode": "professional_knowledge_points",
+          "semantic_review_enabled": false,
+          "max_model_calls": 2,
+          "review_max_calls": 0,
+          "review_max_output_tokens": 0,
+          "message": "项目分析使用独立提示词；内容需学生检查确认"
+        },
+        "project_search": {
+          "max_batches": 6,
+          "max_search_requests": 180,
+          "max_detail_pages": 240,
+          "deadline_seconds": 1800,
+          "batch_size": 5,
+          "mode": "professional_terms_v1",
+          "budget_policy": "按每批完整单任务上限预留；超预算整体拒绝，不截断知识点",
+          "deadline_policy": "预留各批完整执行时限之和；墙钟时限控制新批次启动，已提交共享任务继续至原任务时限",
+          "cancel_policy": "停止未提交批次并取消仅本项目使用的任务；共享或历史归属未知的任务继续，保留其结果"
+        },
+        "http_limits": {
+          "max_request_body_bytes": 512000,
+          "write_limit_per_minute": 60,
+          "max_pending_analyses": 8,
+          "max_pending_project_searches": 20
+        }
+      }
+    },
+    "/": {
+      "status": 200,
+      "body": {
+        "bytes": 957,
+        "html": true
+      }
+    }
+  },
+  "database_checks": {
+    "data/discovery.sqlite3": {
+      "tables": {
+        "cache": {
+          "rows": 525,
+          "sha256": "e7a25067b0135b03e5bf12ead96dc31549f4524d4ccae3358385e4d10f30bc6f",
+          "unchanged": true
+        },
+        "evidence": {
+          "rows": 2290,
+          "sha256": "c9859c85cd5e13cf9056471cfa8d263d42523ea7141100b149c58bc0ecc86e1e",
+          "unchanged": true
+        },
+        "idempotency_keys": {
+          "rows": 9,
+          "sha256": "cdf6745a6f859861aedfb8b92efefae3a494728be1ad5edda97fe78a3dc2085d",
+          "unchanged": true
+        },
+        "job_consumers": {
+          "rows": 42,
+          "sha256": "8e354a217190ea2d220f4ce6f3c5ca954a8f1fce7df62a26bec9ec94fae9fabb",
+          "unchanged": true
+        },
+        "jobs": {
+          "rows": 42,
+          "sha256": "297b56a130e031b05327214ecc553391d1e09591f5f2cd4b68eba33ab404477f",
+          "unchanged": true
+        },
+        "knowledge_points": {
+          "rows": 92,
+          "sha256": "e940000f77009ef7f219f889dbfe23ccca4661d5b8eeb1c4eb514cdf66f9f513",
+          "unchanged": true
+        },
+        "matches": {
+          "rows": 409,
+          "sha256": "0c05d7f1c4b3a397e2fc99e1e15b23f3a2f7d45a66c90d921e45bce78e693bce",
+          "unchanged": true
+        },
+        "project_batches": {
+          "rows": 7,
+          "sha256": "ce3250bab6bedba8bc677eff446ce9fac8989a327907e242d32192007c4b3f73",
+          "unchanged": true
+        },
+        "project_functions": {
+          "rows": 31,
+          "sha256": "cb2a1d3549bdce0d54fb994c19f7c223fc5575076c319b9147f39aa8cd523a6c",
+          "unchanged": true
+        },
+        "project_knowledge_points": {
+          "rows": 32,
+          "sha256": "62abab876045b3d2ce731a5241e15db2df0aff9d5fcac3429eb7af0c68961cb2",
+          "unchanged": true
+        },
+        "project_point_job_mappings": {
+          "rows": 22,
+          "sha256": "01705276f742e9b1fbc897b79a31578b750f4c8a13ef8748dffafcdbabf748b9",
+          "unchanged": true
+        },
+        "project_prerequisites": {
+          "rows": 25,
+          "sha256": "1116ce86db829c019e51db6d9a14b87cddcd5d44ecea956a94d3eb45ecb9b5ac",
+          "unchanged": true
+        },
+        "project_versions": {
+          "rows": 8,
+          "sha256": "dcddb22d555e2ee5b1726a041e070fbc0b132ba2b5a8c36ee7e26329c65e632c",
+          "unchanged": true
+        },
+        "projects": {
+          "rows": 1,
+          "sha256": "eadacbbc3147fe024fd8694e3c48d5f83062d71bdb8ef691ed908d0e4af0fbae",
+          "unchanged": true
+        },
+        "resources": {
+          "rows": 1049,
+          "sha256": "04f8e171f81dc8cd08b813783d53843e35388bc3a73fa8aac94ce249bf677615",
+          "unchanged": true
+        },
+        "search_attempts": {
+          "rows": 308,
+          "sha256": "b5048cc6b7c853ff8dc31dcaf82358c071048d5e27813b514a80367f494368e6",
+          "unchanged": true
+        },
+        "sqlite_sequence": {
+          "rows": 1,
+          "sha256": "8e3e9a3fa21c3d3dab081f136357813d28278ca507134238cb5dde3b8544dde8",
+          "unchanged": true
+        }
+      },
+      "all_unchanged": true
+    },
+    "data/discovery-tavily-preview-20261019.sqlite3": {
+      "tables": {
+        "cache": {
+          "rows": 525,
+          "sha256": "e7a25067b0135b03e5bf12ead96dc31549f4524d4ccae3358385e4d10f30bc6f",
+          "unchanged": true
+        },
+        "evidence": {
+          "rows": 2290,
+          "sha256": "c9859c85cd5e13cf9056471cfa8d263d42523ea7141100b149c58bc0ecc86e1e",
+          "unchanged": true
+        },
+        "idempotency_keys": {
+          "rows": 9,
+          "sha256": "cdf6745a6f859861aedfb8b92efefae3a494728be1ad5edda97fe78a3dc2085d",
+          "unchanged": true
+        },
+        "job_consumers": {
+          "rows": 42,
+          "sha256": "8e354a217190ea2d220f4ce6f3c5ca954a8f1fce7df62a26bec9ec94fae9fabb",
+          "unchanged": true
+        },
+        "jobs": {
+          "rows": 42,
+          "sha256": "297b56a130e031b05327214ecc553391d1e09591f5f2cd4b68eba33ab404477f",
+          "unchanged": true
+        },
+        "knowledge_points": {
+          "rows": 92,
+          "sha256": "e940000f77009ef7f219f889dbfe23ccca4661d5b8eeb1c4eb514cdf66f9f513",
+          "unchanged": true
+        },
+        "matches": {
+          "rows": 409,
+          "sha256": "0c05d7f1c4b3a397e2fc99e1e15b23f3a2f7d45a66c90d921e45bce78e693bce",
+          "unchanged": true
+        },
+        "project_batches": {
+          "rows": 7,
+          "sha256": "ce3250bab6bedba8bc677eff446ce9fac8989a327907e242d32192007c4b3f73",
+          "unchanged": true
+        },
+        "project_functions": {
+          "rows": 31,
+          "sha256": "cb2a1d3549bdce0d54fb994c19f7c223fc5575076c319b9147f39aa8cd523a6c",
+          "unchanged": true
+        },
+        "project_knowledge_points": {
+          "rows": 32,
+          "sha256": "62abab876045b3d2ce731a5241e15db2df0aff9d5fcac3429eb7af0c68961cb2",
+          "unchanged": true
+        },
+        "project_point_job_mappings": {
+          "rows": 22,
+          "sha256": "01705276f742e9b1fbc897b79a31578b750f4c8a13ef8748dffafcdbabf748b9",
+          "unchanged": true
+        },
+        "project_prerequisites": {
+          "rows": 25,
+          "sha256": "1116ce86db829c019e51db6d9a14b87cddcd5d44ecea956a94d3eb45ecb9b5ac",
+          "unchanged": true
+        },
+        "project_versions": {
+          "rows": 8,
+          "sha256": "dcddb22d555e2ee5b1726a041e070fbc0b132ba2b5a8c36ee7e26329c65e632c",
+          "unchanged": true
+        },
+        "projects": {
+          "rows": 1,
+          "sha256": "eadacbbc3147fe024fd8694e3c48d5f83062d71bdb8ef691ed908d0e4af0fbae",
+          "unchanged": true
+        },
+        "resources": {
+          "rows": 1049,
+          "sha256": "04f8e171f81dc8cd08b813783d53843e35388bc3a73fa8aac94ce249bf677615",
+          "unchanged": true
+        },
+        "search_attempts": {
+          "rows": 308,
+          "sha256": "b5048cc6b7c853ff8dc31dcaf82358c071048d5e27813b514a80367f494368e6",
+          "unchanged": true
+        },
+        "sqlite_sequence": {
+          "rows": 1,
+          "sha256": "8e3e9a3fa21c3d3dab081f136357813d28278ca507134238cb5dde3b8544dde8",
+          "unchanged": true
+        }
+      },
+      "all_unchanged": true
+    }
+  },
+  "original_8001_health": {
+    "status": "ok",
+    "mode": "live",
+    "single_worker": true,
+    "worker_alive": true,
+    "database_ok": true,
+    "accepting": true,
+    "queue_depth": 0,
+    "queue_capacity": 20,
+    "oldest_queue_wait_seconds": 0.0,
+    "active_jobs": 0,
+    "job_counts": {
+      "completed": 24,
+      "failed": 4,
+      "partial": 14
+    },
+    "admission_rejections": 0,
+    "recent_outcomes": [],
+    "source_cooldown_seconds": 0,
+    "source_access_denied": false,
+    "engine_cooldowns": {},
+    "project_analysis_pending": 0,
+    "project_search_pending": 0
+  }
+}

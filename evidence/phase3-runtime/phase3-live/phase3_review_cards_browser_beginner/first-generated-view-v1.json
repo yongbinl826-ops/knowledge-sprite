@@ -1,0 +1,338 @@
+{
+  "project_id": "e7da3936-e5ad-4211-84e7-3be271fc7613",
+  "original_input": {
+    "name": "离线复习卡网页",
+    "requirements": "使用原生 HTML/CSS/JavaScript 展示12张合成术语复习卡。上一张/下一张切换，首尾禁用对应按钮；可标记已掌握，显示已掌握数量。刷新后从 localStorage 恢复标记，首次打开无数据或本地数据损坏时给提示并安全恢复默认。手机可用，原生按钮可键盘操作。不登录、不联网、不做推荐算法、云同步或后端。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "会基础 HTML/CSS、JavaScript 变量、if、数组与简单函数；第一次将 DOM 事件与本地保存组成应用。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "input": {
+    "name": "离线复习卡网页",
+    "requirements": "使用原生 HTML/CSS/JavaScript 展示12张合成术语复习卡。上一张/下一张切换，首尾禁用对应按钮；可标记已掌握，显示已掌握数量。刷新后从 localStorage 恢复标记，首次打开无数据或本地数据损坏时给提示并安全恢复默认。手机可用，原生按钮可键盘操作。不登录、不联网、不做推荐算法、云同步或后端。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "会基础 HTML/CSS、JavaScript 变量、if、数组与简单函数；第一次将 DOM 事件与本地保存组成应用。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "current_version": 1,
+  "created_at": "2026-10-18T22:20:36.370454+00:00",
+  "updated_at": "2026-10-18T22:20:53.405659+00:00",
+  "versions": [
+    {
+      "version": 1,
+      "status": "analyzed",
+      "created_at": "2026-10-18T22:20:36.381183+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v3-transferable-learning-skills"
+    }
+  ],
+  "version": {
+    "version": 1,
+    "input": {
+      "name": "离线复习卡网页",
+      "requirements": "使用原生 HTML/CSS/JavaScript 展示12张合成术语复习卡。上一张/下一张切换，首尾禁用对应按钮；可标记已掌握，显示已掌握数量。刷新后从 localStorage 恢复标记，首次打开无数据或本地数据损坏时给提示并安全恢复默认。手机可用，原生按钮可键盘操作。不登录、不联网、不做推荐算法、云同步或后端。",
+      "student_level": "beginner",
+      "language": "zh",
+      "project_context": "会基础 HTML/CSS、JavaScript 变量、if、数组与简单函数；第一次将 DOM 事件与本地保存组成应用。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "status": "analyzed",
+    "analysis": {
+      "scope": "构建一个纯前端离线术语复习卡网页：使用原生 HTML/CSS/JavaScript 展示固定 12 张合成术语卡，支持上一张/下一张切换并在首尾禁用对应按钮，可标记已掌握并显示已掌握数量；刷新后用 localStorage 恢复标记，首次打开无数据或数据损坏时给出提示并安全恢复默认；适配手机，原生按钮可键盘操作；不登录、不联网、无推荐算法、云同步或后端。",
+      "technical_plan": "采用单页三文件结构：index.html 放卡片容器、计数显示、提示区和三个原生 <button>（上一张、下一张、已掌握）；style.css 用 Flex/栅格与媒体查询做移动优先布局，并为禁用态提供视觉区分；app.js 用固定数组存放 12 张卡片、用 currentIndex 与 masteredSet 管理状态。渲染函数根据索引显示卡片、更新计数与按钮 disabled 属性；掌握按钮切换当前卡标记；localStorage 读写包在 try/catch 中，读取时校验为合法对象并过滤到 12 张卡的合法键，损坏或为空时清默认值并在提示区显示信息。所有交互走原生按钮 click 事件，天然支持键盘焦点与回车/空格触发。不使用框架、构建工具与网络请求。",
+      "assumptions": [
+        "12 张卡片内容为学生自行编写的合成术语，属于项目数据，不作为学习重点。",
+        "无数据与数据损坏使用同一提示区提示，提示文案可自行调整。",
+        "已掌握标记按卡片唯一键存储，不引入账号或标签分类。",
+        "localStorage 不可用（如隐私模式）时按损坏处理并回退到内存状态。"
+      ],
+      "learner_profile": {
+        "student_level": "beginner",
+        "assumed_knowledge": [
+          "基础 HTML 标签与语义结构",
+          "CSS 选择器、盒模型与简单响应式",
+          "JavaScript 变量、if 判断、数组和简单函数"
+        ],
+        "adjustment_note": "按初学者路径设计：先巩固 DOM 查询与事件回调，再过渡到渲染状态、边界禁用和本地保存。如你已有 DOM 事件与 localStorage 经验，可跳过前面单元直接进入保存校验部分；也可修改学习阶段、项目背景或技术选择后重新生成。"
+      },
+      "functions": [
+        {
+          "id": "f1",
+          "name": "展示12张卡片与当前卡内容",
+          "original_requirement": "使用原生 HTML/CSS/JavaScript 展示12张合成术语复习卡。",
+          "acceptance_criteria": "页面加载后显示第 1 张卡片及 12 张总卡数，卡片文本来自代码内固定数据，无网络请求。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2",
+          "name": "上一张/下一张切换且首尾禁用",
+          "original_requirement": "上一张/下一张切换，首尾禁用对应按钮。",
+          "acceptance_criteria": "在第 1 张时\"上一张\"为 disabled，在第 12 张时\"下一张\"为 disabled；其余位置两者均可点击并正确移动一张。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3",
+          "name": "标记已掌握并显示已掌握数量",
+          "original_requirement": "可标记已掌握，显示已掌握数量。",
+          "acceptance_criteria": "点击已掌握按钮可切换当前卡标记状态，按钮或卡片有可辨认状态，计数实时等于已掌握卡片数量。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4",
+          "name": "localStorage 保存与刷新恢复",
+          "original_requirement": "刷新后从 localStorage 恢复标记。",
+          "acceptance_criteria": "标记若干卡后刷新页面，已掌握卡片与数量与刷新前一致。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5",
+          "name": "无数据或数据损坏时提示并安全恢复默认",
+          "original_requirement": "首次打开无数据或本地数据损坏时给提示并安全恢复默认。",
+          "acceptance_criteria": "清空存储后首次打开显示提示且状态为默认；手动写入非法 JSON 或越界数据后刷新，页面不报错、显示提示并回落为默认状态。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f6",
+          "name": "手机可用与按钮键盘可操作",
+          "original_requirement": "手机可用，原生按钮可键盘操作。",
+          "acceptance_criteria": "窄屏下卡片与按钮不溢出、可单列阅读；Tab 可依次聚焦按钮，回车/空格可触发切换与掌握。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1",
+          "name": "原生 JavaScript DOM 查询与元素引用",
+          "description": "学习用 document.getElementById / querySelector 取得卡片文本、计数、提示和三个按钮元素，并在函数中复用这些引用。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "后续所有渲染与事件都依赖正确取得页面元素。",
+          "learning_goal": "理解 DOM 元素引用是脚本操作页面的入口，能稳定查询并调用其属性。",
+          "technology": "JavaScript",
+          "project_task": "为卡片文本区、总卡数、已掌握计数、提示区和两个切换按钮、掌握按钮建立元素引用变量。",
+          "concepts": [
+            "document.querySelector 与 getElementById 选择器",
+            "元素引用缓存在常量中",
+            "textContent 写入文本"
+          ],
+          "learning_skills": [
+            "JavaScript 用选择器查询并缓存 DOM 元素引用",
+            "JavaScript 用 textContent 安全写入页面文本"
+          ],
+          "practice_check": "写脚本把一段给定文本写入页面某元素，并在控制台用元素引用读取到相同内容。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "卡片数组与索引驱动渲染",
+          "description": "用数组保存 12 张卡片数据，用 currentIndex 记录位置，通过渲染函数根据索引显示对应卡片文本。",
+          "function_ids": [
+            "f1",
+            "f2"
+          ],
+          "why_needed": "卡片展示与切换都基于数组索引这一单一状态。",
+          "learning_goal": "理解用状态（索引）驱动渲染，而不是直接零散改文本。",
+          "technology": "JavaScript",
+          "project_task": "定义 12 张卡的数组和 currentIndex，实现 renderCard() 显示当前卡，并初始化到第 1 张。",
+          "concepts": [
+            "数组存放卡片对象",
+            "索引 currentIndex",
+            "渲染函数由状态推导页面",
+            "数组长度作为总数"
+          ],
+          "learning_skills": [
+            "JavaScript 用索引访问数组并渲染对应项",
+            "JavaScript 状态驱动渲染函数"
+          ],
+          "practice_check": "换一个含 5 项的字符串数组，写出按索引显示当前项的函数，并验证索引 0 与末项显示正确。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "原生按钮点击事件与边界禁用",
+          "description": "为上一张/下一张按钮绑定 click 事件，修改索引后重新渲染，并依据当前位置设置 disabled 属性，使第 1 张和第 12 张时对应按钮禁用。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "切换是核心交互，首尾禁用是明确需求且需和索引同步。",
+          "learning_goal": "理解事件回调修改状态并触发重渲染，disabled 由边界条件计算得出。",
+          "technology": "JavaScript",
+          "project_task": "实现两个切换按钮的点击处理，并在每次渲染时按索引设置两侧按钮的 disabled。",
+          "concepts": [
+            "addEventListener('click')",
+            "元素 disabled 属性",
+            "边界判断 index===0 与 index===数组长度-1",
+            "修改状态后调用渲染"
+          ],
+          "learning_skills": [
+            "原生 JavaScript 按钮 click 事件绑定与回调",
+            "用边界条件计算并设置元素的 disabled 状态"
+          ],
+          "practice_check": "做一个 3 项列表的翻页按钮，验证首项时上一页禁用、末项时下一页禁用。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "已掌握标记集合与计数显示",
+          "description": "用以卡片 id 为键的 Set 记录已掌握卡片，点击掌握按钮切换当前卡状态，并实时更新已掌握数量显示。",
+          "function_ids": [
+            "f3"
+          ],
+          "why_needed": "标记与计数是需求中的核心状态功能。",
+          "learning_goal": "理解用集合表示多选标记，并由集合大小推导计数显示。",
+          "technology": "JavaScript",
+          "project_task": "实现掌握按钮切换当前卡 id 在 Set 中的存在，并在渲染时显示数量与当前卡标记状态。",
+          "concepts": [
+            "Set 的 add/delete/has",
+            "卡片唯一 id 作为键",
+            "由 Set.size 计算已掌握数量",
+            "按钮文案或样式反映当前卡状态"
+          ],
+          "learning_skills": [
+            "JavaScript 用 Set 管理可切换的标记集合",
+            "从集合大小推导并刷新界面计数"
+          ],
+          "practice_check": "用 Set 对若干标签做多选切换，并显示当前选中数量，验证重复点击可取消。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "localStorage 保存与读取恢复",
+          "description": "用 JSON.stringify 将已掌握数组写入 localStorage，页面初始化时读取并用 JSON.parse 还原 Set，实现刷新后恢复；读写包在 try/catch 中。",
+          "function_ids": [
+            "f4"
+          ],
+          "why_needed": "刷新恢复依赖本地存储的序列化读写。",
+          "learning_goal": "理解 Web Storage 只能存字符串，需序列化/反序列化，并知道读写可能抛错。",
+          "technology": "JavaScript",
+          "project_task": "实现 saveState() 与 loadState()，在切换标记后保存，在启动时读取并还原已掌握集合与计数。",
+          "concepts": [
+            "localStorage.setItem/getItem",
+            "JSON.stringify 与 JSON.parse",
+            "try/catch 包裹存储调用",
+            "Set 与数组互转"
+          ],
+          "learning_skills": [
+            "JavaScript 用 localStorage 与 JSON 序列化保存应用状态",
+            "JavaScript 用 try/catch 包裹可能失败的存储读写"
+          ],
+          "practice_check": "写一个保存/读取字符串列表的小页面，刷新后列表内容保持。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "k6",
+          "name": "本地数据校验与默认回退提示",
+          "description": "启动时检查存储值：为空、JSON 解析失败、非数组或含非法卡片 id 时，显示提示信息，过滤为合法数据或回落为默认空标记。",
+          "function_ids": [
+            "f5"
+          ],
+          "why_needed": "损坏数据不能使页面崩溃，且需给用户提示。",
+          "learning_goal": "理解输入校验与防御式恢复，能区分\"无数据\"与\"数据损坏\"并统一安全回退。",
+          "technology": "JavaScript",
+          "project_task": "编写校验函数：解析结果必须是数组且元素属于 12 张卡 id，否则提示并从默认空状态开始。",
+          "concepts": [
+            "空值与类型判断",
+            "Array.isArray 与白名单过滤",
+            "提示区 textContent 显示消息",
+            "默认空 Set 的安全回退"
+          ],
+          "learning_skills": [
+            "JavaScript 对解析后的本地数据做类型与白名单校验",
+            "防御式设计：校验失败时回退到默认状态并提示"
+          ],
+          "practice_check": "手动写入非法 JSON，验证读取函数返回默认状态且页面显示提示而不抛错。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k5"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        },
+        {
+          "id": "k7",
+          "name": "移动优先布局与键盘可操作按钮",
+          "description": "用 CSS 让卡片与按钮在窄屏单列自适应、点击区域足够大，并使用原生 button 保证 Tab 聚焦与回车/空格触发。",
+          "function_ids": [
+            "f6",
+            "f2",
+            "f3"
+          ],
+          "why_needed": "手机可用和键盘操作是明确需求。",
+          "learning_goal": "理解响应式布局与原生按钮可访问性带来的免费键盘支持。",
+          "technology": "CSS",
+          "project_task": "编写移动优先样式，确保窄屏不横向溢出、按钮尺寸合适、禁用态可辨认，并用 Tab/回车验证操作。",
+          "concepts": [
+            "viewport meta 与移动优先",
+            "媒体查询与弹性布局",
+            "原生 button 的焦点与键盘行为",
+            ":disabled 视觉样式"
+          ],
+          "learning_skills": [
+            "CSS 移动优先布局与媒体查询",
+            "原生 button 的可访问性与禁用态样式"
+          ],
+          "practice_check": "在浏览器设备模拟窄屏下检查布局，并用键盘完成一次按钮操作。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 7,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": null,
+    "batches": [],
+    "budgets": null,
+    "error": null,
+    "warnings": [],
+    "created_at": "2026-10-18T22:20:36.381183+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v3-transferable-learning-skills",
+    "origin": "analysis",
+    "search_started_at": null,
+    "cancel_requested": false,
+    "updated_at": "2026-10-18T22:20:53.405480+00:00"
+  }
+}

@@ -1,0 +1,433 @@
+{
+  "case": "pong-keyboard",
+  "version": 4,
+  "scope": "Actual r4 finite post-fix trial, distinct from retained r3 cohort",
+  "created_at": "2026-10-19T00:23:56.933575+00:00",
+  "status": "partial",
+  "units": 6,
+  "main_cards": 1,
+  "content_supported_skills": 1,
+  "title_supported_skills": 0,
+  "related_topic_pointers": 2,
+  "card": {
+    "resource": {
+      "resource_id": "res_75865a884af31279cf83e9db",
+      "title": "Basic Movement & Key Presses",
+      "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "resolved_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "platform": "other",
+      "resource_type": "video",
+      "video_evidence_status": "page_verified",
+      "author": "Tim Ruscica",
+      "author_role": null,
+      "parent_course_url": null,
+      "course_identity": {
+        "status": "partial",
+        "family_id": null,
+        "offering_id": null,
+        "lesson_id": null,
+        "family_url": null,
+        "offering_url": null,
+        "role": "video",
+        "basis": "unknown",
+        "source_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "evidence_ids": [
+          "ev_25fab1d8-8c50-454b-9f34-33ffc99cb1d9"
+        ],
+        "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+      },
+      "description": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+      "video_topic_summary": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+      "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/pygame_window_tutorial_1_01af2f97bd.png",
+      "language": "en",
+      "duration_seconds": null,
+      "published_at": null,
+      "discovered_at": "2026-10-19T00:17:44.202744+00:00",
+      "fetched_at": "2026-10-18T23:02:19.668666+00:00",
+      "fetch_status": "fetched",
+      "metadata_evidence_level": "page",
+      "requires_login": null,
+      "requires_payment": null,
+      "requires_enrollment": null,
+      "access_notice": null,
+      "chapters": [],
+      "catalog_kind": null,
+      "catalog_fetch_status": null,
+      "render_diagnostics": null,
+      "field_provenance": {
+        "title": {
+          "evidence_id": "ev_1e35c677-4985-48b5-bab0-b1493cd4bca5",
+          "source": "html.techwithtim.lesson.title",
+          "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+          "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+        },
+        "url": {
+          "evidence_id": "ev_60161f1e-e86d-4224-bf59-c26dd75e2932",
+          "source": "search",
+          "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement"
+        },
+        "description": {
+          "evidence_id": "ev_c20ef867-ed48-4ac9-95db-76a2d619f52b",
+          "source": "html.techwithtim.lesson.summary",
+          "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+          "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+        },
+        "thumbnail_url": {
+          "evidence_id": "ev_431f5be9-2a2c-4a58-941e-09c4fc89f12a",
+          "source": "meta.og:image",
+          "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+          "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+        },
+        "author": {
+          "evidence_id": "ev_c12eeb8f-c828-4d75-ad5e-75671d855494",
+          "source": "meta.author",
+          "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+          "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+        },
+        "language": {
+          "evidence_id": "ev_5cb5709b-5dd1-4a99-b776-d813399d96fb",
+          "source": "html.lang",
+          "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+          "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+        },
+        "resource_type": {
+          "evidence_id": "ev_4463e330-5d39-4287-9457-94ff0b83b333",
+          "source": "html.techwithtim.lesson.video",
+          "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+          "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+        },
+        "video_evidence_status": {
+          "evidence_id": "ev_25fab1d8-8c50-454b-9f34-33ffc99cb1d9",
+          "source": "html.techwithtim.lesson.video",
+          "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+          "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+        },
+        "video_topic_summary": {
+          "evidence_id": "ev_58f64319-2836-4e6a-a4c2-24ad04517afe",
+          "source": "html.techwithtim.lesson.summary",
+          "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+          "fetched_at": "2026-10-18T23:02:19.668666+00:00"
+        }
+      },
+      "cache": {
+        "hit": true,
+        "stale": false,
+        "cached_at": "2026-10-18T23:02:19.760498+00:00"
+      },
+      "playback_verified": false
+    },
+    "match": {
+      "knowledge_point_id": "cf7f781b-38a0-43af-8db5-63f313c6d784",
+      "resource_id": "res_75865a884af31279cf83e9db",
+      "ranking_score": 35.58,
+      "recommendation_reason": "本课自身内容提供学习依据：pygame get_pressed 轮询按住键状态。可先学习这些技能，再迁移到项目子任务。项目中的数据、常量和验收由你完成练习。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：英语（en）；视频/授课语言仍需确认。 你的偏好为中文，可先检查平台音轨或字幕。",
+      "matched_evidence_ids": [
+        "ev_c20ef867-ed48-4ac9-95db-76a2d619f52b",
+        "ev_58f64319-2836-4e6a-a4c2-24ad04517afe"
+      ],
+      "coverage_basis": [
+        "description"
+      ],
+      "topic_match_rules": [],
+      "topic_evidence_status": "partial",
+      "supporting_evidence_ids": [
+        "ev_58f64319-2836-4e6a-a4c2-24ad04517afe"
+      ],
+      "topic_evidence_reasons": [
+        {
+          "code": "transferable_learning_skill",
+          "message": "此材料用于学习已列出的具体技能；项目中的数据、常量、参数选择与验收由学生迁移练习，不声称视频演示了同款项目。",
+          "evidence_ids": [
+            "ev_58f64319-2836-4e6a-a4c2-24ad04517afe"
+          ]
+        }
+      ],
+      "subtopic_coverage": [
+        {
+          "id": "skill_1",
+          "text": "pygame get_pressed 轮询按住键状态",
+          "status": "supported",
+          "evidence_ids": [
+            "ev_58f64319-2836-4e6a-a4c2-24ad04517afe"
+          ],
+          "reason": "本课自身的简介、目录或绑定教学笔记提供了这一技能的内容依据。"
+        },
+        {
+          "id": "skill_2",
+          "text": "数值夹取把坐标限制在给定区间",
+          "status": "unknown",
+          "evidence_ids": [],
+          "reason": "当前来源尚未证明讲授这一技能。"
+        },
+        {
+          "id": "skill_3",
+          "text": "按帧间隔累加对象位移",
+          "status": "unknown",
+          "evidence_ids": [],
+          "reason": "当前来源尚未证明讲授这一技能。"
+        }
+      ],
+      "teaching_support": [
+        {
+          "skill_id": "skill_1",
+          "skill": "pygame get_pressed 轮询按住键状态",
+          "evidence_id": "ev_58f64319-2836-4e6a-a4c2-24ad04517afe",
+          "quote": "    keys = pygame.key.get_pressed()",
+          "basis": "lesson_notes",
+          "source_text_sha256": "248c932a5513e0553b9eb57ff731b8365c755991990ea271bd32f8f8eff34b7d"
+        }
+      ],
+      "teaching_fingerprint": "f606321bb0ff1c22f014f4ced902897888011782ea1b7a6879228e7d9ccf9475",
+      "learning_support_mode": "transferable_skills"
+    },
+    "support_integrity": {
+      "exact_full_summary_raw_sha": true,
+      "exact_own_bound_video_summary": true,
+      "quote_is_continuous_raw_code": true,
+      "actual_prepared_fingerprint_matches_saved_card": true,
+      "code_is_current_lesson_moving_character_loop": true,
+      "only_pressed_key_skill_supported": true,
+      "clamp_unknown": true,
+      "frame_interval_dt_unknown": true
+    },
+    "raw_support_evidence": {
+      "id": "ev_429e5d74f8322956f251",
+      "evidence_id": "ev_58f64319-2836-4e6a-a4c2-24ad04517afe",
+      "kind": "page",
+      "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "field": "video_topic_summary",
+      "source": "html.techwithtim.lesson.summary",
+      "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+      "fetched_at": "2026-10-18T23:02:19.668666+00:00",
+      "observed_at": "2026-10-18T23:02:19.668666+00:00",
+      "cache": {
+        "hit": true,
+        "stale": false,
+        "cached_at": "2026-10-18T23:02:19.760498+00:00"
+      }
+    },
+    "independent_semantic_review": "Accepted narrow current-lesson keyboard polling skill: own Moving a Character loop obtains key state each frame and uses directional keys to move. No clamp/dt/KEYDOWN or same Pong demo is inferred.",
+    "learner_fit": "Actual learner knows Python lists/functions and pygame window/drawing; this basic movement lesson is usable at the stated intermediate stage. Course difficulty and audio still unconfirmed.",
+    "language_access": "html.lang=en is page language, not tested audio; Chinese preference warning remains. Login/payment/enrollment null remains unknown. No playback/media requested."
+  },
+  "scoring_unshown": {
+    "resource_id": "res_01fcb7ab48329d50661e8473",
+    "title": "Scoring & Health Bars",
+    "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+    "point_id": "50caf8d9-89bc-4453-86e7-3babe70b41df",
+    "point_skill": "pygame 字体渲染比分文本",
+    "actual_saved_core": {},
+    "own_bound_summary_characters": 1286,
+    "own_bound_summary_sha256": "b7524d2d107a25effead447761e250b65d93e28b840eec9eca6ebf8438e24fe4",
+    "actual_own_methods": [
+      "pygame.font.SysFont",
+      "font.render",
+      "win.blit",
+      "\"Score: \" + str(score)"
+    ],
+    "actual_model_observations": [
+      {
+        "evidence_id": "ev_f6a19b05-0c60-42ab-a183-9ec3fea13f3a",
+        "basis": "title",
+        "scope": "topic_declared",
+        "text": "Scoring & Health Bars",
+        "segments": [
+          "Scoring & Health Bars"
+        ],
+        "source_text_sha256": "122ca46e4effcd8a4f43aecf170577701783a43d224deef39d9a810bdceeca45",
+        "own_projection_sha256": "122ca46e4effcd8a4f43aecf170577701783a43d224deef39d9a810bdceeca45"
+      },
+      {
+        "evidence_id": "ev_2c06d3f7-7f75-485e-96f9-3ec0e2fcb109",
+        "basis": "lesson_notes",
+        "scope": "own_teaching_metadata",
+        "text": "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit.",
+        "segments": [
+          "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit."
+        ],
+        "source_text_sha256": "b7524d2d107a25effead447761e250b65d93e28b840eec9eca6ebf8438e24fe4",
+        "own_projection_sha256": "b7524d2d107a25effead447761e250b65d93e28b840eec9eca6ebf8438e24fe4"
+      }
+    ],
+    "pure_prepare_fingerprint": "baca85ed9ab2846942b04545595daf1e7daf058fec845d40e0c9e00a22d2164c",
+    "necessary_components": [],
+    "full_own_body_missing_components": [],
+    "confirmed": "Present in actual attempted batch: service writes the persisted {} only immediately before judge_batch for actual batch members. It is not another preselection or 30k-input-slot omission.",
+    "unresolved": "{} is not valid sealed-empty. First-batch diagnostics count0 pair-validation failures, but original per-pair model/review JSON and application trace were not retained. Exact unresolved phase cannot be determined from the available response hashes and counters; do not invent a cause or claim the source lacks teaching.",
+    "source_scope": "Own lesson teaches score font rendering; pause/serve/KEYDOWN and project completion are not donated."
+  },
+  "pointers": [
+    {
+      "pointer": {
+        "knowledge_point_id": "afa102e8-0550-41f6-8927-d008b5b6a131",
+        "resource_id": "res_54932f10add441a71a529c69",
+        "skill_id": "skill_1",
+        "skill": "游戏状态机设计与转移",
+        "evidence_id": "ev_397b5a6e-52ef-4407-902b-d394fa9a784d",
+        "quote": "基于Sysblock的状态机模型构建（一）：创建状态与转移条件！",
+        "basis": "catalog",
+        "source_text_sha256": "9dff6569ffcb46be14e271a46a7176cc53cf553386012304924cb2ac76ece8fa",
+        "source_url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+        "target_url": "https://www.bilibili.com/video/BV16BB5BTE3A/?p=1",
+        "scope": "topic_declared",
+        "missing_components": [
+          "游戏状态机设计"
+        ]
+      },
+      "resource_title": "基于Sysblock的状态机模型构建（一）：创建状态与转移条件！",
+      "raw_evidence": {
+        "id": "ev_b8a90bbfc33fc473ad4f",
+        "evidence_id": "ev_397b5a6e-52ef-4407-902b-d394fa9a784d",
+        "kind": "catalog",
+        "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+        "field": "chapters.0",
+        "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+        "text": "{\"duration_seconds\": 58, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV16BB5BTE3A/\", \"start_seconds\": null, \"title\": \"基于Sysblock的状态机模型构建（一）：创建状态与转移条件！\", \"url\": \"https://www.bilibili.com/video/BV16BB5BTE3A/?p=1\"}",
+        "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+        "observed_at": "2026-10-18T23:46:04.412347+00:00",
+        "cache": {
+          "hit": true,
+          "stale": false,
+          "cached_at": "2026-10-18T23:46:04.459881+00:00"
+        }
+      },
+      "integrity_verified": true,
+      "coverage_contribution": 0,
+      "independent_scope": "Sysblock/FPGA状态转移相关主题，不能冒充pygame游戏状态、完整重置或退出优先级教学。硬件/工具和先修差异明显，面向当前学生效用有限。"
+    },
+    {
+      "pointer": {
+        "knowledge_point_id": "afa102e8-0550-41f6-8927-d008b5b6a131",
+        "resource_id": "res_24661df09500c1b1dbf056f7",
+        "skill_id": "skill_1",
+        "skill": "游戏状态机设计与转移",
+        "evidence_id": "ev_0b56381f-ec50-42ba-a6c9-d5a2b3796f2f",
+        "quote": "15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720",
+        "basis": "catalog",
+        "source_text_sha256": "623f0db1fba3f5e9e400972fbfba4f11fce2975030d571ee2692dd864226ce2c",
+        "source_url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+        "target_url": "https://www.bilibili.com/video/BV1zwCfBuEDA/?p=1",
+        "scope": "topic_declared",
+        "missing_components": [
+          "游戏状态机设计"
+        ]
+      },
+      "resource_title": "15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720",
+      "raw_evidence": {
+        "id": "ev_c718f537cd01e7429c4b",
+        "evidence_id": "ev_0b56381f-ec50-42ba-a6c9-d5a2b3796f2f",
+        "kind": "catalog",
+        "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+        "field": "chapters.0",
+        "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+        "text": "{\"duration_seconds\": 1209, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1zwCfBuEDA/\", \"start_seconds\": null, \"title\": \"15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720\", \"url\": \"https://www.bilibili.com/video/BV1zwCfBuEDA/?p=1\"}",
+        "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+        "observed_at": "2026-10-18T23:46:00.185818+00:00",
+        "cache": {
+          "hit": true,
+          "stale": false,
+          "cached_at": "2026-10-18T23:46:00.226258+00:00"
+        }
+      },
+      "integrity_verified": true,
+      "coverage_contribution": 0,
+      "independent_scope": "Sysblock/FPGA状态转移相关主题，不能冒充pygame游戏状态、完整重置或退出优先级教学。硬件/工具和先修差异明显，面向当前学生效用有限。"
+    }
+  ],
+  "raw_observations": [
+    {
+      "path": "evidence\\phase3-audit\\r4-live-pong-v4\\project-view.json",
+      "sha256": "f10d9cc0ab7a5582cdcda4b87f1cf766fd24db0b2814dc28e1777ad532cae4c8"
+    },
+    {
+      "path": "evidence\\phase3-audit\\r4-live-pong-v4\\project-results.json",
+      "sha256": "02bd2fee56d3364fd1899104fecaa9feaf2984638c4463d89d6a2c2ad74da335"
+    },
+    {
+      "path": "evidence\\phase3-audit\\r4-live-pong-v4\\source-pool-snapshot.json",
+      "sha256": "5cf88cd29c54a01c19e424feb309c05e4f80b4c1679ca96a809bb4bdb80cce06"
+    },
+    {
+      "path": "evidence\\phase3-audit\\r4-live-pong-v4\\observation-manifest.json",
+      "sha256": "656c80f59d0f73394103f404a7beffb0c47cf0f003bcc0c5c4135ac530f40fff"
+    },
+    {
+      "path": "evidence\\phase3-audit\\r4-live-pong-v4\\runtime-source-contract.json",
+      "sha256": "fbafafa58dd249be80e92b1220e140fbca5433b071a7b8d419627fa644079ebe"
+    }
+  ],
+  "jobs": [
+    {
+      "job_id": "51d03eac-8c86-462b-bb44-4371ebbed64e",
+      "progress": {
+        "queries_planned": 33,
+        "queries_completed": 18,
+        "search_requests": 30,
+        "search_successes": 18,
+        "search_failures": 0,
+        "candidates_discovered": 108,
+        "resources_discovered": 89,
+        "details_attempted": 1,
+        "details_completed": 1,
+        "details_cached": 23,
+        "cache_hits": 23,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0,
+        "teaching_match_calls": 2,
+        "teaching_pairs_evaluated": 20,
+        "teaching_cache_hits": 0,
+        "teaching_review_calls": 1,
+        "teaching_claims_reviewed": 3,
+        "teaching_claims_accepted": 1,
+        "teaching_pair_validation_failures": 0,
+        "discovery_dns_requests": 8
+      },
+      "warnings": [
+        "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+        "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+        "66 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+        "3 个候选缺少课程或视频类型依据，未作为学习资源展示",
+        "部分技能匹配未返回可核对结论，已保留原始来源；可到平台核对或稍后重试。"
+      ]
+    },
+    {
+      "job_id": "2f625a4d-4775-40c7-80a4-fbaca3142abb",
+      "progress": {
+        "queries_planned": 7,
+        "queries_completed": 7,
+        "search_requests": 12,
+        "search_successes": 7,
+        "search_failures": 0,
+        "candidates_discovered": 36,
+        "resources_discovered": 34,
+        "details_attempted": 3,
+        "details_completed": 3,
+        "details_cached": 12,
+        "cache_hits": 12,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0,
+        "teaching_match_calls": 1,
+        "teaching_pairs_evaluated": 4,
+        "teaching_cache_hits": 0,
+        "teaching_review_calls": 0,
+        "teaching_claims_reviewed": 0,
+        "teaching_claims_accepted": 0,
+        "teaching_pair_validation_failures": 0
+      },
+      "warnings": [
+        "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+        "20 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+        "4 个候选缺少课程或视频类型依据，未作为学习资源展示"
+      ]
+    }
+  ],
+  "operations": {
+    "new_upstream": 0,
+    "new_model": 0,
+    "source_DB_writes": 0,
+    "product_source_writes": 0
+  },
+  "production_coverage_accepted": false,
+  "closed_defect_boundary": "Bare get_pressed source-window omission is actually closed for this card. Scoring preselection omission is closed at attempted-judge admission only; no teaching support result was produced for it."
+}

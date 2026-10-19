@@ -1,0 +1,434 @@
+{
+  "case": "phase3_pygame_pong_intermediate",
+  "version": 3,
+  "status": "partial",
+  "created_at": "2026-10-18T23:56:24.004976+00:00",
+  "mode": "Independent read of immutable saved actual r3 project outputs and SQLite read-only snapshot; no GET/re-ranking/new search/model.",
+  "operations": {
+    "local_GETs": 0,
+    "upstream_requests": 0,
+    "model_calls": 0,
+    "DB_writes": 0,
+    "source_writes": 0,
+    "stage_writes": 0
+  },
+  "raw_observations": [
+    {
+      "path": "evidence\\phase3-audit\\r3-live-pong-v3\\project-view.json",
+      "sha256": "b6ee0ac6bf3559cfc4d6743582f6c3feb0f20baaa494c7504c38b84e634cddd1"
+    },
+    {
+      "path": "evidence\\phase3-audit\\r3-live-pong-v3\\project-results.json",
+      "sha256": "925e938e5fb08d182936617f4c6144366e77727cca6400f021f8cc63580c04fa"
+    },
+    {
+      "path": "evidence\\phase3-audit\\r3-live-pong-v3\\source-pool-snapshot.json",
+      "sha256": "29a4ac4e8ae7861bc69185ff525900c5cfa6bd8c39bfafd50b1d6fee8820ce21"
+    }
+  ],
+  "unique_cards": 0,
+  "groups": [
+    {
+      "project_point_id": "k1",
+      "name": "pygame 按住键读取与球拍边界夹取",
+      "job_id": "951a793b-2e7b-45be-9917-5a51607c25c8",
+      "knowledge_point_id": "7d3ac364-fb6e-4bcb-9132-64f572d11eab",
+      "text": "pygame 按住键读取与球拍边界夹取",
+      "learning_targets": [
+        "pygame.key.get_pressed() 每帧轮询",
+        "经 pygame.K_UP 等键位映射到移动方向",
+        "位置加 速度*dt 后在 [0, 屏高-拍高] 内夹取"
+      ],
+      "learning_skills": [
+        "pygame get_pressed 轮询按住键状态",
+        "数值夹取把坐标限制在给定区间",
+        "按帧间隔累加对象位移"
+      ],
+      "learning_coverage": {
+        "mode": "transferable_skills",
+        "skills": [
+          {
+            "id": "skill_1",
+            "text": "pygame get_pressed 轮询按住键状态",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_2",
+            "text": "数值夹取把坐标限制在给定区间",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_3",
+            "text": "按帧间隔累加对象位移",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "disclaimer": "按当前展示材料的实际来源分别核对技能主题和内容依据；多个课程可互补。主题匹配不等于教学深度、学生掌握或项目实践完成。"
+      },
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0
+    },
+    {
+      "project_point_id": "k2",
+      "name": "Clock 与 dt 驱动的球速运动",
+      "job_id": "951a793b-2e7b-45be-9917-5a51607c25c8",
+      "knowledge_point_id": "32d18728-0316-43b6-be1b-de795b14d618",
+      "text": "pygame Clock 与 dt 驱动的球速运动",
+      "learning_targets": [
+        "clock.tick(60) 返回毫秒，需转换为秒",
+        "球位置 += vx*dt, vy*dt",
+        "速度用像素/秒表示便于调参"
+      ],
+      "learning_skills": [
+        "pygame.time.Clock 帧间隔取秒",
+        "基于 dt 的时间缩放位移计算"
+      ],
+      "learning_coverage": {
+        "mode": "transferable_skills",
+        "skills": [
+          {
+            "id": "skill_1",
+            "text": "pygame.time.Clock 帧间隔取秒",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_2",
+            "text": "基于 dt 的时间缩放位移计算",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "disclaimer": "按当前展示材料的实际来源分别核对技能主题和内容依据；多个课程可互补。主题匹配不等于教学深度、学生掌握或项目实践完成。"
+      },
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0
+    },
+    {
+      "project_point_id": "k3",
+      "name": "矩形碰撞与上下边界/球拍反弹",
+      "job_id": "951a793b-2e7b-45be-9917-5a51607c25c8",
+      "knowledge_point_id": "d3b0bd40-0d1a-430f-97e0-c542c64286af",
+      "text": "pygame 矩形碰撞与上下边界/球拍反弹",
+      "learning_targets": [
+        "pygame.Rect 与 colliderect",
+        "碰到上下边界取反 vy，碰球拍取反 vx",
+        "碰撞后把球移出矩形避免重复触发"
+      ],
+      "learning_skills": [
+        "pygame 矩形碰撞检测",
+        "按碰撞方向分量取反实现反弹",
+        "碰撞后位置修正避免穿透"
+      ],
+      "learning_coverage": {
+        "mode": "transferable_skills",
+        "skills": [
+          {
+            "id": "skill_1",
+            "text": "pygame 矩形碰撞检测",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_2",
+            "text": "按碰撞方向分量取反实现反弹",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_3",
+            "text": "碰撞后位置修正避免穿透",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "disclaimer": "按当前展示材料的实际来源分别核对技能主题和内容依据；多个课程可互补。主题匹配不等于教学深度、学生掌握或项目实践完成。"
+      },
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0
+    },
+    {
+      "project_point_id": "k4",
+      "name": "出界判分的矩形坐标判断",
+      "job_id": "951a793b-2e7b-45be-9917-5a51607c25c8",
+      "knowledge_point_id": "2cb251c0-85c1-445d-b083-7dd7c6653c9f",
+      "text": "pygame 出界判分的矩形坐标判断",
+      "learning_targets": [
+        "球 x 坐标与 0、屏宽比较",
+        "左右出界对应哪一方得分",
+        "出界后球位置与速度重置"
+      ],
+      "learning_skills": [
+        "用坐标比较实现越界判定",
+        "把空间事件映射为计分状态更新"
+      ],
+      "learning_coverage": {
+        "mode": "transferable_skills",
+        "skills": [
+          {
+            "id": "skill_1",
+            "text": "用坐标比较实现越界判定",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_2",
+            "text": "把空间事件映射为计分状态更新",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "disclaimer": "按当前展示材料的实际来源分别核对技能主题和内容依据；多个课程可互补。主题匹配不等于教学深度、学生掌握或项目实践完成。"
+      },
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0
+    },
+    {
+      "project_point_id": "k5",
+      "name": "比分文字渲染与得分后暂停空格发球",
+      "job_id": "951a793b-2e7b-45be-9917-5a51607c25c8",
+      "knowledge_point_id": "ac63ae98-24a2-4944-9782-a018780795fa",
+      "text": "pygame 比分文字渲染与得分后暂停空格发球",
+      "learning_targets": [
+        "pygame.font.Font.render 与 blit",
+        "状态字段区分运动中与等待发球",
+        "event.type == KEYDOWN 且 key == K_SPACE 发球"
+      ],
+      "learning_skills": [
+        "pygame 字体渲染比分文本",
+        "用状态字段选择性更新游戏物理",
+        "KEYDOWN 离散事件触发状态转移"
+      ],
+      "learning_coverage": {
+        "mode": "transferable_skills",
+        "skills": [
+          {
+            "id": "skill_1",
+            "text": "pygame 字体渲染比分文本",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_2",
+            "text": "用状态字段选择性更新游戏物理",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_3",
+            "text": "KEYDOWN 离散事件触发状态转移",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "disclaimer": "按当前展示材料的实际来源分别核对技能主题和内容依据；多个课程可互补。主题匹配不等于教学深度、学生掌握或项目实践完成。"
+      },
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0
+    },
+    {
+      "project_point_id": "k6",
+      "name": "先到3分判胜、R重开与全程退出",
+      "job_id": "8373a451-c947-4432-a4d1-8b6610b25327",
+      "knowledge_point_id": "08b86172-0b76-45de-bfeb-b540448096f5",
+      "text": "pygame 先到3分判胜、R重开与全程退出",
+      "learning_targets": [
+        "状态机：进行/等待发球/获胜",
+        "KEYDOWN K_r 重置分数与对象位置",
+        "QUIT 事件与 K_ESCAPE 位于事件处理最前"
+      ],
+      "learning_skills": [
+        "游戏状态机设计与转移",
+        "重置函数恢复全部相关数据",
+        "退出事件优先级处理"
+      ],
+      "learning_coverage": {
+        "mode": "transferable_skills",
+        "skills": [
+          {
+            "id": "skill_1",
+            "text": "游戏状态机设计与转移",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_2",
+            "text": "重置函数恢复全部相关数据",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          },
+          {
+            "id": "skill_3",
+            "text": "退出事件优先级处理",
+            "content_resource_ids": [],
+            "title_resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "disclaimer": "按当前展示材料的实际来源分别核对技能主题和内容依据；多个课程可互补。主题匹配不等于教学深度、学生掌握或项目实践完成。"
+      },
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0
+    }
+  ],
+  "jobs": [
+    {
+      "job_id": "951a793b-2e7b-45be-9917-5a51607c25c8",
+      "status": "partial",
+      "progress": {
+        "queries_planned": 33,
+        "queries_completed": 19,
+        "search_requests": 30,
+        "search_successes": 19,
+        "search_failures": 0,
+        "candidates_discovered": 114,
+        "resources_discovered": 94,
+        "details_attempted": 18,
+        "details_completed": 18,
+        "details_cached": 7,
+        "cache_hits": 7,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0,
+        "teaching_match_calls": 2,
+        "teaching_pairs_evaluated": 20,
+        "teaching_cache_hits": 0,
+        "teaching_review_calls": 1,
+        "teaching_claims_reviewed": 1,
+        "teaching_claims_accepted": 0,
+        "teaching_pair_validation_failures": 1,
+        "discovery_dns_requests": 4
+      },
+      "warnings": [
+        "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+        "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+        "70 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+        "3 个候选缺少课程或视频类型依据，未作为学习资源展示",
+        "部分候选的技能声明未通过来源绑定校验，保持未知；其他有效声明继续独立复核。"
+      ],
+      "resources": 94,
+      "own_fetched_page_verified": 24,
+      "saved_pair_cores": 20,
+      "saved_valid_empty_cores": 19,
+      "saved_failure_sentinels": 1
+    },
+    {
+      "job_id": "8373a451-c947-4432-a4d1-8b6610b25327",
+      "status": "partial",
+      "progress": {
+        "queries_planned": 7,
+        "queries_completed": 7,
+        "search_requests": 12,
+        "search_successes": 7,
+        "search_failures": 0,
+        "candidates_discovered": 36,
+        "resources_discovered": 33,
+        "details_attempted": 12,
+        "details_completed": 12,
+        "details_cached": 2,
+        "cache_hits": 2,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0,
+        "teaching_match_calls": 1,
+        "teaching_pairs_evaluated": 4,
+        "teaching_cache_hits": 0,
+        "teaching_review_calls": 0,
+        "teaching_claims_reviewed": 0,
+        "teaching_claims_accepted": 0,
+        "teaching_pair_validation_failures": 0
+      },
+      "warnings": [
+        "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+        "19 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+        "4 个候选缺少课程或视频类型依据，未作为学习资源展示",
+        "部分技能匹配未返回可核对结论，已保留原始来源；可到平台核对或稍后重试。"
+      ],
+      "resources": 33,
+      "own_fetched_page_verified": 13,
+      "saved_pair_cores": 4,
+      "saved_valid_empty_cores": 0,
+      "saved_failure_sentinels": 4
+    }
+  ],
+  "cards": [],
+  "semantic_acceptance": "not_a_coverage_pass",
+  "count_boundary": "Unique cards deduplicated by point+resource across platform copies. Empty cores, failure sentinels, reviewed claims and displayed cards are separate facts.",
+  "confirmed_unshown_source_opportunities": [
+    {
+      "priority": "P2",
+      "resource_id": "res_75865a884af31279cf83e9db",
+      "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+      "title": "Basic Movement & Key Presses",
+      "point_id": "7d3ac364-fb6e-4bcb-9132-64f572d11eab",
+      "skill": "pygame get_pressed 轮询按住键状态",
+      "summary_characters": 5354,
+      "summary_sha256": "248c932a5513e0553b9eb57ff731b8365c755991990ea271bd32f8f8eff34b7d",
+      "evidence_id": "ev_5ce6240d-8b4b-40c1-9d53-6bfd8fc08d1e",
+      "raw_binding_equals_resource": true,
+      "saved_pair": {
+        "fingerprint": "bc7c1c40e714b4fedd291b163cc9336bc3e49afaccc342897a234b236aec7948",
+        "supports": [],
+        "_review_version": "teaching-claim-review-v2-method-input",
+        "_review_hash": "a2245b9dfbf685cc2697bc911a42ec197f217c8cc1ee3b2daf8faecc3d1f799a"
+      },
+      "selected_for_actual_point": true,
+      "finding": "P2: own5354字正文已绑定且包含循环内get_pressed及方向位移，但实际模型obs为前1800字，未包含该API；原fingerprint相等纯回放确证。只支持键状态读取教学候选，不补夹取或dt。"
+    },
+    {
+      "priority": "P2",
+      "resource_id": "res_01fcb7ab48329d50661e8473",
+      "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+      "title": "Scoring & Health Bars",
+      "point_id": "ac63ae98-24a2-4944-9782-a018780795fa",
+      "skill": "pygame 字体渲染比分文本",
+      "summary_characters": 1286,
+      "summary_sha256": "b7524d2d107a25effead447761e250b65d93e28b840eec9eca6ebf8438e24fe4",
+      "evidence_id": "ev_22db8b8a-c88f-46d7-a683-3f0e2bbec28d",
+      "raw_binding_equals_resource": true,
+      "saved_pair": null,
+      "selected_for_actual_point": false,
+      "finding": "P2: own1286字正文明确SysFont→render Score→blit，本课视频绑定有效，实际k5四候选没有此资源，未判断而非来源缺失；不能补状态暂停或KEYDOWN。"
+    }
+  ],
+  "zero_result_diagnosis": [
+    "不能称公网无课或所有来源不可用；本批已抓TWT本课视频绑定及多个Bili视频。",
+    "k1存在确定observation截断缺陷；k5存在已抓有据自身教学资源未进入4候选的选择遗漏。详见对应诊断和原RO资源。",
+    "k2时间缩放需要Clock毫秒转秒与dt，帧率tick本身不能补齐；本审查未证明已有本课含全部方法。",
+    "k3部分collision/Hit Boxes候选真实相关，不由Sprite/示例或文字话题推导colliderect、方向反弹、穿透修正；其技能支持尚未证明。",
+    "k4/k6存在空间/状态机相关但多工具资源，不能自动填入pygame方法；第二批4个pair全部为failure sentinel，不是4个有效否定或源缺课。",
+    "第一批20对中19个sealed empty与1个failure sentinel；第二批4个failure sentinel。现有数据不能还原模型原始JSON来推定所有失败原因。"
+  ],
+  "diagnostic_files": [
+    {
+      "path": "evidence\\phase3-audit\\r3-live-pong-v3\\keyboard-observation-diagnostic.json",
+      "sha256": "f6f9783d0a334bffcf405bb4a4abe8e10f47e376ee791a88055a4649db29ffcb"
+    },
+    {
+      "path": "evidence\\phase3-audit\\r3-live-pong-v3\\movement-bare-get-pressed-pair.json",
+      "sha256": "beaf6555d1d7cbebc03e43ed8e1d558488a274d4925647358f174a2d18ec0195"
+    }
+  ]
+}

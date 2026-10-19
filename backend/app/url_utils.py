@@ -54,6 +54,11 @@ def normalize_url(url: str) -> str:
         if not hostname or "%" in hostname:
             raise UnsafeURL("URL 主机名无效")
         hostname = hostname.encode("idna").decode("ascii")
+        # Browsers accept abbreviated/octal/hex IPv4 syntax that ipaddress does
+        # not. Reject ambiguous numeric hosts before returning navigation links
+        # as well as before fetching; valid dotted public IPv4 remains supported.
+        if re.fullmatch(r"(?:[0-9]+|0x[0-9a-f]+)(?:\.(?:[0-9]+|0x[0-9a-f]+))*", hostname, re.I):
+            assert_public_ip(hostname)
         port = parts.port
         if port not in {None, 80, 443}:
             raise UnsafeURL("仅允许标准网页端口")

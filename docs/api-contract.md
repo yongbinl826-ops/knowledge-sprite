@@ -1,6 +1,16 @@
 # API 合约
 
+## 增量结果流（2026-10-19）
+
+`GET /api/search-jobs/{id}/events` 与 `GET /api/projects/{id}/events?version=N` 返回 `text/event-stream`。`snapshot` 的 JSON 与对应 `GET /results` 相同；`complete` 携带最终快照并关闭连接。未知任务在开始流之前返回 404。项目连接固定到打开时的版本。每帧为替换式完整快照，使用稳定 ID 去重，重连先给当前状态，不重放来源查询。
+
+两类 results 新增 `pipeline`：`stage`、`terminal`、`search_requests`、`search_budget`、`candidates`、`checking`、`checked`、`displayed`、`filtered`、`unknown`、`source_limited`。`checking` 是实际在途详情数，候选按任务内资源去重，显示数按 URL 去重；过滤和未知数仅统计 MOOC 知识点与课程配对，未读到大纲不等于无关。直接任务另附 `job`，保持状态、预算与结果快照一致。项目汇总只统计各任务一次，未提交批次不计作已执行搜索。
+
+后端每 350ms 检查本地 SQLite 变化，数据不变不重建结果、不发送重复快照，空闲时每 15 秒发心跳；客户端断开后结束订阅。前端优先 SSE，断流或旧接口无 pipeline 时退回已有 GET 轮询，不新建任务、不重试搜索。待项目后续轮次执行的 `awaiting_followup` 不视为流终态。MOOC 的展示门槛不变，仍须通过课程自身的大纲验证。
+
 默认模式 `live`；日期为 UTC ISO 8601。错误只含安全的 code/message。
+
+新增项目分析、学生确认、版本与分批调度接口见 [项目分析 v1 合约](project-analysis-v1.md)。下列原知识点检索接口保持兼容。
 
 Provider 增量：服务端可选择 `SEARCH_PROVIDER=official_sitemap`（MIT-only），默认仍为 searxng；`OFFICIAL_SITEMAP_FALLBACK=false` 默认关闭，只在主来源正常空结果或无可展示相关链接且域范围允许 MIT 时启用。capabilities 含 `official_discovery` 的 selected/fallback_enabled/scope/children_per_query/cache_ttl_seconds/dns_counter_scope；官方模式其他平台 discovery=out_of_scope。请求正文不增加自由来源 URL 或站点地图地址。
 
@@ -40,6 +50,10 @@ match 含 knowledge_point_id,resource_id,ranking_score,recommendation_reason,mat
 
 evidence 含 evidence_id,candidate_id (search evidence),kind (search/page/catalog/page_link/site_policy/access_restriction),source,query,url,title,snippet,observed_at,cache；页面/目录等证据另含 field、text。搜索类型证据另有 source_engines、type_source、resource_type_hint；搜索视频模板不等于页面验证。search_attempts 含 knowledge_point_id,query,domain_filters,provider,status,candidate_count,cached_at,cache_hit,stale,error_code,network_attempted,upstream_warnings,provider_requests,cache_origin_requests,cache_origin_warnings。provider_requests 只记录当前真实请求；缓存原始请求单列，不把缓存旧200覆盖当前401。SearXNG 有结果但部分上游引擎失败时任务 partial；缓存保留该故障证据。
 
+启用 `PARALLEL_PLATFORM_SEARCH` 后，显式选中的平台各有独立队列和请求份额，首轮结束后才执行补搜/重试。每批预算为 `2 × knowledge_points数量 × preferred_platforms去重数量`，受单批 `MAX_SEARCH_REQUESTS` 上限约束；不足时返回 `search_budget_insufficient`，不创建部分任务。job.budgets 新增 `initial_search_requests`、`followup_search_requests`、`platform_request_limits`。progress 新增 `platform_search_requests`（各平台真实请求数）、`initial_platform_pairs_completed`、`followup_platform_pairs_completed`（逻辑查询完成数，含缓存和失败，不能当作网络成功数）。attempt 新增 `platform` 和 `search_phase: initial|followup`；每条 attempt 的 `provider_requests` 仅含该查询自己的请求。
+
+项目确认预算新增 `batch_search_requests`，按各批实际知识点数量累加 `reserved_search_requests`。多批项目先完成所有批次的 initial 阶段，再在原 job 上恢复 followup 阶段，保持原资源ID、知识点映射和证据。等待补充阶段的 job.phase 为 `awaiting_followup`；两阶段共用原详情预算与累计执行时限，排队时间单独计算。刷新/GET不执行查询，取消和进程中断保留已有结果。
+
 任务结束时可含 `fetch_diagnostics:{available,started_at,finished_at,counts_delta,events:[],truncated,scope}`。来自实际 Fetcher 的计数差和当前任务最近 512 条脱敏事件，任务间不累加；events.at 为 UTC ISO 时间，HTTP 完成事件的 status_code 为真实响应码，网络失败只记录 error_type，不猜 HTTP 状态。URL 去除查询值和锚点，完整 URL 仅保存 SHA-256 供对照。counts_delta 中的 http_started 才是实际发起 HTTP 数；details_attempted、robots/DNS/节流等事件不可代替它。事件超出 512 条时 truncated:true，计数差仍保留。常规 scope 为 `target HTML+robots only; DoH HTTP uncounted`；官方模式或启用官方回退时为 `target HTML/XML+robots only; DoH HTTP separately traced for official discovery`。二者都不把 DoH 服务请求混入目标 HTTP；仅官方发现阶段的 DoH 另在 discovery_dns_requests/provider_dns_requests 记录。无追踪能力的隔离测试适配器会标 available:false；未执行即取消的排队任务可能无该字段。
 
 搜索缓存按 Provider、搜索实例身份、引擎组、查询、语言、版本、域范围和结果上限隔离；页面缓存还按采集启用状态、许可/停采域、DNS 解析策略和解析/载荷版本隔离。页面缓存不保存查询特有的搜索标题、摘要或搜索证据，未知页面字段始终回退到本次候选；真实页面标题、摘要及其独立来源照常保留。目录 budget_limited/not_attempted 不写不完整页面缓存，主页证据仍保存到该任务；其他目录失败即使主页 fetched 也只缓存至多 300 秒，失败过期后重新尝试，不能用 ALLOW_STALE_CACHE 无限延续失败。成功旧页面缓存若明确允许使用，会标明 stale 和原缓存时间。缓存命中不计为新详情/目录 HTTP。
@@ -61,3 +75,16 @@ evidence 含 evidence_id,candidate_id (search evidence),kind (search/page/catalo
 配置缺失仍允许提交，任务记录会明确 failed/configuration_error；不会生成演示数据。HTTP 422 为输入格式问题，404 为不存在任务。
 
 `capabilities.fetch.stopped_hosts` 为服务端明确停止自动采集的域名列表（例如已观测到 robots 拒绝的来源），不影响搜索入口保留。该列表也进入页面缓存身份，避免旧缓存掩盖新的停采配置。
+# 共享课程库与缺口补搜补充（2026-10-19）
+
+简洁发现模式新增服务端可选共享库，默认配置关闭，本机 `.env` 已开启。`GET /api/capabilities` 的 `shared_course_library` 返回启用状态、TTL、作用域和统计，`mooc_gap_search` 返回目标数量和等待上限；搜索 provider 可选 `serper`，Key 仅在服务端使用。这些字段用于后台诊断，前端不显式显示共享库、库命中或刷新配置，仍呈现普通课程卡片。已有 B站结果和流式接口保持兼容。
+
+任务可新增 `shared_course_library`（loaded/matched_pairs/reused_courses/profile）、`gap_search`（目标、各知识点已覆盖与剩余数量、跳过原因）、`discovery_policy`（创建时策略身份）。`progress.library_hit_pairs`、`library_courses_reused`、`library_courses_saved` 记录库操作；`queries_skipped`、`gap_queries_skipped` 记录跳过槽，`queries_completed` 包含已处理的跳过槽，`search_requests` 只记录真实搜索请求。改变库/缺口策略不会复用旧策略的活动任务或幂等请求。
+
+库证据使用 `kind=course_library, source=shared_course_library`，单独绑定当前知识点及公开证据的内容摘要、原观察时间和到期时间，不伪造搜索记录。仅通过当前完整大纲校验且库版本仍有效的课程进入 `discovery_items`，沿用原 SSE snapshot。课程证据默认 TTL 为 7 天，按原始抓取时间计时；读取、搜索查询和搜索摘要均不续期，新的有效公开页面与目录观测才可更新课程证据。
+
+服务端 `MOOC_REFRESH_ENABLED` 本机为 `true`，分发模板默认 `false`；`MOOC_REFRESH_INTERVAL_SECONDS` 默认 `86400`。启用缺口调度及刷新后，实际检索任务在 `initial` 阶段检查每个知识点的刷新时钟：即使已满足默认 3 门课程目标，距最近一次成功发现查询满 24 小时也最多使用 1 个原查询槽执行刷新，绕过该查询的结果缓存。它计入原 `search_requests` 和平台请求份额，不增加 `queries_planned`、任务预算或后续槽；其余已覆盖的 MOOC 槽仍跳过，B站轮数不变。GET results、SSE 订阅和浏览器刷新均不触发查询，也没有后台定时抓取。
+
+刷新 attempt 标记 `refresh_probe:true`，`progress.mooc_refresh_probes` 记录获准执行的刷新尝试，不能代替实际 HTTP 数或成功数。仅 `status=completed`、`network_attempted=true`、非缓存且没有 `upstream_warnings` 的查询更新成功时钟；正常缺口查询满足这些条件时同样更新。失败、部分完成、缓存命中和取消不更新成功时钟。按知识点及当前策略摘要保存 5 分钟租约，跨任务和进程重启抑制重复尝试；租约、最近成功时间和轮换序号保存在 SQLite `mooc_refresh_state`，不保存知识点或项目明文。后续成功轮次轮换宽泛课程词与具体知识点词，所有新增课程继续经过当前完整大纲门槛；成功搜索本身不证明课程覆盖或给旧大纲续期。
+
+实现见 [刷新状态](../backend/app/mooc_refresh.py)、[平台调度](../backend/app/platform_search.py)和[课程证据库](../backend/app/course_library.py)。配置及历史验收见 [共享课程库验收](shared-course-library-20261019.md)。

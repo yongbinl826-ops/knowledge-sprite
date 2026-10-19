@@ -1,0 +1,3284 @@
+{
+  "mode": "live_same_project_regression",
+  "created_at": "2026-10-18T16:51:11.494683+00:00",
+  "source_run": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v25\\run.json",
+  "source_run_sha256": "45aef961e907415531a9b452b0792c3ac3977f713130990950d1ef2518bbff7f",
+  "expected_prompt": "project-analysis-v2.6-bounded-semantic-review",
+  "classification": "same_synthetic_non_sensitive_inputs",
+  "limits": {
+    "max_analysis_api_submissions": 4,
+    "per_analysis_max_model_calls": 4,
+    "max_generation_calls": 2,
+    "max_semantic_review_calls": 2,
+    "review_completion_token_cap": 1500,
+    "server_total_budget_seconds": 120,
+    "client_observation_deadline_seconds": 150,
+    "search_submissions": 0
+  },
+  "semantic_acceptance": "Independent manual review of all 24 requirements; preserve source numeric/equality boundaries, concrete tasks, prerequisites, tool relevance, debounce and persistent post-win events. Model review success alone is insufficient.",
+  "rubric_source": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v25\\manual-review-before-duration-fix.json",
+  "rubric_source_sha256": "e6cd76b61756e82c5dbae8540ee1f5374cd5c4edc33058ebd6292488af5fa372",
+  "independent_requirement_rubric": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "requirements": [
+        {
+          "id": "w1",
+          "requirement": "Show phase, 25/5 duration, formatted remaining time and count"
+        },
+        {
+          "id": "w2",
+          "requirement": "Start, pause and resume"
+        },
+        {
+          "id": "w3",
+          "requirement": "On expiry switch phase and wait paused"
+        },
+        {
+          "id": "w4",
+          "requirement": "Increment count only for completed focus phases"
+        },
+        {
+          "id": "w5",
+          "requirement": "Background-tab return retains accurate remaining time"
+        },
+        {
+          "id": "w6",
+          "requirement": "Mobile layout and full keyboard access"
+        },
+        {
+          "id": "w7",
+          "requirement": "Reset clears active work and restores a usable initial state"
+        }
+      ]
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "requirements": [
+        {
+          "id": "d1",
+          "requirement": "Read CSV and audit trip_id deduplication"
+        },
+        {
+          "id": "d2",
+          "requirement": "Parse timestamps and separate invalid reasons"
+        },
+        {
+          "id": "d3",
+          "requirement": "Compute duration for all rows valid under the requested boundary"
+        },
+        {
+          "id": "d4",
+          "requirement": "Aggregate by departure hour and export counts"
+        },
+        {
+          "id": "d5",
+          "requirement": "Departure-station Top10 chart with labels"
+        },
+        {
+          "id": "d6",
+          "requirement": "Export cleaned CSV, hourly CSV and PNG"
+        }
+      ]
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "requirements": [
+        {
+          "id": "h1",
+          "requirement": "Low-voltage safe LED/button wiring"
+        },
+        {
+          "id": "h2",
+          "requirement": "INPUT_PULLUP active-low button"
+        },
+        {
+          "id": "h3",
+          "requirement": "Actual debounce plus one event per held press"
+        },
+        {
+          "id": "h4",
+          "requirement": "Responsive random wait and early-press false start"
+        },
+        {
+          "id": "h5",
+          "requirement": "Reaction milliseconds and readable serial output"
+        },
+        {
+          "id": "h6",
+          "requirement": "A fresh press can start another round without long-hold repetition"
+        }
+      ]
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "requirements": [
+        {
+          "id": "m1",
+          "requirement": "Fixed 8x8 wall/path/exit grid"
+        },
+        {
+          "id": "m2",
+          "requirement": "One step per key, no walls/boundary crossing"
+        },
+        {
+          "id": "m3",
+          "requirement": "Freeze real elapsed time on victory"
+        },
+        {
+          "id": "m4",
+          "requirement": "R resets player, clock and game state"
+        },
+        {
+          "id": "m5",
+          "requirement": "Ready/won still handle R/Esc/QUIT; frame rate bounded"
+        }
+      ]
+    }
+  ],
+  "numeric_boundary_probes": [
+    {
+      "case_id": "bicycle_csv_advanced",
+      "probe": "Equal nonmissing start/end timestamps",
+      "expected": "Valid under the stated end<start invalidity rule; duration_min=0 is retained, not required to be strictly positive."
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "probe": "End before start, missing or unparseable timestamp",
+      "expected": "Excluded from valid aggregates and recorded under the stated invalid reason."
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "probe": "Remaining time reaches exactly zero",
+      "expected": "Transition once, pause the next fixed 25/5-minute stage, and increment only completed focus."
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "probe": "Active-low input, random 2-5-second window and repeated raw bounce",
+      "expected": "LOW means pressed; a real stable-input condition precedes press edges, timing remains responsive and within the requested range."
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "probe": "Candidate row/column is -1 or 8 in an 8x8 map",
+      "expected": "Reject before list access; valid indices remain 0-7, and won state still processes reset/quit."
+    }
+  ],
+  "records": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "source_version": 1,
+      "input": {
+        "name": "离线番茄钟学习网页",
+        "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "analysis_failed",
+      "preflight_view": {
+        "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+        "original_input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 1,
+        "created_at": "2026-10-18T16:36:25.218819+00:00",
+        "updated_at": "2026-10-18T16:36:40.199359+00:00",
+        "versions": [
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:25.223939+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 1,
+          "input": {
+            "name": "离线番茄钟学习网页",
+            "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzed",
+          "analysis": {
+            "scope": "在浏览器本机离线实现番茄钟网页：专注25分钟、休息5分钟；支持开始、暂停、继续、重置；阶段结束自动切换并暂停等待用户开始；每完成一次专注次数加1；显示当前阶段、剩余时间与完成次数；切后台回来剩余时间仍准确；窄屏可用；键盘可操作所有按钮。不含账号、联网、通知、音效或后端。",
+            "technical_plan": "使用原生 HTML 语义化结构（阶段、时间、次数显示区与按钮区），CSS 用弹性布局与相对单位实现窄屏适配，JavaScript 用单一状态对象记录阶段、剩余秒数、是否运行与完成次数。计时不靠 setInterval 自减，而是记录该阶段结束的目标时间戳，每次刷新用目标时间减去 Date.now() 计算剩余；setInterval 只负责触发界面刷新，切到后台回来后立即按时间戳重新计算。阶段结束进入暂停态，只停物理倒计时，界面循环与按钮事件继续工作，由用户点击开始进入下一阶段。按钮使用原生 button 元素保证 Tab 聚焦与回车/空格触发。开发在本地文件用浏览器打开即可，无需构建工具。",
+            "assumptions": [
+              "按需求确定使用原生 HTML、CSS、JavaScript，不引入框架或第三方库。",
+              "单页、单计时器，完成次数只在当前页面会话内累计，刷新后归零。",
+              "窄屏按常见手机宽度约360px验证可用性。",
+              "界面文案为中文。"
+            ],
+            "learner_profile": {
+              "student_level": "beginner",
+              "assumed_knowledge": [
+                "基础 HTML 标签与页面结构",
+                "基础 CSS 选择器与样式规则",
+                "JavaScript 变量与 if 条件判断"
+              ],
+              "adjustment_note": "当前按初学者处理，没有完整交互项目经验，先补足按钮事件与定时刷新等必要基础再进入番茄钟逻辑。你可以修改学习阶段、项目背景或技术选择后重新生成。"
+            },
+            "functions": [
+              {
+                "id": "f1",
+                "name": "开始、暂停、继续按钮",
+                "original_requirement": "能开始、暂停、继续和重置",
+                "acceptance_criteria": "点击开始后倒计时运行；运行中暂停则剩余时间停止变化；暂停后继续从原剩余时间接着走；按钮状态与当前运行状态一致。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f2",
+                "name": "准确倒计时与后台切回校准",
+                "original_requirement": "切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1",
+                "acceptance_criteria": "基于结束时间戳计算剩余；切到其他标签页停留若干秒再回来，显示剩余时间与实际经过时间一致，不出现明显累积偏差。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f3",
+                "name": "阶段切换、暂停等待与完成计数",
+                "original_requirement": "专注固定25分钟、休息固定5分钟；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1",
+                "acceptance_criteria": "专注到0后自动切到休息5分钟且处于暂停态；休息到0后切回专注25分钟且暂停；仅专注阶段结束时完成次数加1，界面同步显示。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f4",
+                "name": "重置",
+                "original_requirement": "能开始、暂停、继续和重置",
+                "acceptance_criteria": "点击重置后回到专注25分钟的暂停初始状态，完成次数清零，界面同步更新。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f5",
+                "name": "信息显示与窄屏适配",
+                "original_requirement": "显示当前阶段、剩余时间和已完成次数，手机窄屏可用",
+                "acceptance_criteria": "页面清楚显示阶段名、mm:ss格式剩余时间、完成次数；在约360px宽窗口下按钮与文字不溢出、可点击。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f6",
+                "name": "键盘可操作性",
+                "original_requirement": "键盘能操作所有按钮",
+                "acceptance_criteria": "用 Tab 可依次聚焦全部按钮，聚焦样式可见，回车或空格能触发对应操作；按钮禁用时不可触发。",
+                "no_new_learning_reason": null
+              }
+            ],
+            "knowledge_points": [
+              {
+                "id": "k1",
+                "name": "HTML 语义结构搭建番茄钟界面",
+                "description": "用标题、阶段、时间、次数显示区和按钮区组织页面骨架。",
+                "function_ids": [
+                  "f5"
+                ],
+                "why_needed": "所有显示与按钮都需要先有可查询、可更新的页面结构。",
+                "learning_goal": "理解用语义化标签搭出清晰界面区域，并给元素加 id 便于脚本访问。",
+                "technology": "HTML",
+                "project_task": "搭出专注钟页面骨架：阶段名、剩余时间、完成次数与四个按钮，并给关键元素加 id。",
+                "concepts": [
+                  "语义化标签分区",
+                  "时间与次数显示占位",
+                  "按钮元素 button",
+                  "用 id 在脚本中获取元素"
+                ],
+                "practice_check": "打开页面能看到各显示区和四个按钮，控制台用 document.getElementById 能取到每个关键元素。",
+                "necessity": "required",
+                "prerequisite_ids": [],
+                "learning_order": 1,
+                "selection": "learn"
+              },
+              {
+                "id": "k2",
+                "name": "JavaScript 按钮事件与状态切换",
+                "description": "用 click 监听器把按钮操作接到运行状态，并控制按钮可用性。",
+                "function_ids": [
+                  "f1"
+                ],
+                "why_needed": "开始、暂停、继续需要响应用户操作并改变运行状态。",
+                "learning_goal": "理解事件监听器绑定方式，以及用布尔状态记录是否运行并同步按钮显示。",
+                "technology": "JavaScript",
+                "project_task": "实现运行状态变量与开始/暂停/继续三个按钮的点击处理，按状态启用或禁用按钮。",
+                "concepts": [
+                  "addEventListener('click')",
+                  "布尔运行状态",
+                  "disabled 属性切换",
+                  "事件处理函数读取当前状态"
+                ],
+                "practice_check": "点击开始按钮状态变为运行、暂停可用；暂停后继续可用，控制台打印的状态与界面一致。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 2,
+                "selection": "learn"
+              },
+              {
+                "id": "k3",
+                "name": "基于时间戳的准确倒计时",
+                "description": "记录阶段结束时间戳，用 Date.now 差值计算剩余秒数，setInterval 只负责刷新。",
+                "function_ids": [
+                  "f2"
+                ],
+                "why_needed": "只靠每次减1在后台标签页会被节流，导致时间不准。",
+                "learning_goal": "理解用目标时间减当前时间得到剩余量，从而不受刷新间隔影响。",
+                "technology": "JavaScript",
+                "project_task": "实现剩余时间计算函数：保存结束时间戳，定时刷新时用结束时间减 Date.now() 得到剩余秒数并显示。",
+                "concepts": [
+                  "Date.now 时间戳",
+                  "结束时间减当前时间",
+                  "setInterval 仅作刷新触发",
+                  "Math.ceil 与剩余秒换算"
+                ],
+                "practice_check": "运行中把标签页切走约10秒再回来，剩余时间比之前减少约10秒且显示正确。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2"
+                ],
+                "learning_order": 3,
+                "selection": "learn"
+              },
+              {
+                "id": "k4",
+                "name": "mm:ss 时间格式化显示",
+                "description": "把剩余秒数转换为两位的分钟和秒数文本。",
+                "function_ids": [
+                  "f5"
+                ],
+                "why_needed": "用户需要可读的剩余时间，而不是裸秒数。",
+                "learning_goal": "掌握除法取整与补零，把秒数格式化为 mm:ss。",
+                "technology": "JavaScript",
+                "project_task": "编写格式化函数并接入刷新逻辑，让剩余时间以 24:59 这类两位格式显示。",
+                "concepts": [
+                  "Math.floor 取分钟",
+                  "取余得秒数",
+                  "padStart(2,'0') 补零",
+                  "模板字符串拼接"
+                ],
+                "practice_check": "输入 1499 秒显示 24:59，输入 5 秒显示 00:05。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k3"
+                ],
+                "learning_order": 4,
+                "selection": "learn"
+              },
+              {
+                "id": "k5",
+                "name": "阶段切换与完成计数逻辑",
+                "description": "到 0 时判断当前阶段并切换，专注结束才增加次数，切换后进入暂停等待用户开始。",
+                "function_ids": [
+                  "f3"
+                ],
+                "why_needed": "需求要求自动切换阶段、暂停等待并统计专注完成次数。",
+                "learning_goal": "理解用条件分支按阶段与剩余量决定下一阶段、计数与运行状态。",
+                "technology": "JavaScript",
+                "project_task": "在刷新逻辑中检测剩余为0，切换专注/休息阶段与时长、专注结束时次数加1，并把状态置为暂停。",
+                "concepts": [
+                  "if/else 判断当前阶段",
+                  "阶段时长常量 25/5 分钟",
+                  "完成次数累加条件",
+                  "到点后置为暂停态"
+                ],
+                "practice_check": "把专注时长临时改为几秒测试，到点后自动变休息并暂停，次数加1；休息到点回到专注且次数不变。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k3",
+                  "k4"
+                ],
+                "learning_order": 5,
+                "selection": "learn"
+              },
+              {
+                "id": "k6",
+                "name": "重置按钮与状态复原",
+                "description": "重置时清空计时、恢复专注阶段与初始暂停状态并清零次数。",
+                "function_ids": [
+                  "f4"
+                ],
+                "why_needed": "用户需要一键回到初始状态，且不能遗留旧定时器。",
+                "learning_goal": "理解重置要同时更新数据、界面与定时器，避免残留任务干扰。",
+                "technology": "JavaScript",
+                "project_task": "实现重置处理函数：清除已有 setInterval、恢复专注25分钟、次数归零并刷新全部显示。",
+                "concepts": [
+                  "clearInterval 清理定时器",
+                  "集中重绘界面函数",
+                  "初始状态常量复",
+                  "多项状态一键复原"
+                ],
+                "practice_check": "运行中点击重置，时间回到25:00、阶段为专注、次数为0，之后开始仍能正常计时。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k5"
+                ],
+                "learning_order": 6,
+                "selection": "learn"
+              },
+              {
+                "id": "k7",
+                "name": "CSS 窄屏布局与焦点可见样式",
+                "description": "用弹性布局和相对单位让界面在手机宽度可用，并让键盘焦点清晰可见。",
+                "function_ids": [
+                  "f5",
+                  "f6"
+                ],
+                "why_needed": "需求要求窄屏可用且键盘可操作，需要布局与可访问焦点样式。",
+                "learning_goal": "理解 flex 布局、可伸缩尺寸与 :focus 样式对窄屏和键盘操作的作用。",
+                "technology": "CSS",
+                "project_task": "为显示区与按钮区设置弹性布局，字号用相对单位，给按钮加明显的 :focus 轮廓，并限制内容不横向溢出。",
+                "concepts": [
+                  "flex 布局与换行",
+                  "相对字号与最大宽度",
+                  "按钮触摸尺寸",
+                  "button:focus 可见轮廓"
+                ],
+                "practice_check": "窗口缩到约360px宽时内容不溢出、按钮易点；按 Tab 时当前焦点按钮有明显轮廓。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 7,
+                "selection": "learn"
+              },
+              {
+                "id": "k8",
+                "name": "键盘操作按钮验证",
+                "description": "确认按钮为原生元素并能用 Tab、回车和空格触发，禁用时不可触发。",
+                "function_ids": [
+                  "f6"
+                ],
+                "why_needed": "需求要求键盘能操作所有按钮。",
+                "learning_goal": "理解原生 button 自带的键盘行为，以及 disabled 对键盘触发的影响。",
+                "technology": "JavaScript",
+                "project_task": "检查四个按钮为 button 元素，逐个用 Tab 聚焦并用回车/空格触发，验证禁用态不响应。",
+                "concepts": [
+                  "原生 button 的键盘激活",
+                  "Tab 焦点顺序",
+                  "disabled 阻止触发",
+                  "焦点可见与顺序检查"
+                ],
+                "practice_check": "全程不使用鼠标即可完成开始、暂停、继续、重置，且处于禁用状态的按钮按回车无反应。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2",
+                  "k7"
+                ],
+                "learning_order": 8,
+                "selection": "learn"
+              }
+            ]
+          },
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:36:25.223939+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:36:40.199145+00:00"
+        }
+      },
+      "expected_version": 1,
+      "expected_new_version": 2,
+      "analysis_submission_attempted": true,
+      "analysis_submitted_at": "2026-10-18T16:51:11.753508+00:00",
+      "model_event_start_line": 0,
+      "analysis_http_status": 202,
+      "analysis_submission_response": {
+        "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+        "original_input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:36:25.218819+00:00",
+        "updated_at": "2026-10-18T16:51:11.756357+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analyzing",
+            "created_at": "2026-10-18T16:51:11.756174+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:25.223939+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "离线番茄钟学习网页",
+            "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzing",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:51:11.756174+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:51:11.756191+00:00"
+        }
+      },
+      "last_observed_status": "analysis_failed",
+      "version": 2,
+      "persisted_view": {
+        "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+        "original_input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:36:25.218819+00:00",
+        "updated_at": "2026-10-18T16:51:42.216378+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analysis_failed",
+            "created_at": "2026-10-18T16:51:11.756174+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:25.223939+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "离线番茄钟学习网页",
+            "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analysis_failed",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": {
+            "code": "schema",
+            "message": "项目分析结构校验失败，有限修正仍未通过。原始输入已保留，请调整需求后重试。"
+          },
+          "warnings": [],
+          "created_at": "2026-10-18T16:51:11.756174+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:51:42.216220+00:00"
+        }
+      },
+      "completed_at": "2026-10-18T16:51:42.578684+00:00",
+      "client_analysis_elapsed_seconds": 30.825164,
+      "error": {
+        "code": "schema",
+        "message": "项目分析结构校验失败，有限修正仍未通过。原始输入已保留，请调整需求后重试。"
+      },
+      "observations": {
+        "analysis_available": false
+      },
+      "model_events": [
+        {
+          "event_type": "model_call_started",
+          "call_id": "aa8bdadf5d124b0297eb88b32400f2a2",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:51:11.762887+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "aa8bdadf5d124b0297eb88b32400f2a2",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:51:11.762887+00:00",
+          "finished_at": "2026-10-18T16:51:24.556950+00:00",
+          "elapsed_seconds": 12.794058,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "feb532a1333981a24e61c81054beb61a956378b84d6cfcf4c53417c57ba2546d",
+          "response_bytes": 9497,
+          "message_content_sha256": "5b9697d54c00ad892548e1f3b2c5462cdd5505f4628c308dff3167c4a1c83a73",
+          "message_content_chars": 4726,
+          "provider_response_id": "bab0a10a-5bc5-4edc-8de3-97ad12973d36",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3132,
+            "completion_tokens": 1968,
+            "total_tokens": 5100,
+            "prompt_cache_hit_tokens": 768,
+            "prompt_cache_miss_tokens": 2364,
+            "prompt_tokens_details": {
+              "cached_tokens": 768
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "901044215af849c4be5d61a11c3eeb2f",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T16:51:24.562402+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "901044215af849c4be5d61a11c3eeb2f",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T16:51:24.562402+00:00",
+          "finished_at": "2026-10-18T16:51:28.113434+00:00",
+          "elapsed_seconds": 3.551042,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "010537c675909adde91b4740cbaa2eafad7a7a441d23250e8c5ab1e6a07681da",
+          "response_bytes": 1120,
+          "message_content_sha256": "b6f34bea162684a829e0fb2ac0b3472269e9c66ec178b6312f038a6dde040300",
+          "message_content_chars": 310,
+          "provider_response_id": "70cef3a0-8da9-495f-b446-c9c0bf50b1da",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3385,
+            "completion_tokens": 147,
+            "total_tokens": 3532,
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 3385,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "b48f121ec7454f22bb617199a40e7e90",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:51:28.115441+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "b48f121ec7454f22bb617199a40e7e90",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:51:28.115441+00:00",
+          "finished_at": "2026-10-18T16:51:42.214504+00:00",
+          "elapsed_seconds": 14.099071,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "bcc569e8654cf8e489cabb0cb1ed31d17bb14d9095be2e8a4a0e28d9892f65e2",
+          "response_bytes": 10557,
+          "message_content_sha256": "9b3ebd5290b0f3c3f04f513f637429b7991d4191c2338bacb4d0d18e9fffe940",
+          "message_content_chars": 5219,
+          "provider_response_id": "2fa46537-5b5c-4d4d-85a0-20b2bbbf7614",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3285,
+            "completion_tokens": 2222,
+            "total_tokens": 5507,
+            "prompt_cache_hit_tokens": 3072,
+            "prompt_cache_miss_tokens": 213,
+            "prompt_tokens_details": {
+              "cached_tokens": 3072
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        }
+      ]
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "source_version": 1,
+      "input": {
+        "name": "共享单车出行 CSV 分析报告",
+        "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+        "student_level": "advanced",
+        "language": "zh",
+        "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "analyzed",
+      "preflight_view": {
+        "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+        "original_input": {
+          "name": "共享单车出行 CSV 分析报告",
+          "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+          "student_level": "advanced",
+          "language": "zh",
+          "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "共享单车出行 CSV 分析报告",
+          "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+          "student_level": "advanced",
+          "language": "zh",
+          "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 1,
+        "created_at": "2026-10-18T16:36:40.598004+00:00",
+        "updated_at": "2026-10-18T16:36:52.483332+00:00",
+        "versions": [
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:40.606116+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 1,
+          "input": {
+            "name": "共享单车出行 CSV 分析报告",
+            "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+            "student_level": "advanced",
+            "language": "zh",
+            "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzed",
+          "analysis": {
+            "scope": "在本机用 Python、pandas 与 Matplotlib 分析一份合成共享单车骑行 CSV：按 trip_id 去重并记录删除行数，解析时间，单独记录时间缺失或结束早于开始的无效行，对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数 Top10 条形图，导出清洗后 CSV、按小时汇总 CSV 与带标题和轴标签的 PNG。不做预测、仪表盘、地图、账号或云部署。",
+            "technical_plan": "使用 Python 脚本单文件流程：pandas.read_csv 读取并记录原始行数；按 trip_id 去重并用 len 差值记录删除行数；to_datetime 解析 start_time/end_time，将无法解析或缺失的行单独筛出记录；在可解析行中筛出 end_time < start_time 的无效行并单独记录；对有效行计算 (end_time-start_time).dt.total_seconds()/60 得时长；用 dt.hour 分组统计骑行次数并输出汇总 CSV；对 start_station 分组计数取前 10 用 plot.barh 绘制，设置 title/set_xlabel/set_ylabel，savefig 输出 PNG。各步骤的行数记录为可复核口径。所有依赖与库选择为可修改假设。",
+            "assumptions": [
+              "CSV 为本地文件，编码 utf-8，列名与需求一致。",
+              "时间解析假定为同城本地时间，不做时区转换。",
+              "Top10 按出发站骑行次数降序，不足 10 站则全部绘制。",
+              "技术选型（纯 pandas+Matplotlib 脚本，无额外可视化库）为可修改假设。",
+              "可安装 pandas 与 Matplotlib，无需联网或云服务。"
+            ],
+            "learner_profile": {
+              "student_level": "advanced",
+              "assumed_knowledge": [
+                "Python 函数与文件读写",
+                "基本调试方法",
+                "描述统计概念（计数、缺失值）",
+                "会用命令行运行脚本"
+              ],
+              "adjustment_note": "已按 advanced 处理，不安排通用 Python 入门内容，重点放在 pandas 时间清洗、分组与可复核口径；若实际不熟 pandas/Matplotlib API，可将级别改为 intermediate 或调整选学单元后重新生成。"
+            },
+            "functions": [
+              {
+                "id": "f1",
+                "name": "读取 CSV 与 trip_id 去重",
+                "original_requirement": "按trip_id去重并记录删行数",
+                "acceptance_criteria": "读入 CSV 并输出原始行数、去重后行数与删除行数，三者满足 原始=去重后+删除。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f2",
+                "name": "时间解析与无效行分类记录",
+                "original_requirement": "解析时间，单独记录缺失或结束早于开始的无效行",
+                "acceptance_criteria": "输出可解析行数、时间缺失/无法解析行数与结束早于开始行数，且各类互不重复计数。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f3",
+                "name": "计算分钟时长并导出清洗 CSV",
+                "original_requirement": "对有效行计算分钟时长；导出清洗后含时长的CSV",
+                "acceptance_criteria": "有效行含 duration_min 列且数值为正值，导出的 CSV 行数与记录的有效行数一致。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f4",
+                "name": "按出发小时汇总并导出",
+                "original_requirement": "按出发小时汇总骑行次数；导出按小时汇总CSV",
+                "acceptance_criteria": "生成 0–23 小时的骑行次数汇总 CSV，次数合计等于有效行数。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f5",
+                "name": "出发站 Top10 条形图导出 PNG",
+                "original_requirement": "绘制出发站次数Top10条形图；图要有标题、轴标签；导出 PNG",
+                "acceptance_criteria": "生成 PNG，含标题与轴标签，条形按次数降序且不超过 10 个站。",
+                "no_new_learning_reason": null
+              }
+            ],
+            "knowledge_points": [
+              {
+                "id": "k1",
+                "name": "pandas 读取 CSV 与行数口径记录",
+                "description": "用 read_csv 读入数据，记录原始行数作为后续清洗的基线。",
+                "function_ids": [
+                  "f1"
+                ],
+                "why_needed": "去重删除行数需要可复核的原始行数基线。",
+                "learning_goal": "理解如何用 shape/len 记录行数并在清洗各阶段对比。",
+                "technology": "pandas",
+                "project_task": "编写读取函数，打印并保存原始行数。",
+                "concepts": [
+                  "read_csv",
+                  "DataFrame.shape",
+                  "行数基线记录"
+                ],
+                "practice_check": "运行后输出原始行数并与文件行数一致。",
+                "necessity": "required",
+                "prerequisite_ids": [],
+                "learning_order": 1,
+                "selection": "learn"
+              },
+              {
+                "id": "k2",
+                "name": "pandas 去重与删除行数统计",
+                "description": "用 drop_duplicates 按 trip_id 去重并计算删除行数。",
+                "function_ids": [
+                  "f1"
+                ],
+                "why_needed": "需求要求去重且记录删行数。",
+                "learning_goal": "理解 subset 去重与行数差值的关系。",
+                "technology": "pandas",
+                "project_task": "实现按 trip_id 去重并输出删除行数。",
+                "concepts": [
+                  "drop_duplicates",
+                  "subset 参数",
+                  "行数差值"
+                ],
+                "practice_check": "构造含重复 trip_id 的小数据验证删除行数正确。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 2,
+                "selection": "learn"
+              },
+              {
+                "id": "k3",
+                "name": "pandas 时间列解析与缺失识别",
+                "description": "用 to_datetime 解析起止时间，识别缺失或无法解析的行。",
+                "function_ids": [
+                  "f2"
+                ],
+                "why_needed": "后续时长计算与小时汇总依赖有效时间。",
+                "learning_goal": "理解 errors 参数与 NaT 的含义和计数方式。",
+                "technology": "pandas",
+                "project_task": "解析两列时间并统计缺失/无法解析行数。",
+                "concepts": [
+                  "to_datetime",
+                  "errors='coerce'",
+                  "NaT",
+                  "isna 计数"
+                ],
+                "practice_check": "用包含空值和乱码时间的样本验证缺失计数准确。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2"
+                ],
+                "learning_order": 3,
+                "selection": "learn"
+              },
+              {
+                "id": "k4",
+                "name": "时间先后校验与无效行单独记录",
+                "description": "筛出 end_time 早于 start_time 的无效行并单独保存。",
+                "function_ids": [
+                  "f2"
+                ],
+                "why_needed": "需求要求单独记录结束早于开始的行。",
+                "learning_goal": "理解布尔掩码筛选并可分离有效与无效样本。",
+                "technology": "pandas",
+                "project_task": "用比较掩码拆分有效行和无效行并分别导出记录。",
+                "concepts": [
+                  "布尔掩码",
+                  "时间比较",
+                  "有效/无效拆分"
+                ],
+                "practice_check": "检查有效行与无效行数之和等于可解析行数。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k3"
+                ],
+                "learning_order": 4,
+                "selection": "learn"
+              },
+              {
+                "id": "k5",
+                "name": "pandas 时长计算与清洗结果导出",
+                "description": "用时间差计算分钟时长并导出含时长的 CSV。",
+                "function_ids": [
+                  "f3"
+                ],
+                "why_needed": "需求要求有效行含分钟时长并导出。",
+                "learning_goal": "理解 Timedelta 换算与 to_csv 写出。",
+                "technology": "pandas",
+                "project_task": "计算 duration_min 列并导出清洗 CSV。",
+                "concepts": [
+                  "时间差运算",
+                  "total_seconds",
+                  "to_csv"
+                ],
+                "practice_check": "导出的 CSV 含正数时长列，行数等于有效行数。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k4"
+                ],
+                "learning_order": 5,
+                "selection": "learn"
+              },
+              {
+                "id": "k6",
+                "name": "pandas 按出发小时分组汇总",
+                "description": "用 dt.hour 提取出发小时并按小时统计骑行次数。",
+                "function_ids": [
+                  "f4"
+                ],
+                "why_needed": "需求要求按出发小时汇总骑行次数。",
+                "learning_goal": "理解 groupby 与 size 的汇总口径及导出。",
+                "technology": "pandas",
+                "project_task": "生成 0–23 小时汇总表并导出 CSV。",
+                "concepts": [
+                  "dt.hour",
+                  "groupby",
+                  "size",
+                  "汇总导出"
+                ],
+                "practice_check": "汇总次数合计与有效行数一致且覆盖 0–23 小时。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k5"
+                ],
+                "learning_order": 6,
+                "selection": "learn"
+              },
+              {
+                "id": "k7",
+                "name": "出发站计数与 Top10 排序",
+                "description": "按 start_station 分组计数并取前 10 站。",
+                "function_ids": [
+                  "f5"
+                ],
+                "why_needed": "Top10 条形图需要正确的排序与截取。",
+                "learning_goal": "理解 value_counts 与 sort_values/head 的用法。",
+                "technology": "pandas",
+                "project_task": "生成出发站次数 Top10 序列。",
+                "concepts": [
+                  "value_counts",
+                  "sort_values",
+                  "head"
+                ],
+                "practice_check": "输出序列降序且长度不超过 10。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k6"
+                ],
+                "learning_order": 7,
+                "selection": "learn"
+              },
+              {
+                "id": "k8",
+                "name": "Matplotlib 条形图绘制与标签导出",
+                "description": "用 barh 绘制 Top10 并设置标题、轴标签，savefig 输出 PNG。",
+                "function_ids": [
+                  "f5"
+                ],
+                "why_needed": "需求要求带标题和轴标签的 PNG 图。",
+                "learning_goal": "理解面向对象的图形绘制与保存流程。",
+                "technology": "Matplotlib",
+                "project_task": "绘制 Top10 条形图并导出 PNG。",
+                "concepts": [
+                  "barh",
+                  "set_title",
+                  "set_xlabel/set_ylabel",
+                  "savefig"
+                ],
+                "practice_check": "PNG 中可见标题、轴标签和不超过 10 个条形。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k7"
+                ],
+                "learning_order": 8,
+                "selection": "learn"
+              }
+            ]
+          },
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:36:40.606116+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:36:52.483163+00:00"
+        }
+      },
+      "expected_version": 1,
+      "expected_new_version": 2,
+      "analysis_submission_attempted": true,
+      "analysis_submitted_at": "2026-10-18T16:51:42.583768+00:00",
+      "model_event_start_line": 6,
+      "analysis_http_status": 202,
+      "analysis_submission_response": {
+        "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+        "original_input": {
+          "name": "共享单车出行 CSV 分析报告",
+          "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+          "student_level": "advanced",
+          "language": "zh",
+          "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "共享单车出行 CSV 分析报告",
+          "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+          "student_level": "advanced",
+          "language": "zh",
+          "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:36:40.598004+00:00",
+        "updated_at": "2026-10-18T16:51:42.587362+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analyzing",
+            "created_at": "2026-10-18T16:51:42.587263+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:40.606116+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "共享单车出行 CSV 分析报告",
+            "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+            "student_level": "advanced",
+            "language": "zh",
+            "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzing",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:51:42.587263+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:51:42.587277+00:00"
+        }
+      },
+      "last_observed_status": "analyzed",
+      "version": 2,
+      "persisted_view": {
+        "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+        "original_input": {
+          "name": "共享单车出行 CSV 分析报告",
+          "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+          "student_level": "advanced",
+          "language": "zh",
+          "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "共享单车出行 CSV 分析报告",
+          "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+          "student_level": "advanced",
+          "language": "zh",
+          "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:36:40.598004+00:00",
+        "updated_at": "2026-10-18T16:52:15.034490+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:51:42.587263+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:40.606116+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "共享单车出行 CSV 分析报告",
+            "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+            "student_level": "advanced",
+            "language": "zh",
+            "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzed",
+          "analysis": {
+            "scope": "本机单脚本分析一份共享单车骑行 CSV：按 trip_id 去重并报告删除行数；解析同城本地时间；分别统计缺失时间与结束早于开始（严格早于，相等时间视为有效）的无效行；对有效行计算分钟时长；按出发小时汇总次数；绘制出发站 Top10 条形图；导出清洗后 CSV、按小时汇总 CSV 与带标题和轴标签的 PNG。不做预测、仪表盘、地图、账号或云部署。",
+            "technical_plan": "使用 Python + pandas + Matplotlib 的单一本地脚本，按阶段拆分函数：load_and_dedupe 读取 CSV 并保留首个 trip_id、返回删除行数；parse_and_split 用 pd.to_datetime 解析两列时间并统计解析失败行；split_invalid 单独收集缺失时间行与 end<start 行（end==start 合法）；add_duration 计算 (end-start) 的分钟数；hourly_summary 用 dt.hour 分组计数；station_bar 用 value_counts().head(10) 画横向条形图并设置标题与轴标签；最后统一写出三个产物文件并打印各项计数以便复核。所有口径（去重、无效判定、单位、Top10 顺序）在打印日志与 CSV 中保持一致。",
+            "assumptions": [
+              "合成 CSV 的时间两列使用 pandas 可解析的统一字符串格式（如 ISO），解析失败行按缺失处理并计数。",
+              "Top10 按出发站次数降序，取前 10 个站；不足 10 个时全部展示。",
+              "按出发小时汇总使用 0–23 的整点小时，不按日期拆分。",
+              "无效行在被去重之后、计算时长之前剔除；去重优先于无效判定。",
+              "图表与文件均输出到本机当前工作目录的指定文件名。",
+              "学生可修改学生阶段、项目背景与技术选择后重新生成。"
+            ],
+            "learner_profile": {
+              "student_level": "advanced",
+              "assumed_knowledge": [
+                "Python 函数定义与文件读写",
+                "基础调试与异常排查",
+                "描述性统计概念",
+                "尚未使用 pandas 处理出行数据",
+                "尚未接触 Matplotlib API"
+              ],
+              "adjustment_note": "按高级阶段设计：少讲通用语法，重点在时间口径、分组与可复核输出；但明确不假定已会 pandas/Matplotlib。学生可修改阶段、项目背景或技术选择后重新生成。"
+            },
+            "functions": [
+              {
+                "id": "f1",
+                "name": "读取 CSV 并按 trip_id 去重",
+                "original_requirement": "按trip_id去重并记录删行数",
+                "acceptance_criteria": "读入后保留每个 trip_id 的首条记录，打印并返回删除行数，使去重前后行数之差等于该数。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f2",
+                "name": "解析时间并区分无效行",
+                "original_requirement": "解析时间，单独记录缺失或结束早于开始的无效行",
+                "acceptance_criteria": "两列时间被解析为日期时间；缺失/解析失败行单独计数，严格 end<start 行单独计数并保留明细；end==start 不计入无效。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f3",
+                "name": "计算有效行分钟时长",
+                "original_requirement": "对有效行计算分钟时长",
+                "acceptance_criteria": "每行时长为 (end_time-start_time) 的分钟数，数据集中不含无效行，时长均 >=0 且 end==start 行时长为 0。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f4",
+                "name": "按出发小时汇总骑行次数",
+                "original_requirement": "按出发小时汇总骑行次数",
+                "acceptance_criteria": "输出 0–23 中实际出现的出发小时及各小时有效骑行次数，合计等于有效行数。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f5",
+                "name": "绘制出发站 Top10 条形图",
+                "original_requirement": "绘制出发站次数Top10条形图；图要有标题、轴标签",
+                "acceptance_criteria": "条形图展示次数最多的前 10 个出发站，降序排列，含非空标题与两轴标签，并可保存为 PNG。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f6",
+                "name": "导出清洗后 CSV、按小时 CSV 与 PNG",
+                "original_requirement": "导出清洗后含时长的CSV、按小时汇总CSV和PNG图",
+                "acceptance_criteria": "三个文件成功写出：清洗数据含时长列，按小时 CSV 含小时与次数，PNG 可正常打开且图形与统计一致。",
+                "no_new_learning_reason": null
+              }
+            ],
+            "knowledge_points": [
+              {
+                "id": "k1",
+                "name": "pandas 读取骑行 CSV 与列结构检查",
+                "description": "用 read_csv 载入合成骑行数据，检查列名、数据类型与行数，为后续清洗建立基线。",
+                "function_ids": [
+                  "f1",
+                  "f2"
+                ],
+                "why_needed": "后续去重、解析与计数都依赖正确载入和核对原始列。",
+                "learning_goal": "理解 read_csv 的返回结构，并能用 dtypes、head、shape 快速核对数据口径。",
+                "technology": "pandas",
+                "project_task": "编写读取函数，打印原始行数、列名与每列 dtype，并保存原始行数供删除行数计算。",
+                "concepts": [
+                  "pd.read_csv 参数",
+                  "DataFrame.shape 与 dtypes",
+                  "head() 预览",
+                  "原始行数基线"
+                ],
+                "practice_check": "运行后终端显示列名、原始行数和各列 dtype，与 CSV 表头一致。",
+                "necessity": "required",
+                "prerequisite_ids": [],
+                "learning_order": 1,
+                "selection": "learn"
+              },
+              {
+                "id": "k2",
+                "name": "pandas trip_id 去重与删除行数统计",
+                "description": "用 drop_duplicates 按 trip_id 保留首条记录，并用行数差计算删除行数。",
+                "function_ids": [
+                  "f1"
+                ],
+                "why_needed": "项目要求按 trip_id 去重并记录删除行数，这是可复核口径的第一步。",
+                "learning_goal": "理解 subset/keep 参数含义，并能用去重前后行数差验证删除行数。",
+                "technology": "pandas",
+                "project_task": "实现去重步骤，保留每个 trip_id 第一条记录，返回并打印删除行数。",
+                "concepts": [
+                  "drop_duplicates(subset, keep)",
+                  "nunique 与重复计数",
+                  "去重前后行数差",
+                  "顺序一致性"
+                ],
+                "practice_check": "去重前后行数之差等于打印的删除行数，且余下 trip_id 唯一。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 2,
+                "selection": "learn"
+              },
+              {
+                "id": "k3",
+                "name": "pandas 时间列解析与无效行分离",
+                "description": "用 to_datetime 解析起止时间，分别筛出缺失/解析失败行与严格 end<start 行并保留明细。",
+                "function_ids": [
+                  "f2"
+                ],
+                "why_needed": "需单独记录缺失或结束早于开始的无效行，且相等时间仍属有效，必须精确处理边界。",
+                "learning_goal": "理解 errors 处理与布尔筛选，能严格区分缺失、end<start 与 end==start 三种情况。",
+                "technology": "pandas",
+                "project_task": "解析两列时间，生成两个无效行子集并计数，同时验证 end==start 行不被误剔除。",
+                "concepts": [
+                  "pd.to_datetime(errors)",
+                  "isna 与缺失筛选",
+                  "布尔条件 end < start",
+                  "相等时间的边界判断"
+                ],
+                "practice_check": "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2"
+                ],
+                "learning_order": 3,
+                "selection": "learn"
+              },
+              {
+                "id": "k4",
+                "name": "pandas 时间差计算骑行分钟时长",
+                "description": "用日期时间相减得到 Timedelta，并转换为分钟数新增时长列。",
+                "function_ids": [
+                  "f3"
+                ],
+                "why_needed": "清洗后 CSV 必须含分钟时长，后续汇总依赖有效行的时长口径。",
+                "learning_goal": "理解日期时间差与单位换算，能确保无效行不参与时长计算且不出现负值。",
+                "technology": "pandas",
+                "project_task": "在有效行上计算时长分钟列，并检查最小值与 end==start 行的时长是否为 0。",
+                "concepts": [
+                  "日期时间相减得 Timedelta",
+                  "dt.total_seconds 换算分钟",
+                  "新增列赋值",
+                  "min 值校验"
+                ],
+                "practice_check": "清洗表新增时长列，最小值 >=0，end==start 行的时长恰为 0。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k3"
+                ],
+                "learning_order": 4,
+                "selection": "learn"
+              },
+              {
+                "id": "k5",
+                "name": "pandas 按出发小时分组计数",
+                "description": "从开始时间提取小时，用 value_counts 或 groupby 统计各出发小时的有效骑行次数。",
+                "function_ids": [
+                  "f4"
+                ],
+                "why_needed": "项目要求按出发小时汇总骑行次数并导出汇总 CSV。",
+                "learning_goal": "理解 dt.hour 提取与分组计数，能验证汇总次数合计等于有效行数。",
+                "technology": "pandas",
+                "project_task": "生成按小时汇总表，按小时排序并重命名列，导出前核对总次数。",
+                "concepts": [
+                  "dt.hour 提取",
+                  "groupby/size 与 value_counts",
+                  "汇总表排序",
+                  "合计一致性校验"
+                ],
+                "practice_check": "汇总表各小时次数之和等于有效行数，小时取值为 0–23。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k4"
+                ],
+                "learning_order": 5,
+                "selection": "learn"
+              },
+              {
+                "id": "k6",
+                "name": "Matplotlib 出发站 Top10 条形图",
+                "description": "用 value_counts().head(10) 准备数据，绘制横向条形图并设置标题与轴标签。",
+                "function_ids": [
+                  "f5"
+                ],
+                "why_needed": "项目要求绘制 Top10 条形图且图中需有标题和轴标签。",
+                "learning_goal": "理解 Matplotlib 图形对象与坐标轴设置，能控制排序方向并添加标题与两轴标签。",
+                "technology": "Matplotlib",
+                "project_task": "编写绘图函数，绘制出发站次数 Top10 条形图，设置标题、两轴标签并保存 PNG。",
+                "concepts": [
+                  "value_counts().head(10)",
+                  "barh 横向条形图",
+                  "set_title/set_xlabel/set_ylabel",
+                  "savefig 输出"
+                ],
+                "practice_check": "生成的 PNG 显示最多 10 个出发站、次数降序，标题与两轴标签齐全。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k5"
+                ],
+                "learning_order": 6,
+                "selection": "learn"
+              },
+              {
+                "id": "k7",
+                "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+                "description": "用 to_csv 导出清洗后含时长数据与按小时汇总表，并打印去重、无效、有效各计数形成复核日志。",
+                "function_ids": [
+                  "f6",
+                  "f1",
+                  "f2"
+                ],
+                "why_needed": "项目要求导出两个 CSV，并让清洗口径可复核。",
+                "learning_goal": "理解 to_csv 的 index 参数与计数链关系，能用日志核对各阶段行数是否自洽。",
+                "technology": "pandas",
+                "project_task": "实现导出函数，写出两个 CSV 并在终端打印去重删除数、两类无效数、有效行数与汇总合计数。",
+                "concepts": [
+                  "DataFrame.to_csv(index=False)",
+                  "计数链核对",
+                  "文件名约定",
+                  "输出目录检查"
+                ],
+                "practice_check": "两个 CSV 存在且可重新读取，日志中各计数满足：原始行数-删除数-无效数=有效行数。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k6"
+                ],
+                "learning_order": 7,
+                "selection": "learn"
+              }
+            ]
+          },
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:51:42.587263+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:52:15.034283+00:00"
+        }
+      },
+      "completed_at": "2026-10-18T16:52:15.129843+00:00",
+      "client_analysis_elapsed_seconds": 32.546064,
+      "error": null,
+      "observations": {
+        "analysis_available": true,
+        "input_preserved": true,
+        "schema_valid": true,
+        "quality_guard_issues": [],
+        "function_count": 6,
+        "unit_count": 7,
+        "soft_unit_range_4_to_8": true,
+        "technology_targets": [
+          {
+            "id": "k1",
+            "name": "pandas 读取骑行 CSV 与列结构检查",
+            "technology": "pandas"
+          },
+          {
+            "id": "k2",
+            "name": "pandas trip_id 去重与删除行数统计",
+            "technology": "pandas"
+          },
+          {
+            "id": "k3",
+            "name": "pandas 时间列解析与无效行分离",
+            "technology": "pandas"
+          },
+          {
+            "id": "k4",
+            "name": "pandas 时间差计算骑行分钟时长",
+            "technology": "pandas"
+          },
+          {
+            "id": "k5",
+            "name": "pandas 按出发小时分组计数",
+            "technology": "pandas"
+          },
+          {
+            "id": "k6",
+            "name": "Matplotlib 出发站 Top10 条形图",
+            "technology": "Matplotlib"
+          },
+          {
+            "id": "k7",
+            "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+            "technology": "pandas"
+          }
+        ],
+        "coverage_observations": [
+          {
+            "criterion": "载入与去重审计",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "时间解析与无效行",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "分钟时长",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "出发小时计数",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "出发站Top10与图标签",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "CSV及PNG导出",
+            "keyword_observed": true
+          }
+        ],
+        "latency_goal_met": true,
+        "latency_hard_limit_met": true,
+        "manual_review_required": true,
+        "manual_semantic_pass": null,
+        "analysis_sha256": "0a16fe3591e43e43ec4d5c992aa98866999ba96dabcd90bdfaae2eb6329164ca"
+      },
+      "model_events": [
+        {
+          "event_type": "model_call_started",
+          "call_id": "76c5314fc84d473e8fad9ed291151099",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:51:42.591666+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "76c5314fc84d473e8fad9ed291151099",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:51:42.591666+00:00",
+          "finished_at": "2026-10-18T16:51:57.111345+00:00",
+          "elapsed_seconds": 14.51968,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "46c464f3a67a3335bd42a01b226c3033a2cecef735c9bf2c5d71d311bc29b6f4",
+          "response_bytes": 11629,
+          "message_content_sha256": "6f7eec2f8791b7572b1b26e6ab71d390eb5353f7497c4b8eb55f5adad9d62ecc",
+          "message_content_chars": 6328,
+          "provider_response_id": "28f70e83-324d-4e41-9bb4-364665a9072f",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3183,
+            "completion_tokens": 2641,
+            "total_tokens": 5824,
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 1775,
+            "prompt_tokens_details": {
+              "cached_tokens": 1408
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "7f5c01cf09304ad6b07cd6dafc48e5cc",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:51:57.112704+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "7f5c01cf09304ad6b07cd6dafc48e5cc",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:51:57.112704+00:00",
+          "finished_at": "2026-10-18T16:52:11.245961+00:00",
+          "elapsed_seconds": 14.133267,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "4dd52da8b1e35f144c01e4631e16664dfd6abcd18251a2aa7d7e90fbda9fca76",
+          "response_bytes": 11193,
+          "message_content_sha256": "fdeaa7f7c44f20ee3146b755d7aaa825a29ded536e1aae4e872c43cf759f1382",
+          "message_content_chars": 6023,
+          "provider_response_id": "b819fba7-a88a-48b5-ac74-d519c6356249",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3226,
+            "completion_tokens": 2528,
+            "total_tokens": 5754,
+            "prompt_cache_hit_tokens": 3072,
+            "prompt_cache_miss_tokens": 154,
+            "prompt_tokens_details": {
+              "cached_tokens": 3072
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "583a6a742dd249a19d6495505a30e037",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T16:52:11.250341+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "583a6a742dd249a19d6495505a30e037",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T16:52:11.250341+00:00",
+          "finished_at": "2026-10-18T16:52:15.032488+00:00",
+          "elapsed_seconds": 3.782151,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "27ed8f3c16119006ce66cb5db1f0ffde1d92d03cadf1682487c1c218442ef316",
+          "response_bytes": 497,
+          "message_content_sha256": "443b357dbac0138b317ce5c502659832dbd0f5c86556345a672b0f1d3c1077e0",
+          "message_content_chars": 30,
+          "provider_response_id": "c02b25ac-8077-4d0e-8973-99b33008971c",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 4019,
+            "completion_tokens": 10,
+            "total_tokens": 4029,
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 3507,
+            "prompt_tokens_details": {
+              "cached_tokens": 512
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        }
+      ]
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "source_version": 1,
+      "input": {
+        "name": "Arduino LED 按钮反应时间小游戏",
+        "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "analysis_failed",
+      "preflight_view": {
+        "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+        "original_input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 1,
+        "created_at": "2026-10-18T16:36:53.029359+00:00",
+        "updated_at": "2026-10-18T16:37:08.416998+00:00",
+        "versions": [
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:53.036133+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 1,
+          "input": {
+            "name": "Arduino LED 按钮反应时间小游戏",
+            "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzed",
+          "analysis": {
+            "scope": "在 Arduino Uno 上制作一个低压反应时间小游戏：LED 经限流电阻接到数字引脚，按钮一端接 GND、使用 INPUT_PULLUP；串口监视器输出提示与结果。按一次按钮进入随机 2–5 秒等待，等待中提前按判为抢按；LED 亮后按按钮显示毫秒反应时间，之后可再按开始新一轮。全程非阻塞，可随时识别按钮，按钮需去抖且长按不可连续启动多轮。仅做低压直流接线，不接市电、电机或继电器。",
+            "technical_plan": "使用 Arduino Uno 与 Arduino 官方 IDE（C++ 风格 Arduino 框架）。按钮用 INPUT_PULLUP 接 GND，LED 串联限流电阻接数字输出引脚。程序采用 millis() 驱动的非阻塞状态机：IDLE、WAIT（随机 2–5 秒，期间检测抢按）、LIGHT（记录亮灯时刻）、RESULT/抢按提示，状态切换后回到可再按开始。按钮用固定时间窗去抖：仅在去抖后稳定状态从松开变按下时产生一次“按下事件”，并要求先松开才能再次触发新一轮（边沿+锁存），因此长按只算一次。串口使用 Serial.print/println 输出中文提示与结果。等待阶段只在 loop 中轮询 millis 与去抖采样，不使用 delay。",
+            "assumptions": [
+              "Arduino 官方 IDE 与 Serial 串口监视器（波特率取 9600）为默认选择，可改为其他兼容 IDE。",
+              "LED 接数字引脚并串约 220Ω 限流电阻；具体引脚号可视接线调整。",
+              "按钮为四脚或两脚轻触开关，使用内部上拉，故按下读到 LOW。",
+              "学生已完成过一次点亮 LED 并会烧录程序，但未做过按钮输入与状态机。",
+              "随机等待用 random() 生成，单位为毫秒。",
+              "去抖采用固定稳定时间窗（如 20–30ms）的自写实现，也可替换为成熟去抖库。"
+            ],
+            "learner_profile": {
+              "student_level": "beginner",
+              "assumed_knowledge": [
+                "会用 Arduino IDE 新建并上传程序",
+                "知道数字输出与 LED 串联限流电阻的基本接法",
+                "能在串口监视器看到串口输出"
+              ],
+              "adjustment_note": "按初学者路径安排：先安全接线与单输入输出，再学去抖、非阻塞计时与状态机，最后整合游戏。你可修改学生水平、项目背景或技术选择后重新生成分析。"
+            },
+            "functions": [
+              {
+                "id": "f1",
+                "name": "安全低压接线与 LED 极性",
+                "original_requirement": "说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+                "acceptance_criteria": "断电状态下完成接线：LED 长脚经限流电阻接数字引脚、短脚接 GND，按钮接内部上拉与 GND，所有器件共地；上电仅用 USB/低压直流。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f2",
+                "name": "按钮按下检测（INPUT_PULLUP）",
+                "original_requirement": "按钮使用INPUT_PULLUP接地",
+                "acceptance_criteria": "串口能正确显示按钮松开/按下状态，按下读到 LOW、松开读到 HIGH。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f3",
+                "name": "按钮去抖与单次按下事件",
+                "original_requirement": "按钮需要去抖，长按不能连续启动多轮",
+                "acceptance_criteria": "抖动或长按期间每次物理按压只产生一次按下事件，串口每次按压只打印一行计数。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f4",
+                "name": "非阻塞随机等待（2–5 秒）",
+                "original_requirement": "先随机等待2到5秒再亮LED…不能用delay阻塞随机等待",
+                "acceptance_criteria": "等待期间串口仍能持续识别按钮状态，LED 在随机 2000–5000ms 后点亮。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f5",
+                "name": "状态机游戏流程与抢按判定",
+                "original_requirement": "按一下开始一轮…等待期间若提前按下则判抢按，之后可按按钮开始新一轮",
+                "acceptance_criteria": "IDLE 按一下进入等待；等待中按下显示抢按提示并回到可重开状态；LED 亮后按下显示反应毫秒数并可再按开始新一轮。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f6",
+                "name": "串口提示与结果输出",
+                "original_requirement": "串口监视器显示提示和结果",
+                "acceptance_criteria": "串口依次输出开始提示、亮灯提示、反应毫秒数或抢按提示，格式清晰可读。",
+                "no_new_learning_reason": null
+              }
+            ],
+            "knowledge_points": [
+              {
+                "id": "k1",
+                "name": "Arduino 断电接线与 LED 限流电阻极性",
+                "description": "断电接线、识别 LED 长短脚与限流电阻，保证共地并只用低压电源。",
+                "function_ids": [
+                  "f1"
+                ],
+                "why_needed": "错误极性或无限流会损坏 LED，安全接线是后续所有步骤的前提。",
+                "learning_goal": "理解 LED 极性、限流电阻作用与共地概念，能安全搭建输出电路。",
+                "technology": "Arduino",
+                "project_task": "断电情况下把 LED 长脚串 220Ω 电阻接数字引脚，短脚接 GND，并检查所有器件共地后上电。",
+                "concepts": [
+                  "LED 长短脚与正负极",
+                  "限流电阻作用",
+                  "共地",
+                  "断电接线习惯"
+                ],
+                "practice_check": "上电后写一个最小程序让 LED 每秒亮灭一次且电阻不发热、LED 不损坏。",
+                "necessity": "required",
+                "prerequisite_ids": [],
+                "learning_order": 1,
+                "selection": "learn"
+              },
+              {
+                "id": "k2",
+                "name": "INPUT_PULLUP 按钮接法与串口读取",
+                "description": "按钮一端接 GND，引脚设 INPUT_PULLUP，用 digitalRead 读出按下为 LOW。",
+                "function_ids": [
+                  "f1",
+                  "f2"
+                ],
+                "why_needed": "游戏全部输入来自按钮，必须先能可靠读到按下动作。",
+                "learning_goal": "理解内部上拉与低电平有效的按键逻辑，能用串口观察按钮状态。",
+                "technology": "Arduino",
+                "project_task": "接好按钮并在 loop 中 digitalRead，串口打印“按下/松开”。",
+                "concepts": [
+                  "INPUT_PULLUP",
+                  "低电平有效",
+                  "digitalRead",
+                  "Serial.println 观察"
+                ],
+                "practice_check": "按住按钮串口持续显示“按下”，松开显示“松开”。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 2,
+                "selection": "learn"
+              },
+              {
+                "id": "k3",
+                "name": "按钮去抖与长按只触发一次",
+                "description": "用固定稳定时间窗判断状态变化，只在去抖后由松开变按下时产生一次事件，并要求松开后才能再触发。",
+                "function_ids": [
+                  "f3"
+                ],
+                "why_needed": "机械抖动会造成误判，长按若多次触发会连续开始多轮，违背需求。",
+                "learning_goal": "理解抖动现象与时间窗去抖，能实现单次按下事件而非比较原始电平。",
+                "technology": "Arduino",
+                "project_task": "实现 20–30ms 稳定窗去抖，长按只让计数器加一次，松开后才能再加。",
+                "concepts": [
+                  "触点抖动",
+                  "稳定时间窗去抖",
+                  "边沿+锁存",
+                  "事件计数"
+                ],
+                "practice_check": "快速连按与长按各测试，串口计数等于真实按压次数。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2"
+                ],
+                "learning_order": 3,
+                "selection": "learn"
+              },
+              {
+                "id": "k4",
+                "name": "millis 非阻塞计时与随机等待",
+                "description": "用 millis() 记录起点计算经过时间，用 random() 生成 2000–5000ms 等待，不使用 delay。",
+                "function_ids": [
+                  "f4"
+                ],
+                "why_needed": "延时会阻塞按钮识别，必须用非阻塞计时保持全程可用。",
+                "learning_goal": "掌握 millis 差值计时与随机数区间，理解为何不能用 delay 等待。",
+                "technology": "Arduino",
+                "project_task": "按下开始后记录时间，随机 2–5 秒到达时点亮 LED，等待期间仍采样按钮。",
+                "concepts": [
+                  "millis 差值",
+                  "random 区间",
+                  "非阻塞轮询",
+                  "无符号时间计算"
+                ],
+                "practice_check": "等待期间按按钮能被识别，LED 在 2–5 秒内随机点亮。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k3"
+                ],
+                "learning_order": 4,
+                "selection": "learn"
+              },
+              {
+                "id": "k5",
+                "name": "游戏状态机与抢按判定",
+                "description": "用状态变量划分空闲、等待、亮灯、结果，按状态决定按钮含义并判断是否抢按。",
+                "function_ids": [
+                  "f5"
+                ],
+                "why_needed": "“先等待后亮灯”和“抢按”需要明确的状态切换，否则按钮含义混乱。",
+                "learning_goal": "能用状态机组织交互流程，正确区分等待中提前按与亮灯后按压。",
+                "technology": "Arduino",
+                "project_task": "实现 IDLE→WAIT→LIGHT→RESULT 流程：等待中按下显示抢按，亮灯后按下计算反应时间，再按回到空闲。",
+                "concepts": [
+                  "状态变量",
+                  "状态转移条件",
+                  "抢按判定",
+                  "反应时间计算"
+                ],
+                "practice_check": "分别测试正常一轮与提前抢按，状态与提示都正确，并能再开新一轮。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k4"
+                ],
+                "learning_order": 5,
+                "selection": "learn"
+              },
+              {
+                "id": "k6",
+                "name": "串口格式化输出游戏提示",
+                "description": "用 Serial.print/println 输出开始、亮灯、反应毫秒与抢按提示，设置正确波特率。",
+                "function_ids": [
+                  "f6"
+                ],
+                "why_needed": "需求要求串口显示提示和结果，清晰输出才能验收。",
+                "learning_goal": "能在状态切换处输出对应提示并正确设置串口波特率。",
+                "technology": "Arduino",
+                "project_task": "在各状态输出中文提示，反应结果打印毫秒数，串口监视器 9600 波特率可读。",
+                "concepts": [
+                  "Serial.begin 波特率",
+                  "Serial.print/println",
+                  "变量拼接输出",
+                  "提示时机"
+                ],
+                "practice_check": "完整玩一轮后串口依次出现开始、亮灯、反应毫秒，抢按出现提示。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2"
+                ],
+                "learning_order": 6,
+                "selection": "learn"
+              }
+            ]
+          },
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:36:53.036133+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:37:08.416834+00:00"
+        }
+      },
+      "expected_version": 1,
+      "expected_new_version": 2,
+      "analysis_submission_attempted": true,
+      "analysis_submitted_at": "2026-10-18T16:52:15.139511+00:00",
+      "model_event_start_line": 12,
+      "analysis_http_status": 202,
+      "analysis_submission_response": {
+        "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+        "original_input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:36:53.029359+00:00",
+        "updated_at": "2026-10-18T16:52:15.143462+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analyzing",
+            "created_at": "2026-10-18T16:52:15.143368+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:53.036133+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "Arduino LED 按钮反应时间小游戏",
+            "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzing",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:52:15.143368+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:52:15.143380+00:00"
+        }
+      },
+      "last_observed_status": "analysis_failed",
+      "version": 2,
+      "persisted_view": {
+        "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+        "original_input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:36:53.029359+00:00",
+        "updated_at": "2026-10-18T16:52:45.146785+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analysis_failed",
+            "created_at": "2026-10-18T16:52:15.143368+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:53.036133+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "Arduino LED 按钮反应时间小游戏",
+            "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analysis_failed",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": {
+            "code": "quality",
+            "message": "学习单元的需求覆盖、行为约束或学习说明复核未通过，有限修正仍有问题。原始输入已保留，请检查需求和项目背景后重试。"
+          },
+          "warnings": [],
+          "created_at": "2026-10-18T16:52:15.143368+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:52:45.146683+00:00"
+        }
+      },
+      "completed_at": "2026-10-18T16:52:45.919186+00:00",
+      "client_analysis_elapsed_seconds": 30.779665,
+      "error": {
+        "code": "quality",
+        "message": "学习单元的需求覆盖、行为约束或学习说明复核未通过，有限修正仍有问题。原始输入已保留，请检查需求和项目背景后重试。"
+      },
+      "observations": {
+        "analysis_available": false
+      },
+      "model_events": [
+        {
+          "event_type": "model_call_started",
+          "call_id": "2f624968721d48bcaa1f69ecfe49bb6c",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:52:15.147604+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "2f624968721d48bcaa1f69ecfe49bb6c",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:52:15.147604+00:00",
+          "finished_at": "2026-10-18T16:52:29.849587+00:00",
+          "elapsed_seconds": 14.70199,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "514d7fa01bcd331b354d364c1db73e6517ccb0c8151278b74a805c59ea922f20",
+          "response_bytes": 11217,
+          "message_content_sha256": "003a2e4575894149d38055e3610d050a5eb1a549b35e4c6ba20ce8d9374e5f9e",
+          "message_content_chars": 5583,
+          "provider_response_id": "1afc8b1b-8832-4781-8dd1-a4e12e1f92bd",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3154,
+            "completion_tokens": 2607,
+            "total_tokens": 5761,
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 1746,
+            "prompt_tokens_details": {
+              "cached_tokens": 1408
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "395617d674af403484af5f48bbf62405",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:52:29.853444+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "395617d674af403484af5f48bbf62405",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:52:29.853444+00:00",
+          "finished_at": "2026-10-18T16:52:41.567579+00:00",
+          "elapsed_seconds": 11.714129,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "0830edb50e5e3e951cf63d9e07cfd822e79334d1fb051810f20382a55d20a95a",
+          "response_bytes": 9288,
+          "message_content_sha256": "9aa36dc4fedf00ae4da52f086b9fe6680c0cd3c45bb7bea57c10a7abcd450fdd",
+          "message_content_chars": 4632,
+          "provider_response_id": "1df0e41f-a231-40a9-b4e9-6bfaa0e937ca",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3199,
+            "completion_tokens": 2039,
+            "total_tokens": 5238,
+            "prompt_cache_hit_tokens": 2944,
+            "prompt_cache_miss_tokens": 255,
+            "prompt_tokens_details": {
+              "cached_tokens": 2944
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "54c2099ceb274190a4d6ba6a80bd5dc6",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T16:52:41.571902+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "54c2099ceb274190a4d6ba6a80bd5dc6",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T16:52:41.571902+00:00",
+          "finished_at": "2026-10-18T16:52:45.146037+00:00",
+          "elapsed_seconds": 3.574131,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "631a6f1831d2778c2090bc69d18d99a9de3e5dae0642d9e16d2d71dd2e5e9e4b",
+          "response_bytes": 1473,
+          "message_content_sha256": "689b95db26d24f3470005384dd9e677f917fa42c3806f01ce86c959b799c2f0e",
+          "message_content_chars": 551,
+          "provider_response_id": "e7b228e4-18eb-4e7c-a12f-682484efebf1",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3555,
+            "completion_tokens": 257,
+            "total_tokens": 3812,
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 3043,
+            "prompt_tokens_details": {
+              "cached_tokens": 512
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        }
+      ]
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "source_version": 1,
+      "input": {
+        "name": "pygame 单屏迷宫寻出口",
+        "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "analyzed",
+      "preflight_view": {
+        "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+        "original_input": {
+          "name": "pygame 单屏迷宫寻出口",
+          "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+          "student_level": "intermediate",
+          "language": "zh",
+          "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "pygame 单屏迷宫寻出口",
+          "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+          "student_level": "intermediate",
+          "language": "zh",
+          "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 1,
+        "created_at": "2026-10-18T16:37:09.350544+00:00",
+        "updated_at": "2026-10-18T16:37:22.455154+00:00",
+        "versions": [
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:37:09.357735+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 1,
+          "input": {
+            "name": "pygame 单屏迷宫寻出口",
+            "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+            "student_level": "intermediate",
+            "language": "zh",
+            "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzed",
+          "analysis": {
+            "scope": "用 Python + pygame 实现单屏 8×8 固定迷宫：二维列表表示墙/路/出口，方向键每次移动一格并阻挡穿墙与越界；到达出口显示胜利与本轮真实耗时；R 重置玩家与计时，Esc 或关窗退出；开始前与胜利后均保持主循环处理按键与关窗；帧率上限且计时基于真实时间。不含自动生成、寻路提示、敌人、联网、排行。",
+            "technical_plan": "技术栈固定为 Python + pygame（项目已明确）。用常量 GRID_SIZE=8、TILE 像素尺寸和带字符的二维列表迷宫数据；玩家用行列坐标。主循环用 clock.tick(上限帧率) 限帧，pygame.time.get_ticks() 记录开始与胜利时间计算真实耗时。状态用字符串变量机：'ready'（开始前）、'playing'、'won'；循环始终运行，只在 playing 时处理移动与计时，ready/won 仍处理按键与 QUIT 事件并绘制对应画面。方向键采用 KEYDOWN 事件实现单步移动，不用键盘按下状态轮询，避免持续连动。到达出口切到 'won' 并冻结耗时显示；R 重置玩家、start_time 与状态为 'playing'（或回到 ready，按需）。中间难度下省略基础语法教学，聚焦网格坐标、碰撞判定、事件边沿、状态机与真实计时。",
+            "assumptions": [
+              "技术栈按用户指定为 Python + pygame，不再引入其它库。",
+              "R 键在初始前与胜利后都用于开始/重置；具体是否回到 ready 状态由学生决定，两种都可接受。",
+              "玩家初始位置与出口坐标由学生在迷宫数据中直接指定。"
+            ],
+            "learner_profile": {
+              "student_level": "intermediate",
+              "assumed_knowledge": [
+                "Python 列表、循环与函数",
+                "pygame 创建窗口与基本绘图",
+                "键盘事件基础概念"
+              ],
+              "adjustment_note": "当前按 intermediate 设计，略过 Python 基础语法，专注网格坐标、阻挡判定、输入边沿、状态机与真实计时。若你实际背景不同，可在生成时修改学习阶段、项目范围或技术选择后重新生成。"
+            },
+            "functions": [
+              {
+                "id": "f1",
+                "name": "用二维列表表示迷宫并以网格绘制",
+                "original_requirement": "地图用二维列表表示墙、路和出口",
+                "acceptance_criteria": "迷宫为 8×8 二维列表，含墙、通路、出口三类格子，窗口按格子尺寸正确绘制整张地图与角色。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f2",
+                "name": "方向键单步移动与阻挡判定",
+                "original_requirement": "方向键每次按下移动一格，不能穿墙或越出地图",
+                "acceptance_criteria": "每次按方向键角色只移动一格；目标为墙或越界时位置不变，且无穿墙或出界现象。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f3",
+                "name": "到达出口显示胜利与真实耗时",
+                "original_requirement": "到达出口后显示胜利和本轮耗时；耗时依据真实时间而非帧数",
+                "acceptance_criteria": "到达出口后进入胜利画面显示本轮耗时；耗时由真实时间计算，改变帧率上限后数值仍正确。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f4",
+                "name": "R 重置玩家与计时",
+                "original_requirement": "按R可重置玩家位置与计时",
+                "acceptance_criteria": "按 R 后角色回到起点、计时清零重新开始，可再次游玩并再次判定胜利。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f5",
+                "name": "开始前与胜利后保持主循环响应按键与关窗",
+                "original_requirement": "开始前和胜利后都必须能处理按键与关窗",
+                "acceptance_criteria": "在开始前与胜利画面下，方向键/R 键与关闭窗口事件均被正常处理，程序不卡死也不直接退出。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f6",
+                "name": "Esc 或关闭窗口退出与帧率上限",
+                "original_requirement": "Esc或关闭窗口可退出；使用帧率上限",
+                "acceptance_criteria": "按 Esc 或点击关闭按钮可正常退出；主循环设置帧率上限，CPU 占用受控且移动不受帧率影响。",
+                "no_new_learning_reason": null
+              }
+            ],
+            "knowledge_points": [
+              {
+                "id": "k1",
+                "name": "pygame 二维列表网格绘制",
+                "description": "用 8×8 二维列表存墙/路/出口，按行列与格子尺寸换算像素坐标绘制整张地图。",
+                "function_ids": [
+                  "f1"
+                ],
+                "why_needed": "迷宫的数据结构和绘制是后续移动与判定基础。",
+                "learning_goal": "理解行列索引与像素坐标的映射关系，能用嵌套循环绘制网格。",
+                "technology": "pygame",
+                "project_task": "写迷宫的二维列表并循环绘制每格的墙与通路，玩家起始格单独着色。",
+                "concepts": [
+                  "二维列表行列索引",
+                  "格子尺寸与像素换算",
+                  "嵌套循环绘制矩形"
+                ],
+                "practice_check": "运行后可看到 8×8 完整迷宫，玩家起始格位置正确且无格子错位。",
+                "necessity": "required",
+                "prerequisite_ids": [],
+                "learning_order": 1,
+                "selection": "learn"
+              },
+              {
+                "id": "k2",
+                "name": "网格坐标与方向键单步移动",
+                "description": "用行列坐标表示玩家，KEYDOWN 事件中按方向键更新行列，实现每次一格移动。",
+                "function_ids": [
+                  "f2"
+                ],
+                "why_needed": "移动是本游戏的核心交互。",
+                "learning_goal": "掌握网格坐标的加减与键盘按下事件驱动的单步更新。",
+                "technology": "pygame",
+                "project_task": "在事件循环中处理方向键，更新玩家行列并重新绘制。",
+                "concepts": [
+                  "行列坐标 delta",
+                  "pygame KEYDOWN 事件",
+                  "事件驱动单步移动"
+                ],
+                "practice_check": "每按一次方向键角色恰好移动一格，不按不移动。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 2,
+                "selection": "learn"
+              },
+              {
+                "id": "k3",
+                "name": "网格越界与墙体阻挡判定",
+                "description": "移动前检查目标格是否越界或为墙，合法才更新坐标。",
+                "function_ids": [
+                  "f2"
+                ],
+                "why_needed": "保证不能穿墙或越出地图。",
+                "learning_goal": "学会在写入新坐标前做范围与地形检查的条件判断。",
+                "technology": "pygame",
+                "project_task": "为移动加目标格校验函数，墙与越界时保持原位置。",
+                "concepts": [
+                  "边界检查",
+                  "二维列表取值判断",
+                  "先判定后更新的顺序"
+                ],
+                "practice_check": "朝墙或地图边缘按方向键，角色位置保持不变。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2"
+                ],
+                "learning_order": 3,
+                "selection": "learn"
+              },
+              {
+                "id": "k4",
+                "name": "pygame.time 真实耗时计时",
+                "description": "用 get_ticks 记录开始时刻，胜利时用毫秒差换算秒数显示耗时。",
+                "function_ids": [
+                  "f3"
+                ],
+                "why_needed": "要求耗时基于真实时间而非帧数。",
+                "learning_goal": "区分帧计数与真实时间，掌握基于时间戳的耗时计算。",
+                "technology": "pygame",
+                "project_task": "开始游玩时记录时间戳，到达出口时计算并格式化显示耗时。",
+                "concepts": [
+                  "pygame.time.get_ticks 毫秒",
+                  "时间戳差值",
+                  "格式化秒数显示"
+                ],
+                "practice_check": "游戏内显示的耗时与秒表接近，且与帧率设置无关。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 4,
+                "selection": "learn"
+              },
+              {
+                "id": "k5",
+                "name": "游戏状态机 ready/playing/won 与主循环",
+                "description": "用状态变量区分开始前、游玩中、胜利后，主循环始终运行，按状态决定处理移动、计时与画面。",
+                "function_ids": [
+                  "f3",
+                  "f5"
+                ],
+                "why_needed": "开始前与胜利后都要响应按键与关窗，胜利后不能退出主循环。",
+                "learning_goal": "理解状态机如何组织主循环，保证胜利画面下仍处理事件与绘制。",
+                "technology": "pygame",
+                "project_task": "实现三态切换：到达出口切到 won 冻结计时，绘制胜利文本，仍处理事件。",
+                "concepts": [
+                  "状态变量与分支",
+                  "主循环持续运行",
+                  "胜利画面绘制与计时冻结"
+                ],
+                "practice_check": "到达出口显示胜利与耗时，此时按 R 或 Esc 仍有响应，程序不卡或不自动退出。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2",
+                  "k4"
+                ],
+                "learning_order": 5,
+                "selection": "learn"
+              },
+              {
+                "id": "k6",
+                "name": "R 重置位置与计时的状态复位",
+                "description": "按 R 时重置玩家坐标、开始时间戳与状态，使游戏可重新开始。",
+                "function_ids": [
+                  "f4",
+                  "f5"
+                ],
+                "why_needed": "要求胜利后按 R 重置玩家与计时。",
+                "learning_goal": "掌握在状态切换时集中复位相关的可变数据。",
+                "technology": "pygame",
+                "project_task": "写重置函数并在 KEYDOWN R 时调用，恢复起点与计时。",
+                "concepts": [
+                  "状态复位函数",
+                  "时间戳与坐标重设",
+                  "可重复游玩"
+                ],
+                "practice_check": "胜利后按 R 回到起点，耗时从零重新计时并能再次胜利。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k5"
+                ],
+                "learning_order": 6,
+                "selection": "learn"
+              },
+              {
+                "id": "k7",
+                "name": "pygame 退出事件与帧率上限",
+                "description": "处理 QUIT 与 Esc 退出，主循环用 clock.tick 限制帧率。",
+                "function_ids": [
+                  "f6"
+                ],
+                "why_needed": "需要正常退出并设置帧率上限。",
+                "learning_goal": "掌握事件驱动的退出流程与帧率上限控制。",
+                "technology": "pygame",
+                "project_task": "加入 QUIT 与 Esc 退出分支，设置 clock.tick 上限并验证移动不受帧率影响。",
+                "concepts": [
+                  "pygame.QUIT 事件",
+                  "pygame.K_ESCAPE 判断",
+                  "clock.tick 帧率上限"
+                ],
+                "practice_check": "Esc 与关闭按钮都能退出；调整帧率上限后角色移动速度不变。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2"
+                ],
+                "learning_order": 7,
+                "selection": "learn"
+              }
+            ]
+          },
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:37:09.357735+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:37:22.454981+00:00"
+        }
+      },
+      "expected_version": 1,
+      "expected_new_version": 2,
+      "analysis_submission_attempted": true,
+      "analysis_submitted_at": "2026-10-18T16:52:45.925297+00:00",
+      "model_event_start_line": 18,
+      "analysis_http_status": 202,
+      "analysis_submission_response": {
+        "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+        "original_input": {
+          "name": "pygame 单屏迷宫寻出口",
+          "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+          "student_level": "intermediate",
+          "language": "zh",
+          "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "pygame 单屏迷宫寻出口",
+          "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+          "student_level": "intermediate",
+          "language": "zh",
+          "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:37:09.350544+00:00",
+        "updated_at": "2026-10-18T16:52:45.929450+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analyzing",
+            "created_at": "2026-10-18T16:52:45.929361+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:37:09.357735+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "pygame 单屏迷宫寻出口",
+            "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+            "student_level": "intermediate",
+            "language": "zh",
+            "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzing",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:52:45.929361+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:52:45.929375+00:00"
+        }
+      },
+      "last_observed_status": "analyzed",
+      "version": 2,
+      "persisted_view": {
+        "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+        "original_input": {
+          "name": "pygame 单屏迷宫寻出口",
+          "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+          "student_level": "intermediate",
+          "language": "zh",
+          "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "pygame 单屏迷宫寻出口",
+          "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+          "student_level": "intermediate",
+          "language": "zh",
+          "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:37:09.350544+00:00",
+        "updated_at": "2026-10-18T16:53:12.057006+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:52:45.929361+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:37:09.357735+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "pygame 单屏迷宫寻出口",
+            "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+            "student_level": "intermediate",
+            "language": "zh",
+            "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzed",
+          "analysis": {
+            "scope": "用 Python + pygame 实现单屏 8×8 固定迷宫寻出口小游戏。地图用二维列表存墙/路/出口；方向键每次按下移动一格，不可穿墙或越界；到达出口显示胜利与本轮耗时；R 键重置玩家位置与计时；Esc 或关窗退出；开始前与胜利后都要持续处理按键和关窗；限帧，耗时按真实时间。不做自动生成迷宫、寻路提示、敌人、联网或排行。",
+            "technical_plan": "语言 Python，图形库 pygame（按上下文假定，可改）。核心结构：二维列表常量地图；玩家用 (col,row) 网格坐标；移动前先判断目标格是否合法（在 8×8 内且非墙）。主循环分状态：READY（开始前）、PLAYING、WIN，三态都执行 pygame.event 处理与绘制。移动用 KEYDOWN 事件边沿，不读持续按键状态。计时用 pygame.time.get_ticks() 或 time.monotonic()，按毫秒差值算真实耗时；clock.tick(60) 限帧。到达出口切 WIN 并记录结束时间；R 键在 READY/WIN 重置玩家与起点时间。循环不因胜利而终止，仅在 QUIT/Esc 时退出。",
+            "assumptions": [
+              "图形库选用 pygame，基于项目上下文，属于可修改假设。",
+              "地图为固定 8×8，玩家起点与出口位置在代码中写定。",
+              "网格坐标为 (列, 行)，左上角为 (0,0)，墙用 1、路用 0、出口用 2 表示（表示方式可改）。",
+              "耗时单位用秒并保留一位小数；显示为近似值也接受。",
+              "开始前按方向键不移动，仅 R/Esc 生效。"
+            ],
+            "learner_profile": {
+              "student_level": "intermediate",
+              "assumed_knowledge": [
+                "Python 列表、循环、函数",
+                "pygame 窗口创建与基本绘图",
+                "键盘事件的基本概念"
+              ],
+              "adjustment_note": "当前按中级阶段安排：语法基础从简，重点放在网格坐标、阻挡判定、输入边沿与时间/状态处理。你可修改学习阶段、项目上下文或技术选择后重新生成。"
+            },
+            "functions": [
+              {
+                "id": "f1",
+                "name": "8×8 二维列表地图与绘制",
+                "original_requirement": "地图用二维列表表示墙、路和出口",
+                "acceptance_criteria": "屏幕按 8×8 绘制出固定迷宫，墙/路/出口三格区分可见，地图数据来自一个二维列表。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f2",
+                "name": "方向键单格移动与穿墙/越界阻挡",
+                "original_requirement": "方向键每次按下移动一格，不能穿墙或越出地图",
+                "acceptance_criteria": "每次按键沿对应方向只移动一格；目标是墙或超出 0..7 范围时位置不变。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f3",
+                "name": "到达出口显示胜利与本轮耗时",
+                "original_requirement": "到达出口后显示胜利和本轮耗时",
+                "acceptance_criteria": "玩家进入出口格时画面显示胜利文字与本轮秒数。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f4",
+                "name": "R 键重置玩家位置与计时",
+                "original_requirement": "按R可重置玩家位置与计时",
+                "acceptance_criteria": "按 R 后玩家回到起点、计时归零并重新开始计时，游戏回到可玩状态。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f5",
+                "name": "Esc/关窗退出与开始前后持续响应",
+                "original_requirement": "Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗",
+                "acceptance_criteria": "在开始前、游戏中、胜利后按 Esc 或关闭窗口都能退出；胜利后仍能按 R 重置。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f6",
+                "name": "限帧与真实时间计时",
+                "original_requirement": "使用帧率上限，耗时依据真实时间而非帧数",
+                "acceptance_criteria": "主循环 tick 限帧；耗时由真实时钟差值计算，帧率变化不影响显示秒数。",
+                "no_new_learning_reason": null
+              }
+            ],
+            "knowledge_points": [
+              {
+                "id": "k1",
+                "name": "pygame 二维列表网格地图绘制",
+                "description": "用二维列表存墙/路/出口，按行列计算像素矩形并绘制成 8×8 迷宫。",
+                "function_ids": [
+                  "f1"
+                ],
+                "why_needed": "地图数据与绘制是所有移动和判定基础。",
+                "learning_goal": "理解行列索引如何映射到屏幕像素坐标并绘制格子。",
+                "technology": "pygame",
+                "project_task": "写出 8×8 二维列表地图并把每格画成方块。",
+                "concepts": [
+                  "二维列表行列索引",
+                  "行*格子尺寸求 y",
+                  "pygame.Rect 与 draw.rect",
+                  "墙/路/出口区分配色"
+                ],
+                "practice_check": "运行后能看到口径一致的 8×8 迷宫，墙、路、出口颜色可区分。",
+                "necessity": "required",
+                "prerequisite_ids": [],
+                "learning_order": 1,
+                "selection": "learn"
+              },
+              {
+                "id": "k2",
+                "name": "网格坐标的合法移动与阻挡判定",
+                "description": "玩家用 (列,行) 表示，移动前检查目标格在 0..7 内且非墙。",
+                "function_ids": [
+                  "f2"
+                ],
+                "why_needed": "防止穿墙和越界是核心规则。",
+                "learning_goal": "掌握在移动前用边界与非墙条件校验目标格。",
+                "technology": "pygame",
+                "project_task": "实现一次按方向键移动一格，并加边界与墙阻挡。",
+                "concepts": [
+                  "(col,row) 坐标增量",
+                  "0..7 边界检查",
+                  "按地图格取值判断墙",
+                  "移动前校验 target"
+                ],
+                "practice_check": "朝墙或地图边界按方向键时玩家不动，朝路移动一格。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 2,
+                "selection": "learn"
+              },
+              {
+                "id": "k3",
+                "name": "pygame 键盘输入边沿处理",
+                "description": "用 KEYDOWN 事件处理单次移动，避免持续按键导致每帧连走。",
+                "function_ids": [
+                  "f2"
+                ],
+                "why_needed": "需求是“每次按下移动一格”，需事件边沿而非持续状态。",
+                "learning_goal": "区分 KEYDOWN 边沿与 pygame.key.get_pressed 的持续状态。",
+                "technology": "pygame",
+                "project_task": "在事件循环中把方向键 KEYDOWN 映射为一次移动。",
+                "concepts": [
+                  "pygame.event 事件队列",
+                  "KEYDOWN 仅触发一次",
+                  "K_LEFT/K_RIGHT/K_UP/K_DOWN 映射",
+                  "与 get_pressed 持续状态的区别"
+                ],
+                "practice_check": "按住方向键不连发，每次重新按下只移动一格。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2"
+                ],
+                "learning_order": 3,
+                "selection": "learn"
+              },
+              {
+                "id": "k4",
+                "name": "pygame 游戏状态机与胜利判定",
+                "description": "用 READY/PLAYING/WIN 状态控制行为，玩家进入出口格切换到 WIN 并显示胜利文本。",
+                "function_ids": [
+                  "f3",
+                  "f5"
+                ],
+                "why_needed": "开始前、游戏中、胜利后行为不同且都要响应事件。",
+                "learning_goal": "理解状态变量如何决定移动是否生效和画面显示内容。",
+                "technology": "pygame",
+                "project_task": "加入状态变量，到达出口切 WIN 并绘制胜利文字。",
+                "concepts": [
+                  "状态变量 READY/PLAYING/WIN",
+                  "到达出口切状态",
+                  "按状态绘制提示文本",
+                  "pygame.font 渲染文字"
+                ],
+                "practice_check": "踩到出口格后画面出现“胜利”，且此前开始前不响应移动。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 4,
+                "selection": "learn"
+              },
+              {
+                "id": "k5",
+                "name": "pygame 持续主循环与 R/Esc 键处理",
+                "description": "主循环在所有状态都处理事件：ESC/QUIT 退出，R 重置玩家与计时；胜利后循环不终止。",
+                "function_ids": [
+                  "f4",
+                  "f5"
+                ],
+                "why_needed": "胜利后仍要能重置、关窗，不能结束整个循环。",
+                "learning_goal": "理解事件处理与游戏状态解耦，循环只由退出条件结束。",
+                "technology": "pygame",
+                "project_task": "把 R 与 ESC/QUIT 事件统一放到主循环事件处理中。",
+                "concepts": [
+                  "主循环不因胜利而中断",
+                  "pygame.QUIT 与 K_ESCAPE 退出",
+                  "K_r 触发重置",
+                  "按状态限制哪些键生效"
+                ],
+                "practice_check": "胜利后按 R 能回到可玩状态，按 Esc 或关窗可退出。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k4"
+                ],
+                "learning_order": 5,
+                "selection": "learn"
+              },
+              {
+                "id": "k6",
+                "name": "真实时间计时与限帧",
+                "description": "用 pygame.time.get_ticks() 差值计算耗时，clock.tick(60) 限帧。",
+                "function_ids": [
+                  "f3",
+                  "f4",
+                  "f6"
+                ],
+                "why_needed": "耗时必须按真实时间，不受帧数影响。",
+                "learning_goal": "理解真实时钟差值与帧计数的区别。",
+                "technology": "pygame",
+                "project_task": "记录起点 ticks，显示本轮秒数，并在 R 时重置起点。",
+                "concepts": [
+                  "pygame.time.get_ticks 毫秒",
+                  "结束时间减开始时间",
+                  "clock.tick 限帧",
+                  "重置时更新时间基准"
+                ],
+                "practice_check": "胜利界面秒数与实际游玩时间大致相符，改变帧率不影响读数。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k4"
+                ],
+                "learning_order": 6,
+                "selection": "learn"
+              }
+            ]
+          },
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:52:45.929361+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:53:12.056825+00:00"
+        }
+      },
+      "completed_at": "2026-10-18T16:53:12.556213+00:00",
+      "client_analysis_elapsed_seconds": 26.630905,
+      "error": null,
+      "observations": {
+        "analysis_available": true,
+        "input_preserved": true,
+        "schema_valid": true,
+        "quality_guard_issues": [],
+        "function_count": 6,
+        "unit_count": 6,
+        "soft_unit_range_4_to_8": true,
+        "technology_targets": [
+          {
+            "id": "k1",
+            "name": "pygame 二维列表网格地图绘制",
+            "technology": "pygame"
+          },
+          {
+            "id": "k2",
+            "name": "网格坐标的合法移动与阻挡判定",
+            "technology": "pygame"
+          },
+          {
+            "id": "k3",
+            "name": "pygame 键盘输入边沿处理",
+            "technology": "pygame"
+          },
+          {
+            "id": "k4",
+            "name": "pygame 游戏状态机与胜利判定",
+            "technology": "pygame"
+          },
+          {
+            "id": "k5",
+            "name": "pygame 持续主循环与 R/Esc 键处理",
+            "technology": "pygame"
+          },
+          {
+            "id": "k6",
+            "name": "真实时间计时与限帧",
+            "technology": "pygame"
+          }
+        ],
+        "coverage_observations": [
+          {
+            "criterion": "二维地图与网格映射",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "逐格输入与墙边界阻挡",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "出口胜利状态",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "真实耗时与帧率",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "R重置与退出事件",
+            "keyword_observed": true
+          }
+        ],
+        "latency_goal_met": true,
+        "latency_hard_limit_met": true,
+        "manual_review_required": true,
+        "manual_semantic_pass": null,
+        "analysis_sha256": "88631330503dbb9cc96177354725ede8de0ef7bd1ff98634d5650e74535b8f2a"
+      },
+      "model_events": [
+        {
+          "event_type": "model_call_started",
+          "call_id": "624a04a1b4e1489ea97f24329342bc6c",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:52:45.935186+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "624a04a1b4e1489ea97f24329342bc6c",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:52:45.935186+00:00",
+          "finished_at": "2026-10-18T16:52:57.936462+00:00",
+          "elapsed_seconds": 12.001258,
+          "outcome": "failed",
+          "failure_type": "JSONDecodeError",
+          "http_status": 200,
+          "response_body_sha256": "481808c533af837726f4369b63a3ace95f8c55bcb0d817dad1b883202080fcc9",
+          "response_bytes": 9378,
+          "message_content_sha256": "29354d18f06999edfa4b634392d45a6c1eda193a5b444b116e0a724c415b6050",
+          "message_content_chars": 4573,
+          "provider_response_id": "af368311-397a-400c-87ef-1df7563b9f94",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3149,
+            "completion_tokens": 2028,
+            "total_tokens": 5177,
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 1741,
+            "prompt_tokens_details": {
+              "cached_tokens": 1408
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "43eafd6160d240ab9b9819292e8d225e",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:52:57.937343+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "43eafd6160d240ab9b9819292e8d225e",
+          "task": "project_analysis",
+          "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+          "started_at": "2026-10-18T16:52:57.937343+00:00",
+          "finished_at": "2026-10-18T16:53:09.215131+00:00",
+          "elapsed_seconds": 11.277791,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "e0ffe5140a2b7a993ec62428ff1ea284d2e1f6d69258d61a472aba2223bf77ac",
+          "response_bytes": 9235,
+          "message_content_sha256": "55ccd08d58a354888337e243174b2991a634c9102ce66046a540d5ac44a185f4",
+          "message_content_chars": 4849,
+          "provider_response_id": "afa4edd1-bc3b-4ed6-a20a-d0088b34ca49",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3179,
+            "completion_tokens": 2109,
+            "total_tokens": 5288,
+            "prompt_cache_hit_tokens": 2944,
+            "prompt_cache_miss_tokens": 235,
+            "prompt_tokens_details": {
+              "cached_tokens": 2944
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "e99a81bfbacd46f8b0b576748b478991",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T16:53:09.218908+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "e99a81bfbacd46f8b0b576748b478991",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T16:53:09.218908+00:00",
+          "finished_at": "2026-10-18T16:53:12.055406+00:00",
+          "elapsed_seconds": 2.836501,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "e0aabcea70c4eb906220eb306d53cf523a731977285c1eac19ca49b46880a575",
+          "response_bytes": 493,
+          "message_content_sha256": "a0fa8a22fd9827960d72f426e1d631bcef123d963a47ea1da8af6ba8b1b59125",
+          "message_content_chars": 27,
+          "provider_response_id": "dda8253a-4e29-4017-ab75-9f874beee791",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3544,
+            "completion_tokens": 9,
+            "total_tokens": 3553,
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 3032,
+            "prompt_tokens_details": {
+              "cached_tokens": 512
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        }
+      ]
+    }
+  ],
+  "started_at": "2026-10-18T16:51:11.497921+00:00",
+  "base_url": "http://127.0.0.1:8000",
+  "max_analysis_submissions": 4,
+  "runtime_binding": {
+    "source": "evidence\\phase2\\runtime-v26-manifest.json",
+    "source_sha256": "aa4e31d4dae0ab52388eeac76931f7841060ffe9c12700b8acdc27593af8d0ec",
+    "pid": 21076,
+    "root": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2",
+    "port": 8000,
+    "files": {
+      "backend/app/analysis_review.py": "9140ea3c4dbf3f29b138007ff8f8dcc051450f677f827600d9ffbe1e3f85c4b2",
+      "backend/app/project_analysis.py": "dcbb189c5099df1d4f828ac66b6e573b7c15e94638764999dd8dbd22ab8d2dfc",
+      "backend/app/config.py": "66c2b2cffe88229d869a5071d6937aa355526188298dde544fcfa31541a9475a",
+      "backend/app/llm.py": "9a176a2a2e67cfb9d48baa5cb3b4db5c8a8b354857bb9b1304c94b45b63b453c"
+    }
+  },
+  "model_events_source": "evidence\\phase2\\runtime-v26\\model-events.jsonl",
+  "analysis_capability": {
+    "status": "configured",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+    "max_functions": 12,
+    "max_knowledge_points": 24,
+    "semantic_review_enabled": true,
+    "max_model_calls": 4,
+    "review_max_output_tokens": 1500,
+    "message": "项目分析使用独立提示词；内容需学生检查确认"
+  },
+  "summary": {
+    "analysis_api_submissions": 4,
+    "completed_analyses": 2,
+    "failed_analyses": 2,
+    "pending_or_unsubmitted": 0,
+    "generation_model_events": 8,
+    "review_model_events": 4,
+    "all_model_finished_events": 12,
+    "reported_completion_tokens": 18565,
+    "reported_total_tokens": 58575,
+    "model_calls_with_unknown_usage": 0,
+    "per_case_max4_model_events_met": true,
+    "configured_review_completion_cap": 1500,
+    "review_1500_completion_cap_observed": true,
+    "review_operator_completion_cap_observed": true,
+    "successful_cases_have_observed_review_call": true,
+    "search_submissions": 0,
+    "manual_semantic_acceptance_pass": null
+  },
+  "last_observed_at": "2026-10-18T16:53:12.563921+00:00"
+}

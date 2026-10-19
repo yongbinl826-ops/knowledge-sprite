@@ -8,7 +8,9 @@ COURSE = ORIGIN + "/course/PKU-1003479006"
 PAGE = b'<html><title>Public Python course</title><h1>Public Python course</h1><p>Course introduction available without signing in.</p></html>'
 
 
-@pytest.mark.parametrize("url", [COURSE, COURSE+"/", COURSE+"?tid=1470359605", ORIGIN+"/course/-1462245166", "https://icourse163.org/course/BIT-1001871002"])
+@pytest.mark.parametrize("url", [COURSE, COURSE+"/", COURSE+"?tid=1470359605", ORIGIN+"/course/-1462245166", "https://icourse163.org/course/BIT-1001871002",
+    COURSE+"?outVendor=zw_mooc_pclszykctj_", COURSE+"?tid=1470359605&outVendor=search",
+    ORIGIN+"/course/CAVTC--1206997801", ORIGIN+"/course/detail.htm?cid=1003479006"])
 @pytest.mark.asyncio
 async def test_public_html_reaches_robots_and_real_transport_without_credentials(url):
     calls = []

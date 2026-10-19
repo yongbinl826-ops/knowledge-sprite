@@ -315,7 +315,7 @@ def test_teaching_and_prerequisite_clauses_in_one_description_are_independent(po
 
 def test_api_live_configuration_failure_no_secrets(tmp_path):
     settings = Settings(database_path=str(tmp_path / "api.sqlite3"))
-    with TestClient(create_app(settings, fetcher=FakeFetcher())) as client:
+    with TestClient(create_app(settings, fetcher=FakeFetcher()), base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         assert client.get("/health").json()["mode"] == "live"
         caps = client.get("/api/capabilities").json()
         assert caps["search"]["status"] == "unconfigured"
@@ -438,12 +438,12 @@ async def test_unknown_promoted_only_after_page_type_and_catalog_ids_resolve(tmp
         async def enrich(self, candidate):
             return {"fetch_status": "fetched", "metadata_evidence_level": "catalog", "resource_type": "course",
                     "video_evidence_status": "page_verified", "catalog_kind": "video_playlist", "field_provenance": {
-                        "resource_type": {"evidence_id": "type-original", "source": "jsonld.@type"},
+                        "resource_type": {"evidence_id": "type-original", "source": "jsonld.@type", "url": candidate["url"]},
                         "video_evidence_status": {"evidence_id": "video-original", "source": "dom.video_catalog"},
                         "chapters": {"evidence_id": "chapter-original", "source": "jsonld.hasPart"}},
                     "chapters": [{"title": "Python 列表与字典", "url": candidate["url"] + "#chapter-1",
                                   "start_seconds": None, "end_seconds": None, "source": "jsonld.hasPart", "evidence_id": "chapter-original"}],
-                    "evidence": [{"evidence_id": "type-original", "kind": "page", "field": "resource_type", "source": "jsonld.@type", "text": "Course", "url": candidate["url"]},
+                    "evidence": [{"evidence_id": "type-original", "kind": "page", "field": "resource_type", "source": "jsonld.@type", "text": "course", "url": candidate["url"]},
                                  {"evidence_id": "video-original", "kind": "page", "field": "video_evidence_status", "source": "dom.video_catalog", "text": "page_verified", "url": candidate["url"]},
                                  {"evidence_id": "chapter-original", "kind": "catalog", "field": "chapters.0", "source": "jsonld.hasPart", "text": "Python 列表与字典", "url": candidate["url"]}]}
     svc = service(tmp_path, provider=UntypedSearch())

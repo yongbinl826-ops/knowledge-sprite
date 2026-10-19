@@ -167,16 +167,22 @@ def test_closed_mooc_offering_keeps_public_catalog_and_its_independent_access_no
     assert all(resource[field] is None for field in ("requires_login", "requires_payment", "requires_enrollment"))
 
 
-def test_mooc_different_lesson_titles_cannot_borrow_python_context_for_a_compound_point():
+def test_mooc_lessons_inherit_evidenced_course_context_but_do_not_merge_teaching():
     resource, evidence = resource_from_capture("mooc-dom.html", MOOC, with_closed_term=True)
     point = {"knowledge_point_id": "compound-catalog-point", "text": "Python 列表与字典"}
     assert has_course_page(resource, evidence) and has_learning_evidence(resource, evidence)
     observations = topic_observations(point, resource, evidence)
     lesson_rows = [row for row in observations if row["title"].startswith(("课程16 ", "课程17 "))]
-    # Both real catalog observations reached topic assessment. The rejection is
-    # not a missing adapter-source allowlist: each lesson lacks explicit Python
-    # context, and neither single lesson title claims both requested concepts.
+    # The course's own evidenced Python title supplies only the language. Each
+    # actual lesson still has to prove its topic, and they cannot become a single
+    # observation claiming complete teaching of both requested concepts.
     assert len(lesson_rows) == 2
     assert all("Python" not in row["title"] and row["evidence_ids"] for row in lesson_rows)
     assert not any("列表" in row["title"] and "字典" in row["title"] for row in lesson_rows)
-    assert rank_resource(point, resource, evidence, SearchRequest(knowledge_points=[point["text"]])) is None
+    assert all(row["body"] == "Python" for row in lesson_rows)
+    parent_id = resource["field_provenance"]["title"]["evidence_id"]
+    assert all(parent_id in row["evidence_ids"] and len(row["evidence_ids"]) == 2 for row in lesson_rows)
+    match = rank_resource(point, resource, evidence, SearchRequest(knowledge_points=[point["text"]]))
+    assert match["topic_evidence_status"] == "partial"
+    assert match["topic_evidence_reasons"][0]["code"] == "fragmented_compound_evidence"
+    assert "chapter_inherits_evidenced_parent_technical_context" in match["topic_match_rules"]

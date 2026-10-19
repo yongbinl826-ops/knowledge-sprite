@@ -1,14 +1,18 @@
 # 项目制知识引导小精灵
 
-输入任意 1–5 个知识点，真实搜索公开课程和视频，按知识点返回有来源证据的原平台链接。自动补全允许读取的公开元信息；无法读取、未知和结果不足都明确显示。
+最新严格验收得到 pandas 分组聚合 **2 门**、SQL 多表连接与分组查询 **2 门**、HTML 表单与网页结构 **4 门**合格 MOOC。其中自动发现并经当前规则重验的课程为 **1 / 2 / 4**；人工公开线索补库只新增 1 门 pandas 课程。默认每点 3 门目标仍未全部达到，pandas 和 SQL 各缺 1 门，不能据此宣布生产召回已达标。16 条当前有效的公开课程观察已导入本机预览库，入库数量不等于这三个知识点的合格数量。过程、额度、课程大纲和验收边界见 [每点三门目标验收](docs/mooc-target-three-20261019.md)。
 
-本轮仅实现资源发现。没有账号、教师后台、考试、积分、学习路径、视频下载或代理播放；没有预置课程库和静默演示回退。默认且唯一运行模式是 `live`。
+最终后端全量 **4,821 passed、26 subtests passed**；前端 mock E2E 9 项通过，真实预览三个屏宽只读检查 3 项通过。此前阶段的测试计数与失败记录保留在各自报告中，不并入本轮最终数。
 
-2026-10-17 当前本机模式：按用户的本地自用选择，`.env` 已设置 `BILIBILI_PUBLIC_METADATA=true`，仅匿名读取 B站 HTTPS 视频页和 robots；`.env.example` 仍默认 `false`。从当次 HTML 内的 JSON 字面量解析同一 BV 的课程名称、真实封面和分 P 目录，章节链接使用来源给出的 `page` 编号，不调用非公开 API、登录接口或媒体地址。此配置记录本机运行选择，不表示取得平台授权或作出法律判断。实现、真实请求及界面验收记录见 [B站本地读取验收](reports/bilibili-local-use-20261017/README.md)。
+已接入后台共享 MOOC 课程库、按缺口补搜与查询触发刷新，前端仍显示普通课程卡片，不显示共享库或刷新配置。每次复用重新验证当前知识点的完整大纲覆盖，默认每点目标 3 门；距最近成功查询满 24 小时后，下次检索即使已满 3 门，也在原预算内最多安排 1 次刷新查询，不增加查询槽。B站来源和 SSE 展示保留。Serper 已接入并完成免费额度真实对照，Key 仅存本地 `.env`。配置、刷新与证据有效期规则、历史对照结果见 [共享课程库与 Serper 验收](docs/shared-course-library-20261019.md)。
 
-前端仅展示课程封面、名称和至多两条相关章节；封面与课程名跳转课程页，有真实直链的章节可跳到对应分 P。完整目录保留在后台用于知识点匹配，不展示播放器或整份目录；“列表与元组”等复合知识点优先选择分别匹配不同子项的章节，没有依据的章节不补造。
+搜索支持扩大召回量及 SSE 增量显示：候选一到即进入校验，通过的课程陆续加入封面区。MOOC 现支持显式设置 `MOOC_SEARCH_ROUNDS=10`，前 6 轮查询保持兼容，新增 4 轮有界变体；默认仍为 2 轮，不会自动提高部署额度。本轮续跑使用每点 10 轮、每次最多 10 个候选，并继承实际请求总上限；B站来源与轮数保留。最终真实暖库复用显示 2 / 2 / 3 门，0 次新搜索、详情或 DNS 请求，首张课程在约 1.408 秒经生产 SSE 生成器出现；HTML 库有 4 门，任务按目标取 3 门。配置及历史扩量测试见 [扩量与流式显示](docs/streaming-recall-20261019.md)，最新验收见 [每点三门目标验收](docs/mooc-target-three-20261019.md)。
 
-2026-10-17 MOOC 修复：匿名公开 `/course/` HTML 已接入后台，直接解析当次响应自带的课程大纲，不执行页面脚本或调用学习接口；不再把许可范围未确认当成明确禁止。修复内嵌大纲遗漏和100项截断，超过500项则明确标注上限，不截断冒充完整目录。真实任务、逐项响应核对和页面截图见 [MOOC公开课程读取验收](reports/mooc-public-read-20261017/README.md)。下面保留的旧阶段报告按各自日期与范围读取，不能代替当前状态。
+当前按用户最新要求提供简洁三步流程：输入项目 → 选择、修改和排序专业知识点 → 点击左侧知识点浏览右侧视频封面。B站与 MOOC 并行检索；标题仅保留在封面链接的无障碍名称中。
+
+新生成不再要求昨日新增的项目任务、技能与练习拆解，也不调用额外教学评审。历史数据与版本保留，检索只使用确认的专业名称。
+
+本轮行为、证据边界、运行和回滚见 [当前流程说明](docs/current-user-flow.md)，本轮最终结果见 [验收记录](docs/current-user-acceptance.md)。后文及旧阶段报告保留历史信息，其中教学覆盖评分和旧测试计数不能代替本轮验收。
 
 ## 快速启动（Windows / PowerShell）
 
@@ -29,14 +33,14 @@ cd D:\项目制知识引导小精灵
 跨平台等效步骤：复制 `.env.example` 到 `.env`；复制 `deploy/searxng/settings.example.yml` 到 `settings.yml` 并用随机值替换 secret；运行 `docker compose up -d searxng`、`uv sync --frozen`、在 `frontend` 运行 `npm ci && npm run build`，最后在根目录运行：
 
 ```text
-uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1
+uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
 ```
 
 ## 开发启动
 
 ```powershell
 uv sync --frozen
-uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1
+uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
 # 另开终端：
 cd frontend
 npm ci
@@ -46,6 +50,14 @@ npm run dev -- --host 127.0.0.1
 Vite 使用 `http://127.0.0.1:5173`，`/api` 代理到 `8000`。生产构建通过 FastAPI 同源提供，无需同时运行 Vite。
 
 ## 接入搜索与可选模型
+
+### 按平台并行检索与动态预算
+
+设置 `PARALLEL_PLATFORM_SEARCH=true` 后，显式选中的平台各有独立检索队列，受现有全局并发和搜索服务请求间隔约束。先对每个知识点在每个平台发起一次查询，所有首轮完成后再补搜或重试；多批次项目先完成全部批次的首轮，再恢复各批的补充阶段。未选择平台的直接搜索继续使用通用检索。
+
+每批搜索额度为 `2 × 知识点数 × 选中平台数`，包含等额的首轮与补搜/重试额度。仅选 B站和中国大学 MOOC 时，5 个知识点预留20次、7个知识点分成5+2两批预留20+8次；还选学堂在线时也为它保留同等份额。`MAX_SEARCH_REQUESTS=30` 是单批安全上限，而不是每批必须用满的额度；上限不足会明确拒绝提交，不会静默丢弃平台或知识点。项目总额度按各批实际所需额度相加，详情页与总时限仍使用各自预算。
+
+重试不会占用其他平台或后续知识点的首轮额度。平台任务共用同一搜索服务的访问拒绝、Retry-After、引擎暂停和请求节流状态；并行不绕过这些限制。查询已安排或已发送不代表一定存在相关课程，失败、空结果与缓存命中分别记录。设置 `PARALLEL_PLATFORM_SEARCH=false` 可继续使用原调度策略。
 
 ### SearXNG（默认，无需付费 API）
 
@@ -78,7 +90,27 @@ HTTP 403 常见于 JSON 未开启或实例访问限制。SearXNG 能启动不代
 
 ### Tavily（可选）
 
-仅在已有 Key 且主动选择后启用：`SEARCH_PROVIDER=tavily`、`TAVILY_API_KEY=你的服务端密钥`。不会创建账号、购买额度或从 SearXNG 自动切换到 Tavily。调用官方 HTTP Search API，统一转换为候选结构；无 Key 返回明确配置错误。本次若未配置 Key，只有离线解析/故障测试，不能称为已联网验证。
+Tavily 仅在全局或指定平台主动选择后启用。调用官方 HTTP Search API，固定 `search_depth=basic`、`auto_parameters=false`，关闭答案生成和原文提取；域名限制同时由 API 和本地校验。支持显式开启官方免费、限量的免 Key 模式，也可配置账户 Key；没有配置任何访问模式时返回明确配置错误。不会创建账号、购买额度或自动切换访问模式。
+
+保留 B站原有 SearXNG 搜索、仅将中国大学 MOOC 切到 Tavily，可在服务端 `.env` 设置：
+
+```dotenv
+SEARCH_PROVIDER=searxng
+BILIBILI_SEARCH_PROVIDER=searxng
+MOOC_SEARCH_PROVIDER=tavily
+TAVILY_ALLOW_KEYLESS=true
+TAVILY_API_KEY=
+```
+
+平台覆盖项留空时继承 `SEARCH_PROVIDER`，兼容原配置；`official_sitemap` 仍是 MIT-only，不能混用平台覆盖项。修改后重启当前后端进程。来源错误、请求追踪和缓存按实际来源隔离，MOOC 故障不触发旧搜索来源回退，也不丢弃 B站结果。
+
+免 Key 模式发送官方 `X-Tavily-Access-Mode: keyless` 标记，具体上限由服务决定，适合少量试用。需要更高额度时，在 [Tavily 控制台](https://app.tavily.com/)申请免费 Key，保留免费计划、不启用按量付费，在本地 `.env` 填入 `TAVILY_API_KEY`，并将 `TAVILY_ALLOW_KEYLESS=false`。Key 不要放进前端、聊天或 Git。若同时设置 Key 和免 Key 开关，会明确使用 Key 的账户额度，绝不同时发送两种认证头。
+
+官方文档目前列出免费账户每月 1,000 积分、基础搜索每次 1 积分。实际账户剩余额度不能仅从本地配置推断；遇到限流、权限或额度错误停止来源，不自动升级套餐。配置就绪和离线测试通过不代表实际 MOOC 召回通过。依据：[免 Key 接口](https://docs.tavily.com/documentation/keyless)、[免费额度](https://docs.tavily.com/documentation/api-credits)。
+
+2026-10-19 已完成免费免 Key 实测：固定 20 题搜索均成功；真实双平台联调得到 B站 18 条、MOOC 11 条发现候选，其中 1 门 MOOC 取得 43 条大纲。候选发现不等于教学适配或可播放，详情预算耗尽的联调任务为 `partial`。完整结果、证据、复现命令和 Key 配置见 [MOOC 召回验收报告](docs/tavily-mooc-recall-20261019.md)。
+
+同日新增 MOOC 相关性与大纲门槛：当前简洁发现模式只将自身大纲支持全部所选子项的 MOOC 放入主推荐，搜索候选和部分覆盖保留诊断；不改变 B站展示、不新增模型调用。最新真实联调在同一批观测上将旧规则可展示的 14 条 MOOC 筛为 1 条大纲确认课程，B站保留 32 条发现结果。免 Key 第 6 次请求遇到 429 后停止该来源，后续 2 次 MOOC 查询没有发出。具体口径、离线历史误召回复核和限制见 [MOOC 相关性验收报告](docs/mooc-relevance-20261019.md)。
 
 ### MIT 官方站点地图发现（可选）
 
@@ -90,7 +122,9 @@ HTTP 403 常见于 JSON 未开启或实例访问限制。SearXNG 能启动不代
 
 ### LLM（可选）
 
-默认 `LLM_PROVIDER=none`，规则查询与排序完整可用。需要时设置 `LLM_PROVIDER=openai_compatible`、`LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL`，接入支持 JSON Chat Completions 的可信服务。模型仅返回关键词、候选 ID、顺序和已有证据 ID；结构、数量、ID 归属均校验，任何新 URL 或非法结构使本次模型结果失效，并回退规则。网页和摘要通过不可信数据字段传入，不提供执行工具或配置能力。
+默认 `LLM_PROVIDER=none`，直接搜索的规则查询与排序可用；项目自动分析需要配置模型。需要时设置 `LLM_PROVIDER=openai_compatible`、`LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL`，接入支持 JSON Chat Completions 的可信服务。直接搜索可做有界关键词扩展与排序；项目明确技能模式不做关键词扩展，每任务最多两次来源与技能判断、一次正向声明复核。模型只能引用已有资源、技能和逐字证据，不能生成视频链接、目录或时刻。错误与未知不伪装通过；网页和摘要是不可信数据，不提供执行工具或配置能力。读取历史结果不会调用模型。
+
+模型关键词满足技术名与安全检查时，首轮保留原始知识点，第二轮使用简洁检索短语；没有合格短语则沿用原词。请求预算优先覆盖每个知识点的原词和变体，余量才用于可选来源补充。平台查询、技术版本、最终相关性判断仍使用原知识点，不把扩展词当作课程覆盖证据。备用来源在预算耗尽前已经返回的候选会保留，并明确记录查询部分完成，不增加预算或伪造剩余结果。
 
 没有对每一种兼容模型服务做实测；服务的实际模型名、JSON 支持与费用由配置者确认。未配置模型不妨碍真实搜索。
 
@@ -189,6 +223,8 @@ GET /health
 实际进入执行后结束/取消的任务详情包含 `fetch_diagnostics`：本任务的采集事件计数差、UTC 时间和最近 512 条脱敏事件；排队时即取消的任务可能没有此字段。HTTP 返回码、网络错误类型与 robots 路径可审计，截断单独标记；这些计数只覆盖目标页面与 robots，DoH 请求另属解析基础设施，未计入该字段。详情资源数不能当作实际 HTTP 次数。离线生命周期、幂等、缓存与顺序隔离的测试记录见 [后端生命周期报告](reports/completion-20261013/backend-lifecycle.md)。
 
 ## 测试与真实验收
+
+项目知识点缺课的搜索词、预算和证据匹配诊断，以及使用独立空数据库进行的真实复测，见 [2026-10-18 七点缺课诊断](reports/project-search-diagnosis-20261018/README.md)。各轮结果独立保存，部分匹配和上游超时不会计为完整教学覆盖。
 
 ```powershell
 uv run --frozen pytest

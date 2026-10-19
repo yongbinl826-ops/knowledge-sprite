@@ -1,0 +1,103 @@
+{
+  "checked_at": "2026-10-17T08:17:29.961333+00:00",
+  "source_read_only": true,
+  "source": "D:\\项目制知识引导小精灵\\data\\discovery.sqlite3",
+  "copy": "D:\\项目制知识引导小精灵\\reports\\project-analysis-v1-20261017\\migration\\migrated-copy.sqlite3",
+  "original_tables_unchanged": true,
+  "integrity_check": "ok",
+  "foreign_key_errors": [],
+  "before": {
+    "cache": {
+      "schema": "CREATE TABLE cache(key TEXT PRIMARY KEY, kind TEXT NOT NULL, created REAL NOT NULL, expires REAL NOT NULL, data TEXT NOT NULL)",
+      "rows": 482,
+      "rows_sha256": "d5c0d2e0e303b748de3a37b4fb179ae66c0a7b9c3bb2114a2bff6f8476baa8b1"
+    },
+    "evidence": {
+      "schema": "CREATE TABLE evidence(id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id), resource_id TEXT NOT NULL, knowledge_point_id TEXT, data TEXT NOT NULL)",
+      "rows": 1761,
+      "rows_sha256": "8a1b4dcd935cee3cac91c9e02eafea8180c21c50b12fc2ff982f686d5b1d069e"
+    },
+    "idempotency_keys": {
+      "schema": "CREATE TABLE idempotency_keys(key TEXT PRIMARY KEY, request_hash TEXT NOT NULL, job_id TEXT NOT NULL REFERENCES jobs(id))",
+      "rows": 2,
+      "rows_sha256": "d9e75c46e45232f82eba6e00ea96a194ed926daa9a59e94ec5063fea9647dea4"
+    },
+    "jobs": {
+      "schema": "CREATE TABLE jobs(id TEXT PRIMARY KEY, status TEXT NOT NULL, data TEXT NOT NULL)",
+      "rows": 35,
+      "rows_sha256": "7ad773f006d85901748dcd2a6efbb389f51ff81d1aaf40d4a6ee5a28dddf3d49"
+    },
+    "knowledge_points": {
+      "schema": "CREATE TABLE knowledge_points(id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id), text TEXT NOT NULL)",
+      "rows": 70,
+      "rows_sha256": "068945a490b1998d83503763e0b97961e10016cd2e65b8637313617a89789880"
+    },
+    "matches": {
+      "schema": "CREATE TABLE matches(job_id TEXT NOT NULL REFERENCES jobs(id), knowledge_point_id TEXT NOT NULL REFERENCES knowledge_points(id), resource_id TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(job_id,knowledge_point_id,resource_id))",
+      "rows": 408,
+      "rows_sha256": "cb71a8daa3076c05fc6003ba7ec49cadd373ed80c53d8949ca5e38f437d295cd"
+    },
+    "resources": {
+      "schema": "CREATE TABLE resources(id TEXT NOT NULL, job_id TEXT NOT NULL REFERENCES jobs(id), canonical_url TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(job_id,id), UNIQUE(job_id,canonical_url))",
+      "rows": 925,
+      "rows_sha256": "d765d93d6d3a07117daa136b6098fb881ac3728c2bdb24a025adc539eea05c65"
+    },
+    "search_attempts": {
+      "schema": "CREATE TABLE search_attempts(id INTEGER PRIMARY KEY AUTOINCREMENT, job_id TEXT NOT NULL REFERENCES jobs(id), data TEXT NOT NULL)",
+      "rows": 262,
+      "rows_sha256": "b30815948ac033a97d6c007429f33b9cd31574cdda6cdc15670282059a2f8a4a"
+    }
+  },
+  "after": {
+    "cache": {
+      "schema": "CREATE TABLE cache(key TEXT PRIMARY KEY, kind TEXT NOT NULL, created REAL NOT NULL, expires REAL NOT NULL, data TEXT NOT NULL)",
+      "rows": 482,
+      "rows_sha256": "d5c0d2e0e303b748de3a37b4fb179ae66c0a7b9c3bb2114a2bff6f8476baa8b1"
+    },
+    "evidence": {
+      "schema": "CREATE TABLE evidence(id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id), resource_id TEXT NOT NULL, knowledge_point_id TEXT, data TEXT NOT NULL)",
+      "rows": 1761,
+      "rows_sha256": "8a1b4dcd935cee3cac91c9e02eafea8180c21c50b12fc2ff982f686d5b1d069e"
+    },
+    "idempotency_keys": {
+      "schema": "CREATE TABLE idempotency_keys(key TEXT PRIMARY KEY, request_hash TEXT NOT NULL, job_id TEXT NOT NULL REFERENCES jobs(id))",
+      "rows": 2,
+      "rows_sha256": "d9e75c46e45232f82eba6e00ea96a194ed926daa9a59e94ec5063fea9647dea4"
+    },
+    "jobs": {
+      "schema": "CREATE TABLE jobs(id TEXT PRIMARY KEY, status TEXT NOT NULL, data TEXT NOT NULL)",
+      "rows": 35,
+      "rows_sha256": "7ad773f006d85901748dcd2a6efbb389f51ff81d1aaf40d4a6ee5a28dddf3d49"
+    },
+    "knowledge_points": {
+      "schema": "CREATE TABLE knowledge_points(id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id), text TEXT NOT NULL)",
+      "rows": 70,
+      "rows_sha256": "068945a490b1998d83503763e0b97961e10016cd2e65b8637313617a89789880"
+    },
+    "matches": {
+      "schema": "CREATE TABLE matches(job_id TEXT NOT NULL REFERENCES jobs(id), knowledge_point_id TEXT NOT NULL REFERENCES knowledge_points(id), resource_id TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(job_id,knowledge_point_id,resource_id))",
+      "rows": 408,
+      "rows_sha256": "cb71a8daa3076c05fc6003ba7ec49cadd373ed80c53d8949ca5e38f437d295cd"
+    },
+    "resources": {
+      "schema": "CREATE TABLE resources(id TEXT NOT NULL, job_id TEXT NOT NULL REFERENCES jobs(id), canonical_url TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(job_id,id), UNIQUE(job_id,canonical_url))",
+      "rows": 925,
+      "rows_sha256": "d765d93d6d3a07117daa136b6098fb881ac3728c2bdb24a025adc539eea05c65"
+    },
+    "search_attempts": {
+      "schema": "CREATE TABLE search_attempts(id INTEGER PRIMARY KEY AUTOINCREMENT, job_id TEXT NOT NULL REFERENCES jobs(id), data TEXT NOT NULL)",
+      "rows": 262,
+      "rows_sha256": "b30815948ac033a97d6c007429f33b9cd31574cdda6cdc15670282059a2f8a4a"
+    }
+  },
+  "new_tables": [
+    "job_consumers",
+    "project_batches",
+    "project_functions",
+    "project_knowledge_points",
+    "project_point_job_mappings",
+    "project_prerequisites",
+    "project_versions",
+    "projects"
+  ]
+}

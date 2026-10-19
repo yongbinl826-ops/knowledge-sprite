@@ -1,0 +1,134 @@
+{
+  "mode": "predeclared_independent_dashboard_video_rubric",
+  "recorded_at": "2026-10-18T19:37:43.798067+00:00",
+  "project_id": "bb01c9ec-8b25-4425-832e-ccd9fa7d0a60",
+  "analysis_version": 1,
+  "analysis_file": "evidence\\phase2-dashboard-analysis\\study_room_streamlit_intermediate.json",
+  "analysis_file_sha256": "9c8e8a23d19437a5ba8c3b2b6d25c0cc2434a743b94cfe7f9ebcda64a7409627",
+  "student": "intermediate Python/pandas experienced, first Streamlit; do not equate global level to library familiarity",
+  "expected_urls": [],
+  "units": [
+    {
+      "id": "k1",
+      "name": "Streamlit 文件上传与脚本重运行",
+      "technology": "Streamlit",
+      "confirmed_targets_verbatim": [
+        "st.file_uploader",
+        "脚本重运行",
+        "pandas.read_csv",
+        "未上传分支"
+      ],
+      "project_task": "搭一个最小页面，用 st.file_uploader 上传 CSV，用 pandas 读入并显示表头和行数。",
+      "useful_new_skill_signals": [
+        "actual Streamlit file upload handling",
+        "script rerun / no-file branch"
+      ]
+    },
+    {
+      "id": "k2",
+      "name": "pandas 列校验与逐行规则验证",
+      "technology": "pandas",
+      "confirmed_targets_verbatim": [
+        "必需列检查",
+        "to_datetime 格式解析",
+        "布尔掩码逐条组合",
+        "occupied<=capacity*open_minutes",
+        "排除行计数",
+        "不去重"
+      ],
+      "project_task": "编写 validate(df) 函数：检查必需列，解析 date、校验 room/visits/capacity/open_minutes/occupied 约束，返回有效数据与被排除行数。",
+      "useful_new_skill_signals": [
+        "row/column validation or typed masks",
+        "invalid-row count and preserving valid zeros"
+      ]
+    },
+    {
+      "id": "k3",
+      "name": "Streamlit 日期区间与多选控件",
+      "technology": "Streamlit",
+      "confirmed_targets_verbatim": [
+        "st.date_input",
+        "st.multiselect",
+        "两端包含区间",
+        "空选择=无结果",
+        "默认值"
+      ],
+      "project_task": "添加起止日期（两端包含）与房间多选（默认全部），实现筛选函数。",
+      "useful_new_skill_signals": [
+        "date_input and/or multiselect control",
+        "inclusive bounds/default/empty selection only when expressly taught"
+      ]
+    },
+    {
+      "id": "k4",
+      "name": "筛选后数据的加权使用率聚合",
+      "technology": "pandas",
+      "confirmed_targets_verbatim": [
+        "sum 聚合",
+        "加权比率",
+        "百分比格式化 f-string",
+        "单一数据口径"
+      ],
+      "project_task": "写 compute_metrics(filtered)：返回 visits 总和、occupied 总和、加权使用率（%保留1位小数）。",
+      "useful_new_skill_signals": [
+        "weighted ratio from aggregate totals or filtered consistency",
+        "generic sum alone is prerequisite support, not sufficient new learning"
+      ]
+    },
+    {
+      "id": "k5",
+      "name": "groupby 汇总与 Streamlit 条形图",
+      "technology": "Streamlit",
+      "confirmed_targets_verbatim": [
+        "groupby 聚合",
+        "Series 到图表数据",
+        "st.bar_chart",
+        "空结果不画图"
+      ],
+      "project_task": "对 filtered groupby room 求 sum(visits)，非空时 st.bar_chart 显示。",
+      "useful_new_skill_signals": [
+        "Streamlit bar_chart on prepared data",
+        "pandas groupby alone is already-known support"
+      ]
+    },
+    {
+      "id": "k6",
+      "name": "空结果的安全展示",
+      "technology": "Streamlit",
+      "confirmed_targets_verbatim": [
+        "空 DataFrame 判断",
+        "除零防护",
+        "条件渲染",
+        "错误提示 st.info/st.error"
+      ],
+      "project_task": "在指标与图表前加入空数据与错误状态判断，显示“—”和提示，阻止除零。",
+      "useful_new_skill_signals": [
+        "empty-data/error guard with recoverable Streamlit display",
+        "message/render branch and no unsafe metric/chart on empty data"
+      ]
+    }
+  ],
+  "source_truthfulness_requirements": [
+    "real observed title and source URL; own identity/provenance",
+    "only own page/catalog/strict bound-video summary may confirm concepts",
+    "actual chapter URLs/timestamps only; no invented teaching or chapter times",
+    "source page language and media language distinguished",
+    "login/payment/region restrictions disclosed, not called invalid; generic error/shell pages not normal recommendations"
+  ],
+  "coverage_counters_keep_separate": [
+    "units with any visible card",
+    "units with useful new project-relevant skill evidence",
+    "confirmed targets with independent support",
+    "whole unit complete; never count a partial card as complete"
+  ],
+  "forbidden_donation": [
+    "generic Python/pandas full introductions replacing first Streamlit skills",
+    "text-only docs/articles counted as videos",
+    "query/title tokens, navigation, related videos, prerequisites, TODO or cumulative code treated as own teaching",
+    "weighted sum ratio inferred from mean-of-rates or generic sum",
+    "st.bar_chart inferred from Matplotlib/Plotly chart lesson",
+    "0 visits removed; empty rooms interpreted as all; missing required literal comparisons silently filled"
+  ],
+  "source_links_policy": "No new link requests/playback tests by reviewer; format/ownership and previously fetched public metadata are audit evidence. Unverified access remains unknown.",
+  "production_claim_rule": "Truthful partial recommendations and known unmet project constraints must be visible. Source integrity and meaningful per-unit usefulness must be assessed separately from result counts. No live result is asserted before retained final job evidence is reviewed."
+}

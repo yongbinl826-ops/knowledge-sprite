@@ -20,8 +20,12 @@ def extract(markup, url):
 def test_registry_is_explicit_and_does_not_match_lookalike_hosts():
     assert {adapter.name for adapter in ADAPTERS} == {
         "mit_ocw", "archive_details", "microsoft_ai_curriculum", "bilibili_video_parts", "icourse163_course_outline",
+        "freecodecamp_course_announcement",
+        "techwithtim_lesson",
     }
-    for url in ("https://ocw.mit.edu.evil.org/courses/example/", "https://archive.org.evil.org/details/example"):
+    for url in ("https://ocw.mit.edu.evil.org/courses/example/", "https://archive.org.evil.org/details/example",
+                "https://www.freecodecamp.org.evil.org/news/example/",
+                "https://www.techwithtim.net.evil.org/tutorials/game/series/lesson"):
         assert not any(adapter.matches(url) for adapter in ADAPTERS)
 
 

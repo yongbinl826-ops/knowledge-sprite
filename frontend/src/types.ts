@@ -2,6 +2,11 @@ export type Platform = 'bilibili' | 'icourse163' | 'xuetangx';
 export type JobStatus = 'queued' | 'running' | 'completed' | 'partial' | 'failed' | 'interrupted' | 'cancelled';
 export type JobCreated = { job_id: string; status?: JobStatus; reused?: boolean };
 export type JobCancelled = { job_id: string; status: JobStatus; cancelled: boolean };
+export type SearchPipeline = {
+  stage: string; search_requests: number; search_budget: number; candidates: number;
+  checking: number; displayed: number; filtered: number; unknown: number;
+  terminal: boolean; source_limited: boolean;
+};
 export type SearchRequest = {
   knowledge_points: string[];
   student_level: 'beginner' | 'intermediate' | 'advanced' | 'any';
@@ -12,6 +17,9 @@ export type SearchRequest = {
 };
 export type Capability = { status: string; message: string };
 export type Capabilities = {
+  teaching_match_enabled?: boolean;
+  project_analysis?: import('./projectTypes').ProjectAnalysisCapability;
+  project_search?: import('./projectTypes').ProjectSearchCapability;
   mode: string;
   search: Capability & { selected_provider: string; providers: (Capability & { name: string })[] };
   llm: Capability;
@@ -58,6 +66,7 @@ export type Resource = {
   requires_login: boolean | null; requires_payment: boolean | null; requires_enrollment: boolean | null;
   chapters: Chapter[]; catalog_kind?: 'course_outline' | 'video_playlist' | 'video_chapters' | 'video_parts' | null; catalog_fetch_status?: string | null; field_provenance: Record<string, unknown>;
   access_notice?: string | null;
+  video_topic_summary?: string | null;
   cache?: CacheInfo; playback_verified: boolean;
   parent_course_url?: string | null;
   course_identity?: CourseIdentity;
@@ -86,8 +95,26 @@ export type ResourceItem = {
     topic_evidence_reasons?: { code: string; message: string; evidence_ids: string[] }[];
     supporting_evidence_ids?: string[];
     subtopic_coverage?: SubtopicCoverage[];
+    teaching_support?: TeachingSupport[];
   };
   evidence: Evidence[];
+};
+export type TeachingSupport = {
+  skill_id: string; skill: string; evidence_id: string; quote: string;
+  basis: 'title' | 'description' | 'catalog' | 'lesson_notes'; source_text_sha256: string;
+};
+export type LearningCoverage = {
+  mode: 'transferable_skills';
+  skills: { id: string; text: string; content_resource_ids: string[]; title_resource_ids: string[]; evidence_ids: string[] }[];
+  disclaimer: string;
+};
+export type RelatedTopicPointer = {
+  resource: Resource; evidence: Evidence[];
+  pointer: {
+    knowledge_point_id: string; resource_id: string; skill_id: string; skill: string;
+    evidence_id: string; quote: string; basis: 'catalog'; source_text_sha256: string;
+    source_url: string; target_url: string; scope: 'topic_declared'; missing_components: string[];
+  };
 };
 export type TopicEvidenceStatus = 'supported' | 'partial' | 'needs_review';
 export type SubtopicCoverage = { id: string; text: string; status: 'supported' | 'unknown'; evidence_ids: string[]; reason: string };
@@ -98,14 +125,26 @@ export type CollectionCoverage = {
   single_resource_full_coverage: boolean; disclaimer: string;
 };
 export type ResultGroup = {
+  discovery_only?: boolean;
   knowledge_point_id: string; text: string; total_matches: number; items: ResourceItem[]; section_limit?: number;
+  scope_status?: 'mismatch'; scope_notice?: string; expected_search_text?: string;
   platform_items?: Record<string, ResourceItem[]>;
   total_partial_matches?: number; partial_items?: ResourceItem[]; partial_platform_items?: Record<string, ResourceItem[]>;
   total_review_matches?: number; review_items?: ResourceItem[]; review_platform_items?: Record<string, ResourceItem[]>;
   collection_coverage?: CollectionCoverage; platform_collection_coverage?: Record<string, CollectionCoverage>;
+  learning_coverage?: LearningCoverage;
+  related_topic_pointers?: RelatedTopicPointer[];
+  discovery_items?: DiscoveredVideo[];
+  discovery_platform_items?: Record<string, DiscoveredVideo[]>;
+};
+export type DiscoveredVideo = {
+  resource: Pick<Resource, 'resource_id' | 'title' | 'url' | 'canonical_url' | 'platform' | 'thumbnail_url' | 'fetch_status' | 'video_evidence_status' | 'resource_type'>;
+  discovery_evidence: Evidence[];
 };
 export type SearchResults = {
   job_id: string; status: JobStatus;
+  job?: SearchJob;
+  pipeline?: SearchPipeline;
   groups: ResultGroup[];
   warnings: string[];
   identity_summary?: { resource_records: number; identified_course_families: number; identified_course_offerings: number; identified_lessons: number; unknown_course_family_resources: number; unknown_offering_resources: number; unknown_identity_resources: number; scope: string };

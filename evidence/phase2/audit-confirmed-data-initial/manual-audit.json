@@ -1,0 +1,2345 @@
+{
+  "mode": "independent-retained-live-source-audit-and-offline-query-reproduction",
+  "created_at": "2026-10-18T17:59:49.669408+00:00",
+  "source_observed_at": "2026-10-18T17:55:31.878856+00:00",
+  "scope": {
+    "upstream_requests": 0,
+    "model_calls": 0,
+    "production_writes": 0,
+    "local_api_gets_in_original_snapshot": 1,
+    "sqlite_mode": "ro + query_only + read transaction",
+    "raw_checkpoint_modified": false,
+    "rank_replay_is_new_live_query": false
+  },
+  "source_files": [
+    "local-api-results.json",
+    "sqlite-readonly-snapshot.json",
+    "gap-diagnosis.json"
+  ],
+  "code_hashes_at_manual_review": {
+    "backend/app/service.py": "0d1bc48e7ff9261b84942e2606a154297cff7a3518443f119eac0af348323a7b",
+    "backend/app/queries.py": "e6ae5499f49859cc405beac291baa921e839da4d18c0e6b39845e587369dd621",
+    "backend/app/ranking.py": "e1e0205b06b8540018783dae40468278bc23f63c3c3cbfd0b182854d60f5efda"
+  },
+  "jobs": [
+    {
+      "job_id": "1e7c61cb-17b8-4a5e-90bf-773d757fe7fd",
+      "status": "partial",
+      "progress": {
+        "queries_planned": 30,
+        "queries_completed": 20,
+        "search_requests": 30,
+        "search_successes": 20,
+        "search_failures": 0,
+        "candidates_discovered": 120,
+        "resources_discovered": 90,
+        "details_attempted": 25,
+        "details_completed": 25,
+        "details_cached": 1,
+        "cache_hits": 1,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0
+      }
+    },
+    {
+      "job_id": "5ca85781-ef64-4af3-b18f-b411b7a1d0a3",
+      "status": "partial",
+      "progress": {
+        "queries_planned": 12,
+        "queries_completed": 12,
+        "search_requests": 20,
+        "search_successes": 12,
+        "search_failures": 0,
+        "candidates_discovered": 54,
+        "resources_discovered": 49,
+        "details_attempted": 8,
+        "details_completed": 8,
+        "details_cached": 8,
+        "cache_hits": 8,
+        "catalog_pages_attempted": 0,
+        "catalog_pages_completed": 0
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "unverified_shell_normal_partial",
+      "priority": "high",
+      "confirmed": true,
+      "resource": {
+        "resource_id": "res_35cade8f8e6984da5fb13e07",
+        "title": "TikTok - Make Your Day",
+        "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+        "canonical_url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+        "resolved_url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+        "platform": "other",
+        "resource_type": "video",
+        "video_evidence_status": "search_discovered",
+        "author": null,
+        "author_role": null,
+        "parent_course_url": null,
+        "course_identity": {
+          "status": "partial",
+          "family_id": null,
+          "offering_id": null,
+          "lesson_id": null,
+          "family_url": null,
+          "offering_url": null,
+          "role": "video",
+          "basis": "unknown",
+          "source_url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+          "evidence_ids": [
+            "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335"
+          ],
+          "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+        },
+        "description": "Karina.DataScientist(@karinadatascientist). original sound - Karina.DataScientist. Read files with Python # read csv import pandas as pd csv_data = pd.read_csv('datafile.csv') print(csv_data.head()) # read txt with open('datafile.txt', 'r') as file: txt_data = file.read() print(txt_data)\\t # read xlsx import openpyxl excel_data = pd.read_excel ...",
+        "video_topic_summary": null,
+        "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.0oGAjqg1vmTuFXiHBSLsxwEkII?pid=Api",
+        "language": "en",
+        "duration_seconds": null,
+        "published_at": null,
+        "discovered_at": "2026-10-18T17:48:45.910819+00:00",
+        "fetched_at": "2026-10-18T17:51:09.174232+00:00",
+        "fetch_status": "javascript_required",
+        "metadata_evidence_level": "page",
+        "requires_login": null,
+        "requires_payment": null,
+        "requires_enrollment": null,
+        "access_notice": null,
+        "chapters": [],
+        "catalog_kind": null,
+        "catalog_fetch_status": null,
+        "render_diagnostics": null,
+        "field_provenance": {
+          "title": {
+            "evidence_id": "ev_d3f82250-5b1d-485c-befb-ee7eaf805c48",
+            "source": "html.title",
+            "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+            "fetched_at": "2026-10-18T17:51:09.174232+00:00"
+          },
+          "url": {
+            "evidence_id": "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335",
+            "source": "search",
+            "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505"
+          },
+          "description": {
+            "evidence_id": "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335",
+            "source": "search",
+            "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505"
+          },
+          "resource_type": {
+            "evidence_id": "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335",
+            "source": "search_template",
+            "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+            "note": "搜索来源按媒体模板分类；页面详情与可播放性尚未核验"
+          },
+          "video_evidence_status": {
+            "evidence_id": "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335",
+            "source": "search_template",
+            "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+            "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+          },
+          "thumbnail_url": {
+            "evidence_id": "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335",
+            "source": "search.thumbnail",
+            "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+            "observed_at": "2026-10-18T17:48:45.910819+00:00",
+            "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+          },
+          "language": {
+            "evidence_id": "ev_6cba6e00-f640-4505-be64-6d80a0dd250c",
+            "source": "html.lang",
+            "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+            "fetched_at": "2026-10-18T17:51:09.174232+00:00"
+          }
+        },
+        "cache": {
+          "hit": false,
+          "cached_at": null,
+          "stale": false
+        },
+        "playback_verified": false
+      },
+      "saved_runtime_match": {
+        "knowledge_point_id": "8942ea5d-acf4-4de6-a82b-2b0ae1abec79",
+        "resource_id": "res_35cade8f8e6984da5fb13e07",
+        "ranking_score": 38.0,
+        "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：英语（en）；视频/授课语言仍需确认。 你的偏好为中文，可先检查平台音轨或字幕。",
+        "matched_evidence_ids": [
+          "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335"
+        ],
+        "coverage_basis": [
+          "title",
+          "snippet"
+        ],
+        "topic_match_rules": [],
+        "topic_evidence_status": "partial",
+        "topic_evidence_reasons": [
+          {
+            "code": "confirmed_learning_targets",
+            "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+            "evidence_ids": [
+              "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335"
+            ]
+          }
+        ],
+        "supporting_evidence_ids": [
+          "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335"
+        ],
+        "subtopic_coverage": [
+          {
+            "id": "operation_core",
+            "text": "pandas 读取 CSV",
+            "status": "supported",
+            "evidence_ids": [
+              "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335"
+            ],
+            "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+          },
+          {
+            "id": "operation_qualification",
+            "text": "骑行 与列结构检查",
+            "status": "unknown",
+            "evidence_ids": [],
+            "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+          },
+          {
+            "id": "learning_target_1",
+            "text": "pd.read_csv 参数",
+            "status": "unknown",
+            "evidence_ids": [],
+            "reason": "该项已确认技能仍需补充来源证据。"
+          },
+          {
+            "id": "learning_target_2",
+            "text": "DataFrame.shape 与 dtypes",
+            "status": "unknown",
+            "evidence_ids": [],
+            "reason": "该项已确认技能仍需补充来源证据。"
+          },
+          {
+            "id": "learning_target_3",
+            "text": "head() 预览",
+            "status": "unknown",
+            "evidence_ids": [],
+            "reason": "该项已确认技能仍需补充来源证据。"
+          },
+          {
+            "id": "learning_target_4",
+            "text": "原始行数基线",
+            "status": "unknown",
+            "evidence_ids": [],
+            "reason": "该项已确认技能仍需补充来源证据。"
+          }
+        ]
+      },
+      "own_evidence": [
+        {
+          "evidence_id": "ev_2c18a7fe-0557-42a4-bd75-f701c71ec335",
+          "candidate_id": "fabfa9704567fe68e056262e",
+          "kind": "search",
+          "source": "searxng",
+          "source_engines": [
+            "duckduckgo videos"
+          ],
+          "type_source": "search_template",
+          "resource_type_hint": "video",
+          "knowledge_point_id": "8942ea5d-acf4-4de6-a82b-2b0ae1abec79",
+          "query": "pandas pd.read_csv 参数 视频教程",
+          "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+          "title": "Read files with Python # read csv import pandas as pd csv_data = pd.read_csv(datafile.csv') print(csv_data.head()) # read txt with open(datafile.txt', 'r') as file: txt_data = file.read() …",
+          "snippet": "Karina.DataScientist(@karinadatascientist). original sound - Karina.DataScientist. Read files with Python # read csv import pandas as pd csv_data = pd.read_csv('datafile.csv') print(csv_data.head()) # read txt with open('datafile.txt', 'r') as file: txt_data = file.read() print(txt_data)\\t # read xlsx import openpyxl excel_data = pd.read_excel ...",
+          "observed_at": "2026-10-18T17:48:45.910819+00:00",
+          "cache": {
+            "hit": false,
+            "cached_at": null,
+            "stale": false
+          },
+          "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.0oGAjqg1vmTuFXiHBSLsxwEkII?pid=Api",
+          "thumbnail_source": "search.thumbnail"
+        },
+        {
+          "id": "ev_685127e814278a15b645",
+          "evidence_id": "ev_d3f82250-5b1d-485c-befb-ee7eaf805c48",
+          "kind": "page",
+          "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+          "field": "title",
+          "source": "html.title",
+          "text": "TikTok - Make Your Day",
+          "fetched_at": "2026-10-18T17:51:09.174232+00:00",
+          "observed_at": "2026-10-18T17:51:09.174232+00:00",
+          "cache": {
+            "hit": false,
+            "cached_at": null,
+            "stale": false
+          }
+        },
+        {
+          "id": "ev_8c0dabddb536d7f0ea6c",
+          "evidence_id": "ev_6cba6e00-f640-4505-be64-6d80a0dd250c",
+          "kind": "page",
+          "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+          "field": "language",
+          "source": "html.lang",
+          "text": "en",
+          "fetched_at": "2026-10-18T17:51:09.174232+00:00",
+          "observed_at": "2026-10-18T17:51:09.174232+00:00",
+          "cache": {
+            "hit": false,
+            "cached_at": null,
+            "stale": false
+          }
+        }
+      ],
+      "observed_api_path": "points[0].result.partial_items[4]",
+      "cause": "Generic html.title replaces the specific same-URL search title. Only a page shell/title and html.lang were extracted. Video identity and all instructional support still derive from the search record, while the card stays in normal partial_items with no access_notice.",
+      "not_proven": [
+        "video deleted",
+        "requires login",
+        "paid",
+        "regional restriction",
+        "anti-crawl"
+      ],
+      "general_remedy_proposal_only": [
+        "Use same-page owned video identity/metadata, not a generic page title alone, to determine whether extracted page title can replace an observed specific search title.",
+        "For javascript_required or equivalent incomplete shell, no owned media evidence and search-only teaching support: derive a review/unverified card with an honest detail-unverified access notice, retaining raw provenance and specific search title when reliable.",
+        "Do not ban all JavaScript pages: valid same-page VideoObject/owned video metadata can still qualify. Do not label this page invalid or removed without separate evidence.",
+        "Apply projection guards to persisted cards as well as new fetches; keep raw records intact."
+      ]
+    },
+    {
+      "id": "confirmed_api_targets_filtered_from_recall",
+      "priority": "high",
+      "confirmed": true,
+      "code": "backend/app/queries.py:_bounded_expansion / gap_query_candidates",
+      "cause": "The model-expansion punctuation deny rule is reused for trusted confirmed target text. Parentheses and assignment/comparison punctuation reject pd.to_datetime(errors), DataFrame.to_csv(index=False), head(), and end < start before gap-query generation.",
+      "examples": [
+        "pd.to_datetime(errors)",
+        "DataFrame.to_csv(index=False)",
+        "head() 预览",
+        "布尔条件 end < start"
+      ],
+      "general_remedy_proposal_only": "Keep expansion input validation; add a bounded recall representation for explicit confirmed API/parameter/comparison targets. Preserve the exact original target for evidence assessment; do not treat query words as source proof."
+    },
+    {
+      "id": "public_round_consumes_unexecuted_gap_key",
+      "priority": "medium",
+      "confirmed": true,
+      "code": "backend/app/service.py:489-505",
+      "cause": "The scheduler records a gap-query key/history before replacing next_query with the public catalog query. That skipped skill is treated as already selected on the following round.",
+      "actual_duration_queries": [
+        {
+          "query": "site:bilibili.com/video pandas 时间差计算骑行分钟时长 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 时间差计算骑行分钟时长",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "stop_reason": "domain_filter_excludes_official_source"
+          }
+        },
+        {
+          "query": "pandas 日期时间相减得 Timedelta 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            },
+            {
+              "code": "no_topic_signal",
+              "engine": "bing",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 时间差计算骑行分钟时长",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "pandas 时间差计算骑行分钟时长 timedelta duration",
+          "provider": "public_catalog",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [],
+          "discovery": {
+            "public_catalog": {
+              "scope": "public HTML tag cards; detail verification required",
+              "indexes": [
+                {
+                  "source_url": "https://www.freecodecamp.org/news/tag/pandas/",
+                  "source_sha256": "d8a60ce9939f0c1f20f2f925b04f4b3de70fdc7f1513e272a6e499a499aabe3a",
+                  "observed_at": "2026-10-18T17:02:29.229481+00:00",
+                  "cache_hit": true,
+                  "observed_card_count": 22
+                },
+                {
+                  "source_url": "https://www.freecodecamp.org/news/tag/youtube/",
+                  "source_sha256": "25b04e65c14a9f4163e9708415fafcfe0a8d6c4ef9024357a668e993ec911607",
+                  "observed_at": "2026-10-18T17:02:33.720961+00:00",
+                  "cache_hit": true,
+                  "observed_card_count": 25
+                }
+              ],
+              "candidate_count": 6
+            }
+          }
+        },
+        {
+          "query": "pandas 新增列赋值 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            },
+            {
+              "code": "no_topic_signal",
+              "engine": "bing",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 时间差计算骑行分钟时长",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        }
+      ],
+      "example": "dt.total_seconds 换算分钟 is the second generated gap query, but actual history contains the first gap, the public round, then 新增列赋值; no total_seconds query ran.",
+      "general_remedy_proposal_only": "Record selected/executed gap identity after the final round choice or preserve the displaced gap. Stay within the existing fair per-job request budget."
+    }
+  ],
+  "gaps": [
+    {
+      "id": "datetime",
+      "point": {
+        "knowledge_point_id": "026541bc-0f01-4cb5-a010-cc4352107449",
+        "text": "pandas 时间列解析与无效行分离",
+        "learning_targets": [
+          "pd.to_datetime(errors)",
+          "isna 与缺失筛选",
+          "布尔条件 end < start",
+          "相等时间的边界判断"
+        ]
+      },
+      "candidate_count": 24,
+      "fetch_counts": {
+        "fetched": 7,
+        "not_fetched": 16,
+        "not_found": 1
+      },
+      "current_match_count": 0,
+      "executed_queries": [
+        {
+          "query": "site:bilibili.com/video pandas 时间列解析与无效行分离 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 时间列解析与无效行分离",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "stop_reason": "domain_filter_excludes_official_source"
+          }
+        },
+        {
+          "query": "pandas isna 与缺失筛选 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            },
+            {
+              "code": "no_topic_signal",
+              "engine": "bing",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 时间列解析与无效行分离",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "pandas 时间列解析与无效行分离 datetime parsing",
+          "provider": "public_catalog",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [],
+          "discovery": {
+            "public_catalog": {
+              "scope": "public HTML tag cards; detail verification required",
+              "indexes": [
+                {
+                  "source_url": "https://www.freecodecamp.org/news/tag/pandas/",
+                  "source_sha256": "d8a60ce9939f0c1f20f2f925b04f4b3de70fdc7f1513e272a6e499a499aabe3a",
+                  "observed_at": "2026-10-18T17:02:29.229481+00:00",
+                  "cache_hit": true,
+                  "observed_card_count": 22
+                },
+                {
+                  "source_url": "https://www.freecodecamp.org/news/tag/youtube/",
+                  "source_sha256": "25b04e65c14a9f4163e9708415fafcfe0a8d6c4ef9024357a668e993ec911607",
+                  "observed_at": "2026-10-18T17:02:33.720961+00:00",
+                  "cache_hit": true,
+                  "observed_card_count": 25
+                }
+              ],
+              "candidate_count": 6
+            }
+          }
+        },
+        {
+          "query": "pandas 时间列解析 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            },
+            {
+              "code": "no_topic_signal",
+              "engine": "bing",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 时间列解析与无效行分离",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        }
+      ],
+      "offline_generated_confirmed_gap_queries": [
+        "pandas isna 与缺失筛选 视频教程",
+        "pandas 相等时间的边界判断 视频教程",
+        "site:bilibili.com/video pandas isna 与缺失筛选 视频教程",
+        "site:bilibili.com/video pandas 相等时间的边界判断 视频教程",
+        "site:icourse163.org pandas isna 与缺失筛选 视频教程",
+        "site:icourse163.org pandas 相等时间的边界判断 视频教程"
+      ],
+      "conclusion": "Discovery succeeded for a previously verified direct lesson; current detail admission did not fetch it. Current rank correctly does not invent to_datetime/error/boundary coverage from a truncated Timestamp search snippet.",
+      "all_candidates_fact_index": [
+        {
+          "resource_id": "res_126af3ed2c01c26b211c16bd",
+          "title": "Dataframe Drop Column in Pandas – How to Remove Columns from Dataframes",
+          "url": "https://www.freecodecamp.org/news/dataframe-drop-column-in-pandas-how-to-remove-columns-from-dataframes/",
+          "canonical_url": "https://www.freecodecamp.org/news/dataframe-drop-column-in-pandas-how-to-remove-columns-from-dataframes/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_74bb1cd727c6e81bd80c0d6b",
+          "title": "Free Live Course: Data Analysis with Python",
+          "url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+          "canonical_url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_c971a216427fdd7b1aaebd52",
+          "title": "How to Rename a Column in Pandas – Python Pandas Dataframe Renaming Tutorial",
+          "url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+          "canonical_url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_75c6f08bdec202b6ef89f797",
+          "title": "How to Use Pandas for Data Cleaning and Preprocessing",
+          "url": "https://www.freecodecamp.org/news/data-cleaning-and-preprocessing-with-pandasbdvhj/",
+          "canonical_url": "https://www.freecodecamp.org/news/data-cleaning-and-preprocessing-with-pandasbdvhj/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_8c507f240b99ca2623702e70",
+          "title": "Learn Pandas & Python for Data Analysis [Full Course]",
+          "url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+          "canonical_url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "page_verified",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_0c5b0b72fc95e1255b817661",
+          "title": "What is Data Analysis? How to Visualize Data with Python, Numpy, Pandas, Matplotlib & Seaborn Tutorial",
+          "url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+          "canonical_url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_f5a3da3e6060252d16eefd9a",
+          "title": "告别 Pandas 内存溢出！DuckDB 深度解析：分析界的“SQLite” | Cloud Codes",
+          "url": "https://www.bilibili.com/video/BV133gk6wEbE/?uid=4256313333676B3677456245",
+          "canonical_url": "https://www.bilibili.com/video/BV133gk6wEbE/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "catalog",
+          "video_evidence_status": "page_verified",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_e02c38996f6a3313b849c502",
+          "title": "10.Pandas教程_日期与时间序列数据处理-[Python]",
+          "url": "https://www.bilibili.com/video/BV1HLYLe9ESx/?uid=425631484C594C6539455378",
+          "canonical_url": "https://www.bilibili.com/video/BV1HLYLe9ESx/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_be8cba38f9d78bea19e7832c",
+          "title": "11 Pandas缺失值与重复值处理，数据过滤，数据转换",
+          "url": "https://www.bilibili.com/video/BV1sF411p71G/?uid=425631734634313170373147",
+          "canonical_url": "https://www.bilibili.com/video/BV1sF411p71G/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_596cfdf0dad61689f7171f4a",
+          "title": "Chapter 24 Pandas时间序列数据 | 《编程不难》 | 鸢尾花书：从加减乘除到机器学习",
+          "url": "https://www.bilibili.com/video/BV1ux421Q7MU/?uid=425631757834323151374D55",
+          "canonical_url": "https://www.bilibili.com/video/BV1ux421Q7MU/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_7d7279d71ffc5602f8b99d00",
+          "title": "Python-第三方库Pandas系列教程之 27-python-pandas-时间数据处理 @数据分析",
+          "url": "https://www.bilibili.com/video/BV14T2cB8EXT/?uid=425631345432634238455854",
+          "canonical_url": "https://www.bilibili.com/video/BV14T2cB8EXT/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_3d9c9024072589efa6f295b6",
+          "title": "【Pandas数据分析】一分钟教会你如何处理缺失值 python一对一视频讲解 经典实战 朝天吼数据",
+          "url": "https://www.bilibili.com/video/BV12E41167yc/?uid=425631324534313136377963",
+          "canonical_url": "https://www.bilibili.com/video/BV12E41167yc/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_ff6bfde0f04d20043e2e5bfc",
+          "title": "【Python教程】B站最全面最详细的Python零基础入门视频课程，拿走不谢!学不会退出IT界!",
+          "url": "https://www.bilibili.com/video/av214240777/",
+          "canonical_url": "https://www.bilibili.com/video/av214240777/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_ccc0173a362110289c9c62e9",
+          "title": "【全100集】Pandas数据分析从零基础到精通（完结版）存下来吧!很难找全的",
+          "url": "https://www.bilibili.com/video/BV1RznMznEmK/?uid=425631527A6E4D7A6E456D4B",
+          "canonical_url": "https://www.bilibili.com/video/BV1RznMznEmK/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_286430288ca6dbe2b6bff342",
+          "title": "【全27集】Pandas数据分析零基础入门到实战精讲视频教程，由浅入深讲解（全程干货）",
+          "url": "https://www.bilibili.com/video/BV1zyL7zgEYK/?uid=4256317A794C377A6745594B",
+          "canonical_url": "https://www.bilibili.com/video/BV1zyL7zgEYK/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_13deecdfb022c0be943a63ec",
+          "title": "【全44集】Pandas数据处理与分析教程，零基础入门到精通（全程干货）",
+          "url": "https://www.bilibili.com/video/BV1aUDpB1ED3/?uid=425631615544704231454433",
+          "canonical_url": "https://www.bilibili.com/video/BV1aUDpB1ED3/",
+          "fetch_status": "not_found",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_1b20c01b554a5416439cb3b1",
+          "title": "【全57集】2026年最佳（没有之一）Pandas数据分析教程，由浅入深讲解，一套搞定Pandas!",
+          "url": "https://www.bilibili.com/video/BV1fg9SBTEJ1/?uid=425631666739534254454A31",
+          "canonical_url": "https://www.bilibili.com/video/BV1fg9SBTEJ1/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_9394bf1b62947c03a65312a1",
+          "title": "【全92集】Pandas数据分析入门到实战教程，从浅入深（全程干货）",
+          "url": "https://www.bilibili.com/video/BV1CPNczTEmC/?uid=42563143504E637A54456D43",
+          "canonical_url": "https://www.bilibili.com/video/BV1CPNczTEmC/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_b02b628cd3d2faf737da2d94",
+          "title": "【整整548集】别再走弯路了!2025最全最细自学Python全套教程，逼自己一个月学完，编程技术猛涨!从零基础小白到精通Python全栈只要这套就够了!",
+          "url": "https://www.bilibili.com/video/av1005381363/",
+          "canonical_url": "https://www.bilibili.com/video/av1005381363/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_7f52051c59fe8f6c6222ef95",
+          "title": "【时间序列案例实战】使用Pandas生成时间序列 | 超详细时间序列课程 | 股票预测案列",
+          "url": "https://www.bilibili.com/video/BV1SL411d7Td/?uid=425631534C34313164375464",
+          "canonical_url": "https://www.bilibili.com/video/BV1SL411d7Td/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_d62808fe104d180786737b64",
+          "title": "三个牛量化公开课第8课Pandas 在金融量化里的完整实战用法",
+          "url": "https://www.bilibili.com/video/BV16TK56xEDM/?uid=42563136544B35367845444D",
+          "canonical_url": "https://www.bilibili.com/video/BV16TK56xEDM/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_ab042259eebbee13041bcc6d",
+          "title": "冒死上传!花12800买来的【时间序列预测】教程，LSTM Informer时间序列预测源码解读 时间序列airma模型—pandas/机器学习",
+          "url": "https://www.bilibili.com/video/BV1Vd4y1871x/?uid=425631566434793138373178",
+          "canonical_url": "https://www.bilibili.com/video/BV1Vd4y1871x/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_15129315f51a30301c7fb39b",
+          "title": "卡西欧计算器在自控中的应用(中)[根轨迹求分离点 solve大剖析]",
+          "url": "https://www.bilibili.com/video/BV1S24y1175g/?uid=425631533234793131373567",
+          "canonical_url": "https://www.bilibili.com/video/BV1S24y1175g/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_1c66954c96f70e31cac94265",
+          "title": "爆肝999小时的极品python数据分析课程，用pandas玩转Excel!手把手带你python基础更上一层楼!",
+          "url": "https://www.bilibili.com/video/BV1D34y1v7iQ/?uid=425631443334793176376951",
+          "canonical_url": "https://www.bilibili.com/video/BV1D34y1v7iQ/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        }
+      ],
+      "retrieved_old_video": {
+        "resource_id": "res_7d7279d71ffc5602f8b99d00",
+        "title": "Python-第三方库Pandas系列教程之 27-python-pandas-时间数据处理 @数据分析",
+        "url": "https://www.bilibili.com/video/BV14T2cB8EXT/?uid=425631345432634238455854",
+        "canonical_url": "https://www.bilibili.com/video/BV14T2cB8EXT/",
+        "fetch_status": "not_fetched",
+        "metadata_evidence_level": "search",
+        "resource_type": "video",
+        "video_evidence_status": "search_discovered",
+        "identity_eligible": true,
+        "description": "27-python-pandas-时间数据处理 【边学边分享】 import pandas as pd from chinese_calendar import is_workday d = pd.Timestamp('2015-02-28 10:22') print(d) # 自动补齐秒0 print(type(d)) print(\"年：\",d.year) # 取时间戳中的具体属性 print(\"月：\",d.month) print(\"日：\",d.day) print(\"时：\",d.hour) print(\"分：\",d.minute ...",
+        "video_topic_summary": null,
+        "field_provenance": {
+          "title": {
+            "evidence_id": "ev_fa8642ae-e316-4522-bdc7-106dcd313374",
+            "source": "search",
+            "url": "https://www.bilibili.com/video/BV14T2cB8EXT/?uid=425631345432634238455854"
+          },
+          "url": {
+            "evidence_id": "ev_fa8642ae-e316-4522-bdc7-106dcd313374",
+            "source": "search",
+            "url": "https://www.bilibili.com/video/BV14T2cB8EXT/?uid=425631345432634238455854"
+          },
+          "description": {
+            "evidence_id": "ev_fa8642ae-e316-4522-bdc7-106dcd313374",
+            "source": "search",
+            "url": "https://www.bilibili.com/video/BV14T2cB8EXT/?uid=425631345432634238455854"
+          },
+          "resource_type": {
+            "evidence_id": "ev_fa8642ae-e316-4522-bdc7-106dcd313374",
+            "source": "url_pattern",
+            "url": "https://www.bilibili.com/video/BV14T2cB8EXT/?uid=425631345432634238455854",
+            "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+          },
+          "video_evidence_status": {
+            "evidence_id": "ev_fa8642ae-e316-4522-bdc7-106dcd313374",
+            "source": "url_pattern",
+            "url": "https://www.bilibili.com/video/BV14T2cB8EXT/?uid=425631345432634238455854",
+            "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+          },
+          "thumbnail_url": {
+            "evidence_id": "ev_fa8642ae-e316-4522-bdc7-106dcd313374",
+            "source": "search.thumbnail",
+            "url": "https://www.bilibili.com/video/BV14T2cB8EXT/?uid=425631345432634238455854",
+            "observed_at": "2026-10-18T17:49:30.728376+00:00",
+            "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+          }
+        },
+        "chapters": [],
+        "own_evidence": [
+          {
+            "evidence_id": "ev_fa8642ae-e316-4522-bdc7-106dcd313374",
+            "candidate_id": "bc27c409c88bf11e7c78cab3",
+            "kind": "search",
+            "source": "searxng",
+            "source_engines": [
+              "duckduckgo videos"
+            ],
+            "type_source": "search_template",
+            "resource_type_hint": "video",
+            "knowledge_point_id": "026541bc-0f01-4cb5-a010-cc4352107449",
+            "query": "pandas 时间列解析 视频教程",
+            "url": "https://www.bilibili.com/video/BV14T2cB8EXT/?uid=425631345432634238455854",
+            "title": "Python-第三方库Pandas系列教程之 27-python-pandas-时间数据处理 @数据分析",
+            "snippet": "27-python-pandas-时间数据处理 【边学边分享】 import pandas as pd from chinese_calendar import is_workday d = pd.Timestamp('2015-02-28 10:22') print(d) # 自动补齐秒0 print(type(d)) print(\"年：\",d.year) # 取时间戳中的具体属性 print(\"月：\",d.month) print(\"日：\",d.day) print(\"时：\",d.hour) print(\"分：\",d.minute ...",
+            "observed_at": "2026-10-18T17:49:30.728376+00:00",
+            "cache": {
+              "hit": false,
+              "cached_at": null,
+              "stale": false
+            },
+            "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.Dmi7pL1thvZnY2fzU9mGPAIIEk?pid=Api",
+            "thumbnail_source": "search.thumbnail"
+          }
+        ],
+        "assessment_current": null,
+        "match_current": null,
+        "rejection_layer_current": "topic_assessment"
+      },
+      "accepted_upstream_trace": [
+        {
+          "query": "pandas 时间列解析 视频教程",
+          "knowledge_point_id": "026541bc-0f01-4cb5-a010-cc4352107449",
+          "returned_candidate_count": 6,
+          "upstream_trace": {
+            "index": 0,
+            "reason": "accepted",
+            "url": "https://www.bilibili.com/video/BV14T2cB8EXT/",
+            "url_truncated": false,
+            "query_redacted": false,
+            "url_sha256": "93466e2bb6ce9e070ca5077637127392c960f47a2b597be8a740def6f9651e80",
+            "title": "Python-第三方库Pandas系列教程之 27-python-pandas-时间数据处理 @数据分析",
+            "title_truncated": false,
+            "snippet": "27-python-pandas-时间数据处理 【边学边分享】 import pandas as pd from chinese_calendar import is_workday d = pd.Timestamp('2015-02-28 10:22') print(d) # 自动补齐秒0 print(type(d)) print(\"年：\",d.year) # 取时间戳中的具体属性 print(\"月：\",d.month) print(\"日：\",d.day) print(\"时：\",d.hour) print(\"分：\",d.minute ...",
+            "snippet_truncated": false
+          },
+          "engine": "duckduckgo videos",
+          "upstream_candidate_count": 6,
+          "omitted_upstream_trace_count": 39
+        }
+      ],
+      "old_page_reference": "evidence/phase2/bicycle-v26-zero-result-diagnosis.json",
+      "old_page_must_not_be_presented_as_current_fetch": true,
+      "retained_old_page_proves": [
+        "pd.to_datetime(s)",
+        "df['datetime']=pd.to_datetime(df['date'])"
+      ],
+      "retained_old_page_does_not_prove": [
+        "errors handling",
+        "isna invalid separation",
+        "end < start",
+        "equal-time boundary"
+      ],
+      "specific_not_fetched": [
+        {
+          "resource_id": "res_e02c38996f6a3313b849c502",
+          "title": "10.Pandas教程_日期与时间序列数据处理-[Python]",
+          "url": "https://www.bilibili.com/video/BV1HLYLe9ESx/?uid=425631484C594C6539455378",
+          "canonical_url": "https://www.bilibili.com/video/BV1HLYLe9ESx/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_be8cba38f9d78bea19e7832c",
+          "title": "11 Pandas缺失值与重复值处理，数据过滤，数据转换",
+          "url": "https://www.bilibili.com/video/BV1sF411p71G/?uid=425631734634313170373147",
+          "canonical_url": "https://www.bilibili.com/video/BV1sF411p71G/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_3d9c9024072589efa6f295b6",
+          "title": "【Pandas数据分析】一分钟教会你如何处理缺失值 python一对一视频讲解 经典实战 朝天吼数据",
+          "url": "https://www.bilibili.com/video/BV12E41167yc/?uid=425631324534313136377963",
+          "canonical_url": "https://www.bilibili.com/video/BV12E41167yc/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        }
+      ]
+    },
+    {
+      "id": "duration",
+      "point": {
+        "knowledge_point_id": "ac59ade6-c882-404c-be3e-787653f0c206",
+        "text": "pandas 时间差计算骑行分钟时长",
+        "learning_targets": [
+          "日期时间相减得 Timedelta",
+          "dt.total_seconds 换算分钟",
+          "新增列赋值",
+          "min 值校验"
+        ]
+      },
+      "candidate_count": 24,
+      "fetch_counts": {
+        "fetched": 8,
+        "not_fetched": 16
+      },
+      "current_match_count": 0,
+      "executed_queries": [
+        {
+          "query": "site:bilibili.com/video pandas 时间差计算骑行分钟时长 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 时间差计算骑行分钟时长",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "stop_reason": "domain_filter_excludes_official_source"
+          }
+        },
+        {
+          "query": "pandas 日期时间相减得 Timedelta 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            },
+            {
+              "code": "no_topic_signal",
+              "engine": "bing",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 时间差计算骑行分钟时长",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "pandas 时间差计算骑行分钟时长 timedelta duration",
+          "provider": "public_catalog",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [],
+          "discovery": {
+            "public_catalog": {
+              "scope": "public HTML tag cards; detail verification required",
+              "indexes": [
+                {
+                  "source_url": "https://www.freecodecamp.org/news/tag/pandas/",
+                  "source_sha256": "d8a60ce9939f0c1f20f2f925b04f4b3de70fdc7f1513e272a6e499a499aabe3a",
+                  "observed_at": "2026-10-18T17:02:29.229481+00:00",
+                  "cache_hit": true,
+                  "observed_card_count": 22
+                },
+                {
+                  "source_url": "https://www.freecodecamp.org/news/tag/youtube/",
+                  "source_sha256": "25b04e65c14a9f4163e9708415fafcfe0a8d6c4ef9024357a668e993ec911607",
+                  "observed_at": "2026-10-18T17:02:33.720961+00:00",
+                  "cache_hit": true,
+                  "observed_card_count": 25
+                }
+              ],
+              "candidate_count": 6
+            }
+          }
+        },
+        {
+          "query": "pandas 新增列赋值 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            },
+            {
+              "code": "no_topic_signal",
+              "engine": "bing",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 时间差计算骑行分钟时长",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        }
+      ],
+      "offline_generated_confirmed_gap_queries": [
+        "pandas 日期时间相减得 Timedelta 视频教程",
+        "pandas dt.total_seconds 换算分钟 视频教程",
+        "pandas 新增列赋值 视频教程",
+        "pandas min 值校验 视频教程",
+        "site:bilibili.com/video pandas 日期时间相减得 Timedelta 视频教程",
+        "site:bilibili.com/video pandas dt.total_seconds 换算分钟 视频教程"
+      ],
+      "conclusion": "No fetched page/catalog provides actual Timedelta subtraction or total_seconds-to-minutes teaching. Some observed specific column/time lessons were never fetched, so this is an incomplete detail/recall path, not proof that relevant videos do not exist. Search-only title 55.计算时间差+数据分箱 lacks explicit Pandas context and cannot be promoted by the query.",
+      "all_candidates_fact_index": [
+        {
+          "resource_id": "res_126af3ed2c01c26b211c16bd",
+          "title": "Dataframe Drop Column in Pandas – How to Remove Columns from Dataframes",
+          "url": "https://www.freecodecamp.org/news/dataframe-drop-column-in-pandas-how-to-remove-columns-from-dataframes/",
+          "canonical_url": "https://www.freecodecamp.org/news/dataframe-drop-column-in-pandas-how-to-remove-columns-from-dataframes/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_74bb1cd727c6e81bd80c0d6b",
+          "title": "Free Live Course: Data Analysis with Python",
+          "url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+          "canonical_url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_c971a216427fdd7b1aaebd52",
+          "title": "How to Rename a Column in Pandas – Python Pandas Dataframe Renaming Tutorial",
+          "url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+          "canonical_url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_75c6f08bdec202b6ef89f797",
+          "title": "How to Use Pandas for Data Cleaning and Preprocessing",
+          "url": "https://www.freecodecamp.org/news/data-cleaning-and-preprocessing-with-pandasbdvhj/",
+          "canonical_url": "https://www.freecodecamp.org/news/data-cleaning-and-preprocessing-with-pandasbdvhj/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_8c507f240b99ca2623702e70",
+          "title": "Learn Pandas & Python for Data Analysis [Full Course]",
+          "url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+          "canonical_url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "page_verified",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_0c5b0b72fc95e1255b817661",
+          "title": "What is Data Analysis? How to Visualize Data with Python, Numpy, Pandas, Matplotlib & Seaborn Tutorial",
+          "url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+          "canonical_url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_689ca9b780558fc45677e052",
+          "title": "我翻遍全B站，也没有看到能把【时间序列预测】讲得如此清晰的教程! LSTM+Informer时间序列预测源码解读+时间序列airma模型—pandas/机器学习",
+          "url": "https://www.bilibili.com/video/BV1Hd4y1F7bd/?uid=425631486434793146376264",
+          "canonical_url": "https://www.bilibili.com/video/BV1Hd4y1F7bd/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "catalog",
+          "video_evidence_status": "page_verified",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_0480d42f6db7ef12b3484cf4",
+          "title": "绝对是2022年全最完整的【时间序列预测模型】教程，超越Transformer的长时间序列预测模型 Informer+AIRMA+LSTM股票预测+pandas",
+          "url": "https://www.bilibili.com/video/BV1JY411f7oG/?uid=4256314A5934313166376F47",
+          "canonical_url": "https://www.bilibili.com/video/BV1JY411f7oG/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "catalog",
+          "video_evidence_status": "page_verified",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_c7646d0cd43109a5ec45024b",
+          "title": "05 Pandas怎样新增数据列",
+          "url": "https://www.bilibili.com/video/BV1bY411s7cy/?uid=425631625934313173376379",
+          "canonical_url": "https://www.bilibili.com/video/BV1bY411s7cy/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_e9d0f3c8d926e97b71e93e46",
+          "title": "164 pandas时间处理（八）",
+          "url": "https://www.bilibili.com/video/BV1qh41147yF/?uid=425631716834313134377946",
+          "canonical_url": "https://www.bilibili.com/video/BV1qh41147yF/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_7a3b1a1b06c8d9fc5506ef84",
+          "title": "2026新版Pandas数据分析进阶教程，零基础快速入门Python办公自动化。10个高频实战场景，带你解决数据合并、筛选、清洗等工作痛点，让效率提升10倍，是",
+          "url": "https://www.bilibili.com/video/BV14DdSBoEPt/?uid=42563134446453426F455074",
+          "canonical_url": "https://www.bilibili.com/video/BV14DdSBoEPt/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_54014f855888a0979abe0275",
+          "title": "55.计算时间差+数据分箱",
+          "url": "https://www.bilibili.com/video/BV1ba411W7rg/?uid=425631626134313157377267",
+          "canonical_url": "https://www.bilibili.com/video/BV1ba411W7rg/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_b94816f7d5830fec86cba728",
+          "title": "5分钟学编程 · Python篇 #44｜日期与时间：datetime 的基本用法",
+          "url": "https://www.bilibili.com/video/BV1zomUBsE1g/?uid=4256317A6F6D554273453167",
+          "canonical_url": "https://www.bilibili.com/video/BV1zomUBsE1g/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_0f69cb74850ea5b96f00445e",
+          "title": "88 数据类型转换（四）",
+          "url": "https://www.bilibili.com/video/BV1Kb4y1m7ap/?uid=4256314B623479316D376170",
+          "canonical_url": "https://www.bilibili.com/video/BV1Kb4y1m7ap/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_e788e29fcefd6b4df3497868",
+          "title": "Change datetime Format in pandas DataFrame in Python (2 Examples)",
+          "url": "https://statisticsglobe.com/change-datetime-format-pandas-dataframe-python",
+          "canonical_url": "https://statisticsglobe.com/change-datetime-format-pandas-dataframe-python",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_b51ed0157f1136177fd3b290",
+          "title": "Excel函数系列快速计算时间差",
+          "url": "https://www.bilibili.com/video/BV1oP4y1N7Mu/?uid=4256316F503479314E374D75",
+          "canonical_url": "https://www.bilibili.com/video/BV1oP4y1N7Mu/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_eed6800932af5b7d16569180",
+          "title": "P2_pandas中增加新列并改变列的排序",
+          "url": "https://www.bilibili.com/video/BV11j41157Jg/?uid=425631316A34313135374A67",
+          "canonical_url": "https://www.bilibili.com/video/BV11j41157Jg/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_9b8369d3171fd3ba241be719",
+          "title": "【25版】Pandas数据处理与分析，零基础入门到实战，涵盖所有pandas数据处理分析核心技能，轻松玩转数据清晰",
+          "url": "https://www.bilibili.com/video/BV1X2yBB6EEk/?uid=42563158327942423645456B",
+          "canonical_url": "https://www.bilibili.com/video/BV1X2yBB6EEk/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_cb41e4bd92e1ed21a9d24152",
+          "title": "【Pandas系列】Pandas怎样新增更改数据列",
+          "url": "https://www.bilibili.com/video/BV1mW42197Gi/?uid=4256316D5734323139374769",
+          "canonical_url": "https://www.bilibili.com/video/BV1mW42197Gi/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_ba0f155e8b240709e64528e5",
+          "title": "【全57集】2025最新版pandas教程，由浅入深（全程干货）",
+          "url": "https://www.bilibili.com/video/BV15HGyzcEyh/?uid=425631354847797A63457968",
+          "canonical_url": "https://www.bilibili.com/video/BV15HGyzcEyh/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_ab042259eebbee13041bcc6d",
+          "title": "冒死上传!花12800买来的【时间序列预测】教程，LSTM Informer时间序列预测源码解读 时间序列airma模型—pandas/机器学习",
+          "url": "https://www.bilibili.com/video/BV1Vd4y1871x/?uid=425631566434793138373178",
+          "canonical_url": "https://www.bilibili.com/video/BV1Vd4y1871x/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_3eb0b13a5e73c6ac61d89e04",
+          "title": "变量管理器中查看 datetime.timedelta 数据类型",
+          "url": "https://www.bilibili.com/video/BV1GN411Y7bK/?uid=425631474E3431315937624B",
+          "canonical_url": "https://www.bilibili.com/video/BV1GN411Y7bK/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_4a6334cc8bcdfb71a98e1ae3",
+          "title": "常用函数DAYS函数及快速计算两日期之间的天数",
+          "url": "https://v.qq.com/x/page/b07812sn3mn.html",
+          "canonical_url": "https://v.qq.com/x/page/b07812sn3mn.html",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_6b35205aa6bcbacc15e0f2e9",
+          "title": "怎么计算小时数的公式，如何计算两个时间之间的小时数，时间差怎么计算，excel教程视频全集",
+          "url": "https://www.bilibili.com/video/BV1MHy3YeEDx/?uid=4256314D4879335965454478",
+          "canonical_url": "https://www.bilibili.com/video/BV1MHy3YeEDx/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        }
+      ],
+      "specific_not_fetched": [
+        {
+          "resource_id": "res_c7646d0cd43109a5ec45024b",
+          "title": "05 Pandas怎样新增数据列",
+          "url": "https://www.bilibili.com/video/BV1bY411s7cy/?uid=425631625934313173376379",
+          "canonical_url": "https://www.bilibili.com/video/BV1bY411s7cy/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "resource_type": "video",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "description": null,
+          "video_topic_summary": null,
+          "field_provenance": {
+            "title": {
+              "evidence_id": "ev_65733350-a42a-4656-8344-f4e85256fc6e",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1bY411s7cy/?uid=425631625934313173376379"
+            },
+            "url": {
+              "evidence_id": "ev_65733350-a42a-4656-8344-f4e85256fc6e",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1bY411s7cy/?uid=425631625934313173376379"
+            },
+            "description": {
+              "evidence_id": "ev_65733350-a42a-4656-8344-f4e85256fc6e",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1bY411s7cy/?uid=425631625934313173376379"
+            },
+            "resource_type": {
+              "evidence_id": "ev_65733350-a42a-4656-8344-f4e85256fc6e",
+              "source": "url_pattern",
+              "url": "https://www.bilibili.com/video/BV1bY411s7cy/?uid=425631625934313173376379",
+              "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+            },
+            "video_evidence_status": {
+              "evidence_id": "ev_65733350-a42a-4656-8344-f4e85256fc6e",
+              "source": "url_pattern",
+              "url": "https://www.bilibili.com/video/BV1bY411s7cy/?uid=425631625934313173376379",
+              "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+            },
+            "thumbnail_url": {
+              "evidence_id": "ev_65733350-a42a-4656-8344-f4e85256fc6e",
+              "source": "search.thumbnail",
+              "url": "https://www.bilibili.com/video/BV1bY411s7cy/?uid=425631625934313173376379",
+              "observed_at": "2026-10-18T17:49:37.006953+00:00",
+              "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+            }
+          },
+          "chapters": [],
+          "own_evidence": [
+            {
+              "evidence_id": "ev_65733350-a42a-4656-8344-f4e85256fc6e",
+              "candidate_id": "123f05c9b594464a63a938e6",
+              "kind": "search",
+              "source": "searxng",
+              "source_engines": [
+                "duckduckgo videos"
+              ],
+              "type_source": "search_template",
+              "resource_type_hint": "video",
+              "knowledge_point_id": "ac59ade6-c882-404c-be3e-787653f0c206",
+              "query": "pandas 新增列赋值 视频教程",
+              "url": "https://www.bilibili.com/video/BV1bY411s7cy/?uid=425631625934313173376379",
+              "title": "05 Pandas怎样新增数据列",
+              "snippet": "",
+              "observed_at": "2026-10-18T17:49:37.006953+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.MUfIEn6hGnMOY2G0OyCFAwEsC7?pid=Api",
+              "thumbnail_source": "search.thumbnail"
+            }
+          ],
+          "assessment_current": null,
+          "match_current": null,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_54014f855888a0979abe0275",
+          "title": "55.计算时间差+数据分箱",
+          "url": "https://www.bilibili.com/video/BV1ba411W7rg/?uid=425631626134313157377267",
+          "canonical_url": "https://www.bilibili.com/video/BV1ba411W7rg/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "resource_type": "video",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "description": "目标：做一套有温度、有内涵的Python数据分析教程。 说明：数据分析的重点不是工具而是思维，Python也只是众多工具之一。如果只是数据清洗、数据可视化和数据探索，BI工具（Power BI、Tableau、Qlik等）可能是最好的选择，拖拉拽就可以完成基本的操作 ...",
+          "video_topic_summary": null,
+          "field_provenance": {
+            "title": {
+              "evidence_id": "ev_9c041a8e-7e8a-4331-94dd-d332432165ed",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1ba411W7rg/?uid=425631626134313157377267"
+            },
+            "url": {
+              "evidence_id": "ev_9c041a8e-7e8a-4331-94dd-d332432165ed",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1ba411W7rg/?uid=425631626134313157377267"
+            },
+            "description": {
+              "evidence_id": "ev_9c041a8e-7e8a-4331-94dd-d332432165ed",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1ba411W7rg/?uid=425631626134313157377267"
+            },
+            "resource_type": {
+              "evidence_id": "ev_9c041a8e-7e8a-4331-94dd-d332432165ed",
+              "source": "url_pattern",
+              "url": "https://www.bilibili.com/video/BV1ba411W7rg/?uid=425631626134313157377267",
+              "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+            },
+            "video_evidence_status": {
+              "evidence_id": "ev_9c041a8e-7e8a-4331-94dd-d332432165ed",
+              "source": "url_pattern",
+              "url": "https://www.bilibili.com/video/BV1ba411W7rg/?uid=425631626134313157377267",
+              "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+            },
+            "thumbnail_url": {
+              "evidence_id": "ev_9c041a8e-7e8a-4331-94dd-d332432165ed",
+              "source": "search.thumbnail",
+              "url": "https://www.bilibili.com/video/BV1ba411W7rg/?uid=425631626134313157377267",
+              "observed_at": "2026-10-18T17:48:40.544934+00:00",
+              "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+            }
+          },
+          "chapters": [],
+          "own_evidence": [
+            {
+              "evidence_id": "ev_9c041a8e-7e8a-4331-94dd-d332432165ed",
+              "candidate_id": "f6fd1197a6064e1faea1f343",
+              "kind": "search",
+              "source": "searxng",
+              "source_engines": [
+                "duckduckgo videos"
+              ],
+              "type_source": "search_template",
+              "resource_type_hint": "video",
+              "knowledge_point_id": "ac59ade6-c882-404c-be3e-787653f0c206",
+              "query": "site:bilibili.com/video pandas 时间差计算骑行分钟时长 视频教程",
+              "url": "https://www.bilibili.com/video/BV1ba411W7rg/?uid=425631626134313157377267",
+              "title": "55.计算时间差+数据分箱",
+              "snippet": "目标：做一套有温度、有内涵的Python数据分析教程。 说明：数据分析的重点不是工具而是思维，Python也只是众多工具之一。如果只是数据清洗、数据可视化和数据探索，BI工具（Power BI、Tableau、Qlik等）可能是最好的选择，拖拉拽就可以完成基本的操作 ...",
+              "observed_at": "2026-10-18T17:48:40.544934+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "thumbnail_url": "https://tse3.mm.bing.net/th/id/OVP.46e3hhKSnrhF-vmILz55SwEsC7?pid=Api",
+              "thumbnail_source": "search.thumbnail"
+            }
+          ],
+          "assessment_current": null,
+          "match_current": null,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_cb41e4bd92e1ed21a9d24152",
+          "title": "【Pandas系列】Pandas怎样新增更改数据列",
+          "url": "https://www.bilibili.com/video/BV1mW42197Gi/?uid=4256316D5734323139374769",
+          "canonical_url": "https://www.bilibili.com/video/BV1mW42197Gi/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "resource_type": "video",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "description": "Pandas是Python核心的数据处理与分析技术，能够读取Excel等表格数据，对数据进行清洗、过滤、排序、关联、统计、合并拆分、透视等全能操作，也能够对接数据库、爬虫、WEB开发、机器学习等综合技术，本视频课程带你从零掌握Pandas的数据处理与各种实战技术。",
+          "video_topic_summary": null,
+          "field_provenance": {
+            "title": {
+              "evidence_id": "ev_f16126ef-ade9-45f7-b964-d56c552e0efc",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1mW42197Gi/?uid=4256316D5734323139374769"
+            },
+            "url": {
+              "evidence_id": "ev_f16126ef-ade9-45f7-b964-d56c552e0efc",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1mW42197Gi/?uid=4256316D5734323139374769"
+            },
+            "description": {
+              "evidence_id": "ev_f16126ef-ade9-45f7-b964-d56c552e0efc",
+              "source": "search",
+              "url": "https://www.bilibili.com/video/BV1mW42197Gi/?uid=4256316D5734323139374769"
+            },
+            "resource_type": {
+              "evidence_id": "ev_f16126ef-ade9-45f7-b964-d56c552e0efc",
+              "source": "url_pattern",
+              "url": "https://www.bilibili.com/video/BV1mW42197Gi/?uid=4256316D5734323139374769",
+              "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+            },
+            "video_evidence_status": {
+              "evidence_id": "ev_f16126ef-ade9-45f7-b964-d56c552e0efc",
+              "source": "url_pattern",
+              "url": "https://www.bilibili.com/video/BV1mW42197Gi/?uid=4256316D5734323139374769",
+              "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+            },
+            "thumbnail_url": {
+              "evidence_id": "ev_f16126ef-ade9-45f7-b964-d56c552e0efc",
+              "source": "search.thumbnail",
+              "url": "https://www.bilibili.com/video/BV1mW42197Gi/?uid=4256316D5734323139374769",
+              "observed_at": "2026-10-18T17:49:37.006825+00:00",
+              "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+            }
+          },
+          "chapters": [],
+          "own_evidence": [
+            {
+              "evidence_id": "ev_f16126ef-ade9-45f7-b964-d56c552e0efc",
+              "candidate_id": "523ac7bfe57f73fd1443bd7f",
+              "kind": "search",
+              "source": "searxng",
+              "source_engines": [
+                "duckduckgo videos"
+              ],
+              "type_source": "search_template",
+              "resource_type_hint": "video",
+              "knowledge_point_id": "ac59ade6-c882-404c-be3e-787653f0c206",
+              "query": "pandas 新增列赋值 视频教程",
+              "url": "https://www.bilibili.com/video/BV1mW42197Gi/?uid=4256316D5734323139374769",
+              "title": "【Pandas系列】Pandas怎样新增更改数据列",
+              "snippet": "Pandas是Python核心的数据处理与分析技术，能够读取Excel等表格数据，对数据进行清洗、过滤、排序、关联、统计、合并拆分、透视等全能操作，也能够对接数据库、爬虫、WEB开发、机器学习等综合技术，本视频课程带你从零掌握Pandas的数据处理与各种实战技术。",
+              "observed_at": "2026-10-18T17:49:37.006825+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.Tv5siHIqTRA_DOR_HK-_cgIIFm?pid=Api",
+              "thumbnail_source": "search.thumbnail"
+            }
+          ],
+          "assessment_current": null,
+          "match_current": null,
+          "rejection_layer_current": "topic_assessment"
+        }
+      ],
+      "fetched_forecasting_is_not_duration_teaching": [
+        {
+          "resource_id": "res_689ca9b780558fc45677e052",
+          "title": "我翻遍全B站，也没有看到能把【时间序列预测】讲得如此清晰的教程! LSTM+Informer时间序列预测源码解读+时间序列airma模型—pandas/机器学习",
+          "url": "https://www.bilibili.com/video/BV1Hd4y1F7bd/?uid=425631486434793146376264",
+          "canonical_url": "https://www.bilibili.com/video/BV1Hd4y1F7bd/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "catalog",
+          "video_evidence_status": "page_verified",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_0480d42f6db7ef12b3484cf4",
+          "title": "绝对是2022年全最完整的【时间序列预测模型】教程，超越Transformer的长时间序列预测模型 Informer+AIRMA+LSTM股票预测+pandas",
+          "url": "https://www.bilibili.com/video/BV1JY411f7oG/?uid=4256314A5934313166376F47",
+          "canonical_url": "https://www.bilibili.com/video/BV1JY411f7oG/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "catalog",
+          "video_evidence_status": "page_verified",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        }
+      ]
+    },
+    {
+      "id": "export",
+      "point": {
+        "knowledge_point_id": "0a1c1248-75d1-4919-80fc-e11565ef120c",
+        "text": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+        "learning_targets": [
+          "DataFrame.to_csv(index=False)",
+          "计数链核对",
+          "文件名约定",
+          "输出目录检查"
+        ]
+      },
+      "candidate_count": 28,
+      "fetch_counts": {
+        "fetched": 4,
+        "not_fetched": 24
+      },
+      "current_match_count": 0,
+      "executed_queries": [
+        {
+          "query": "site:bilibili.com/video pandas 清洗结果与汇总 CSV 导出及复核日志 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "stop_reason": "domain_filter_excludes_official_source"
+          }
+        },
+        {
+          "query": "pandas 计数链核对 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            },
+            {
+              "code": "no_topic_signal",
+              "engine": "bing",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "pandas 清洗结果与汇总 CSV 导出及复核日志 groupby aggregation export save",
+          "provider": "public_catalog",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [],
+          "discovery": {
+            "public_catalog": {
+              "scope": "public HTML tag cards; detail verification required",
+              "indexes": [
+                {
+                  "source_url": "https://www.freecodecamp.org/news/tag/pandas/",
+                  "source_sha256": "d8a60ce9939f0c1f20f2f925b04f4b3de70fdc7f1513e272a6e499a499aabe3a",
+                  "observed_at": "2026-10-18T17:02:29.229481+00:00",
+                  "cache_hit": true,
+                  "observed_card_count": 22
+                },
+                {
+                  "source_url": "https://www.freecodecamp.org/news/tag/youtube/",
+                  "source_sha256": "25b04e65c14a9f4163e9708415fafcfe0a8d6c4ef9024357a668e993ec911607",
+                  "observed_at": "2026-10-18T17:02:33.720961+00:00",
+                  "cache_hit": true,
+                  "observed_card_count": 25
+                }
+              ],
+              "candidate_count": 6
+            }
+          }
+        },
+        {
+          "query": "pandas 输出目录检查 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            },
+            {
+              "code": "no_topic_signal",
+              "engine": "bing",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "pandas 清洗结果 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 6,
+          "error_code": null,
+          "upstream_warnings": [
+            {
+              "code": "no_topic_signal",
+              "engine": "duckduckgo videos",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            },
+            {
+              "code": "no_topic_signal",
+              "engine": "bing",
+              "message": "搜索返回候选，但标题摘要未通过原知识点相关性规则；允许的独立来源继续检索"
+            }
+          ],
+          "discovery": {
+            "topic": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        },
+        {
+          "query": "(site:ocw.mit.edu OR site:open.edu) pandas 计数链核对 视频教程",
+          "provider": "searxng",
+          "status": "completed",
+          "candidate_count": 0,
+          "error_code": null,
+          "upstream_warnings": [],
+          "discovery": {
+            "topic": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+            "technical_version": "",
+            "scope": "MIT-only URL-word discovery; independent page evidence required",
+            "children": [],
+            "robots": {
+              "source_url": "https://ocw.mit.edu/robots.txt",
+              "source_sha256": "bc14953e303dd365bbcf48ed7a552baeb0bf6d03f3c426db7310e649d137a9f6",
+              "observed_at": "2026-10-18T15:02:03.672153+00:00",
+              "locations": [
+                "https://ocw.mit.edu/sitemap.xml"
+              ],
+              "cache_hit": true
+            },
+            "index": {
+              "source_url": "https://ocw.mit.edu/sitemap.xml",
+              "source_sha256": "6486d44119beec7cffe8690474a6fc4f9aeb080f90211ec203ffc81f62278216",
+              "observed_at": "2026-10-18T15:02:12.586501+00:00",
+              "cache_hit": true,
+              "location_count": 2590
+            },
+            "matching_child_indexes": 0,
+            "candidate_count": 0
+          }
+        }
+      ],
+      "offline_generated_confirmed_gap_queries": [
+        "pandas 计数链核对 视频教程",
+        "pandas 文件名约定 视频教程",
+        "pandas 输出目录检查 视频教程",
+        "site:bilibili.com/video pandas 计数链核对 视频教程",
+        "site:bilibili.com/video pandas 文件名约定 视频教程",
+        "site:bilibili.com/video pandas 输出目录检查 视频教程"
+      ],
+      "conclusion": "No fetched video gives direct CSV/to_csv teaching. A fetched catalog does show saving data to an external file, but neither that title nor its other evidence establishes CSV/index=False/reconciliation/log/directory checks. A related FCC to-CSV article has no verified video identity and is correctly excluded. to_csv gap recall was filtered out before execution.",
+      "all_candidates_fact_index": [
+        {
+          "resource_id": "res_1d818f11c925467fd3b4708b",
+          "title": "Dataframe to CSV – How to Save Pandas Dataframes by Exporting",
+          "url": "https://www.freecodecamp.org/news/dataframe-to-csv-how-to-save-pandas-dataframes-by-exporting/",
+          "canonical_url": "https://www.freecodecamp.org/news/dataframe-to-csv-how-to-save-pandas-dataframes-by-exporting/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_028c1b885658f05a63272318",
+          "title": "Pandas 零基础入门到精通教程（全44集） | 【Pandas数据处理】【Pandas数据分析】【Pandas库】",
+          "url": "https://www.bilibili.com/video/BV1nLaP6hE4Y/?uid=4256316E4C61503668453459",
+          "canonical_url": "https://www.bilibili.com/video/BV1nLaP6hE4Y/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "catalog",
+          "video_evidence_status": "page_verified",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_0c5b0b72fc95e1255b817661",
+          "title": "What is Data Analysis? How to Visualize Data with Python, Numpy, Pandas, Matplotlib & Seaborn Tutorial",
+          "url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+          "canonical_url": "https://www.freecodecamp.org/news/exploratory-data-analysis-with-numpy-pandas-matplotlib-seaborn/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "page",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_2f2d36200ec4e1d3d2b813cd",
+          "title": "机器学习 | Python Pandas",
+          "url": "https://www.bilibili.com/video/BV176R4BGEiZ/?uid=42563137365234424745695A",
+          "canonical_url": "https://www.bilibili.com/video/BV176R4BGEiZ/",
+          "fetch_status": "fetched",
+          "metadata_evidence_level": "catalog",
+          "video_evidence_status": "page_verified",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_1200443cc0bbacf92824e8a0",
+          "title": "005 复核与重扫",
+          "url": "https://www.bilibili.com/video/BV15cVhzcECc/?uid=425631356356687A63454363",
+          "canonical_url": "https://www.bilibili.com/video/BV15cVhzcECc/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_c3c88a0f91db03a3ec3b926c",
+          "title": "104集Pandas数据清洗技巧",
+          "url": "https://www.bilibili.com/video/BV16EnmzMErn/?uid=42563136456E6D7A4D45726E",
+          "canonical_url": "https://www.bilibili.com/video/BV16EnmzMErn/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_d4d1b358ee71b49a86bff0d5",
+          "title": "2.3 数据的导入和导出",
+          "url": "https://www.bilibili.com/video/BV1j5BuBEEv2/?uid=4256316A3542754245457632",
+          "canonical_url": "https://www.bilibili.com/video/BV1j5BuBEEv2/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_590a6ed174ce04668422d431",
+          "title": "2026年最佳（没有之一）Pandas数据分析教程，由浅入深讲解，一套搞定Pandas数据分析与可视化!",
+          "url": "https://www.bilibili.com/video/BV15VopBwE8C/?uid=42563135566F704277453843",
+          "canonical_url": "https://www.bilibili.com/video/BV15VopBwE8C/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_d73a9e995f9ef8721e33a8b8",
+          "title": "5天学会Pandas数据清洗!零基础速成，搞定缺失值/重复项/异常处理，职场提效神器!",
+          "url": "https://www.bilibili.com/video/BV164SZB9Eqz/?uid=4256313634535A423945717A",
+          "canonical_url": "https://www.bilibili.com/video/BV164SZB9Eqz/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_93ce906fc5b1ab0aebcd9cd2",
+          "title": "B站全网首发!2026年最佳（没有之一）Pandas数据分析教程，由浅入深讲解，一套搞定Pandas!（全程干货）",
+          "url": "https://www.bilibili.com/video/BV1a97A6yEq7/?uid=425631613937413679457137",
+          "canonical_url": "https://www.bilibili.com/video/BV1a97A6yEq7/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_74bb1cd727c6e81bd80c0d6b",
+          "title": "Free Live Course: Data Analysis with Python",
+          "url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+          "canonical_url": "https://www.freecodecamp.org/news/free-live-course-data-analysis-with-python/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_c971a216427fdd7b1aaebd52",
+          "title": "How to Rename a Column in Pandas – Python Pandas Dataframe Renaming Tutorial",
+          "url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+          "canonical_url": "https://www.freecodecamp.org/news/how-to-rename-a-column-in-pandas/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_91aed5d2b60474db8932beba",
+          "title": "How to Use the Pandas DataFrame Groupby Method",
+          "url": "https://www.freecodecamp.org/news/pandas-dataframe-groupby-method/",
+          "canonical_url": "https://www.freecodecamp.org/news/pandas-dataframe-groupby-method/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_8c507f240b99ca2623702e70",
+          "title": "Learn Pandas & Python for Data Analysis [Full Course]",
+          "url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+          "canonical_url": "https://www.freecodecamp.org/news/learn-pandas-for-data-science/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "none",
+          "identity_eligible": false,
+          "rejection_layer_current": "identity"
+        },
+        {
+          "resource_id": "res_a63d6a6bc217a992fdcdf124",
+          "title": "MCGS 文件操作：基于 CSV 的用户登录日志系统实现",
+          "url": "https://www.bilibili.com/video/BV1sHbDzGE9K/?uid=425631734862447A4745394B",
+          "canonical_url": "https://www.bilibili.com/video/BV1sHbDzGE9K/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_6a62417b2616a5ab9b1dd574",
+          "title": "Pandas 零基础入门到精通教程（全44集）|【Pandas数据处理】【Pandas数据分析】【Pandas库】",
+          "url": "https://www.bilibili.com/video/BV1YgYr6pEu9/?uid=425631596759723670457539",
+          "canonical_url": "https://www.bilibili.com/video/BV1YgYr6pEu9/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_464a5f566a78c7e7eabf2f93",
+          "title": "Pandas数据清洗从入门到精通!零基础4步搞定脏数据，告别加班，掌握10大实战技巧",
+          "url": "https://www.bilibili.com/video/BV19GRQBqE5d/?uid=425631394752514271453564",
+          "canonical_url": "https://www.bilibili.com/video/BV19GRQBqE5d/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_8ddcaceec05dc76ba469c120",
+          "title": "Python Pandas 数据清洗（2026年最新版）规范原始数据、修复脏数据、结构化数据全套实战",
+          "url": "https://www.bilibili.com/video/BV1Azg56uEcQ/?uid=425631417A67353675456351",
+          "canonical_url": "https://www.bilibili.com/video/BV1Azg56uEcQ/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_ebe84239ead7389239371354",
+          "title": "RTK数据导入导出，excl，dat，txt，csv之间的转换，以及南方cass数据导入的格式",
+          "url": "https://www.bilibili.com/video/av400882401/",
+          "canonical_url": "https://www.bilibili.com/video/av400882401/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_7da49a028bfcbd602fe6f221",
+          "title": "【2026最新版附完整数分资料】2026年最佳Pandas数据分析教程，一口气学会Pandas全部用法!（全程干货）",
+          "url": "https://www.bilibili.com/video/BV1LhwazuEi8/?uid=4256314C6877617A75456938",
+          "canonical_url": "https://www.bilibili.com/video/BV1LhwazuEi8/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_dd8d6efbe605109a5f73579c",
+          "title": "【全127集】Pandas数据分析实战教程，从入门到精通（全程干货）",
+          "url": "https://www.bilibili.com/video/BV1hpjd6XEjU/?uid=42563168706A643658456A55",
+          "canonical_url": "https://www.bilibili.com/video/BV1hpjd6XEjU/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_ddc8d82371b9d854a991cb59",
+          "title": "【全27集】2025最新版Pandas数据分析实战教程，从入门到精通，由浅入深（全程干货）",
+          "url": "https://www.bilibili.com/video/BV1tuUfBwEL8/?uid=425631747555664277454C38",
+          "canonical_url": "https://www.bilibili.com/video/BV1tuUfBwEL8/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_dc9f7accf02252d86019783c",
+          "title": "【全27集】2026年最佳（没有之一）Pandas数据分析教程，由浅入深讲解，一套搞定Pandas!",
+          "url": "https://www.bilibili.com/video/BV1qwEX64EJo/?uid=425631717745583634454A6F",
+          "canonical_url": "https://www.bilibili.com/video/BV1qwEX64EJo/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_4519c516c463cc6f784f4d16",
+          "title": "【全27集】2026最细数据分析利器之Pandas实战教程，由浅入深讲解，一套搞定Pandas数据分析（全程干货）",
+          "url": "https://www.bilibili.com/video/BV1z2wczoEh3/?uid=4256317A3277637A6F456833",
+          "canonical_url": "https://www.bilibili.com/video/BV1z2wczoEh3/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_afe842b9c72ea12311ee2efc",
+          "title": "【全57集】Pandas数据分析入门到实战教程，从浅入深（全程干货）",
+          "url": "https://www.bilibili.com/video/BV1FbKw69EME/?uid=42563146624B773639454D45",
+          "canonical_url": "https://www.bilibili.com/video/BV1FbKw69EME/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_0600506b6fb6668ac3dbfe02",
+          "title": "如何将外部结果文件以CSV格式导入到Ansys",
+          "url": "https://www.bilibili.com/video/BV1aw411y73C/?uid=425631617734313179373343",
+          "canonical_url": "https://www.bilibili.com/video/BV1aw411y73C/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_9b42dd49fec0c175a96200be",
+          "title": "零基础小白必学 Pandas 数据清洗教程!全程零基础零门槛精讲，破解新手学不会、操作总报错难题，想学数据分析入门靠这套实战教程就够了",
+          "url": "https://www.bilibili.com/video/BV17Q9PBkEmR/?uid=42563137513950426B456D52",
+          "canonical_url": "https://www.bilibili.com/video/BV17Q9PBkEmR/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        },
+        {
+          "resource_id": "res_624e17594d8b8d363e08e512",
+          "title": "零基础小白职场必学 Pandas 教程，3 天攻克表格数据清洗难题，告别 Excel 卡顿低效，手把手教 Python 数据分析实操，全程通俗易懂适配新手入门!",
+          "url": "https://www.bilibili.com/video/BV1QS9TB6E4X/?uid=425631515339544236453458",
+          "canonical_url": "https://www.bilibili.com/video/BV1QS9TB6E4X/",
+          "fetch_status": "not_fetched",
+          "metadata_evidence_level": "search",
+          "video_evidence_status": "search_discovered",
+          "identity_eligible": true,
+          "rejection_layer_current": "topic_assessment"
+        }
+      ],
+      "generic_external_file_chapter": {
+        "title": "9.Pandas_Pandas保存数据到外部文件",
+        "url": "https://www.bilibili.com/video/BV1nLaP6hE4Y/?p=9",
+        "start_seconds": null,
+        "end_seconds": null,
+        "source_url": "https://www.bilibili.com/video/BV1nLaP6hE4Y/",
+        "duration_seconds": 763,
+        "page_number": 9,
+        "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+        "evidence_id": "ev_486f13b2-e827-4b9d-be69-08cac299f52f"
+      },
+      "chapter_must_not_be_inflated_to_csv_or_index_false": true,
+      "related_text_only_article": {
+        "resource_id": "res_1d818f11c925467fd3b4708b",
+        "title": "Dataframe to CSV – How to Save Pandas Dataframes by Exporting",
+        "url": "https://www.freecodecamp.org/news/dataframe-to-csv-how-to-save-pandas-dataframes-by-exporting/",
+        "canonical_url": "https://www.freecodecamp.org/news/dataframe-to-csv-how-to-save-pandas-dataframes-by-exporting/",
+        "fetch_status": "fetched",
+        "metadata_evidence_level": "page",
+        "video_evidence_status": "none",
+        "identity_eligible": false,
+        "rejection_layer_current": "identity"
+      },
+      "fetched_generic_course": {
+        "resource_id": "res_028c1b885658f05a63272318",
+        "title": "Pandas 零基础入门到精通教程（全44集） | 【Pandas数据处理】【Pandas数据分析】【Pandas库】",
+        "url": "https://www.bilibili.com/video/BV1nLaP6hE4Y/?uid=4256316E4C61503668453459",
+        "canonical_url": "https://www.bilibili.com/video/BV1nLaP6hE4Y/",
+        "fetch_status": "fetched",
+        "metadata_evidence_level": "catalog",
+        "video_evidence_status": "page_verified",
+        "identity_eligible": true,
+        "rejection_layer_current": "topic_assessment"
+      }
+    }
+  ],
+  "limits": [
+    "Per-point gap/public-probe started counters are in-memory and were not persisted. Exact historical consumption cannot be reconstructed from final rows; fetched timestamps and query trace support layer attribution, not invented scheduler traces.",
+    "No new source requests, playback validation, or seed URL injection occurred. Source snippets remain search-level evidence; old fetched metadata is labelled historical.",
+    "These observations do not establish complete project/video coverage or production acceptance. Root owns any implementation and subsequent live regression."
+  ]
+}

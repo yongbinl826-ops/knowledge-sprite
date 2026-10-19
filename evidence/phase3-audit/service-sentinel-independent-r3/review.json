@@ -1,0 +1,83 @@
+{
+  "created_at": "2026-10-18T23:29:21.673002+00:00",
+  "scope": "Independent read-only wiring review of installed stage r3 service sentinel/telemetry, matcherv3/rank/reviewv2 integration. No stage source/test writes, live service/platform/model calls or live DB writes. Offline tests use only mocks/in-memory/test-only DB.",
+  "source_snapshots": {
+    "start": "evidence/phase3-audit/service-sentinel-independent-r3/start.json",
+    "end": "evidence/phase3-audit/service-sentinel-independent-r3/end.json",
+    "all_47_backend_python_unchanged_during_tests": true,
+    "all_7_test_files_unchanged": true,
+    "post_probe_core_sha256": {
+      "backend/app/service.py": "a1f27b6f02c829f015906521e139ac48efc1b7619f1248b24161bb601359db6f",
+      "backend/app/teaching_match.py": "3ee0346cc4988d1746fe53c3705333179b17b78f225a11a0c4e710777ebdaa26",
+      "backend/app/teaching_review.py": "23270940226573e7cbbd6a27dee0afc1b9908b5fa36eff295d0578380ea67ad3",
+      "backend/app/ranking.py": "0cc5af3286f3a0b2eb19705af30019919cf71779174fe60a47febc85fc2fd7d1",
+      "backend/app/learning_support.py": "e0070183ce2db3b21d07f8b395a66897d5196389e8b8076fe4575f370824bbdf",
+      "backend/app/read_rank_cache.py": "b5e6d6bd51d11946a9bc8678f631b2eaef85331127f4fc386b459e286d891f64"
+    }
+  },
+  "definite_P1_P2_findings": [],
+  "closures": [
+    {
+      "name": "persist_before_await",
+      "evidence": "service.py:592-601 increments persistent call/pair counters and writes {} for each actually attempted pair before awaiting judge. Missing/bad/transport/cancel cannot look unattempted on concurrent GET."
+    },
+    {
+      "name": "good_pair_independent_review",
+      "evidence": "service.py:614-651 keeps each revalidated valid pair, counts missing invalid pairs, and passes every positive support through prepare_claims/review_batch. service.py:652-659 applies only source-rebound reviewed decisions; failed review is not cached."
+    },
+    {
+      "name": "sentinel_not_dropped_on_read",
+      "evidence": "service.py:1651-1655 uses is not None. Job {} beats old stored match decision. learning_support.py:16-20 rejects a present invalid/unsealed/old decision; literal fallback exists only when no saved attempt/decision is present."
+    },
+    {
+      "name": "partial_fault_observable",
+      "evidence": "service.py:624-627 records teaching_pair_validation_failures, upstream_partial and fixed warning. Entire unsuccessful batch gets a fixed upstream warning/status rather than fake empty success."
+    },
+    {
+      "name": "cache_and_reentry_caps",
+      "evidence": "service.py:570-579 validates current review seal/fingerprint before cache reuse, derives remaining call budget from persisted progress; reviewed count saved before review await; key includes content fingerprint with matcher version. Old invalid/v1 data cannot revive."
+    },
+    {
+      "name": "model_budget_and_source_reserve",
+      "evidence": "service.py:469-474 reserves at most45seconds inside task total; max20candidate pairs,4perpoint,10percall,2judge+1review persisted. New skill matches alwayspartial, so legacy _rerank supported-only group adds no call for these rows."
+    }
+  ],
+  "verification": {
+    "focused_junit": "evidence/phase3-audit/service-sentinel-independent-r3/focused.xml",
+    "tests": 321,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "includes": [
+      "3 attempted-pair read-closure scenarios: whole failure, cancellation, one missing pair with good pair still reviewed",
+      "source-bound IO/quote/hash/API/numeric/header/list safety and retained demonstrations",
+      "same-BV40cases and literal-priority22cases",
+      "existing calls/deadline/reentry/valid-empty/review-failure/persisted-old-claim GET-no-write tests"
+    ],
+    "independent_old_cache_probe": "evidence/phase3-audit/service-sentinel-independent-r3/probe_old_cache_reentry.json",
+    "old_cache_probe_summary": {
+      "mode": "offline synthetic in-memory DB; no provider/model/live DB",
+      "old_v1_cache_and_bad_new_namespace_entry_not_reused": true,
+      "first_failed_attempt_gets_no_literal_resurrection": true,
+      "invalid_cache_rows_before": 2,
+      "invalid_cache_rows_after": 2,
+      "new_cached_unknown_or_positive": 0,
+      "read_probe": {
+        "equal": true,
+        "db_writes": 0,
+        "judge_calls": 1,
+        "review_calls": 0
+      },
+      "three_mutation_entries_total_judge_calls": 2,
+      "review_calls": 0,
+      "persisted_call_cap": 2,
+      "sentinel_preserved": true
+    }
+  },
+  "limits": [
+    "This establishes inspected wiring/cost/read safety only, not semantic correctness of future model decisions.",
+    "Real pandas memory P2 post-fix pilot and final extractor/source-package regression remain parent-owned prerequisites.",
+    "Literal source-bound fallback remains intentional for genuinely never-attempted/unconfigured paths; attempted pair sentinels block that fallback.",
+    "Mixed legacy/manual units may retain legacy expansion/rerank behavior; teaching-specific caps describe the new skill path."
+  ]
+}

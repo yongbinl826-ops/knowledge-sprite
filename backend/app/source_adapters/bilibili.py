@@ -13,6 +13,13 @@ from .base import FieldFact, SourceFacts, clean_text
 
 
 BILIBILI_CATALOG_LIMIT = 1000
+BILIBILI_DESCRIPTION_LIMIT = 4000
+BILIBILI_DESCRIPTION_BYTES = 16000
+BILIBILI_DESCRIPTION_SOURCE = "html.bilibili.__INITIAL_STATE__.videoData.desc"
+BILIBILI_DESCRIPTION_STATUS_SOURCE = BILIBILI_DESCRIPTION_SOURCE + ".limit"
+DESCRIPTION_LIMIT_NOTICE = "来源视频简介未完整提取，当前仅保留可核对的标题与目录；请到平台查看完整介绍。"
+UNAVAILABLE_NOTICE = "来源返回了视频不可见页面；是否删除、需要登录、地区限制或临时故障尚未确认，请到平台核实。"
+_UNAVAILABLE_TITLE = re.compile(r"视频去哪了呢[？?]?(?:[_\s-]*哔哩哔哩(?:[_\s-]*bilibili)?)?", re.I)
 _STATE_LIMIT = 2_000_000
 _STATE_ASSIGNMENT = re.compile(r"\A\s*window\s*\.\s*__INITIAL_STATE__\s*=\s*")
 _STATE_ASSIGNMENT_REFERENCE = re.compile(
@@ -111,6 +118,63 @@ def unavailable_video_fact(soup: BeautifulSoup, url: str) -> FieldFact | None:
                      json.dumps(facts, ensure_ascii=False, sort_keys=True))
 
 
+def unconfirmed_unavailable_video_fact(soup: BeautifulSoup, url: str) -> FieldFact | None:
+    """An exact unavailable landing is evidence of uncertainty, not deletion."""
+    if not _video_url(url):
+        return None
+    state = _page_initial_state(soup)
+    video = state.get("videoData") if isinstance(state, dict) else None
+    if isinstance(video, dict) and video.get("bvid") == urlsplit(_video_url(url)).path.rstrip("/").rsplit("/", 1)[-1] and video.get("title"):
+        return None
+    titles = [soup.title.get_text(" ", strip=True)] if soup.title else []
+    titles.extend(tag.get("content", "").strip() for tag in soup.select('meta[property="og:title"]')[:2])
+    observed = next((title for title in titles if _UNAVAILABLE_TITLE.fullmatch(title)), None)
+    if not observed:
+        return None
+    facts = {"observed_landing_title": observed, "classification": "unavailable_cause_unconfirmed",
+             "not_a_deletion_or_access_cause_diagnosis": True}
+    return FieldFact("fetch_status", "unavailable_unconfirmed", "html.bilibili.unavailable_landing",
+                     json.dumps(facts, ensure_ascii=False, sort_keys=True))
+
+
+def unavailable_video_projection(resource: dict, evidence: list[dict]) -> dict:
+    """Repair old extracted landing metadata in a view, never its raw evidence.
+
+    Historical caches did not retain HTML error payloads. Their exact landing
+    title cannot prove removal, but must not be a normally fetched course title.
+    Only a same-video search observation may restore a course name.
+    """
+    if resource.get("fetch_status") in {"not_found", "error_page", "unsafe_url", "login_required", "captcha", "access_denied"}:
+        return resource
+    page_url = _video_url(resource.get("canonical_url") or resource.get("url") or resource.get("resolved_url") or "")
+    ambiguous = resource.get("fetch_status") == "unavailable_unconfirmed" or (
+        page_url and resource.get("video_evidence_status") != "page_verified"
+        and _UNAVAILABLE_TITLE.fullmatch(str(resource.get("title") or "").strip()))
+    if not page_url or not ambiguous:
+        return resource
+    projected = dict(resource, fetch_status="unavailable_unconfirmed", access_notice=UNAVAILABLE_NOTICE)
+    search = next((row for row in evidence if row.get("kind") == "search" and row.get("title")
+                   and not _UNAVAILABLE_TITLE.fullmatch(str(row["title"]).strip())
+                   and _video_url(row.get("url") or "") == page_url), None)
+    projected["field_provenance"] = dict(resource.get("field_provenance") or {})
+    if search:
+        projected["title"] = search["title"]
+        projected["field_provenance"]["title"] = {"source": "search", "evidence_id": search.get("evidence_id"),
+            "url": search["url"], "note": "保留同一视频的原始搜索名称；当前页面不可见原因未确认。"}
+        # A legacy generic og:type=video is not valid page evidence once the
+        # page is unavailable. Retain only the independently observed same-BV
+        # search entry identity, so it may appear in review without page proof.
+        search_identity = {"source": "url_pattern", "evidence_id": search.get("evidence_id"), "url": search["url"]}
+        projected["resource_type"] = "video"
+        projected["video_evidence_status"] = "search_discovered"
+        projected["field_provenance"]["resource_type"] = dict(search_identity)
+        projected["field_provenance"]["video_evidence_status"] = dict(search_identity)
+    elif _UNAVAILABLE_TITLE.fullmatch(str(resource.get("title") or "").strip()):
+        projected["title"] = "来源视频页面暂不可见（原因未确认）"
+        projected["field_provenance"].pop("title", None)
+    return projected
+
+
 def extract_embedded_video_facts(soup: BeautifulSoup, url: str) -> SourceFacts:
     """Read same-BV videoData.pages from the returned public page itself.
 
@@ -145,9 +209,25 @@ def extract_embedded_video_facts(soup: BeautifulSoup, url: str) -> SourceFacts:
     thumbnail = safe_thumbnail_url(video.get("pic"), page_url)
     if thumbnail:
         result.fields.append(FieldFact("thumbnail_url", thumbnail, source + ".pic"))
-    description = clean_text(video.get("desc"))
-    if description:
-        result.fields.append(FieldFact("description", description, source + ".desc"))
+    raw_description = video.get("desc")
+    description = " ".join(raw_description.split()) if isinstance(raw_description, str) else ""
+    try:
+        description_bytes = len(description.encode("utf-8"))
+        description_status = "limit_exceeded" if (len(description) > BILIBILI_DESCRIPTION_LIMIT
+            or description_bytes > BILIBILI_DESCRIPTION_BYTES) else None
+    except UnicodeEncodeError:
+        description_status = "invalid_encoding"
+        description_bytes = None
+    if description_status:
+        # Never let a silent prefix omit a later qualification/negative clause.
+        # This diagnostic contains counts/status only, no unbounded source text.
+        result.fields.append(FieldFact("description_extraction_status", description_status,
+            BILIBILI_DESCRIPTION_STATUS_SOURCE,
+            f"Own video description omitted: {description_status}; normalized_characters={len(description)}; "
+            f"utf8_bytes={description_bytes}; limits={BILIBILI_DESCRIPTION_LIMIT} characters/{BILIBILI_DESCRIPTION_BYTES} bytes"))
+        result.fields.append(FieldFact("access_notice", DESCRIPTION_LIMIT_NOTICE, BILIBILI_DESCRIPTION_STATUS_SOURCE))
+    elif description:
+        result.fields.append(FieldFact("description", description, BILIBILI_DESCRIPTION_SOURCE))
     owner = video.get("owner")
     author = clean_text(owner.get("name"), 250) if isinstance(owner, dict) else None
     if author:

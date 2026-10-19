@@ -1,0 +1,1057 @@
+{
+  "created_at": "2026-10-18T19:23:34.990771+00:00",
+  "mode": "derived_five_project_mixed_version_static_acceptance_summary",
+  "new_http_requests": 0,
+  "new_model_calls": 0,
+  "production_tests_or_database_changed": false,
+  "prior_manual_judgments_reaggregated_not_new_independent_semantic_reviews": true,
+  "accepted_versions_are_mixed_and_not_first_attempt_success_rate": true,
+  "accepted_version_policy": "Use web/Arduino actual accepted v3 from v2.6.1; bicycle/maze actual accepted v2 from v2.6; dashboard actual accepted v1 from v2.6.1. Search edit versions are not new analysis generations or new semantic approvals. Preserve all earlier API/provider failures.",
+  "records": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "accepted_analysis_version": 3,
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+      "analysis_sha256": "99729fa69f61786176b5968ac8e218fecc57508c6dc7b1733ea4d826c7796a91",
+      "input_sha256": "8578b758f3ea6b4ad5ae3b9786cc1b3f8bc12c30501ec7f70ca26a8490befe17",
+      "student_level": "beginner",
+      "learning_unit_count": 7,
+      "fixed_requirement_count": 7,
+      "static_requirements_passed": 7,
+      "verdict": "static_pass",
+      "source_manual_review": "evidence\\phase2-learning-v261\\manual-review.json",
+      "source_run": "evidence\\phase2-learning-v261\\run.json",
+      "source_case": "evidence\\phase2-learning-v261\\web_pomodoro_beginner.json",
+      "manual_requirements_inherited_verbatim": [
+        {
+          "id": "w1",
+          "requirement": "Show phase, 25/5 duration, formatted remaining time and count",
+          "unit_ids": [
+            "k1",
+            "k3",
+            "k4"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "Concrete display placeholders, a state/render function and fixed-duration constants/formatting show all required information."
+        },
+        {
+          "id": "w2",
+          "requirement": "Start, pause and resume",
+          "unit_ids": [
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Pause stores remaining milliseconds; resume explicitly recomputes a new deadline. No paused wall time is subtracted."
+        },
+        {
+          "id": "w3",
+          "requirement": "On expiry switch phase and wait paused",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "On <=0, switch 25/5 phase and pause; user must explicitly start the next phase."
+        },
+        {
+          "id": "w4",
+          "requirement": "Increment count only for completed focus phases",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "Only completed focus increments exactly once; rest completion does not add to the count."
+        },
+        {
+          "id": "w5",
+          "requirement": "Background-tab return retains accurate remaining time",
+          "unit_ids": [
+            "k4"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "Deadline minus Date.now measures actual elapsed time; setInterval is display refresh only."
+        },
+        {
+          "id": "w6",
+          "requirement": "Mobile layout and full keyboard access",
+          "unit_ids": [
+            "k1",
+            "k2",
+            "k7"
+          ],
+          "function_ids": [
+            "f6",
+            "f7"
+          ],
+          "passed": true,
+          "reason": "Native buttons preserve Tab/Enter/Space; focus-visible, viewport and responsive layout have concrete keyboard/360px checks."
+        },
+        {
+          "id": "w7",
+          "requirement": "Reset clears active work and restores a usable initial state",
+          "unit_ids": [
+            "k5"
+          ],
+          "function_ids": [
+            "f8"
+          ],
+          "passed": true,
+          "reason": "Reset restores focus 25:00 and paused state; subsequent start/pause/resume is an observable practice."
+        }
+      ],
+      "known_high_or_medium_static_issues": [],
+      "low_priority_notes_inherited": [
+        "f3 says count-reset behavior is in assumptions, but that list does not explicitly define whether reset clears the count. The input leaves this open; choose and label the intended policy rather than retaining a dangling reference."
+      ],
+      "student_project_code_executed": false,
+      "client_analysis_wall_seconds": 28.68821,
+      "accepted_api_snapshot_observed_cost": {
+        "generation_calls": 2,
+        "semantic_review_calls": 1,
+        "model_calls": 3,
+        "completion_tokens": 5271,
+        "total_tokens": 18307,
+        "calls_with_unknown_usage": []
+      },
+      "model_call_evidence": [
+        {
+          "call_id": "1cdb51cfdb3c468abab28640a76f3bf4",
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3196,
+            "completion_tokens": 2314,
+            "total_tokens": 5510,
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 1788,
+            "prompt_tokens_details": {
+              "cached_tokens": 1408
+            }
+          },
+          "response_body_sha256": "7749631804c6b4c5e17d1c0aefd18ce932fec1ec9be19faa9b144bf1b54d6a8e",
+          "started_at": "2026-10-18T16:59:59.978850+00:00",
+          "finished_at": "2026-10-18T17:00:14.301061+00:00"
+        },
+        {
+          "call_id": "acd527d547b04ef3aa6d2b51640d751e",
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 5882,
+            "completion_tokens": 2759,
+            "total_tokens": 8641,
+            "prompt_cache_hit_tokens": 3072,
+            "prompt_cache_miss_tokens": 2810,
+            "prompt_tokens_details": {
+              "cached_tokens": 3072
+            }
+          },
+          "response_body_sha256": "c6b19de6b29523b2b6849d52ea8a47f6ecc89a8284b296c0d04e4615beb9831f",
+          "started_at": "2026-10-18T17:00:14.305457+00:00",
+          "finished_at": "2026-10-18T17:00:25.291704+00:00"
+        },
+        {
+          "call_id": "c822d67b3d3a4682946438cc5191362e",
+          "task": "project_analysis_review",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3958,
+            "completion_tokens": 198,
+            "total_tokens": 4156,
+            "prompt_cache_hit_tokens": 640,
+            "prompt_cache_miss_tokens": 3318,
+            "prompt_tokens_details": {
+              "cached_tokens": 640
+            }
+          },
+          "response_body_sha256": "565665c49ffb25f73f5fd78649a5861fa52bad3c911e82e781e2c255aff2f999",
+          "started_at": "2026-10-18T17:00:25.295541+00:00",
+          "finished_at": "2026-10-18T17:00:28.623958+00:00"
+        }
+      ]
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "accepted_analysis_version": 2,
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+      "analysis_sha256": "0a16fe3591e43e43ec4d5c992aa98866999ba96dabcd90bdfaae2eb6329164ca",
+      "input_sha256": "6cbd5cc4cc298491446c686e26a4d5141b6c4388cf29584ee51e5369c9b61178",
+      "student_level": "advanced",
+      "learning_unit_count": 7,
+      "fixed_requirement_count": 6,
+      "static_requirements_passed": 6,
+      "verdict": "static_pass",
+      "source_manual_review": "evidence\\phase2-learning-v26\\manual-review.json",
+      "source_run": "evidence\\phase2-learning-v26\\run.json",
+      "source_case": "evidence\\phase2-learning-v26\\bicycle_csv_advanced.json",
+      "manual_requirements_inherited_verbatim": [
+        {
+          "id": "d1",
+          "requirement": "Read CSV and audit trip_id deduplication",
+          "unit_ids": [
+            "k1",
+            "k2"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Read/column/type baseline then trip_id keep-first with before/after deletion counts."
+        },
+        {
+          "id": "d2",
+          "requirement": "Parse timestamps and separate invalid reasons",
+          "unit_ids": [
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "Missing/failed parsing and strict end<start are separate invalid sets; end==start is explicitly retained."
+        },
+        {
+          "id": "d3",
+          "requirement": "Compute duration for all rows valid under the requested boundary",
+          "unit_ids": [
+            "k4"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "f3 and k4 explicitly require nonnegative duration and zero for equal timestamps; total_seconds/minutes are taught."
+        },
+        {
+          "id": "d4",
+          "requirement": "Aggregate by departure hour and export counts",
+          "unit_ids": [
+            "k5"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "Departure dt.hour and group counts use valid data and reconcile to the valid row total."
+        },
+        {
+          "id": "d5",
+          "requirement": "Departure-station Top10 chart with labels",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "Actual station counts feed a labeled Top10 PNG; fewer than ten stations are expressly allowed."
+        },
+        {
+          "id": "d6",
+          "requirement": "Export cleaned CSV, hourly CSV and PNG",
+          "unit_ids": [
+            "k6",
+            "k7"
+          ],
+          "function_ids": [
+            "f6"
+          ],
+          "passed": true,
+          "reason": "Both CSVs and the PNG have concrete export tasks and count/file checks."
+        }
+      ],
+      "known_high_or_medium_static_issues": [],
+      "low_priority_notes_inherited": [
+        "k7 exports CSV and logs but depends on the plotting unit k6; its true data prerequisites can be expressed directly, with the final workflow order kept separately. This is an extra curriculum edge, not a missing requirement or a correctness contradiction."
+      ],
+      "student_project_code_executed": false,
+      "client_analysis_wall_seconds": 32.546064,
+      "accepted_api_snapshot_observed_cost": {
+        "generation_calls": 2,
+        "semantic_review_calls": 1,
+        "model_calls": 3,
+        "completion_tokens": 5179,
+        "total_tokens": 15607,
+        "calls_with_unknown_usage": []
+      },
+      "model_call_evidence": [
+        {
+          "call_id": "76c5314fc84d473e8fad9ed291151099",
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3183,
+            "completion_tokens": 2641,
+            "total_tokens": 5824,
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 1775,
+            "prompt_tokens_details": {
+              "cached_tokens": 1408
+            }
+          },
+          "response_body_sha256": "46c464f3a67a3335bd42a01b226c3033a2cecef735c9bf2c5d71d311bc29b6f4",
+          "started_at": "2026-10-18T16:51:42.591666+00:00",
+          "finished_at": "2026-10-18T16:51:57.111345+00:00"
+        },
+        {
+          "call_id": "7f5c01cf09304ad6b07cd6dafc48e5cc",
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3226,
+            "completion_tokens": 2528,
+            "total_tokens": 5754,
+            "prompt_cache_hit_tokens": 3072,
+            "prompt_cache_miss_tokens": 154,
+            "prompt_tokens_details": {
+              "cached_tokens": 3072
+            }
+          },
+          "response_body_sha256": "4dd52da8b1e35f144c01e4631e16664dfd6abcd18251a2aa7d7e90fbda9fca76",
+          "started_at": "2026-10-18T16:51:57.112704+00:00",
+          "finished_at": "2026-10-18T16:52:11.245961+00:00"
+        },
+        {
+          "call_id": "583a6a742dd249a19d6495505a30e037",
+          "task": "project_analysis_review",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 4019,
+            "completion_tokens": 10,
+            "total_tokens": 4029,
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 3507,
+            "prompt_tokens_details": {
+              "cached_tokens": 512
+            }
+          },
+          "response_body_sha256": "27ed8f3c16119006ce66cb5db1f0ffde1d92d03cadf1682487c1c218442ef316",
+          "started_at": "2026-10-18T16:52:11.250341+00:00",
+          "finished_at": "2026-10-18T16:52:15.032488+00:00"
+        }
+      ]
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "accepted_analysis_version": 3,
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+      "analysis_sha256": "8b60141a6527ce27b2cef7cf983f1d718bfcaa7e12d6b1f185659de86fff703b",
+      "input_sha256": "317664081f9ac76b224542e4f602236b8c998f730777dcb77188805f35b5d23d",
+      "student_level": "beginner",
+      "learning_unit_count": 5,
+      "fixed_requirement_count": 6,
+      "static_requirements_passed": 6,
+      "verdict": "static_pass",
+      "source_manual_review": "evidence\\phase2-learning-v261\\manual-review.json",
+      "source_run": "evidence\\phase2-learning-v261\\run.json",
+      "source_case": "evidence\\phase2-learning-v261\\arduino_reaction_beginner.json",
+      "manual_requirements_inherited_verbatim": [
+        {
+          "id": "h1",
+          "requirement": "Low-voltage safe LED/button wiring",
+          "unit_ids": [
+            "k1",
+            "k2"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Current limiting, LED polarity, common ground, unpowered wiring and INPUT_PULLUP-to-ground are explicit."
+        },
+        {
+          "id": "h2",
+          "requirement": "INPUT_PULLUP active-low button",
+          "unit_ids": [
+            "k2"
+          ],
+          "function_ids": [
+            "f1",
+            "f2"
+          ],
+          "passed": true,
+          "reason": "The raw-input check explicitly expects released=1 and pressed=0."
+        },
+        {
+          "id": "h3",
+          "requirement": "Actual debounce plus one event per held press",
+          "unit_ids": [
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "Multiple identical samples at a nonblocking interval are required before stable-state HIGH-to-LOW edges; held LOW cannot produce repeated presses."
+        },
+        {
+          "id": "h4",
+          "requirement": "Responsive random wait and early-press false start",
+          "unit_ids": [
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "random(2000,5001) and millis comparison keep button debounce running during WAITING; an early press is a distinct event."
+        },
+        {
+          "id": "h5",
+          "requirement": "Reaction milliseconds and readable serial output",
+          "unit_ids": [
+            "k2",
+            "k5"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "The LIGHT_ON behavior reports the first valid post-signal press as nonnegative reaction milliseconds through Serial."
+        },
+        {
+          "id": "h6",
+          "requirement": "A fresh press can start another round without long-hold repetition",
+          "unit_ids": [
+            "k3",
+            "k5"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "EARLY can accept a fresh press to begin another random wait; stable edge input prevents long-hold round repetition."
+        }
+      ],
+      "known_high_or_medium_static_issues": [],
+      "low_priority_notes_inherited": [
+        "Four samples spaced 5ms describe an approximate stability window; do not present a precise measured 20ms guarantee without clarifying interval/count semantics.",
+        "In executable firmware, verify reaction timing uses the actual LED-on timestamp rather than the earlier random-wait start. No hardware timing measurement is claimed here."
+      ],
+      "student_project_code_executed": false,
+      "client_analysis_wall_seconds": 19.38694,
+      "accepted_api_snapshot_observed_cost": {
+        "generation_calls": 1,
+        "semantic_review_calls": 1,
+        "model_calls": 2,
+        "completion_tokens": 2776,
+        "total_tokens": 9588,
+        "calls_with_unknown_usage": []
+      },
+      "model_call_evidence": [
+        {
+          "call_id": "381460a65a50463a95c2b4aa3d53a0dc",
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3218,
+            "completion_tokens": 2538,
+            "total_tokens": 5756,
+            "prompt_cache_hit_tokens": 1536,
+            "prompt_cache_miss_tokens": 1682,
+            "prompt_tokens_details": {
+              "cached_tokens": 1536
+            }
+          },
+          "response_body_sha256": "54af47e250f91fe8cd588ab7e82a717e24c2bf3076d5fba1304b976f5908a886",
+          "started_at": "2026-10-18T17:00:28.672324+00:00",
+          "finished_at": "2026-10-18T17:00:42.662139+00:00"
+        },
+        {
+          "call_id": "7e611b07716646f1babfd0cf38a7a1fa",
+          "task": "project_analysis_review",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3594,
+            "completion_tokens": 238,
+            "total_tokens": 3832,
+            "prompt_cache_hit_tokens": 768,
+            "prompt_cache_miss_tokens": 2826,
+            "prompt_tokens_details": {
+              "cached_tokens": 768
+            }
+          },
+          "response_body_sha256": "399047d8d275adf5a117356d2cfcc6c137b2a7521473a1aaa2f24c2130ef986f",
+          "started_at": "2026-10-18T17:00:42.666485+00:00",
+          "finished_at": "2026-10-18T17:00:47.316862+00:00"
+        }
+      ]
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "accepted_analysis_version": 2,
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+      "analysis_sha256": "88631330503dbb9cc96177354725ede8de0ef7bd1ff98634d5650e74535b8f2a",
+      "input_sha256": "1ca3a0798f7ec91870c343e74a526feaa47aaba795073329d29265b4cb1d373d",
+      "student_level": "intermediate",
+      "learning_unit_count": 6,
+      "fixed_requirement_count": 5,
+      "static_requirements_passed": 5,
+      "verdict": "static_pass",
+      "source_manual_review": "evidence\\phase2-learning-v26\\manual-review.json",
+      "source_run": "evidence\\phase2-learning-v26\\run.json",
+      "source_case": "evidence\\phase2-learning-v26\\pygame_maze_intermediate.json",
+      "manual_requirements_inherited_verbatim": [
+        {
+          "id": "m1",
+          "requirement": "Fixed 8x8 wall/path/exit grid",
+          "unit_ids": [
+            "k1"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "The 8x8 list representation, coordinate mapping and visible wall/path/exit colors are concrete."
+        },
+        {
+          "id": "m2",
+          "requirement": "One step per key, no walls/boundary crossing",
+          "unit_ids": [
+            "k2",
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "Target row/column 0..7 checks precede map access and position update; KEYDOWN gives one movement event."
+        },
+        {
+          "id": "m3",
+          "requirement": "Freeze real elapsed time on victory",
+          "unit_ids": [
+            "k4",
+            "k6"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "WIN captures the end timestamp and displays the true elapsed difference; frame limiting does not determine elapsed time."
+        },
+        {
+          "id": "m4",
+          "requirement": "R resets player, clock and game state",
+          "unit_ids": [
+            "k5",
+            "k6"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "R restores position, time origin and playable state; repeat-play checking is explicit."
+        },
+        {
+          "id": "m5",
+          "requirement": "Ready/won still handle R/Esc/QUIT; frame rate bounded",
+          "unit_ids": [
+            "k4",
+            "k5",
+            "k6"
+          ],
+          "function_ids": [
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "READY/PLAYING/WIN all keep event/render handling; only QUIT/Esc ends the loop, and tick caps the frame rate."
+        }
+      ],
+      "known_high_or_medium_static_issues": [],
+      "low_priority_notes_inherited": [
+        "The plan calls pygame an assumption despite Python and pygame being explicitly requested; the chosen implementation and all tool targets still correctly use pygame. Improve attribution without changing the actual selected route."
+      ],
+      "student_project_code_executed": false,
+      "client_analysis_wall_seconds": 26.630905,
+      "accepted_api_snapshot_observed_cost": {
+        "generation_calls": 2,
+        "semantic_review_calls": 1,
+        "model_calls": 3,
+        "completion_tokens": 4146,
+        "total_tokens": 14018,
+        "calls_with_unknown_usage": []
+      },
+      "model_call_evidence": [
+        {
+          "call_id": "624a04a1b4e1489ea97f24329342bc6c",
+          "task": "project_analysis",
+          "outcome": "failed",
+          "failure_type": "JSONDecodeError",
+          "usage": {
+            "prompt_tokens": 3149,
+            "completion_tokens": 2028,
+            "total_tokens": 5177,
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 1741,
+            "prompt_tokens_details": {
+              "cached_tokens": 1408
+            }
+          },
+          "response_body_sha256": "481808c533af837726f4369b63a3ace95f8c55bcb0d817dad1b883202080fcc9",
+          "started_at": "2026-10-18T16:52:45.935186+00:00",
+          "finished_at": "2026-10-18T16:52:57.936462+00:00"
+        },
+        {
+          "call_id": "43eafd6160d240ab9b9819292e8d225e",
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3179,
+            "completion_tokens": 2109,
+            "total_tokens": 5288,
+            "prompt_cache_hit_tokens": 2944,
+            "prompt_cache_miss_tokens": 235,
+            "prompt_tokens_details": {
+              "cached_tokens": 2944
+            }
+          },
+          "response_body_sha256": "e0ffe5140a2b7a993ec62428ff1ea284d2e1f6d69258d61a472aba2223bf77ac",
+          "started_at": "2026-10-18T16:52:57.937343+00:00",
+          "finished_at": "2026-10-18T16:53:09.215131+00:00"
+        },
+        {
+          "call_id": "e99a81bfbacd46f8b0b576748b478991",
+          "task": "project_analysis_review",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3544,
+            "completion_tokens": 9,
+            "total_tokens": 3553,
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 3032,
+            "prompt_tokens_details": {
+              "cached_tokens": 512
+            }
+          },
+          "response_body_sha256": "e0aabcea70c4eb906220eb306d53cf523a731977285c1eac19ca49b46880a575",
+          "started_at": "2026-10-18T16:53:09.218908+00:00",
+          "finished_at": "2026-10-18T16:53:12.055406+00:00"
+        }
+      ]
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "project_id": "bb01c9ec-8b25-4425-832e-ccd9fa7d0a60",
+      "accepted_analysis_version": 1,
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+      "analysis_sha256": "208fc973b4258a0c11c3fa48adfa32fe8a722db88fd974340d0fc592a709af4f",
+      "input_sha256": "69bed53e0c58d1d40509c554955be013a76cbbc51653793fbca85a1c93f616f4",
+      "student_level": "intermediate",
+      "learning_unit_count": 6,
+      "fixed_requirement_count": 6,
+      "static_requirements_passed": 6,
+      "verdict": "static_pass",
+      "source_manual_review": "evidence\\phase2-dashboard-analysis\\manual-review.json",
+      "source_run": "evidence\\phase2-dashboard-analysis\\run.json",
+      "source_case": "evidence\\phase2-dashboard-analysis\\study_room_streamlit_intermediate.json",
+      "manual_requirements_inherited_verbatim": [
+        {
+          "id": "dashboard_1",
+          "requirement": "本地Streamlit入口、CSV上传与可恢复输入状态",
+          "unit_ids": [
+            "k1",
+            "k2",
+            "k6"
+          ],
+          "function_ids": [
+            "f1",
+            "f3",
+            "f7"
+          ],
+          "passed": true,
+          "reason": "k1上传并显示表头/行数且未上传提示；f1/f3与k2区分解析/缺列错误；k6条件提示且页面仍可操作，入口与恢复路径有具体学习任务。",
+          "predeclared_expected": [
+            "本机Streamlit运行和st.file_uploader",
+            "未上传有提示而非异常",
+            "缺列/坏CSV显示错误，重新上传可恢复"
+          ],
+          "predeclared_must_not": [
+            "联网API/账号/数据库/云部署替代本地CSV",
+            "只有泛Python文件读写课替代Streamlit上传流程"
+          ]
+        },
+        {
+          "id": "dashboard_2",
+          "requirement": "按明确字段条件清洗并报告排除行数",
+          "unit_ids": [
+            "k2"
+          ],
+          "function_ids": [
+            "f2",
+            "f3"
+          ],
+          "passed": true,
+          "reason": "technical_plan逐项列日期、非空room、非负整数visits、正整数capacity/open_minutes及非负且<=容量时长的occupied_seat_minutes；k2验证函数区分缺列和行级无效，计数、不去重且练习明确零visits保留。",
+          "predeclared_expected": [
+            "YYYY-MM-DD日期解析、非空room",
+            "visits非负整数；capacity/open_minutes正整数",
+            "occupied_seat_minutes>=0且<=capacity*open_minutes",
+            "不合格行排除并显示数量，不擅自去重",
+            "有效visits=0与占用分钟=0的行保留"
+          ],
+          "predeclared_must_not": [
+            "以visits>0排掉零记录",
+            "非法行静默参与统计",
+            "对重复行擅自去重改变口径"
+          ]
+        },
+        {
+          "id": "dashboard_3",
+          "requirement": "含等号的日期范围与明确房间多选语义",
+          "unit_ids": [
+            "k1",
+            "k3",
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f4",
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "assumptions取有效min/max与全部房间默认；f4/k3明确日期两端包含与选空返回空结果；k1解释重运行，k4和k5明确使用同一份filtered，未出现空选回退全选。",
+          "predeclared_expected": [
+            "开始<=date<=结束",
+            "默认有效日期全集与全部有效房间",
+            "选择空房间集合得到空结果",
+            "一个筛选DataFrame驱动指标与图，控件更新后重算"
+          ],
+          "predeclared_must_not": [
+            "日期上界误用<",
+            "空选择自动恢复全选",
+            "图和指标使用不同过滤结果"
+          ]
+        },
+        {
+          "id": "dashboard_4",
+          "requirement": "三个指标及加权使用率边界",
+          "unit_ids": [
+            "k2",
+            "k4",
+            "k6"
+          ],
+          "function_ids": [
+            "f2",
+            "f5",
+            "f7"
+          ],
+          "passed": true,
+          "reason": "f5与k4明确三项总量聚合、使用率为sum(occupied)/sum(capacity*open_minutes)而非行比例均值，显示时格式化；k2保留零到访记录，k6先判空再算，避免0分母。",
+          "predeclared_expected": [
+            "sum(visits)",
+            "sum(occupied_seat_minutes)",
+            "sum(occupied_seat_minutes)/sum(capacity*open_minutes)",
+            "百分比仅显示时保留1位小数",
+            "零到访有效行保留容量分母，非逐行百分比平均"
+          ],
+          "predeclared_must_not": [
+            "mean(行使用率)替代加权比",
+            "有效零到访行被排掉导致使用率虚高",
+            "没有数据时计算除零或伪造0%"
+          ]
+        },
+        {
+          "id": "dashboard_5",
+          "requirement": "房间分组到访条形图与指标同口径",
+          "unit_ids": [
+            "k3",
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f4",
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "f6/k5明示对filtered按room求sum(visits)，用st.bar_chart；与k4同份过滤数据而不是按记录数，脚本重运行保证控件后重算，空时不画图。",
+          "predeclared_expected": [
+            "按room对visits求和",
+            "Streamlit内置bar_chart或等价明确同工具图表",
+            "图中总人次与指标sum(visits)一致",
+            "房间/日期变化后图同步更新"
+          ],
+          "predeclared_must_not": [
+            "换成预测/复杂仪表盘系统",
+            "按记录行数代替到访人次",
+            "固定硬编码图与筛选无关"
+          ]
+        },
+        {
+          "id": "dashboard_6",
+          "requirement": "空结果、无效输入与重新选择的可用流程",
+          "unit_ids": [
+            "k1",
+            "k2",
+            "k3",
+            "k5",
+            "k6"
+          ],
+          "function_ids": [
+            "f1",
+            "f3",
+            "f4",
+            "f6",
+            "f7"
+          ],
+          "passed": true,
+          "reason": "未上传、缺列/解析错误、无匹配各有提示；k6任务明确在指标图表前判断空和错误，练习三指标—、无NaN、不画图且可继续操作，不把零人次的有效行当空表。",
+          "predeclared_expected": [
+            "无匹配给明确提示",
+            "空指标显示—而非NaN或虚假0%",
+            "空图不画误导柱",
+            "上传新文件/调整筛选后恢复正常数据展示"
+          ],
+          "predeclared_must_not": [
+            "空DataFrame索引崩溃",
+            "用异常吞掉所有错误却不给学生下一步",
+            "必须刷新重启应用才能恢复"
+          ]
+        }
+      ],
+      "known_high_or_medium_static_issues": [],
+      "low_priority_notes_inherited": [
+        "k3的控件默认值来自清洗后的有效数据，但显式先修只列k1；学习顺序已在k2之后，实践可补k2依赖或说明使用已校验样本。",
+        "k5的真正数据准备来自k2/k3，依赖k4更多是建议整合顺序，可把数据依赖与课程顺序分开。",
+        "technical_plan和k2/k4用occupied作概念简称；实现时应明确映射到真实列occupied_seat_minutes，避免误当新CSV列。",
+        "实践可追加全部数据行无效的边界，在取有效min/max构造日期控件前保护空表；当前任务已要求空/错误判断，尚未执行真实Streamlit应用。",
+        "指标展示未指定st.metric，可选择st.write或st.metric作为练习的具体呈现API；不影响已明确的计算与条件展示目标。"
+      ],
+      "student_project_code_executed": false,
+      "client_analysis_wall_seconds": 24.260997,
+      "accepted_api_snapshot_observed_cost": {
+        "generation_calls": 1,
+        "semantic_review_calls": 1,
+        "model_calls": 2,
+        "completion_tokens": 2430,
+        "total_tokens": 9965,
+        "calls_with_unknown_usage": []
+      },
+      "model_call_evidence": [
+        {
+          "call_id": "84ad81bd80a74e09b66869ad24d0e572",
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3408,
+            "completion_tokens": 2420,
+            "total_tokens": 5828,
+            "prompt_cache_hit_tokens": 1536,
+            "prompt_cache_miss_tokens": 1872,
+            "prompt_tokens_details": {
+              "cached_tokens": 1536
+            }
+          },
+          "response_body_sha256": "a1e2f7677c091d26a3c9f5102c997b0ea9ce2866b53aa40c04ee44cca86dae32",
+          "started_at": "2026-10-18T18:44:39.661643+00:00",
+          "finished_at": "2026-10-18T18:44:55.779174+00:00"
+        },
+        {
+          "call_id": "eba99671b349469aa07d92a3a1466040",
+          "task": "project_analysis_review",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 4127,
+            "completion_tokens": 10,
+            "total_tokens": 4137,
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 3615,
+            "prompt_tokens_details": {
+              "cached_tokens": 512
+            }
+          },
+          "response_body_sha256": "f0d7cc93bce834e8903d48721368fda8e85b2c1e1ce8bbd5089ad513ebf3ccf4",
+          "started_at": "2026-10-18T18:44:55.782192+00:00",
+          "finished_at": "2026-10-18T18:45:03.653111+00:00"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "cases": 5,
+    "learning_units": 31,
+    "fixed_requirements": 30,
+    "static_requirements_passed": 30,
+    "unreviewable_selected_requirements": 0
+  },
+  "first_four_static_requirement_result": {
+    "passed": 24,
+    "total": 24,
+    "learning_units": 25
+  },
+  "fifth_dashboard_static_requirement_result": {
+    "passed": 6,
+    "total": 6,
+    "learning_units": 6
+  },
+  "selected_mixed_version_static_acceptance_pass": true,
+  "first_attempt_analysis_reliability_pass": null,
+  "student_project_code_execution_or_hardware_validation": false,
+  "five_case_final_real_search_acceptance": "pending separate independent source/target review after final search evidence is saved; static acceptance never substitutes for recommendation quality",
+  "production_readiness_verdict": "not established by this static aggregation",
+  "observed_selected_snapshot_cost_including_generation_and_review": {
+    "scope": "Only the five selected accepted analysis API snapshots, including bounded internal generation/repair and semantic review calls recorded for those snapshots. Earlier failed versions, older rounds, search/rerank calls and app-wide total spend are excluded and their historical ledgers remain unchanged.",
+    "generation_calls": 8,
+    "semantic_review_calls": 5,
+    "model_calls": 13,
+    "completion_tokens": 19802,
+    "total_tokens": 67485,
+    "calls_with_unknown_usage": 0,
+    "currency_cost": "unknown: no price/currency estimate made"
+  },
+  "dashboard_historical_harness_correction": {
+    "historical_run": "evidence\\phase2-dashboard-analysis\\run.json",
+    "historical_summary_preserved_verbatim": {
+      "api_analysis_submissions": 1,
+      "completed_analyses": 1,
+      "failed_analyses": 0,
+      "uncertain_or_pending": 0,
+      "client_median_seconds": 24.260997,
+      "client_p95_nearest_rank_seconds": 24.260997,
+      "latency_goal_misses": [],
+      "latency_hard_limit_misses": [],
+      "provider_finished_events": 1,
+      "provider_completion_tokens": 2420,
+      "provider_total_tokens": 5828,
+      "provider_counts_are_complete": true,
+      "manual_review_required": true,
+      "semantic_acceptance_pass": null,
+      "search_api_submissions": 0
+    },
+    "historical_generation_only_summary_is_not_complete_provider_total": true,
+    "corrected_total": {
+      "generation_calls": 1,
+      "semantic_review_calls": 1,
+      "model_calls": 2,
+      "completion_tokens": 2430,
+      "total_tokens": 9965,
+      "calls_with_unknown_usage": []
+    },
+    "correction_source": "evidence\\phase2-dashboard-analysis\\manual-review.json",
+    "observer_subset": "evidence\\phase2-dashboard-analysis\\independent-cost-observer-events.jsonl",
+    "observer_subset_sha256": "dd5f83c1083dee671f58ad3d02509f28727973109f2d1bcff297e3680634610f",
+    "harness_fix_status_reported_by_integration_parent": "New harness counting correction and three targeted tests passed; this zero-network aggregation did not rerun those tests or alter prior ledgers."
+  },
+  "source_file_sha256": {
+    "evidence\\phase2-learning-v261\\manual-review.json": "2720f8c9e298fcab065d2444e053f85f15485dd735afcc1a7c30157d6eb2d2d3",
+    "evidence\\phase2-learning-v261\\run.json": "393d4517a21e4fc398cc150431d5e93ff56cac8f1cc875ce71f227c6efc17de5",
+    "evidence\\phase2-learning-v261\\web_pomodoro_beginner.json": "e40656ec7933b1ebf830f751d6dc954a16ea41c8e70dab1543964833f1e84518",
+    "evidence\\phase2-learning-v26\\manual-review.json": "d82880e8eb39b19b96aec59a25a07bd2de89eb4d387dab1461612eef8448e70c",
+    "evidence\\phase2-learning-v26\\run.json": "ee6b78c2c9235362d82a9301825aa0ce016d5b79915290a8fe4921abed1b44a8",
+    "evidence\\phase2-learning-v26\\bicycle_csv_advanced.json": "1577c9b15a122585ceeb7080cce3a275cd6b6cb22dc38c111848a3cec6c89608",
+    "evidence\\phase2-learning-v261\\arduino_reaction_beginner.json": "208ab30b154f6acdddb7215bf122964536296051da2f1109ef50397c55d83a18",
+    "evidence\\phase2-learning-v26\\pygame_maze_intermediate.json": "94a32a0a636f6e1296c7b0fe2919bc1c91339624b634b38a137678e5665db69f",
+    "evidence\\phase2-dashboard-analysis\\manual-review.json": "5ffc89c283706325e49c06b6266248480a50de36e706ca0e6b1531213bf44e4b",
+    "evidence\\phase2-dashboard-analysis\\run.json": "a854007ccfb834bed441e396c43c44227646eff6c0b9b2ad06d3b55de2c8d4ca",
+    "evidence\\phase2-dashboard-analysis\\study_room_streamlit_intermediate.json": "9c8e8a23d19437a5ba8c3b2b6d25c0cc2434a743b94cfe7f9ebcda64a7409627"
+  },
+  "validation_checks": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "passed": true,
+      "checks": [
+        "saved case equals run record",
+        "mixed accepted generation version exact",
+        "prior manual verdict static_pass",
+        "all fixed requirements passed",
+        "analysis SHA matches persisted actual analysis",
+        "generation and semantic review calls counted",
+        "no known high/medium static issues in source review"
+      ]
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "passed": true,
+      "checks": [
+        "saved case equals run record",
+        "mixed accepted generation version exact",
+        "prior manual verdict static_pass",
+        "all fixed requirements passed",
+        "analysis SHA matches persisted actual analysis",
+        "generation and semantic review calls counted",
+        "no known high/medium static issues in source review"
+      ]
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "passed": true,
+      "checks": [
+        "saved case equals run record",
+        "mixed accepted generation version exact",
+        "prior manual verdict static_pass",
+        "all fixed requirements passed",
+        "analysis SHA matches persisted actual analysis",
+        "generation and semantic review calls counted",
+        "no known high/medium static issues in source review"
+      ]
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "passed": true,
+      "checks": [
+        "saved case equals run record",
+        "mixed accepted generation version exact",
+        "prior manual verdict static_pass",
+        "all fixed requirements passed",
+        "analysis SHA matches persisted actual analysis",
+        "generation and semantic review calls counted",
+        "no known high/medium static issues in source review"
+      ]
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "passed": true,
+      "checks": [
+        "saved case equals run record",
+        "mixed accepted generation version exact",
+        "prior manual verdict static_pass",
+        "all fixed requirements passed",
+        "analysis SHA matches persisted actual analysis",
+        "generation and semantic review calls counted",
+        "no known high/medium static issues in source review"
+      ]
+    }
+  ],
+  "limits": [
+    "30/30 means prior independent static requirement-to-learning-plan mapping at selected accepted versions, not five first-round successes.",
+    "31 learning units are analysis content, not implemented student projects, played videos or executed hardware.",
+    "Dashboard CSV oracle checks were static reasoning against synthetic fixtures; no generated Streamlit application was executed.",
+    "Model semantic-review pass is distinct from manual rubric acceptance.",
+    "Original four-case search r6b evidence remains separate and failed its relevance acceptance; final five-case r7b search review is pending."
+  ]
+}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.332" timestamp="2026-10-19T05:18:48.367295+08:00" hostname="LAPTOP-UT2FMDJK"><testcase classname="tmp.r9b-integrated.tests.test_confirmed_api_core" name="test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core[\u672c\u89c6\u9891\u4e0d\u63d0\u4f9b\u4efb\u4f55\u6559\u5b66\u3002]" time="0.024"><failure message="AssertionError: assert not [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}]&#10; +  where [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}] = cores({'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]})&#10; +    where {'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]} = assessment({'kind': 'actual_public_r8_v6_owned_video_metadata_not_playback', 'source_review': 'evidence\\phase2\\search-independe...3f8a9c990a7', 'source_result': 'evidence\\phase2-search-r8-data-maze\\bicycle_csv_advanced\\project-results.json', ...})">body = '本视频不提供任何教学。'
+
+    @pytest.mark.parametrize("body", [
+        "本视频不提供任何教学。",
+        "This video does not teach anything.",
+        "本视频仅演示效果。",
+    ])
+    def test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core(body):
+        fixture = actual()
+        set_body(fixture, body)
+        before = deepcopy(fixture)
+        point, resource, evidence = (fixture[k] for k in ("point", "resource", "evidence"))
+        request = SearchRequest(knowledge_points=[point["text"]],
+            learning_targets={point["text"]: point["learning_targets"]}, student_level="advanced", language="zh")
+&gt;       assert not cores(assessment(fixture))
+E       AssertionError: assert not [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}]
+E        +  where [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}] = cores({'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]})
+E        +    where {'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]} = assessment({'kind': 'actual_public_r8_v6_owned_video_metadata_not_playback', 'source_review': 'evidence\\phase2\\search-independe...3f8a9c990a7', 'source_result': 'evidence\\phase2-search-r8-data-maze\\bicycle_csv_advanced\\project-results.json', ...})
+
+tests\test_confirmed_api_core.py:281: AssertionError</failure></testcase><testcase classname="tmp.r9b-integrated.tests.test_confirmed_api_core" name="test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core[This video does not teach anything.]" time="0.005"><failure message="AssertionError: assert not [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}]&#10; +  where [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}] = cores({'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]})&#10; +    where {'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]} = assessment({'kind': 'actual_public_r8_v6_owned_video_metadata_not_playback', 'source_review': 'evidence\\phase2\\search-independe...3f8a9c990a7', 'source_result': 'evidence\\phase2-search-r8-data-maze\\bicycle_csv_advanced\\project-results.json', ...})">body = 'This video does not teach anything.'
+
+    @pytest.mark.parametrize("body", [
+        "本视频不提供任何教学。",
+        "This video does not teach anything.",
+        "本视频仅演示效果。",
+    ])
+    def test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core(body):
+        fixture = actual()
+        set_body(fixture, body)
+        before = deepcopy(fixture)
+        point, resource, evidence = (fixture[k] for k in ("point", "resource", "evidence"))
+        request = SearchRequest(knowledge_points=[point["text"]],
+            learning_targets={point["text"]: point["learning_targets"]}, student_level="advanced", language="zh")
+&gt;       assert not cores(assessment(fixture))
+E       AssertionError: assert not [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}]
+E        +  where [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}] = cores({'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]})
+E        +    where {'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]} = assessment({'kind': 'actual_public_r8_v6_owned_video_metadata_not_playback', 'source_review': 'evidence\\phase2\\search-independe...3f8a9c990a7', 'source_result': 'evidence\\phase2-search-r8-data-maze\\bicycle_csv_advanced\\project-results.json', ...})
+
+tests\test_confirmed_api_core.py:281: AssertionError</failure></testcase><testcase classname="tmp.r9b-integrated.tests.test_confirmed_api_core" name="test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core[\u672c\u89c6\u9891\u4ec5\u6f14\u793a\u6548\u679c\u3002]" time="0.004"><failure message="AssertionError: assert not [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}]&#10; +  where [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}] = cores({'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]})&#10; +    where {'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]} = assessment({'kind': 'actual_public_r8_v6_owned_video_metadata_not_playback', 'source_review': 'evidence\\phase2\\search-independe...3f8a9c990a7', 'source_result': 'evidence\\phase2-search-r8-data-maze\\bicycle_csv_advanced\\project-results.json', ...})">body = '本视频仅演示效果。'
+
+    @pytest.mark.parametrize("body", [
+        "本视频不提供任何教学。",
+        "This video does not teach anything.",
+        "本视频仅演示效果。",
+    ])
+    def test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core(body):
+        fixture = actual()
+        set_body(fixture, body)
+        before = deepcopy(fixture)
+        point, resource, evidence = (fixture[k] for k in ("point", "resource", "evidence"))
+        request = SearchRequest(knowledge_points=[point["text"]],
+            learning_targets={point["text"]: point["learning_targets"]}, student_level="advanced", language="zh")
+&gt;       assert not cores(assessment(fixture))
+E       AssertionError: assert not [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}]
+E        +  where [{'id': 'api_operation_core_1', 'text': 'pandas.to_datetime API 使用核心（参数未确认）', 'status': 'supported', 'evidence_ids': ['ev_97acf7a0-6039-4a12-80b2-ab7005d84960'], ...}] = cores({'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]})
+E        +    where {'topic_evidence_status': 'partial', 'topic_evidence_reasons': [{'code': 'confirmed_api_operation_core', 'message': '此..._ids': [], ...}, {'id': 'learning_target_2', 'text': 'isna 与缺失筛选', 'status': 'unknown', 'evidence_ids': [], ...}, ...]} = assessment({'kind': 'actual_public_r8_v6_owned_video_metadata_not_playback', 'source_review': 'evidence\\phase2\\search-independe...3f8a9c990a7', 'source_result': 'evidence\\phase2-search-r8-data-maze\\bicycle_csv_advanced\\project-results.json', ...})
+
+tests\test_confirmed_api_core.py:281: AssertionError</failure></testcase></testsuite></testsuites>

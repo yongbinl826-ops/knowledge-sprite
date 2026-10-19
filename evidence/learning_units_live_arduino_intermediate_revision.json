@@ -1,0 +1,304 @@
+{
+  "mode": "live_provider",
+  "started_at": "2026-10-18T14:07:40.026369+00:00",
+  "prompt_version": "project-analysis-v2.2-learning-units",
+  "limits": {
+    "max_live_analyses": 1,
+    "max_provider_requests": 1
+  },
+  "network_used": true,
+  "run_complete": true,
+  "records": [
+    {
+      "case": "arduino",
+      "level": "intermediate",
+      "input": {
+        "name": "Arduino 土壤湿度提醒器",
+        "requirements": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已有所选语言基础和简单项目经验，希望聚焦本项目的实现和调试。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "安全接线",
+            "passed": true
+          },
+          {
+            "criterion": "采样和校准",
+            "passed": true
+          },
+          {
+            "criterion": "阈值和输出",
+            "passed": true
+          },
+          {
+            "criterion": "非阻塞定时",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 7,
+        "function_count": 6,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "Units fit the student stage and each practice check is independently observable."
+        ]
+      },
+      "analysis": {
+        "scope": "基于 Arduino Uno 与模拟土壤湿度传感器的低压提醒器：完成传感器与 LED 接线，串口观察原始读数并标定干湿基准，把读数映射为百分比，低于可调阈值时点亮 LED；采样用 millis 定时，运行中通过串口逐字符输入调整阈值，全程不使用 delay 或阻塞式解析。不含水泵、继电器控制或市电部分，并需说明低压接线与 LED 限流依据。",
+        "technical_plan": "采用 Arduino Uno + 模拟土壤湿度模块（AO→A0，VCC→5V，GND→共地）+ 一颗 LED 串联 220–330Ω 限流电阻接 D8。loop 中用 millis() 差值实现约 1 秒的非阻塞采样节拍，每次采样取若干次 analogRead 平均，按实测干土/水中基准值用 map 与 constrain 映射为 0–100%。串口以 9600 波特率每秒打印原始值、百分比、当前阈值与 LED 状态。阈值调整走非阻塞路径：用 Serial.available()/Serial.read() 逐字符累积到换行，再转成整数校验范围；不使用 delay 或依赖 Serial.parseInt 的超时行为。LED 判断只做阈值比较与状态输出，接线说明包含限流电阻计算（5V−约2V）/0.01A≈300Ω。",
+        "assumptions": [
+          "使用常见的模拟电阻式土壤湿度模块（三针或四针，AO 输出），具体型号由学生自选，读数方向可标定。",
+          "供电仅用 USB 或 5V 低压电源，不接入水泵、继电器或市电。",
+          "学生已有 Arduino IDE 上传与面包板接线的一次以上简单项目经验。",
+          "阈值默认 30%，采样周期默认 1 秒，均可按实测调整。"
+        ],
+        "learner_profile": {
+          "student_level": "intermediate",
+          "assumed_knowledge": [
+            "Arduino IDE 的基本使用与程序上传流程",
+            "C/C++ 变量、条件判断与循环的写法",
+            "面包板、杜邦线与 LED 极性的一次以上动手经验"
+          ],
+          "adjustment_note": "按“已有编程基础和简单项目经验”设定，因此省略语法入门、直接讲实现与调试；若你其实刚接触 Arduino，可把学习阶段改为初学者，或补充项目背景后重新生成；也可修改阈值默认值、采样周期等选择再生成。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "模拟土壤湿度传感器读取",
+            "original_requirement": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化",
+            "acceptance_criteria": "传感器 VCC/GND/AO 分别接 5V、共地、A0，串口能打印随干土与湿土明显变化的原始读数（约 0–1023）。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "串口观察与读数校准",
+            "original_requirement": "在串口监视器观察并校准读数",
+            "acceptance_criteria": "记录干土与湿土两项基准值，串口输出的百分比在两种介质下差异明显且干湿方向正确。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "低于阈值时 LED 提示",
+            "original_requirement": "低于可调阈值时用 LED 提示",
+            "acceptance_criteria": "湿度低于阈值时 LED 点亮、高于阈值时熄灭，LED 始终串联 220–330Ω 限流电阻。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "定时采样不阻塞",
+            "original_requirement": "定时采样时仍可响应阈值调整",
+            "acceptance_criteria": "采样约每 1 秒执行一次，期间串口输入立即被读取处理，程序中没有 delay 造成的停顿。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "运行中调整阈值",
+            "original_requirement": "可调阈值",
+            "acceptance_criteria": "串口输入新阈值（如 35）并回车后立即生效且回显确认；输入非数字或超范围内容被拒绝并给出提示。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f6",
+            "name": "低压接线与 LED 限流说明",
+            "original_requirement": "不接水泵或市电，说明低压接线和 LED 限流",
+            "acceptance_criteria": "产出一份接线表与限流电阻计算过程（5V、LED 压降约 2V、目标 5–10mA），并注明仅用 USB/5V 低压供电。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "Arduino Uno 低压接线与共地",
+            "description": "把模拟传感器与 LED 正确接到 5V、GND、A0 与数字引脚，理解共地、引脚供电与低压供电边界。",
+            "function_ids": [
+              "f1",
+              "f6"
+            ],
+            "why_needed": "接线错误会得到漂移读数或损坏模块，安全边界也是本项目明确要求。",
+            "learning_goal": "理解为什么所有模块必须共地、模拟信号只能进模拟输入，以及为何不接触市电与水泵。",
+            "project_task": "按接线表在面包板上连接传感器与 LED，并记下每个引脚的作用。",
+            "concepts": [
+              "5V 与 GND 共地",
+              "模拟输入 A0",
+              "面包板与杜邦线连接",
+              "USB 供电的安全边界"
+            ],
+            "practice_check": "上电后串口读数随传感器插入干土或水中而变化，且没有接反或发热现象。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "analogRead 读取与干湿基准标定",
+            "description": "用 analogRead 取得 0–1023 原始值，实测干土与湿土两端基准，再用 map 与 constrain 映射为 0–100% 湿度。",
+            "function_ids": [
+              "f1",
+              "f2"
+            ],
+            "why_needed": "没有基准值就无法判断“干”，也就无法设置有意义的阈值。",
+            "learning_goal": "理解 10 位 ADC 的量程、读数方向（干高湿低或相反），并会用实测端点做线性映射。",
+            "project_task": "写一个读取程序，先打印原始值，再标定两端基准并输出百分比。",
+            "concepts": [
+              "analogRead 与 10 位 ADC",
+              "干湿基准端点实测",
+              "map 线性映射",
+              "constrain 限幅"
+            ],
+            "practice_check": "干土与水中读数百分比相差明显且方向正确，越界时输出被限制在 0–100。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "LED 限流电阻计算与 digitalWrite",
+            "description": "用欧姆定律算出限流电阻（约 300Ω，取 220–330Ω），用 pinMode 与 digitalWrite 控制 LED 亮灭。",
+            "function_ids": [
+              "f3",
+              "f6"
+            ],
+            "why_needed": "直接接 5V 会过流，限流电阻是低压接线的必要环节。",
+            "learning_goal": "理解 R=(5V−LED 压降)/目标电流的估算方法，并掌握数字输出的高低电平与极性。",
+            "project_task": "给 LED 串上限流电阻接 D8，写出按变量值点亮与熄灭的程序。",
+            "concepts": [
+              "限流电阻估算 R=(5−2)/0.01",
+              "pinMode OUTPUT",
+              "digitalWrite HIGH/LOW",
+              "LED 极性与串联位置"
+            ],
+            "practice_check": "让 LED 常亮测试 1 分钟不发热，接回程序后能随一个变量变化亮灭。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "串口输出与读数平滑调试",
+            "description": "用 Serial.begin/print/println 定期输出原始值与百分比，多次采样取平均抑制读数跳动，便于观察与校准。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "传感器读数会抖动，不观察与平滑就无法稳定判断干湿状态。",
+            "learning_goal": "会用串口监视器定位数值问题，并理解多次采样平均对噪声的作用。",
+            "project_task": "在程序中每秒打印一行原始值、百分比，并加入 5 次采样平均。",
+            "concepts": [
+              "Serial.begin(9600)",
+              "Serial.print 与 println",
+              "多次采样取平均",
+              "串口监视器调试"
+            ],
+            "practice_check": "串口每秒稳定输出一行数据，加入平均后读数跳变明显小于单次采样。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "millis 非阻塞定时采样",
+            "description": "用 unsigned long 记录上次采样时刻，靠 millis() 差值判断是否到 1 秒，让 loop 每轮都能快速返回。",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "用 delay 会让串口输入在等待期间丢失，违背“定时采样时仍可响应调整”的要求。",
+            "learning_goal": "理解非阻塞节拍与阻塞延时的区别，并会用时间戳差值驱动周期任务。",
+            "project_task": "把每秒采样改为 millis 差值触发，loop 中不再出现 delay。",
+            "concepts": [
+              "millis() 与时间戳差值",
+              "unsigned long 与溢出回绕",
+              "非阻塞节拍",
+              "去掉 delay"
+            ],
+            "practice_check": "采样间隔约 1 秒，且在采样间隔内串口输入仍能被立刻读到。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "k6",
+            "name": "串口逐字符缓冲与阈值行解析",
+            "description": "用 Serial.available()/read() 逐字符累积输入，遇换行结束一行，再转整数并校验范围，非法内容丢弃并提示。",
+            "function_ids": [
+              "f5",
+              "f4"
+            ],
+            "why_needed": "运行中改阈值必须不阻塞采样；逐字符缓冲能保证输入路径短且可控。",
+            "learning_goal": "理解串口是字节流而非整行，会自己完成行缓冲、转换与错误处理，而非依赖超时式解析。",
+            "project_task": "写一个小型行缓冲解析器，把串口收到的数字行写入阈值变量。",
+            "concepts": [
+              "Serial.available()/read()",
+              "字符数组缓冲与行结束符",
+              "atoi 与范围校验",
+              "非法输入丢弃与提示"
+            ],
+            "practice_check": "输入 35 回车后阈值变为 35 并回显；输入 abc 或 999 被拒绝并打印提示，采样不中断。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4",
+              "k5"
+            ],
+            "learning_order": 6,
+            "selection": "learn"
+          },
+          {
+            "id": "k7",
+            "name": "阈值判断与整机联调",
+            "description": "把百分比与当前阈值比较驱动 LED，串口同时输出湿度、阈值与 LED 状态，观察阈值附近抖动并调参。",
+            "function_ids": [
+              "f3",
+              "f5"
+            ],
+            "why_needed": "各模块单独可用不等于整机正确，需要一次联调验证阈值的实际效果。",
+            "learning_goal": "会把多段逻辑串成完整回路，并依据串口打印定位判断错误或闪烁问题。",
+            "project_task": "整合采样、映射、LED 与串口调阈值，连续运行观察并微调阈值与采样次数。",
+            "concepts": [
+              "阈值比较与状态变量",
+              "状态回显打印",
+              "阈值附近抖动观察",
+              "参数微调"
+            ],
+            "practice_check": "整机连续运行 2 分钟，串口每行显示湿度/阈值/LED 状态，改阈值后下一行即反映新状态。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3",
+              "k6"
+            ],
+            "learning_order": 7,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 26.548,
+      "provider_requests": 1
+    }
+  ],
+  "provider_requests": 1,
+  "automated_passed": true
+}

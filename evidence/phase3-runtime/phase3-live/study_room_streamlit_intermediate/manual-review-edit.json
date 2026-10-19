@@ -1,0 +1,15 @@
+{
+  "intent_at": "2026-10-18T22:58:42.495477+00:00",
+  "proposal_sha256": "9c4323972ecff9fc2e56579c23cc763779357f93f771341022f8ea23ecd991e5",
+  "before_version": 3,
+  "changes": [
+    {
+      "pointer": "/technical_plan",
+      "before": "单文件 Streamlit 应用：st.set_page_config 后依次处理 st.file_uploader 上传 → pd.read_csv 读取 → 列名集合校验（缺列给错误提示并 st.stop 或返回空）→ 逐行校验：date 用 pd.to_datetime(format='YYYY-MM-DD', errors='coerce') 解析失败即剔除；room 去空白后为空即剔除；visits 需为非负整数；capacity、open_minutes 为正整数；occupied_seat_minutes 非负且不超过 capacity*open_minutes；非法行剔除并显示数量，不做去重。全部校验通过行组成有效数据。随后 st.sidebar 用 st.date_input 提供起止日期（默认有效数据最小/最大日期，闭区间过滤），st.multiselect 提供房间多选（默认全部房间，选空得空结果）。筛选后 DataFrame 作为唯一数据源：指标区用 sum(visits)、sum(occupied_seat_minutes)、加权使用率=sum(occupied)/sum(capacity*open_minutes)*100 保留1位小数，空结果时均显示“—”；图表区在非空时按 room groupby sum(visits) 后用 st.bar_chart 绘制，空结果不画图。零到访记录属于有效数据，保留计入。挑选框用纯函数式步骤（validate、filter、aggregate）便于在 Streamlit 中调试。假定允许生成的合成 CSV 测试文件；默认日期/房间来源为有效数据本身，该行为为可修改假设。",
+      "after": "单文件 Streamlit 应用：st.set_page_config 后依次处理 st.file_uploader 上传 → pd.read_csv 读取 → 列名集合校验（缺列给错误提示并 st.stop 或返回空）→ 逐行校验：date 用 pd.to_datetime(format='%Y-%m-%d', errors='coerce') 解析失败即剔除；room 去空白后为空即剔除；visits 需为非负整数；capacity、open_minutes 为正整数；occupied_seat_minutes 非负且不超过 capacity*open_minutes；非法行剔除并显示数量，不做去重。全部校验通过行组成有效数据。随后 st.sidebar 用 st.date_input 提供起止日期（默认有效数据最小/最大日期，闭区间过滤），st.multiselect 提供房间多选（默认全部房间，选空得空结果）。筛选后 DataFrame 作为唯一数据源：指标区用 sum(visits)、sum(occupied_seat_minutes)、加权使用率=sum(occupied)/sum(capacity*open_minutes)*100 保留1位小数，空结果时均显示“—”；图表区在非空时按 room groupby sum(visits) 后用 st.bar_chart 绘制，空结果不画图。零到访记录属于有效数据，保留计入。挑选框用纯函数式步骤（validate、filter、aggregate）便于在 Streamlit 中调试。假定允许生成的合成 CSV 测试文件；默认日期/房间来源为有效数据本身，该行为为可修改假设。"
+    }
+  ],
+  "new_model_calls": 0,
+  "not_first_generation_pass": true,
+  "http_status": 200
+}

@@ -1,0 +1,300 @@
+{
+  "project_id": "38b3bbef-ae25-4564-a3e2-22403de9cd81",
+  "original_input": {
+    "name": "Arduino 电位器调节 LED 亮度",
+    "requirements": "用Arduino Uno、电位器、带限流电阻的LED做低压亮度调节器。读取电位器位置并映射为LED亮度，转到两端分别接近最暗/最亮，中间位置为中间亮度；串口显示原始读数和输出值。约每50ms采样一次，主循环不长时间阻塞，越界输入被限制在有效输出范围。断电接线、共地和LED极性必须说明，模拟输入电压及PWM引脚先按板卡官方说明确认。不连接市电、电机、继电器，不加按钮、传感器联网或屏幕。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "会上传程序、做过LED点亮；第一次使用模拟输入、PWM和数值范围映射。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "input": {
+    "name": "Arduino 电位器调节 LED 亮度",
+    "requirements": "用Arduino Uno、电位器、带限流电阻的LED做低压亮度调节器。读取电位器位置并映射为LED亮度，转到两端分别接近最暗/最亮，中间位置为中间亮度；串口显示原始读数和输出值。约每50ms采样一次，主循环不长时间阻塞，越界输入被限制在有效输出范围。断电接线、共地和LED极性必须说明，模拟输入电压及PWM引脚先按板卡官方说明确认。不连接市电、电机、继电器，不加按钮、传感器联网或屏幕。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "会上传程序、做过LED点亮；第一次使用模拟输入、PWM和数值范围映射。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "current_version": 1,
+  "created_at": "2026-10-18T22:23:42.871833+00:00",
+  "updated_at": "2026-10-18T22:23:58.770545+00:00",
+  "versions": [
+    {
+      "version": 1,
+      "status": "analyzed",
+      "created_at": "2026-10-18T22:23:42.879358+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v3-transferable-learning-skills"
+    }
+  ],
+  "version": {
+    "version": 1,
+    "input": {
+      "name": "Arduino 电位器调节 LED 亮度",
+      "requirements": "用Arduino Uno、电位器、带限流电阻的LED做低压亮度调节器。读取电位器位置并映射为LED亮度，转到两端分别接近最暗/最亮，中间位置为中间亮度；串口显示原始读数和输出值。约每50ms采样一次，主循环不长时间阻塞，越界输入被限制在有效输出范围。断电接线、共地和LED极性必须说明，模拟输入电压及PWM引脚先按板卡官方说明确认。不连接市电、电机、继电器，不加按钮、传感器联网或屏幕。",
+      "student_level": "beginner",
+      "language": "zh",
+      "project_context": "会上传程序、做过LED点亮；第一次使用模拟输入、PWM和数值范围映射。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "status": "analyzed",
+    "analysis": {
+      "scope": "在 Arduino Uno 上用一个电位器调节带限流电阻的 LED 亮度：约每 50ms 采样一次模拟输入，将读数映射为 PWM 输出，两端分别接近最暗/最亮，越界值限制在有效范围；串口打印原始读数和输出值。主循环需非阻塞。必须说明断电接线、共地、LED 极性与限流电阻，并按官方板卡说明确认模拟电压与 PWM 引脚。不加按钮、联网、屏幕、电机、继电器，不接市电。",
+      "technical_plan": "指定技术：Arduino（Arduino IDE、Uno）。使用 analogRead 读取电位器（A0 示例，按官方引脚说明确认），用 millis() 做约 50ms 的非阻塞采样节拍；用 map() 或约束函数把 0-1023 映射到 0-255 并处理越界限制；用 analogWrite 输出到官方 PWM 引脚（如 9 或 10，按板卡说明确认）；用 Serial.print/println 打印原始读数与输出值。示例引脚与波特率作为可修改假设。",
+      "assumptions": [
+        "电位器接 A0、LED 接数字 PWM 引脚 9，均可按官方板卡说明自行更改。",
+        "使用 Arduino Uno 与 Arduino IDE，波特率按 9600 示例。",
+        "限流电阻按常见 LED 选取（如 220Ω），具体数值学生可按元件调整。",
+        "50ms 为用户要求的约值，可微调。",
+        "输出 0-255 为 uint8_t 有效范围——用户只要求越界被限制，映射方向为‘两端分别最暗/最亮’。"
+      ],
+      "learner_profile": {
+        "student_level": "beginner",
+        "assumed_knowledge": [
+          "能上传程序到 Arduino 并点亮 LED",
+          "了解数字输出与基本电路接线",
+          "接触过变量与整数运算"
+        ],
+        "adjustment_note": "按 beginner 假定：默认学生只会点灯，未用过模拟输入、PWM 和范围映射。若你已经会其中部分，或想更换引脚、电阻、采样周期，可修改项目背景与选择后重新生成。"
+      },
+      "functions": [
+        {
+          "id": "f1",
+          "name": "安全接线与硬件确认",
+          "original_requirement": "断电接线、共地和LED极性必须说明，模拟输入电压及PWM引脚先按板卡官方说明确认。",
+          "acceptance_criteria": "断电接线；LED 正负极和限流电阻正确；电位器与板卡共地；已按官方说明确认模拟输入电压范围与所用 PWM 引脚。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2",
+          "name": "电位器采样与非阻塞节拍",
+          "original_requirement": "约每50ms采样一次，主循环不长时间阻塞。",
+          "acceptance_criteria": "程序用 millis() 实现约 50ms 周期采样，主循环无 delay 长阻塞，串口持续可用。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3",
+          "name": "读数映射与越界限制",
+          "original_requirement": "读取电位器位置并映射为LED亮度，转到两端分别接近最暗/最亮，中间位置为中间亮度；越界输入被限制在有效输出范围。",
+          "acceptance_criteria": "两端输出分别接近 0 和 255，中间约 127；若读入值本身越界（如 <0 或 >1023），输出仍限制在 0-255。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4",
+          "name": "PWM 输出控制亮度",
+          "original_requirement": "带限流电阻的LED亮度调节器。",
+          "acceptance_criteria": "LED 亮度随电位器位置平滑变化，无闪烁或异常全亮。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5",
+          "name": "串口显示原始与输出值",
+          "original_requirement": "串口显示原始读数和输出值。",
+          "acceptance_criteria": "串口监视器同时看到原始读数与映射后的输出值。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1",
+          "name": "Arduino 电位器与 LED 安全接线",
+          "description": "断电接线、共地、LED 极性与限流电阻，以及按官方板卡说明确认模拟输入与 PWM 引脚。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "错误极性或缺失共地会导致读数异常或损坏元件。",
+          "learning_goal": "理解电位器三端连接、LED 正负极与限流电阻作用，并知道查询官方引脚说明。",
+          "technology": "Arduino",
+          "project_task": "按官方 Uno 引脚图，断电把电位器两端接 5V 与 GND、中间抽头接模拟输入，LED 经限流电阻接 PWM 引脚与 GND。",
+          "concepts": [
+            "电位器分压：两端接 5V 与 GND，中间抽头输出可变电压",
+            "LED 长脚正极、短脚经限流电阻接 GND",
+            "共地：电位器、LED 与板卡 GND 相连",
+            "按官方板卡说明确认模拟输入电压与 PWM 引脚"
+          ],
+          "learning_skills": [
+            "阅读 Arduino 官方板卡引脚图确定模拟输入与 PWM 引脚",
+            "按极性正确连接 LED 与限流电阻",
+            "断电接线并检查共地的安全操作步骤"
+          ],
+          "practice_check": "上电后串口读数随旋钮变化，LED 有亮度且无异常发烫。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "Arduino 模拟输入读写 analogRead",
+          "description": "用 analogRead 读取电位器抽头电压并得到 0-1023 读数。",
+          "function_ids": [
+            "f2",
+            "f3"
+          ],
+          "why_needed": "亮度来源就是电位器位置的数字化读数。",
+          "learning_goal": "理解 analogRead 返回整数量化值及其与电压的关系。",
+          "technology": "Arduino",
+          "project_task": "用 analogRead 读取电位器并打印原始读数，观察旋转两端与中间的数值变化。",
+          "concepts": [
+            "analogRead 返回 0-1023 整数",
+            "10 位 ADC 量化与参考电压",
+            "串口预览读数以验证接线"
+          ],
+          "learning_skills": [
+            "Arduino analogRead 读取并打印模拟量",
+            "通过旋转两端与中间判断读数范围是否合理"
+          ],
+          "practice_check": "旋到两端时分别接近 0 与 1023，中间约 512。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "Arduino millis 非阻塞约 50ms 定时采样",
+          "description": "用 millis() 记录上次采样时间，实现约 50ms 周期采样而不阻塞主循环。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "要求主循环不长时间阻塞，不能用 delay 卡住串口与循环。",
+          "learning_goal": "理解用时间戳差值判断到时，而不用 delay。",
+          "technology": "Arduino",
+          "project_task": "记录上次采样时刻，每隔约 50ms 才读一次电位器并处理，其余循环空转。",
+          "concepts": [
+            "millis() 为自启动以来毫秒计数",
+            "currentMillis - lastSample >= 50 判断到时",
+            "避免 delay 造成主循环阻塞"
+          ],
+          "learning_skills": [
+            "Arduino millis 时间戳差值实现周期任务",
+            "用非阻塞方式替换 delay 保持循环响应"
+          ],
+          "practice_check": "在两次采样间插入其他短操作，程序仍按约 50ms 更新。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "Arduino 数值映射与越界限制",
+          "description": "把 0-1023 线性映射到 0-255，并用约束函数保证不越界。",
+          "function_ids": [
+            "f3"
+          ],
+          "why_needed": "模拟读数范围与 PWM 有效输出范围不同，且要求越界输入被限制。",
+          "learning_goal": "理解线性映射公式与 clamp 约束的作用。",
+          "technology": "Arduino",
+          "project_task": "将读数映射为 0-255，再对结果做 0-255 约束，打印原始值和输出值。",
+          "concepts": [
+            "线性映射：out = (in-minIn)*(maxOut-minOut)/(maxIn-minIn)+minOut",
+            "map() 整数映射与 constrain() 或 min/max 限制",
+            "两端最暗/最亮，中间为中间亮度"
+          ],
+          "learning_skills": [
+            "Arduino map 线性映射与整数截断处理",
+            "用 constrain 或 min/max 限制输出在有效范围"
+          ],
+          "practice_check": "输入 0→输出约 0，输入 1023→约 255，输入 512→约 127，人为输入越界时输出仍在 0-255。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "Arduino analogWrite PWM 调光",
+          "description": "用 analogWrite 把 0-255 输出值变成占空比驱动 LED 亮度。",
+          "function_ids": [
+            "f4"
+          ],
+          "why_needed": "LED 亮度由 PWM 占空比实现，需在 PWM 引脚上输出。",
+          "learning_goal": "理解 PWM 占空比与亮度关系及 analogWrite 的取值范围。",
+          "technology": "Arduino",
+          "project_task": "把映射并限制后的输出值用 analogWrite 写到 PWM 引脚，旋转电位器观察亮度变化。",
+          "concepts": [
+            "PWM 通过快速通断实现平均电压",
+            "analogWrite 取值 0-255 对应占空比",
+            "须使用支持 PWM 的引脚（按官方说明确认）"
+          ],
+          "learning_skills": [
+            "Arduino analogWrite 占空比控制输出",
+            "识别并选用支持 PWM 的数字引脚"
+          ],
+          "practice_check": "旋钮从一端到另一端 LED 由接近灭到明显最亮，中间亮度居中。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1",
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "k6",
+          "name": "Arduino 串口打印调试读数",
+          "description": "用 Serial.begin、print/println 周期性打印原始读数与输出值。",
+          "function_ids": [
+            "f5"
+          ],
+          "why_needed": "要求串口显示原始读数和输出值以便验证映射。",
+          "learning_goal": "理解串口初始化、波特率与打印格式的作用。",
+          "technology": "Arduino",
+          "project_task": "在采样周期内打印原始读数与输出值，标清两者含义。",
+          "concepts": [
+            "Serial.begin 设置波特率与监视器一致",
+            "Serial.print 与 println 组合输出多值",
+            "在非阻塞节拍内打印以保持实时"
+          ],
+          "learning_skills": [
+            "Arduino 串口初始化与波特率匹配",
+            "在周期节拍内格式化打印多个变量"
+          ],
+          "practice_check": "串口监视器每约 50ms 出现一行含原始读数与输出值的数据。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3",
+            "k4"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": null,
+    "batches": [],
+    "budgets": null,
+    "error": null,
+    "warnings": [],
+    "created_at": "2026-10-18T22:23:42.879358+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v3-transferable-learning-skills",
+    "origin": "analysis",
+    "search_started_at": null,
+    "cancel_requested": false,
+    "updated_at": "2026-10-18T22:23:58.770398+00:00"
+  }
+}

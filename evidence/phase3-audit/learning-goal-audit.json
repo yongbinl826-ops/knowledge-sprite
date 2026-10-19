@@ -1,0 +1,3411 @@
+{
+  "audit_version": "phase3-learning-goals-v1-design-audit",
+  "created_at": "2026-10-18T21:53:32.652058+00:00",
+  "mode": "retained_local_evidence_only_readonly_design_audit",
+  "effects": {
+    "http_requests": 0,
+    "model_calls": 0,
+    "database_connections": 0,
+    "database_writes": 0,
+    "main_source_edits": 0,
+    "test_edits": 0,
+    "new_project_versions": 0
+  },
+  "source_hashes": {
+    "evidence\\phase2\\final-content-gaps.json": "f9d9172126887fd03be60800bb509fdd7f16f0138e318109299fd896244cee97",
+    "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json": "5f4ac1ad3936b79537536fdb6f37e08c84235b10ef4745c540633e72d160e494",
+    "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json": "618ed8f5326f30125fa514a380dd285079ae50e0323f3c8fa7d92c802f067e1e",
+    "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json": "7ef9d22fa1a095800845eb3e745490601833c564386a45e2c6efd34f49bc3a6d",
+    "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json": "66ef6e35506aa618f2f375e724a069b345aa85be7f24a7d3a0107406903eca2e",
+    "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json": "66d3e86706102ffdea0bde418105ecb7d91f6e3f8f1cfd47ce2fe56a7b742070"
+  },
+  "code_flow_observations": {
+    "backend/app/project_models.py": {
+      "sha256_at_read": "74f9fc8bda7c85c3fe85f96f3d6aaac696fc56b51414bde586b3eb0f82692679",
+      "inspection_not_runtime_rebinding": true,
+      "excerpts": [
+        {
+          "line": 105,
+          "text": "    project_task: str | None = Field(default=None, min_length=1, max_length=800)"
+        },
+        {
+          "line": 106,
+          "text": "    concepts: list[Annotated[str, StringConstraints(min_length=1, max_length=120)]] = Field(default_factory=list, max_length=8)"
+        },
+        {
+          "line": 107,
+          "text": "    practice_check: str | None = Field(default=None, min_length=1, max_length=800)"
+        }
+      ]
+    },
+    "backend/app/project_search.py": {
+      "sha256_at_read": "82c403d87deeccbfeeab2ecbc598a0e973898b686090a7ac2d38386b7e1da0e4",
+      "inspection_not_runtime_rebinding": true,
+      "excerpts": [
+        {
+          "line": 29,
+          "text": "        concepts = list(points[point_id].get(\"concepts\") or [])"
+        },
+        {
+          "line": 34,
+          "text": "            targets[search_name] = concepts"
+        }
+      ]
+    },
+    "backend/app/ranking.py": {
+      "sha256_at_read": "93e0f3187ec3a640263c59a46e6c9a3b327f16644ddddd53337f6049f7a22b6d",
+      "inspection_not_runtime_rebinding": true,
+      "excerpts": [
+        {
+          "line": 1232,
+          "text": "def coverage_targets(point_text: str, learning_targets: list[str] | None = None) -> dict:"
+        },
+        {
+          "line": 1411,
+          "text": "def _confirmed_target_boundaries(target: str, teaching: str) -> bool:"
+        }
+      ]
+    }
+  },
+  "historical_metrics_unchanged": {
+    "original_units": 31,
+    "api_some": 13,
+    "api_none": 18,
+    "ui_content_some": 12,
+    "ui_content_none": 19,
+    "full_units": 0,
+    "units_with_partial_cards": 15,
+    "partial_cards": 28,
+    "review_cards": 2
+  },
+  "summary": {
+    "reviewed_original_units": 31,
+    "zero_body_catalog_routes_reviewed": 19,
+    "other_partial_routes_reviewed": 12,
+    "projects": 5,
+    "primary_normative_diagnosis_counts": {
+      "keep_unit_separate_teaching_facets": 5,
+      "coherent_skill_keep_granularity": 9,
+      "integration_practice_not_project_identical_video": 5
+    },
+    "coherent_skill_units_keep_granularity": 9,
+    "units_keep_with_two_teaching_facets": 5,
+    "integration_practice_units_reuse_prior_material": 5,
+    "zero_support_routes_with_retained_partial_candidates": 3,
+    "zero_support_routes_without_displayed_partial_candidates": 16,
+    "units_with_title_and_concepts_both_in_denominator": 31,
+    "causal_experiment_performed": false,
+    "conclusion": "31单元总体不需普遍细拆；主要设计问题是教学技能、实现选择和项目验收同表强匹配。19个缺口不能全归因于粒度，3个已有局部卡、16个无展示卡还含检索/来源观测缺口。",
+    "production_acceptance_relabelled": false
+  },
+  "diagnosis_taxonomy": {
+    "coherent_skill_keep_granularity": "9个合理技能块，保持单元粒度；修正视频相关性与项目实例/常量的关系，不能退回泛基础课。",
+    "keep_unit_separate_teaching_facets": "5个单元包含两个可分别取材的技能切面，保留一份项目成果，不拆成语法碎片或强求单视频全包。",
+    "integration_practice_not_project_identical_video": "5个主要为已学技能的跨功能整合，保留原规则与练习；有缺项才补针对性资料，不强制搜同款完整项目。"
+  },
+  "reasoning_boundaries": [
+    "这是规范性原因分类，不是统计因果归因：没有改目标再检索的实验，不能说19例都由匹配严格导致。",
+    "0正文/目录支持是既有保守观测指标，不等于无可推荐资料、更不等于无技能价值；标题级相关性必须标明层级，不能冒称正文教学。",
+    "不把已验证标题变成参数/算法的证明；不把搜索摘要、related尾巴、先修、否定或TODO当当前教学。",
+    "不降低真实视频身份与URL/出处绑定，不借文章标题伪造视频。不同项目来源只要明确教相应技能即可相关。",
+    "既有r9c计数/失败证据保留，未来新技能口径不能倒写成旧结果全部通过。",
+    "技术不可迁移边界仍严格：离散/持续输入、真实时间/帧数、稳定去抖/裸边沿、加权比率/均值、INPUT_PULLUP/不同输入电路不得混淆。"
+  ],
+  "generalizable_contract_proposal": {
+    "unit_layer": "项目子任务/学习成果/先修/练习约束保留；每项目4–7单元只是软观察，学生已会可更少。",
+    "teaching_layer": "每单元通常1–3个非重复、可迁移的具体技能；必要时两个切面，技能各自有工具/语言归属及已会/需学状态。",
+    "mapping_layer": "原需求ID与项目练习逐条映射到技能及实施动作；项目数值、字段名、按钮键名/状态常量留在任务/验收，不自动拼成教学主题。",
+    "integration_role": "允许集成练习复用先修材料，无需每个阶段规则都新搜视频；仍提供明确下一步和实践检查。",
+    "retrieval": "主要检索目标为具体技能+对应技术+学生缺项；项目上下文只解释用途/排除不适用路线，不要求来源同款项目。有限查询/详情/成本预算不增加。",
+    "evidence": "保留来源原文与证明层级：标题可支持明确的技能相关性；正文/目录可支持讲授范围；参数/技术语义仅在真实来源有依据时说明。未知深度如实提示，不捏造片段。",
+    "matching": "只对声称教授的技能语义验证来源，不把同一项目常量逐字出现当相关性前提。数字/比较guard不全局删除，而是留给真正数值教学声明与学生项目验收。",
+    "coverage": "技能准备度与项目实践完成度分开；同一语义技能不因标题拆分、operation_core和concept重复加入分母。不能以材料出现就标学生已会/项目完成。",
+    "student_background": "基础缺失用明确可调默认，保留已知库经验与新库经验区别；advanced第一次pandas可用针对性库入门，不重上Python；不以标签猜全部先修。",
+    "migration": "新语义契约先做版本化映射/兼容与离线正反例；保留旧分析/原约束/历史指标。实施由根线程分工，本审计不改schema。"
+  },
+  "concrete_cross_unit_findings": [
+    {
+      "kind": "mixed_tool_ownership",
+      "units": [
+        "bicycle_csv_advanced/k6",
+        "web_pomodoro_beginner/k7",
+        "study_room_streamlit_intermediate/k1",
+        "study_room_streamlit_intermediate/k5"
+      ],
+      "reason": "Matplotlib标题下有pandas聚合；CSS单元含HTML按钮键盘；Streamlit单元含学生已会pandas。单一unit技术前缀不应强加给全部技能。"
+    },
+    {
+      "kind": "semantic_denominator_overlap",
+      "units": [
+        "bicycle_csv_advanced/k3",
+        "web_pomodoro_beginner/k2"
+      ],
+      "reason": "时间解析/操作核心/带参数概念、Flex标题子项/同技能concept均进入分母。31单元均有标题与concept层同计，但这里只确认这些具体语义重叠例，不声称所有行重复。"
+    },
+    {
+      "kind": "workflow_not_prerequisite",
+      "units": [
+        "bicycle_csv_advanced/k5",
+        "bicycle_csv_advanced/k7",
+        "pygame_maze_intermediate/k2",
+        "pygame_maze_intermediate/k3",
+        "arduino_reaction_beginner/k3",
+        "study_room_streamlit_intermediate/k6"
+      ],
+      "reason": "小时分组不必先算时长，CSV导出不必先学图；网格移动可先纯函数测试；按键输入可独立学；millis采样需在去抖前短说明；空输入保护应从最小页面存在。"
+    }
+  ],
+  "original_projects_and_inputs": [
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "search_version": 6,
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "source_sha256": "5f4ac1ad3936b79537536fdb6f37e08c84235b10ef4745c540633e72d160e494",
+      "input_verbatim": {
+        "name": "共享单车出行 CSV 分析报告",
+        "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+        "student_level": "advanced",
+        "language": "zh",
+        "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "assumptions_verbatim": [
+        "合成 CSV 的时间两列使用 pandas 可解析的统一字符串格式（如 ISO），解析失败行按缺失处理并计数。",
+        "Top10 按出发站次数降序，取前 10 个站；不足 10 个时全部展示。",
+        "按出发小时汇总使用 0–23 的整点小时，不按日期拆分。",
+        "无效行在被去重之后、计算时长之前剔除；去重优先于无效判定。",
+        "图表与文件均输出到本机当前工作目录的指定文件名。",
+        "学生可修改学生阶段、项目背景与技术选择后重新生成。"
+      ],
+      "scope_verbatim": "本机单脚本分析一份共享单车骑行 CSV：按 trip_id 去重并报告删除行数；解析同城本地时间；分别统计缺失时间与结束早于开始（严格早于，相等时间视为有效）的无效行；对有效行计算分钟时长；按出发小时汇总次数；绘制出发站 Top10 条形图；导出清洗后 CSV、按小时汇总 CSV 与带标题和轴标签的 PNG。不做预测、仪表盘、地图、账号或云部署。",
+      "unit_count": 7,
+      "all_project_constraints_retained": "原input及已接受默认假设保留；本审计仅建议分离教学技能与迁移验收，不生成/编辑新版本。"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "search_version": 6,
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "source_sha256": "618ed8f5326f30125fa514a380dd285079ae50e0323f3c8fa7d92c802f067e1e",
+      "input_verbatim": {
+        "name": "pygame 单屏迷宫寻出口",
+        "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "assumptions_verbatim": [
+        "图形库选用 pygame，基于项目上下文，属于可修改假设。",
+        "地图为固定 8×8，玩家起点与出口位置在代码中写定。",
+        "网格坐标为 (列, 行)，左上角为 (0,0)，墙用 1、路用 0、出口用 2 表示（表示方式可改）。",
+        "耗时单位用秒并保留一位小数；显示为近似值也接受。",
+        "开始前按方向键不移动，仅 R/Esc 生效。"
+      ],
+      "scope_verbatim": "用 Python + pygame 实现单屏 8×8 固定迷宫寻出口小游戏。地图用二维列表存墙/路/出口；方向键每次按下移动一格，不可穿墙或越界；到达出口显示胜利与本轮耗时；R 键重置玩家位置与计时；Esc 或关窗退出；开始前与胜利后都要持续处理按键和关窗；限帧，耗时按真实时间。不做自动生成迷宫、寻路提示、敌人、联网或排行。",
+      "unit_count": 6,
+      "all_project_constraints_retained": "原input及已接受默认假设保留；本审计仅建议分离教学技能与迁移验收，不生成/编辑新版本。"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "search_version": 5,
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "source_sha256": "7ef9d22fa1a095800845eb3e745490601833c564386a45e2c6efd34f49bc3a6d",
+      "input_verbatim": {
+        "name": "离线番茄钟学习网页",
+        "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "assumptions_verbatim": [
+        "未指定 CSS 框架、构建工具或图形库，采用原生 CSS 与单个 script.js 文件；如学生更换工具可重新生成。",
+        "休息结束后同样切回专注并暂停，等待用户点开始；这是对“切换到下一阶段并暂停”的对称解释，可修改。",
+        "仅完成专注阶段时次数加 1，休息阶段完成不加。",
+        "按钮采用原生 <button>，优先用浏览器默认键盘激活而非自定义快捷键。",
+        "不做页面关闭后的持久化，刷新即重置。",
+        "暂停后继续时以保存的剩余毫秒重新计算结束时间戳。"
+      ],
+      "scope_verbatim": "用 HTML、CSS、JavaScript 制作一个纯本机浏览器运行的番茄钟网页：专注固定 25 分钟、休息固定 5 分钟；支持开始、暂停、继续、重置；阶段倒计时结束自动切换到下一阶段并暂停等待用户开始；每完成一个专注阶段计数加 1；显示当前阶段、剩余时间与已完成次数；切换标签页后剩余时间仍准确；手机窄屏可用；键盘可操作所有按钮。不含账号、联网、通知、音效或后端。",
+      "unit_count": 7,
+      "all_project_constraints_retained": "原input及已接受默认假设保留；本审计仅建议分离教学技能与迁移验收，不生成/编辑新版本。"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "search_version": 5,
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "source_sha256": "66ef6e35506aa618f2f375e724a069b345aa85be7f24a7d3a0107406903eca2e",
+      "input_verbatim": {
+        "name": "Arduino LED 按钮反应时间小游戏",
+        "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "assumptions_verbatim": [
+        "使用Arduino Uno和Arduino IDE，串口监视器波特率设为9600。",
+        "按钮和LED的引脚可修改，方案中默认按钮接D2、LED接D9。",
+        "随机等待范围2到5秒包含端点，程序使用random(2000, 5001)实现。",
+        "去抖参数（稳定采样次数和间隔）是可修改假设，默认每5ms采样一次，连续4次相同电平确认。",
+        "硬件接线为低压直流，不涉及市电、电机或继电器。",
+        "学生可更换开发板型号、引脚或去抖参数并重新生成方案。"
+      ],
+      "scope_verbatim": "使用Arduino Uno、一个带限流电阻的LED和一个按钮制作低压反应时间小游戏。按钮采用INPUT_PULLUP接地，串口监视器显示提示和结果。游戏流程：按按钮开始一轮，随机等待2到5秒后点亮LED，亮灯后按按钮显示反应毫秒数；若等待期间按下则判为抢按，之后可再按按钮开始新一轮。全程必须能识别按钮，不得用delay阻塞随机等待；按钮需去抖，长按不能连续启动多轮。包含断电接线、LED极性、共地说明，不涉及市电、电机或继电器。",
+      "unit_count": 5,
+      "all_project_constraints_retained": "原input及已接受默认假设保留；本审计仅建议分离教学技能与迁移验收，不生成/编辑新版本。"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "project_id": "bb01c9ec-8b25-4425-832e-ccd9fa7d0a60",
+      "search_version": 2,
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "source_sha256": "66d3e86706102ffdea0bde418105ecb7d91f6e3f8f1cfd47ce2fe56a7b742070",
+      "input_verbatim": {
+        "name": "校园自习室使用情况本地看板",
+        "requirements": "用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率以百分比保留1位小数，不能平均各行百分比；有效零到访记录必须保留。按room汇总到访人次并用Streamlit自带条形图显示。尚未上传、CSV缺列或格式错误、筛选无匹配时给清晰提示且页面可继续操作；空结果时指标显示“—”，不算除零或显示NaN，不画误导性图。只用本地文件，不需要账号、联网数据、数据库、预测、地图或云部署。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "assumptions_verbatim": [
+        "CSV 为合成数据，列名与要求一致（date、room、visits、capacity、open_minutes、occupied_seat_minutes），编码默认为 UTF-8。",
+        "起止日期默认取有效数据的 min/max，房间多选默认选中全部有效房间。",
+        "“缺列或格式错误”指必需列缺失或整表无法解析，与逐行排除分开提示。",
+        "日期筛选与起止两端包含；若用户选到无匹配日期区间按“筛选无匹配”处理。",
+        "学生第一次用 Streamlit，按 intermediate 略去 Python/pandas 入门，只讲项目所需部分。"
+      ],
+      "scope_verbatim": "用 Python、pandas 与 Streamlit 在本机浏览器做一个自习室使用情况看板：上传合成 CSV，按规则校验并排除不合格行、显示排除数量（不去重）；用起止日期（两端包含）与房间多选筛选；在筛选后有效数据上计算到访总人次、占用座位分钟、加权使用率（%保留1位小数），并画按房间到访人次条形图；未上传、缺列、格式错误、筛选无匹配均有提示，空结果指标显示“—”且不画图。不需要账号、联网、数据库、预测、地图或云部署。",
+      "unit_count": 6,
+      "all_project_constraints_retained": "原input及已接受默认假设保留；本审计仅建议分离教学技能与迁移验收，不生成/编辑新版本。"
+    }
+  ],
+  "all31_unit_inventory": [
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k1",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/0",
+      "result_pointer": "/points/0/result",
+      "original": {
+        "id": "k1",
+        "name": "pandas 读取骑行 CSV 与列结构检查",
+        "technology": "pandas",
+        "learning_goal": "理解 read_csv 的返回结构，并能用 dtypes、head、shape 快速核对数据口径。",
+        "concepts": [
+          "pd.read_csv 参数",
+          "DataFrame.shape 与 dtypes",
+          "head() 预览",
+          "原始行数基线"
+        ],
+        "project_task": "编写读取函数，打印原始行数、列名与每列 dtype，并保存原始行数供删除行数计算。",
+        "practice_check": "运行后终端显示列名、原始行数和各列 dtype，与 CSV 表头一致。",
+        "prerequisite_ids": [],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 6 项有内容依据",
+        "ui_supported_verbatim": [
+          "pandas 读取 CSV"
+        ],
+        "api_status": "some",
+        "partial_cards": 5,
+        "review_cards": 1,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "读取与结构检查适中；原始行数基线是练习记录，来源不必使用骑行 CSV。首次 pandas 允许针对性库入门章节，不重上 Python。"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k2",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/1",
+      "result_pointer": "/points/1/result",
+      "original": {
+        "id": "k2",
+        "name": "pandas trip_id 去重与删除行数统计",
+        "technology": "pandas",
+        "learning_goal": "理解 subset/keep 参数含义，并能用去重前后行数差验证删除行数。",
+        "concepts": [
+          "drop_duplicates(subset, keep)",
+          "nunique 与重复计数",
+          "去重前后行数差",
+          "顺序一致性"
+        ],
+        "project_task": "实现去重步骤，保留每个 trip_id 第一条记录，返回并打印删除行数。",
+        "practice_check": "去重前后行数之差等于打印的删除行数，且余下 trip_id 唯一。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 6 项有内容依据",
+        "ui_supported_verbatim": [
+          "pandas 数据去重"
+        ],
+        "api_status": "some",
+        "partial_cards": 2,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "去重字段/保留策略是技能，trip_id 和删除行数是项目应用与复核。应接受不同列名的数据去重课。"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k3",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/2",
+      "result_pointer": "/points/2/result",
+      "original": {
+        "id": "k3",
+        "name": "pandas 时间列解析与无效行分离",
+        "technology": "pandas",
+        "learning_goal": "理解 errors 处理与布尔筛选，能严格区分缺失、end<start 与 end==start 三种情况。",
+        "concepts": [
+          "pd.to_datetime(errors)",
+          "isna 与缺失筛选",
+          "布尔条件 end < start",
+          "相等时间的边界判断"
+        ],
+        "project_task": "解析两列时间，生成两个无效行子集并计数，同时验证 end==start 行不被误剔除。",
+        "practice_check": "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+        "prerequisite_ids": [
+          "k2"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 8 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 8
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "keep_unit_separate_teaching_facets"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k4",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/3",
+      "result_pointer": "/points/3/result",
+      "original": {
+        "id": "k4",
+        "name": "pandas 时间差计算骑行分钟时长",
+        "technology": "pandas",
+        "learning_goal": "理解日期时间差与单位换算，能确保无效行不参与时长计算且不出现负值。",
+        "concepts": [
+          "日期时间相减得 Timedelta",
+          "dt.total_seconds 换算分钟",
+          "新增列赋值",
+          "min 值校验"
+        ],
+        "project_task": "在有效行上计算时长分钟列，并检查最小值与 end==start 行的时长是否为 0。",
+        "practice_check": "清洗表新增时长列，最小值 >=0，end==start 行的时长恰为 0。",
+        "prerequisite_ids": [
+          "k3"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "coherent_skill_keep_granularity"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k5",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/4",
+      "result_pointer": "/points/4/result",
+      "original": {
+        "id": "k5",
+        "name": "pandas 按出发小时分组计数",
+        "technology": "pandas",
+        "learning_goal": "理解 dt.hour 提取与分组计数，能验证汇总次数合计等于有效行数。",
+        "concepts": [
+          "dt.hour 提取",
+          "groupby/size 与 value_counts",
+          "汇总表排序",
+          "合计一致性校验"
+        ],
+        "project_task": "生成按小时汇总表，按小时排序并重命名列，导出前核对总次数。",
+        "practice_check": "汇总表各小时次数之和等于有效行数，小时取值为 0–23。",
+        "prerequisite_ids": [
+          "k4"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 6 项有内容依据",
+        "ui_supported_verbatim": [
+          "pandas 分组计数"
+        ],
+        "api_status": "some",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "时间分量提取与分组计数两个切面；小时 0–23、合计等于有效行数是迁移检验，不要求来源同骑行口径。"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k6",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/5",
+      "result_pointer": "/points/5/result",
+      "original": {
+        "id": "k6",
+        "name": "Matplotlib 出发站 Top10 条形图",
+        "technology": "Matplotlib",
+        "learning_goal": "理解 Matplotlib 图形对象与坐标轴设置，能控制排序方向并添加标题与两轴标签。",
+        "concepts": [
+          "value_counts().head(10)",
+          "barh 横向条形图",
+          "set_title/set_xlabel/set_ylabel",
+          "savefig 输出"
+        ],
+        "project_task": "编写绘图函数，绘制出发站次数 Top10 条形图，设置标题、两轴标签并保存 PNG。",
+        "practice_check": "生成的 PNG 显示最多 10 个出发站、次数降序，标题与两轴标签齐全。",
+        "prerequisite_ids": [
+          "k5"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 6 项有内容依据",
+        "ui_supported_verbatim": [
+          "Matplotlib 条形图绘制"
+        ],
+        "api_status": "some",
+        "partial_cards": 4,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "图形绘制/标签/保存是 Matplotlib 技能；value_counts().head(10) 属 pandas 数据准备，不宜全部归属 Matplotlib。Top10/站名是项目配置。"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k7",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/6",
+      "result_pointer": "/points/6/result",
+      "original": {
+        "id": "k7",
+        "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+        "technology": "pandas",
+        "learning_goal": "理解 to_csv 的 index 参数与计数链关系，能用日志核对各阶段行数是否自洽。",
+        "concepts": [
+          "DataFrame.to_csv(index=False)",
+          "计数链核对",
+          "文件名约定",
+          "输出目录检查"
+        ],
+        "project_task": "实现导出函数，写出两个 CSV 并在终端打印去重删除数、两类无效数、有效行数与汇总合计数。",
+        "practice_check": "两个 CSV 存在且可重新读取，日志中各计数满足：原始行数-删除数-无效数=有效行数。",
+        "prerequisite_ids": [
+          "k6"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 9 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "some",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 9
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "keep_unit_separate_teaching_facets"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k1",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/0",
+      "result_pointer": "/points/0/result",
+      "original": {
+        "id": "k1",
+        "name": "pygame 二维列表网格地图绘制",
+        "technology": "pygame",
+        "learning_goal": "理解行列索引如何映射到屏幕像素坐标并绘制格子。",
+        "concepts": [
+          "二维列表行列索引",
+          "行*格子尺寸求 y",
+          "pygame.Rect 与 draw.rect",
+          "墙/路/出口区分配色"
+        ],
+        "project_task": "写出 8×8 二维列表地图并把每格画成方块。",
+        "practice_check": "运行后能看到口径一致的 8×8 迷宫，墙、路、出口颜色可区分。",
+        "prerequisite_ids": [],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "coherent_skill_keep_granularity"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k2",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/1",
+      "result_pointer": "/points/1/result",
+      "original": {
+        "id": "k2",
+        "name": "网格坐标的合法移动与阻挡判定",
+        "technology": "pygame",
+        "learning_goal": "掌握在移动前用边界与非墙条件校验目标格。",
+        "concepts": [
+          "(col,row) 坐标增量",
+          "0..7 边界检查",
+          "按地图格取值判断墙",
+          "移动前校验 target"
+        ],
+        "project_task": "实现一次按方向键移动一格，并加边界与墙阻挡。",
+        "practice_check": "朝墙或地图边界按方向键时玩家不动，朝路移动一格。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 6 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "coherent_skill_keep_granularity"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k3",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/2",
+      "result_pointer": "/points/2/result",
+      "original": {
+        "id": "k3",
+        "name": "pygame 键盘输入边沿处理",
+        "technology": "pygame",
+        "learning_goal": "区分 KEYDOWN 边沿与 pygame.key.get_pressed 的持续状态。",
+        "concepts": [
+          "pygame.event 事件队列",
+          "KEYDOWN 仅触发一次",
+          "K_LEFT/K_RIGHT/K_UP/K_DOWN 映射",
+          "与 get_pressed 持续状态的区别"
+        ],
+        "project_task": "在事件循环中把方向键 KEYDOWN 映射为一次移动。",
+        "practice_check": "按住方向键不连发，每次重新按下只移动一格。",
+        "prerequisite_ids": [
+          "k2"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "coherent_skill_keep_granularity"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k4",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/3",
+      "result_pointer": "/points/3/result",
+      "original": {
+        "id": "k4",
+        "name": "pygame 游戏状态机与胜利判定",
+        "technology": "pygame",
+        "learning_goal": "理解状态变量如何决定移动是否生效和画面显示内容。",
+        "concepts": [
+          "状态变量 READY/PLAYING/WIN",
+          "到达出口切状态",
+          "按状态绘制提示文本",
+          "pygame.font 渲染文字"
+        ],
+        "project_task": "加入状态变量，到达出口切 WIN 并绘制胜利文字。",
+        "practice_check": "踩到出口格后画面出现“胜利”，且此前开始前不响应移动。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 6 项有内容依据",
+        "ui_supported_verbatim": [
+          "pygame.font 渲染文字"
+        ],
+        "api_status": "some",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "状态机和字体渲染是两个切面。当前字体片段只支持文字渲染；其他游戏的状态转换也可迁移，READY/WIN 名称不必逐字出现。"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k5",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/4",
+      "result_pointer": "/points/4/result",
+      "original": {
+        "id": "k5",
+        "name": "pygame 持续主循环与 R/Esc 键处理",
+        "technology": "pygame",
+        "learning_goal": "理解事件处理与游戏状态解耦，循环只由退出条件结束。",
+        "concepts": [
+          "主循环不因胜利而中断",
+          "pygame.QUIT 与 K_ESCAPE 退出",
+          "K_r 触发重置",
+          "按状态限制哪些键生效"
+        ],
+        "project_task": "把 R 与 ESC/QUIT 事件统一放到主循环事件处理中。",
+        "practice_check": "胜利后按 R 能回到可玩状态，按 Esc 或关窗可退出。",
+        "prerequisite_ids": [
+          "k4"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 6 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "integration_practice_not_project_identical_video"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k6",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/5",
+      "result_pointer": "/points/5/result",
+      "original": {
+        "id": "k6",
+        "name": "真实时间计时与限帧",
+        "technology": "pygame",
+        "learning_goal": "理解真实时钟差值与帧计数的区别。",
+        "concepts": [
+          "pygame.time.get_ticks 毫秒",
+          "结束时间减开始时间",
+          "clock.tick 限帧",
+          "重置时更新时间基准"
+        ],
+        "project_task": "记录起点 ticks，显示本轮秒数，并在 R 时重置起点。",
+        "practice_check": "胜利界面秒数与实际游玩时间大致相符，改变帧率不影响读数。",
+        "prerequisite_ids": [
+          "k4"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 6 项有内容依据",
+        "ui_supported_verbatim": [
+          "clock.tick 限帧"
+        ],
+        "api_status": "some",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "真实时间差计时与限帧是不同概念。clock.tick 教学不得升级为已教完整耗时；其他游戏的时间戳差值可迁移，不要求同迷宫。"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k1",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/0",
+      "result_pointer": "/points/0/result",
+      "original": {
+        "id": "k1",
+        "name": "番茄钟页面结构与语义化按钮",
+        "technology": "HTML",
+        "learning_goal": "理解语义化 HTML 结构如何同时服务于显示更新和无障碍键盘操作。",
+        "concepts": [
+          "语义化分区与文本占位",
+          "原生 button 元素",
+          "可读标签"
+        ],
+        "project_task": "写出包含阶段文字、时间显示、次数显示和四个 <button> 的静态页面骨架。",
+        "practice_check": "打开页面能看到三块显示内容和四个可用 Tab 聚焦的按钮。",
+        "prerequisite_ids": [],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "coherent_skill_keep_granularity"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k2",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/1",
+      "result_pointer": "/points/1/result",
+      "original": {
+        "id": "k2",
+        "name": "CSS 弹性布局与窄屏适配",
+        "technology": "CSS",
+        "learning_goal": "理解 viewport 设置、弹性布局和相对字号如何保证小屏可读。",
+        "concepts": [
+          "viewport meta",
+          "flex 布局与换行",
+          "相对单位与媒体查询"
+        ],
+        "project_task": "为页面骨架加样式，使宽屏横排、窄屏纵向堆叠，时间数字足够大。",
+        "practice_check": "浏览器缩到约 360px 宽，所有内容与按钮可见且无横向滚动条。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "2 / 5 项有内容依据",
+        "ui_supported_verbatim": [
+          "弹性布局",
+          "flex 布局与换行"
+        ],
+        "api_status": "some",
+        "partial_cards": 3,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "Flex 与窄屏响应是两个切面；同一 Flex 内容不应仅因标题拆分与概念行不同文字被重复当两个独立技能分母。约 360px 是项目测试。"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k3",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/2",
+      "result_pointer": "/points/2/result",
+      "original": {
+        "id": "k3",
+        "name": "JavaScript 状态对象与阶段时长常量",
+        "technology": "JavaScript",
+        "learning_goal": "理解用单一状态对象驱动界面，而不是散落的全局变量。",
+        "concepts": [
+          "状态对象",
+          "常量与毫秒换算",
+          "渲染函数集中更新 DOM"
+        ],
+        "project_task": "定义专注/休息常量、初始状态对象和一个根据状态更新页面文本的渲染函数。",
+        "practice_check": "手动修改状态值后调用渲染函数，页面阶段、时间、次数同步变化。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 4 项有内容依据",
+        "ui_supported_verbatim": [
+          "状态对象"
+        ],
+        "api_status": "some",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "对象状态与 DOM 渲染可合一单元。25/5 常量与命名为项目配置；学生只会变量/if，函数调用和 DOM 元素引用需短先修。"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k4",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/3",
+      "result_pointer": "/points/3/result",
+      "original": {
+        "id": "k4",
+        "name": "时间戳倒计时与后台标签页准确性",
+        "technology": "JavaScript",
+        "learning_goal": "理解基于截止时间戳与时间差计算剩余量，比累减计数器更稳健。",
+        "concepts": [
+          "Date.now() 与绝对截止时间",
+          "剩余毫秒计算与显示取整",
+          "setInterval 仅用于刷新显示"
+        ],
+        "project_task": "实现用结束时间戳和 Date.now() 求剩余毫秒、格式化为 mm:ss 并更新的渲染。",
+        "practice_check": "计时中切到其他标签页等十几秒再回来，剩余时间与真实经过一致。",
+        "prerequisite_ids": [
+          "k3"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "coherent_skill_keep_granularity"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k5",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/4",
+      "result_pointer": "/points/4/result",
+      "original": {
+        "id": "k5",
+        "name": "开始暂停继续重置的状态转换",
+        "technology": "JavaScript",
+        "learning_goal": "理解暂停保存剩余量、继续重建截止时间戳、重置恢复初始状态的逻辑。",
+        "concepts": [
+          "addEventListener 点击事件",
+          "运行标志与暂停剩余量",
+          "继续时重算截止时间戳",
+          "重置状态"
+        ],
+        "project_task": "为四个按钮绑定点击处理，实现开始、暂停、继续、重置并调用渲染。",
+        "practice_check": "依次点开始、暂停、继续、重置，观察显示按预期冻结、续走并回到 25:00。",
+        "prerequisite_ids": [
+          "k4"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "integration_practice_not_project_identical_video"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k6",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/5",
+      "result_pointer": "/points/5/result",
+      "original": {
+        "id": "k6",
+        "name": "阶段结束切换与专注计数",
+        "technology": "JavaScript",
+        "learning_goal": "理解在倒计时归零时执行阶段切换、暂停与按阶段条件计数的组合逻辑。",
+        "concepts": [
+          "归零判定与阶段切换",
+          "结束后暂停等待开始",
+          "按阶段条件计数"
+        ],
+        "project_task": "在渲染检测到剩余小于等于 0 时切阶段、暂停并仅对专注阶段加 1。",
+        "practice_check": "用缩短的时长测试：专注结束切休息并暂停、次数加 1；休息结束切专注且次数不变。",
+        "prerequisite_ids": [
+          "k5"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "integration_practice_not_project_identical_video"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k7",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/6",
+      "result_pointer": "/points/6/result",
+      "original": {
+        "id": "k7",
+        "name": "原生按钮键盘操作与焦点样式",
+        "technology": "CSS",
+        "learning_goal": "理解原生按钮自带的键盘激活，以及为何不应自定义拦截按键。",
+        "concepts": [
+          "Tab 聚焦顺序",
+          "Enter/空格触发原生按钮",
+          "focus-visible 样式"
+        ],
+        "project_task": "添加清晰的 :focus-visible 焦点样式，并检查按钮未被脚本阻止默认键盘行为。",
+        "practice_check": "仅用键盘 Tab 到每个按钮并按 Enter/空格，功能与鼠标一致且焦点清晰可见。",
+        "prerequisite_ids": [
+          "k1",
+          "k5"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 5 项有内容依据",
+        "ui_supported_verbatim": [
+          "focus-visible 样式"
+        ],
+        "api_status": "some",
+        "partial_cards": 1,
+        "review_cards": 1,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "原生按钮键盘激活属 HTML 行为，focus-visible 属 CSS；目标技术应按技能归属，不能强迫同一 CSS 来源证明两类语义。"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "point_id": "k1",
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/0",
+      "result_pointer": "/points/0/result",
+      "original": {
+        "id": "k1",
+        "name": "Arduino低压电路安全接线与LED极性",
+        "technology": "Arduino",
+        "learning_goal": "理解LED极性、限流电阻和共地的作用，能独立完成并检查低压接线。",
+        "concepts": [
+          "LED阳极阴极识别",
+          "限流电阻计算与连接",
+          "共地连接",
+          "断电接线检查"
+        ],
+        "project_task": "在断电状态下将LED经电阻接D9，按钮一端接GND另一端接D2，确认所有地线共地。",
+        "practice_check": "上电后LED不异常常亮，按钮可被读取；用万用表检查GND连通。",
+        "prerequisite_ids": [],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "coherent_skill_keep_granularity"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "point_id": "k2",
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/1",
+      "result_pointer": "/points/1/result",
+      "original": {
+        "id": "k2",
+        "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+        "technology": "Arduino",
+        "learning_goal": "能配置内部上拉按钮，并在串口监视器中正确打印按钮原始状态。",
+        "concepts": [
+          "pinMode INPUT_PULLUP",
+          "digitalRead",
+          "Serial.begin与Serial.println",
+          "按钮按下为LOW"
+        ],
+        "project_task": "编写程序读取D2按钮状态，并每100ms在串口监视器打印一次原始电平值。",
+        "practice_check": "串口监视器显示：未按时为1，按下时为0。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 6 项有内容依据",
+        "ui_supported_verbatim": [
+          "串口监视器调试"
+        ],
+        "api_status": "some",
+        "partial_cards": 2,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "上拉/LOW 读值与串口调试两个切面；Serial 材料仅支持调试，不能代表 INPUT_PULLUP。不同 LED/按钮项目的对应输入教学可迁移。"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "point_id": "k3",
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/2",
+      "result_pointer": "/points/2/result",
+      "original": {
+        "id": "k3",
+        "name": "按钮去抖的稳定时间窗口实现",
+        "technology": "Arduino",
+        "learning_goal": "理解去抖需要稳定时间窗口而非仅比较上次电平，并能实现单次按下检测。",
+        "concepts": [
+          "millis()非阻塞定时采样",
+          "稳定时间窗口去抖",
+          "下降沿单次触发",
+          "长按不重复触发"
+        ],
+        "project_task": "在程序中每5ms读取按钮，连续4次电平相同才更新稳定状态；在稳定状态从HIGH变为LOW时产生一次按下事件。",
+        "practice_check": "快速按下松开一次，串口只打印一次“按下”；按住不放3秒，也只打印一次；抖动时不会打印多次。",
+        "prerequisite_ids": [
+          "k2"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "coherent_skill_keep_granularity"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "point_id": "k4",
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/3",
+      "result_pointer": "/points/3/result",
+      "original": {
+        "id": "k4",
+        "name": "非阻塞随机等待与millis计时",
+        "technology": "Arduino",
+        "learning_goal": "理解非阻塞等待模式，能实现不冻结按钮检测的随机延时。",
+        "concepts": [
+          "random(2000, 5001)范围",
+          "millis()记录时间戳",
+          "非阻塞条件检查",
+          "状态变量控制流程"
+        ],
+        "project_task": "在等待状态中生成2000到5000毫秒的随机等待时长，用millis()比较已过时间，同时持续执行按钮去抖检测。",
+        "practice_check": "等待期间按下按钮能立即被检测到，3次测试亮灯时间随机分布在2-5秒内且不阻塞。",
+        "prerequisite_ids": [
+          "k3"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "keep_unit_separate_teaching_facets"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "point_id": "k5",
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/4",
+      "result_pointer": "/points/4/result",
+      "original": {
+        "id": "k5",
+        "name": "反应时间游戏状态机与主循环",
+        "technology": "Arduino",
+        "learning_goal": "能将游戏规则转化为状态机，并在不阻塞主循环的前提下管理状态切换。",
+        "concepts": [
+          "状态枚举或常量",
+          "switch-case状态切换",
+          "LED输出控制",
+          "反应时间计算：millis()差值"
+        ],
+        "project_task": "实现状态机：IDLE等待按钮，WAITING随机等待，LIGHT_ON记录反应并显示毫秒数，EARLY提示抢按后可再按开始。",
+        "practice_check": "完整流程可运行：按按钮→等待→亮灯→再按显示反应毫秒；等待中抢按显示提示，再按可开始新一轮。",
+        "prerequisite_ids": [
+          "k3",
+          "k4"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 6 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "integration_practice_not_project_identical_video"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k1",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/0",
+      "result_pointer": "/points/0/result",
+      "original": {
+        "id": "k1",
+        "name": "Streamlit 文件上传与脚本重运行",
+        "technology": "Streamlit",
+        "learning_goal": "明白每次交互都会重跑脚本，上传结果需在控件处读取。",
+        "concepts": [
+          "st.file_uploader",
+          "脚本重运行",
+          "pandas.read_csv",
+          "未上传分支"
+        ],
+        "project_task": "搭一个最小页面，用 st.file_uploader 上传 CSV，用 pandas 读入并显示表头和行数。",
+        "practice_check": "上传文件后页面显示列名与前几行；不传文件时只显示提示。",
+        "prerequisite_ids": [],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "2 / 5 项有内容依据",
+        "ui_supported_verbatim": [
+          "文件上传",
+          "脚本重运行"
+        ],
+        "api_status": "some",
+        "partial_cards": 3,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "上传与重运行是新 Streamlit 技能；pandas.read_csv 已是学生背景，不应强制新找 Streamlit 来源把 pandas 教一遍。未上传分支是项目保护。"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k2",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/1",
+      "result_pointer": "/points/1/result",
+      "original": {
+        "id": "k2",
+        "name": "pandas 列校验与逐行规则验证",
+        "technology": "pandas",
+        "learning_goal": "会把校验写成返回有效数据与排除数的普通函数，并区分缺列与行级不合格。",
+        "concepts": [
+          "必需列检查",
+          "to_datetime 格式解析",
+          "布尔掩码逐条组合",
+          "occupied<=capacity*open_minutes",
+          "排除行计数",
+          "不去重"
+        ],
+        "project_task": "编写 validate(df) 函数：检查必需列，解析 date、校验 room/visits/capacity/open_minutes/occupied 约束，返回有效数据与被排除行数。",
+        "practice_check": "对含负数、零容量、日期非法、超占用行的样本，只剩合规行，排除数正确且零 visits 行保留。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 8 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 8
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "keep_unit_separate_teaching_facets"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k3",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/2",
+      "result_pointer": "/points/2/result",
+      "original": {
+        "id": "k3",
+        "name": "Streamlit 日期区间与多选控件",
+        "technology": "Streamlit",
+        "learning_goal": "能设置默认值并让房间选空返回空结果而非全部。",
+        "concepts": [
+          "st.date_input",
+          "st.multiselect",
+          "两端包含区间",
+          "空选择=无结果",
+          "默认值"
+        ],
+        "project_task": "添加起止日期（两端包含）与房间多选（默认全部），实现筛选函数。",
+        "practice_check": "默认展示全部数据；房间全不选时结果为空；起止两端日期记录被包含。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 7 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 7
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "keep_unit_separate_teaching_facets"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k4",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/3",
+      "result_pointer": "/points/3/result",
+      "original": {
+        "id": "k4",
+        "name": "筛选后数据的加权使用率聚合",
+        "technology": "pandas",
+        "learning_goal": "理解为何不能平均各行百分比，会写 sum(占用)/sum(容量*时长) 并格式化。",
+        "concepts": [
+          "sum 聚合",
+          "加权比率",
+          "百分比格式化 f-string",
+          "单一数据口径"
+        ],
+        "project_task": "写 compute_metrics(filtered)：返回 visits 总和、occupied 总和、加权使用率（%保留1位小数）。",
+        "practice_check": "用两行不同容量数据验证结果是加权比，且格式为带1位小数的百分数。",
+        "prerequisite_ids": [
+          "k2",
+          "k3"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "coherent_skill_keep_granularity"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k5",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/4",
+      "result_pointer": "/points/4/result",
+      "original": {
+        "id": "k5",
+        "name": "groupby 汇总与 Streamlit 条形图",
+        "technology": "Streamlit",
+        "learning_goal": "会用 groupby 汇总并只对有数据的结果画图。",
+        "concepts": [
+          "groupby 聚合",
+          "Series 到图表数据",
+          "st.bar_chart",
+          "空结果不画图"
+        ],
+        "project_task": "对 filtered groupby room 求 sum(visits)，非空时 st.bar_chart 显示。",
+        "practice_check": "非空时出现按房间的条形图；空数据时不出现图表。",
+        "prerequisite_ids": [
+          "k4"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": true,
+        "ui_label": "1 / 6 项有内容依据",
+        "ui_supported_verbatim": [
+          "st.bar_chart"
+        ],
+        "api_status": "some",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "already_partial_still_requires_role_separation",
+      "proposal_note": "st.bar_chart 是新技能，groupby 为学生已知的数据准备。保留空结果不画图的项目规则，但不用要求图表课原样显示同房间/空集政策。"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k6",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/5",
+      "result_pointer": "/points/5/result",
+      "original": {
+        "id": "k6",
+        "name": "空结果的安全展示",
+        "technology": "Streamlit",
+        "learning_goal": "会在计算前判断空数据并分支展示。",
+        "concepts": [
+          "空 DataFrame 判断",
+          "除零防护",
+          "条件渲染",
+          "错误提示 st.info/st.error"
+        ],
+        "project_task": "在指标与图表前加入空数据与错误状态判断，显示“—”和提示，阻止除零。",
+        "practice_check": "筛选无匹配时三项显示“—”，无 NaN 报错，且无图表；页面仍可继续操作。",
+        "prerequisite_ids": [
+          "k3",
+          "k5"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": "integration_practice_not_project_identical_video"
+    }
+  ],
+  "nineteen_gap_proposals": [
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k3",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/2",
+      "result_pointer": "/points/2/result",
+      "original": {
+        "id": "k3",
+        "name": "pandas 时间列解析与无效行分离",
+        "technology": "pandas",
+        "learning_goal": "理解 errors 处理与布尔筛选，能严格区分缺失、end<start 与 end==start 三种情况。",
+        "concepts": [
+          "pd.to_datetime(errors)",
+          "isna 与缺失筛选",
+          "布尔条件 end < start",
+          "相等时间的边界判断"
+        ],
+        "project_task": "解析两列时间，生成两个无效行子集并计数，同时验证 end==start 行不被误剔除。",
+        "practice_check": "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+        "prerequisite_ids": [
+          "k2"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 8 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 8
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "keep_unit_separate_teaching_facets",
+        "explanation": "原概念同时包含 API 参数、过滤方法和业务边界。后两者应连接到项目练习；不应要求同一个视频恰好处理骑行 end/start 字段。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "pandas 日期时间解析与有效性筛选",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "将字符串列解析为日期时间并识别解析失败",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "用缺失掩码和列间比较筛选有效记录",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "需要 DataFrame 列访问、布尔筛选；学生已有 Python 基础，不重上 Python 整课。两个切面仍合为一个可练习单元。",
+        "acceptable_video_scope": [
+          "其他领域 CSV 的日期解析/NaT 与布尔筛选课可分别支持两个技能",
+          "来源明确教 pandas.to_datetime 的使用可作为解析核心相关材料，参数语义和筛选深度另标已证或未知"
+        ],
+        "reject_as_substitute": [
+          "泛 Python 基础或只有导入 pandas",
+          "仅函数名清单、只讲日期格式化却声称已教无效记录分离",
+          "不经来源依据把任意参数当等价；把项目相等边界隐去"
+        ],
+        "bounded_query_examples_not_executed": [
+          "pandas 日期时间解析 解析失败 缺失值",
+          "pandas 布尔掩码 缺失筛选 列比较"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "去重先于无效行处理；缺失/解析失败与结束早于开始的无效行需单独计数",
+          "end==start 必须保留，不能把 end<start 改成 end<=start",
+          "全部时间为同一城市本地时间，不能悄悄引入跨时区或预测任务"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "pd 别名、errors 的具体使用方式、统一时间格式为实现选择；教学目标不要求来源写出同一拼写/同一 CSV 列名"
+        ],
+        "original_project_task_verbatim": "解析两列时间，生成两个无效行子集并计数，同时验证 end==start 行不被误剔除。",
+        "original_practice_check_verbatim": "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [
+        {
+          "resource_id": "res_5659617259cfc15963a12d97",
+          "title_verbatim": "Python pandas.to_datetime函数方法的使用",
+          "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/?uid=425631654C34793167377159",
+          "video_evidence_status": "page_verified",
+          "pointer": "/points/2/result/partial_items/0",
+          "reason_verbatim": "与“pandas 时间列解析与无效行分离”相关：已有来源证据：pandas.to_datetime API 使用核心（参数未确认）。尚未确认：时间列解析、无效行分离、pandas 日期时间转换、时间列与无效行分离。此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：pd.to_datetime(errors)、isna 与缺失筛选、布尔条件 end < start、相等时间的边界判断；项目行为仍需分别取证。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+          "supported_rows_verbatim": [
+            {
+              "id": "api_operation_core_1",
+              "text": "pandas.to_datetime API 使用核心（参数未确认）",
+              "status": "supported",
+              "evidence_ids": [
+                "ev_97acf7a0-6039-4a12-80b2-ab7005d84960"
+              ],
+              "reason": "仅来源自己的已验证视频标题明确讲授这一原拼写 API 的使用核心；不是别名或参数等价，原确认目标和项目限定仍未知。"
+            }
+          ],
+          "supporting_observations_verbatim": [
+            {
+              "id": "ev_7defe5ea90690972e969",
+              "evidence_id": "ev_97acf7a0-6039-4a12-80b2-ab7005d84960",
+              "kind": "page",
+              "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+              "field": "title",
+              "source": "html.bilibili.video_title",
+              "text": "Python pandas.to_datetime函数方法的使用",
+              "fetched_at": "2026-10-18T20:13:59.921513+00:00",
+              "observed_at": "2026-10-18T20:13:59.921513+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              }
+            }
+          ]
+        }
+      ],
+      "source_availability_conclusion": "有真实局部候选但原正文/目录目标仍未知；只记录现有范围，不追认新教学支持。"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k4",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/3",
+      "result_pointer": "/points/3/result",
+      "original": {
+        "id": "k4",
+        "name": "pandas 时间差计算骑行分钟时长",
+        "technology": "pandas",
+        "learning_goal": "理解日期时间差与单位换算，能确保无效行不参与时长计算且不出现负值。",
+        "concepts": [
+          "日期时间相减得 Timedelta",
+          "dt.total_seconds 换算分钟",
+          "新增列赋值",
+          "min 值校验"
+        ],
+        "project_task": "在有效行上计算时长分钟列，并检查最小值与 end==start 行的时长是否为 0。",
+        "practice_check": "清洗表新增时长列，最小值 >=0，end==start 行的时长恰为 0。",
+        "prerequisite_ids": [
+          "k3"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "coherent_skill_keep_granularity",
+        "explanation": "粒度适中。骑行与零分钟是练习口径；真正要学的是时间差对象、总时长和单位换算。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "pandas 时间差与持续时长换算",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "对日期时间列求差并取得总秒数等持续时长",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "将持续时长换算为目标单位并赋给新列",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "依赖 k3 的日期解析与有效数据；min>=0 是本项目检验，不是另一门视频课。",
+        "acceptable_video_scope": [
+          "日志、订单等数据中的 datetime/Timedelta 差值课；不需要同样的骑行数据",
+          "明确教总秒数与单位换算的 pandas 片段可迁移"
+        ],
+        "reject_as_substitute": [
+          "只有 datetime 格式化",
+          "把 seconds 的局部分量或帧数当总经过时间",
+          "仅泛算术/变量课替代 pandas 时间差"
+        ],
+        "bounded_query_examples_not_executed": [
+          "pandas Timedelta total_seconds 时间差",
+          "pandas 日期时间相减 新增列"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "只对已清洗有效行计算时长；以分钟输出",
+          "相等时间得到 0 分钟，不能丢掉零；不得有负时长"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "时长列名、用 dt.total_seconds 的具体链式拼写可调整，必须保留正确的单位和跨日总时长语义"
+        ],
+        "original_project_task_verbatim": "在有效行上计算时长分钟列，并检查最小值与 end==start 行的时长是否为 0。",
+        "original_practice_check_verbatim": "清洗表新增时长列，最小值 >=0，end==start 行的时长恰为 0。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "point_id": "k7",
+      "source_path": "evidence\\phase2-read-r9c\\bicycle_csv_advanced\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/6",
+      "result_pointer": "/points/6/result",
+      "original": {
+        "id": "k7",
+        "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+        "technology": "pandas",
+        "learning_goal": "理解 to_csv 的 index 参数与计数链关系，能用日志核对各阶段行数是否自洽。",
+        "concepts": [
+          "DataFrame.to_csv(index=False)",
+          "计数链核对",
+          "文件名约定",
+          "输出目录检查"
+        ],
+        "project_task": "实现导出函数，写出两个 CSV 并在终端打印去重删除数、两类无效数、有效行数与汇总合计数。",
+        "practice_check": "两个 CSV 存在且可重新读取，日志中各计数满足：原始行数-删除数-无效数=有效行数。",
+        "prerequisite_ids": [
+          "k6"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 9 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "some",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 9
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "keep_unit_separate_teaching_facets",
+        "explanation": "文件写出与项目计数链被混在一条概念表中。保留一单元、两个切面；完整项目日志由学生迁移完成。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "pandas CSV 导出与结果复核",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "将 DataFrame 导出为 CSV 并控制索引/表头等输出选项",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "重新读取输出并用行数或汇总不变量做轻量复核",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "需要清洗结果与分组结果。CSV 输出不必等 Matplotlib 绘图学完才可学；原 k6→k7 是项目顺序，不是必要知识依赖。",
+        "acceptable_video_scope": [
+          "任意 DataFrame CSV 输出教程可支持导出技能；index 选项只在有来源说明时声称教过",
+          "数据验证/重新读回片段可支持复核方法，不要求同一清洗管线"
+        ],
+        "reject_as_substitute": [
+          "仅搜索结果标题就算本课正文/目录",
+          "只讲读取却声称输出选项已教",
+          "因没有同一日志表或文件名而把真实写出核心判无关"
+        ],
+        "bounded_query_examples_not_executed": [
+          "pandas DataFrame 导出CSV index 选项",
+          "pandas 导出后读取 校验 行数"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "保留清洗后含分钟时长的 CSV、按小时汇总 CSV 和项目要求的 PNG",
+          "日志保留原始、去重删除、两类无效、有效及汇总计数，计数链自洽",
+          "文件可重新读取，不增加账号/云/仪表盘"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "文件名、输出目录、index=False 和日志格式是已接受实现默认；不要把整个计数链/固定文件名当视频必须展示的内容"
+        ],
+        "original_project_task_verbatim": "实现导出函数，写出两个 CSV 并在终端打印去重删除数、两类无效数、有效行数与汇总合计数。",
+        "original_practice_check_verbatim": "两个 CSV 存在且可重新读取，日志中各计数满足：原始行数-删除数-无效数=有效行数。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [
+        {
+          "resource_id": "res_19c899ad2d74a58665820e45",
+          "title_verbatim": "【Python Pandas教程】4-读写CSV EXCEL文件",
+          "url": "https://www.bilibili.com/video/BV1q741157jG/?uid=425631713734313135376A47",
+          "video_evidence_status": "page_verified",
+          "pointer": "/points/6/result/partial_items/0",
+          "reason_verbatim": "与“pandas 清洗结果与汇总 CSV 导出及复核日志”相关：已有来源证据：pandas CSV 写出。尚未确认：清洗结果、汇总 CSV 导出、复核日志、清洗结果与汇总 及复核日志。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+          "supported_rows_verbatim": [
+            {
+              "id": "operation_core",
+              "text": "pandas CSV 写出",
+              "status": "supported",
+              "evidence_ids": [
+                "ev_d1882e45-c712-41ad-9a01-dab899330ede"
+              ],
+              "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+            }
+          ],
+          "supporting_observations_verbatim": [
+            {
+              "evidence_id": "ev_d1882e45-c712-41ad-9a01-dab899330ede",
+              "candidate_id": "fce222e73f2c61e2776d6885",
+              "kind": "search",
+              "source": "searxng",
+              "source_engines": [
+                "duckduckgo videos"
+              ],
+              "type_source": "search_template",
+              "resource_type_hint": "video",
+              "knowledge_point_id": "90e2a23c-b586-4ce2-8592-0402d61e032c",
+              "query": "pandas DataFrame.to_csv index False 视频教程",
+              "url": "https://www.bilibili.com/video/BV1q741157jG/?uid=425631713734313135376A47",
+              "title": "【Python Pandas教程】4-读写CSV EXCEL文件",
+              "snippet": "",
+              "observed_at": "2026-10-18T20:14:39.850168+00:00",
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.lriiYFsY1zXUFejqL54y2wEsCo?pid=Api",
+              "thumbnail_source": "search.thumbnail"
+            }
+          ]
+        }
+      ],
+      "source_availability_conclusion": "有真实局部候选但原正文/目录目标仍未知；只记录现有范围，不追认新教学支持。"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k1",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/0",
+      "result_pointer": "/points/0/result",
+      "original": {
+        "id": "k1",
+        "name": "pygame 二维列表网格地图绘制",
+        "technology": "pygame",
+        "learning_goal": "理解行列索引如何映射到屏幕像素坐标并绘制格子。",
+        "concepts": [
+          "二维列表行列索引",
+          "行*格子尺寸求 y",
+          "pygame.Rect 与 draw.rect",
+          "墙/路/出口区分配色"
+        ],
+        "project_task": "写出 8×8 二维列表地图并把每格画成方块。",
+        "practice_check": "运行后能看到口径一致的 8×8 迷宫，墙、路、出口颜色可区分。",
+        "prerequisite_ids": [],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "coherent_skill_keep_granularity",
+        "explanation": "这是适中的项目技能块，不应碎拆成 row/col 变量名，也不应因来源不是 8×8 迷宫而拒绝。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "pygame 网格数据到屏幕坐标的绘制",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "遍历二维地图数据，把行列坐标转换成像素位置",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "依据格子类型绘制矩形或其他可区分图形",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "学生已会列表/循环及 pygame 窗口绘图，复用这些先修，聚焦数据到坐标的连接。",
+        "acceptable_video_scope": [
+          "同 pygame 的 tilemap、棋盘、生命游戏等二维网格绘制说明，可迁移到迷宫",
+          "来源明确解释坐标映射或有解释配套的小代码片段，不要求整段同项目代码"
+        ],
+        "reject_as_substitute": [
+          "只画 grid 线就宣称二维列表、类型图例与坐标映射全会",
+          "只有 Python 列表基础或其他引擎的 API",
+          "从无解释整段 Full Code、侧栏或搜索摘要补教学证据"
+        ],
+        "bounded_query_examples_not_executed": [
+          "pygame tilemap 2D list grid pixel coordinates",
+          "pygame 二维网格 行列 矩形绘制"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "固定 8×8 二维列表表示墙、路、出口；这三种类型可辨认",
+          "列对应 x、行对应 y；不把方向写反",
+          "不增加自动生成迷宫、寻路或敌人"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "0/1/2 编码、格子边长和颜色是表示方式默认；来源可用不同尺寸、颜色、类型编码"
+        ],
+        "original_project_task_verbatim": "写出 8×8 二维列表地图并把每格画成方块。",
+        "original_practice_check_verbatim": "运行后能看到口径一致的 8×8 迷宫，墙、路、出口颜色可区分。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k2",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/1",
+      "result_pointer": "/points/1/result",
+      "original": {
+        "id": "k2",
+        "name": "网格坐标的合法移动与阻挡判定",
+        "technology": "pygame",
+        "learning_goal": "掌握在移动前用边界与非墙条件校验目标格。",
+        "concepts": [
+          "(col,row) 坐标增量",
+          "0..7 边界检查",
+          "按地图格取值判断墙",
+          "移动前校验 target"
+        ],
+        "project_task": "实现一次按方向键移动一格，并加边界与墙阻挡。",
+        "practice_check": "朝墙或地图边界按方向键时玩家不动，朝路移动一格。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 6 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "coherent_skill_keep_granularity",
+        "explanation": "边界检查与墙阻挡是同一次候选移动的两项检查，保持同一单元。具体 0..7 是实例配置，不要求教程也用 8×8。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "网格移动的候选位置与碰撞校验",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "根据方向计算候选格，在提交移动前检查边界",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "按二维地图单元值进行阻挡判定",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "需要 k1 的地图索引。可先把移动写为纯函数调用验证，再由 k3 接按键；避免把尚未教的 KEYDOWN 当 k2 已有先修。",
+        "acceptable_video_scope": [
+          "棋盘、tilemap 或回合式网格项目中的边界/可通行校验；不要求同尺寸或同墙布局",
+          "只要解释二维网格坐标与先校验再更新，就可支持该方法"
+        ],
+        "reject_as_substitute": [
+          "泛 if 课、仅 pygame 像素边缘限制或只有矩形重叠检测就宣称教过地图格阻挡",
+          "从不同游戏项目硬推相同墙编码"
+        ],
+        "bounded_query_examples_not_executed": [
+          "Python grid movement bounds tile collision",
+          "pygame tilemap wall collision grid movement"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "每次有效按下移动一格，不能穿墙或越界",
+          "固定地图合法索引为 0..7，判定在取地图值之前避免越界",
+          "合法路可走、出口可到达"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "target 变量名、坐标元组命名、墙的数值编码可变"
+        ],
+        "original_project_task_verbatim": "实现一次按方向键移动一格，并加边界与墙阻挡。",
+        "original_practice_check_verbatim": "朝墙或地图边界按方向键时玩家不动，朝路移动一格。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k3",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/2",
+      "result_pointer": "/points/2/result",
+      "original": {
+        "id": "k3",
+        "name": "pygame 键盘输入边沿处理",
+        "technology": "pygame",
+        "learning_goal": "区分 KEYDOWN 边沿与 pygame.key.get_pressed 的持续状态。",
+        "concepts": [
+          "pygame.event 事件队列",
+          "KEYDOWN 仅触发一次",
+          "K_LEFT/K_RIGHT/K_UP/K_DOWN 映射",
+          "与 get_pressed 持续状态的区别"
+        ],
+        "project_task": "在事件循环中把方向键 KEYDOWN 映射为一次移动。",
+        "practice_check": "按住方向键不连发，每次重新按下只移动一格。",
+        "prerequisite_ids": [
+          "k2"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "coherent_skill_keep_granularity",
+        "explanation": "该单元本身不粗。不能要求来源同时出现四个具体方向常量，亦不能把关键的离散/持续输入语义降成泛事件课。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "pygame 离散按键事件与持续按键状态",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "从 pygame 事件队列处理按下事件并映射到动作",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "区分一次按下事件与持续按住的状态读取",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "学生已会 pygame 窗口；按键事件的学习可与网格校验并行。项目组合练习仍需 k2 的合法移动。",
+        "acceptable_video_scope": [
+          "pygame 中菜单、回合移动或任何离散动作输入教程，明确说明事件与持续输入区别",
+          "教程可绑定其他键，再由学生映射四方向"
+        ],
+        "reject_as_substitute": [
+          "只有 get_pressed 连续移动却声称满足单次移动",
+          "仅提到 event 或只给出普通 Python 循环",
+          "其他 GUI/游戏引擎 API 直接当 pygame 教学"
+        ],
+        "bounded_query_examples_not_executed": [
+          "pygame KEYDOWN key pressed get_pressed difference",
+          "pygame 按键事件 单次触发 持续按键"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "方向键每次重新按下只移动一格；按住不连续移动",
+          "四个方向可用，主循环持续接收关窗事件"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "方向常量的全部拼写、动作映射表形式与关闭重复的具体实现可以不同；必须验证真实单次触发行为"
+        ],
+        "original_project_task_verbatim": "在事件循环中把方向键 KEYDOWN 映射为一次移动。",
+        "original_practice_check_verbatim": "按住方向键不连发，每次重新按下只移动一格。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "point_id": "k5",
+      "source_path": "evidence\\phase2-read-r9c\\pygame_maze_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/4",
+      "result_pointer": "/points/4/result",
+      "original": {
+        "id": "k5",
+        "name": "pygame 持续主循环与 R/Esc 键处理",
+        "technology": "pygame",
+        "learning_goal": "理解事件处理与游戏状态解耦，循环只由退出条件结束。",
+        "concepts": [
+          "主循环不因胜利而中断",
+          "pygame.QUIT 与 K_ESCAPE 退出",
+          "K_r 触发重置",
+          "按状态限制哪些键生效"
+        ],
+        "project_task": "把 R 与 ESC/QUIT 事件统一放到主循环事件处理中。",
+        "practice_check": "胜利后按 R 能回到可玩状态，按 Esc 或关窗可退出。",
+        "prerequisite_ids": [
+          "k4"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 6 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "integration_practice_not_project_identical_video",
+        "explanation": "原本主要是跨单元整合。视频可以教可迁移的生命周期模式，学生负责把 R 与迷宫状态接起来。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "pygame 跨状态事件循环与重置",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "integration_practice_with_reusable_prerequisite_material",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "让事件泵持续运行，以状态决定更新/绘制而非终止主循环",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "将退出和重置动作与当前游戏状态分开处理",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "复用 k3 事件与 k4 状态；重置计时的项目练习还需要 k6 时间基准。已学片段可直接复用，不强制每个集成里程碑都新找一门课。",
+        "acceptable_video_scope": [
+          "pygame 的 game-over/restart 或状态机教程，明确保留持续事件循环",
+          "某一持续主循环/重置片段可支持一部分方法，不需同迷宫胜利规则"
+        ],
+        "reject_as_substitute": [
+          "在 game over 时结束主循环后还宣称键盘可重开",
+          "只有最小 hello-world 窗口而冒称已教完整状态/重置",
+          "普通 Python while 基础替代 pygame 生命周期"
+        ],
+        "bounded_query_examples_not_executed": [
+          "pygame game states restart event loop",
+          "pygame 游戏结束 重开 持续主循环"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "开始前与胜利后仍能处理键盘和关窗",
+          "胜利后 R 重置位置与计时；Esc/关窗可退出",
+          "不能为显示胜利而退出整个主循环"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "R/Esc、READY/PLAYING/WIN 的名字和分支写法是项目配置；来源可用另一重开键或 GameOver 状态"
+        ],
+        "original_project_task_verbatim": "把 R 与 ESC/QUIT 事件统一放到主循环事件处理中。",
+        "original_practice_check_verbatim": "胜利后按 R 能回到可玩状态，按 Esc 或关窗可退出。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k1",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/0",
+      "result_pointer": "/points/0/result",
+      "original": {
+        "id": "k1",
+        "name": "番茄钟页面结构与语义化按钮",
+        "technology": "HTML",
+        "learning_goal": "理解语义化 HTML 结构如何同时服务于显示更新和无障碍键盘操作。",
+        "concepts": [
+          "语义化分区与文本占位",
+          "原生 button 元素",
+          "可读标签"
+        ],
+        "project_task": "写出包含阶段文字、时间显示、次数显示和四个 <button> 的静态页面骨架。",
+        "practice_check": "打开页面能看到三块显示内容和四个可用 Tab 聚焦的按钮。",
+        "prerequisite_ids": [],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "coherent_skill_keep_granularity",
+        "explanation": "标题中的番茄钟是应用场景，不应成为视频必须相同的主题。语义结构与按钮是一项适中的页面骨架任务。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "HTML 语义化结构与可操作按钮",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "用有意义的页面分区和可读文本组织界面",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "使用原生按钮、可访问名称和正常文档焦点顺序",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "学生已有 HTML/CSS 基础，优先针对性章节。DOM 元素引用/函数调用需在后续 JS 单元给短先修，不要求重上整套 HTML。",
+        "acceptable_video_scope": [
+          "任意网页中语义化 HTML 与原生 button 的针对性章节，可迁移到番茄钟",
+          "语义结构和按钮行为可由不同来源分别解释"
+        ],
+        "reject_as_substitute": [
+          "只有笼统 HTML 入门标题，未见相关章节",
+          "拿 div 点击事件当已具备原生键盘行为",
+          "从相关视频尾巴拼出本课按钮教学"
+        ],
+        "bounded_query_examples_not_executed": [
+          "HTML semantic elements native button accessible name",
+          "HTML 原生button 语义化 键盘"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "显示阶段、剩余时间、完成次数，以及开始/暂停/继续/重置操作",
+          "所有按钮可用键盘操作；本地离线，无账号或后端"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "元素 id、文案、分区标签和视觉顺序可调整；来源不必展示番茄钟或正好四按钮"
+        ],
+        "original_project_task_verbatim": "写出包含阶段文字、时间显示、次数显示和四个 <button> 的静态页面骨架。",
+        "original_practice_check_verbatim": "打开页面能看到三块显示内容和四个可用 Tab 聚焦的按钮。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k4",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/3",
+      "result_pointer": "/points/3/result",
+      "original": {
+        "id": "k4",
+        "name": "时间戳倒计时与后台标签页准确性",
+        "technology": "JavaScript",
+        "learning_goal": "理解基于截止时间戳与时间差计算剩余量，比累减计数器更稳健。",
+        "concepts": [
+          "Date.now() 与绝对截止时间",
+          "剩余毫秒计算与显示取整",
+          "setInterval 仅用于刷新显示"
+        ],
+        "project_task": "实现用结束时间戳和 Date.now() 求剩余毫秒、格式化为 mm:ss 并更新的渲染。",
+        "practice_check": "计时中切到其他标签页等十几秒再回来，剩余时间与真实经过一致。",
+        "prerequisite_ids": [
+          "k3"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "coherent_skill_keep_granularity",
+        "explanation": "基于截止时间的倒计时是明确技能，不应拆成每个运算符；后台测试是迁移验收，不要求来源恰好展示本网页切后台。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "JavaScript 基于时间差的倒计时",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "记录截止时间并用当前时间的差计算剩余量",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "把计时依据与显示刷新调度分开，格式化非负剩余时间",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "需要 k3 的状态与 DOM 更新；基础函数/日期数值运算可做短先修。",
+        "acceptable_video_scope": [
+          "倒计时、秒表、定时器等任何项目中明确的时间戳差值算法",
+          "来源不必使用 25/5 分钟，但必须区分实际经过时间与回调次数"
+        ],
+        "reject_as_substitute": [
+          "只讲 setInterval 或累减 1 秒作为完整准确倒计时",
+          "仅 Date.now API 名称就声称后台准确性已证明",
+          "泛 JavaScript 基础课替代时间算法"
+        ],
+        "bounded_query_examples_not_executed": [
+          "JavaScript countdown deadline timestamp timer drift",
+          "JavaScript 时间戳 倒计时 后台标签页"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "后台标签页回来剩余量准确；不能只靠 setInterval 每次减 1",
+          "专注 25 分钟、休息 5 分钟的业务配置保留",
+          "显示 mm:ss，归零不能出现负数"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "Date.now 及渲染函数名为已接受实现选择；明确教等价真实时间差方案也可作材料，不能无证据猜 API 等价"
+        ],
+        "original_project_task_verbatim": "实现用结束时间戳和 Date.now() 求剩余毫秒、格式化为 mm:ss 并更新的渲染。",
+        "original_practice_check_verbatim": "计时中切到其他标签页等十几秒再回来，剩余时间与真实经过一致。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k5",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/4",
+      "result_pointer": "/points/4/result",
+      "original": {
+        "id": "k5",
+        "name": "开始暂停继续重置的状态转换",
+        "technology": "JavaScript",
+        "learning_goal": "理解暂停保存剩余量、继续重建截止时间戳、重置恢复初始状态的逻辑。",
+        "concepts": [
+          "addEventListener 点击事件",
+          "运行标志与暂停剩余量",
+          "继续时重算截止时间戳",
+          "重置状态"
+        ],
+        "project_task": "为四个按钮绑定点击处理，实现开始、暂停、继续、重置并调用渲染。",
+        "practice_check": "依次点开始、暂停、继续、重置，观察显示按预期冻结、续走并回到 25:00。",
+        "prerequisite_ids": [
+          "k4"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "integration_practice_not_project_identical_video",
+        "explanation": "集成练习应允许复用先修材料，检验学生迁移四动作，而不是必须找到完整同款番茄钟教程。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "JavaScript 事件驱动状态与暂停恢复",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "integration_practice_with_reusable_prerequisite_material",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "绑定操作事件，用单一状态和渲染函数更新 UI",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "保存剩余量并在恢复时建立新的截止时间",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "复用 k1 按钮、k3 状态/渲染、k4 时间差。当前背景仅承诺变量/if，函数与 DOM 查询需给可理解的短前置。",
+        "acceptable_video_scope": [
+          "任何原生 JS 计时器/播放器/交互流程中的事件-状态-渲染和暂停恢复方法",
+          "DOM 事件章节仅支持事件接线，不能代表已教完整暂停算法"
+        ],
+        "reject_as_substitute": [
+          "onclick 入门替代全部暂停/恢复语义",
+          "暂停后继续错误地重新开始整段时长",
+          "要求教程写出本项目四个同名按钮才算相关"
+        ],
+        "bounded_query_examples_not_executed": [
+          "JavaScript timer pause resume remaining time",
+          "JavaScript event state render DOM"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "开始、暂停、继续、重置四项均可用，暂停冻结、继续续走、重置恢复专注初始时长",
+          "不建立多个并行定时器，不靠累计回调次数计时"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "运行标志命名、四个按钮文字与状态字段名称可变"
+        ],
+        "original_project_task_verbatim": "为四个按钮绑定点击处理，实现开始、暂停、继续、重置并调用渲染。",
+        "original_practice_check_verbatim": "依次点开始、暂停、继续、重置，观察显示按预期冻结、续走并回到 25:00。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "point_id": "k6",
+      "source_path": "evidence\\phase2-read-r9c\\web_pomodoro_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/5",
+      "result_pointer": "/points/5/result",
+      "original": {
+        "id": "k6",
+        "name": "阶段结束切换与专注计数",
+        "technology": "JavaScript",
+        "learning_goal": "理解在倒计时归零时执行阶段切换、暂停与按阶段条件计数的组合逻辑。",
+        "concepts": [
+          "归零判定与阶段切换",
+          "结束后暂停等待开始",
+          "按阶段条件计数"
+        ],
+        "project_task": "在渲染检测到剩余小于等于 0 时切阶段、暂停并仅对专注阶段加 1。",
+        "practice_check": "用缩短的时长测试：专注结束切休息并暂停、次数加 1；休息结束切专注且次数不变。",
+        "prerequisite_ids": [
+          "k5"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "integration_practice_not_project_identical_video",
+        "explanation": "这是最明显的项目规则组合，专注/休息与计数政策不应作为必须在教程里原样出现的教学词条。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "有限状态流程的转换与一次性副作用",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "integration_practice_with_reusable_prerequisite_material",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "在状态转换时执行一次性动作，并按当前阶段有条件计数",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "依赖 k4/k5 的计时与状态控制；优先作为综合练习，复用已有技能资料。",
+        "acceptable_video_scope": [
+          "任何事件驱动有限状态机中转移触发一次动作的解释，可迁移到番茄钟规则",
+          "如学生已会条件转换，只需项目练习，无须强制新增视频"
+        ],
+        "reject_as_substitute": [
+          "只有泛 if 语法就声称懂一次性状态动作",
+          "来源没有专注计数就判不相关，反向要求同款业务",
+          "把项目规则从学习计划或最终测试中删除"
+        ],
+        "bounded_query_examples_not_executed": [
+          "JavaScript finite state machine transition actions",
+          "JavaScript 状态转换 一次触发 副作用"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "专注归零切休息并暂停等待开始；只为完成专注加 1",
+          "休息归零切专注且不加次数，同样等待开始",
+          "不会因每次刷新都满足 <=0 而反复加次数"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "阶段常量名、测试缩短时长等是配置；25/5 真实配置仍保留"
+        ],
+        "original_project_task_verbatim": "在渲染检测到剩余小于等于 0 时切阶段、暂停并仅对专注阶段加 1。",
+        "original_practice_check_verbatim": "用缩短的时长测试：专注结束切休息并暂停、次数加 1；休息结束切专注且次数不变。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "point_id": "k1",
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/0",
+      "result_pointer": "/points/0/result",
+      "original": {
+        "id": "k1",
+        "name": "Arduino低压电路安全接线与LED极性",
+        "technology": "Arduino",
+        "learning_goal": "理解LED极性、限流电阻和共地的作用，能独立完成并检查低压接线。",
+        "concepts": [
+          "LED阳极阴极识别",
+          "限流电阻计算与连接",
+          "共地连接",
+          "断电接线检查"
+        ],
+        "project_task": "在断电状态下将LED经电阻接D9，按钮一端接GND另一端接D2，确认所有地线共地。",
+        "practice_check": "上电后LED不异常常亮，按钮可被读取；用万用表检查GND连通。",
+        "prerequisite_ids": [],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "coherent_skill_keep_granularity",
+        "explanation": "这一单元并不应被放宽成无关基础课；现无展示卡只能说明留存检索缺口，不能凭空归因于尺寸/参数太严格。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "Arduino 低压 LED 与按钮接线基础",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "识别 LED 极性、限流与电路回路/共地",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "按低压接线图连接并在上电前检查",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "学生点亮过 LED，复用已有经验；按钮电路/共地补足。资料不能代替最终按实际元件检查与断电接线。",
+        "acceptable_video_scope": [
+          "Arduino 低压 LED/按钮的正确接线示例，分别讲清相关电路原则",
+          "同一原理的不同引脚/LED 示例可迁移，元件和供电仍需核对"
+        ],
+        "reject_as_substitute": [
+          "无电阻 LED 接法或不匹配电压的示例",
+          "其他板卡/高压接线未经说明直接当 Uno 方案",
+          "泛电子元件漫谈代替本单元接线"
+        ],
+        "bounded_query_examples_not_executed": [
+          "Arduino LED polarity current limiting resistor common ground",
+          "Arduino INPUT_PULLUP button wiring LED"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "Arduino Uno、LED 串联合适限流电阻、按钮使用内部上拉接地",
+          "断电接线、LED 极性与共地说明不可删除",
+          "不接市电、电机或继电器"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "D2/D9、具体颜色、串口 9600 等已接受默认可改；不要求视频也是反应游戏或同引脚号"
+        ],
+        "original_project_task_verbatim": "在断电状态下将LED经电阻接D9，按钮一端接GND另一端接D2，确认所有地线共地。",
+        "original_practice_check_verbatim": "上电后LED不异常常亮，按钮可被读取；用万用表检查GND连通。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "point_id": "k3",
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/2",
+      "result_pointer": "/points/2/result",
+      "original": {
+        "id": "k3",
+        "name": "按钮去抖的稳定时间窗口实现",
+        "technology": "Arduino",
+        "learning_goal": "理解去抖需要稳定时间窗口而非仅比较上次电平，并能实现单次按下检测。",
+        "concepts": [
+          "millis()非阻塞定时采样",
+          "稳定时间窗口去抖",
+          "下降沿单次触发",
+          "长按不重复触发"
+        ],
+        "project_task": "在程序中每5ms读取按钮，连续4次电平相同才更新稳定状态；在稳定状态从HIGH变为LOW时产生一次按下事件。",
+        "practice_check": "快速按下松开一次，串口只打印一次“按下”；按住不放3秒，也只打印一次；抖动时不会打印多次。",
+        "prerequisite_ids": [
+          "k2"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "coherent_skill_keep_granularity",
+        "explanation": "稳定性和单次事件是同一个输入处理单元的关键语义；可迁移参数，不可删除稳定条件以提高命中率。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "Arduino 稳定输入去抖与单次按下事件",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "用稳定时间或连续稳定采样确认按钮状态",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "从去抖后的状态变化产生一次按下事件",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "需要 k2 的上拉/LOW 和串口观察。若用 millis，先在本单元说明时间差采样，再在 k4 复用，避免 k3 依赖尚未学的 k4。",
+        "acceptable_video_scope": [
+          "Arduino 机械按钮稳定时间去抖，加已去抖状态的边沿处理",
+          "资料可用不同稳定时长或按钮项目；实际方法/库语义须有来源依据"
+        ],
+        "reject_as_substitute": [
+          "裸前后电平比较/下降沿检测冒充去抖",
+          "delay 去抖导致需要持续响应的流程阻塞却不说明限制",
+          "原始按钮事件每次刷新都触发"
+        ],
+        "bounded_query_examples_not_executed": [
+          "Arduino button debounce stable time state change",
+          "Arduino millis 按钮去抖 单次按下"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "机械按钮必须去抖，原始边沿比较本身不能代替去抖",
+          "LOW 有效；长按不连续启动多轮，等待期间仍能识别按钮"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "每 5ms/连续 4 次是默认策略；来源可教稳定窗口、连续采样或有依据的库，不要求同一参数"
+        ],
+        "original_project_task_verbatim": "在程序中每5ms读取按钮，连续4次电平相同才更新稳定状态；在稳定状态从HIGH变为LOW时产生一次按下事件。",
+        "original_practice_check_verbatim": "快速按下松开一次，串口只打印一次“按下”；按住不放3秒，也只打印一次；抖动时不会打印多次。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "point_id": "k4",
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/3",
+      "result_pointer": "/points/3/result",
+      "original": {
+        "id": "k4",
+        "name": "非阻塞随机等待与millis计时",
+        "technology": "Arduino",
+        "learning_goal": "理解非阻塞等待模式，能实现不冻结按钮检测的随机延时。",
+        "concepts": [
+          "random(2000, 5001)范围",
+          "millis()记录时间戳",
+          "非阻塞条件检查",
+          "状态变量控制流程"
+        ],
+        "project_task": "在等待状态中生成2000到5000毫秒的随机等待时长，用millis()比较已过时间，同时持续执行按钮去抖检测。",
+        "practice_check": "等待期间按下按钮能立即被检测到，3次测试亮灯时间随机分布在2-5秒内且不阻塞。",
+        "prerequisite_ids": [
+          "k3"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 1,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "keep_unit_separate_teaching_facets",
+        "explanation": "这里确有两个可分别找资料的技能。原 2–5 秒和参数拼写应留在项目配置与检验中，而非资料必须同值。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "Arduino 非阻塞定时与随机时长",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "用时间戳差值判断是否到时，让 loop 继续执行其他输入任务",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "生成并保存随机时长，理解随机函数参数边界",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "复用 k3 的稳定按下事件与时间采样；状态名称可在本单元给最小示意，k5 再整合。",
+        "acceptable_video_scope": [
+          "Blink Without Delay 等非阻塞 millis 时间模式可支持定时技能；随机数课可支持第二技能",
+          "两条不同项目材料可组合，不要求某一课同时做随机反应游戏"
+        ],
+        "reject_as_substitute": [
+          "随机数标题就声称已教非阻塞或具体端点",
+          "循环内 delay 等待 2 秒却宣称持续响应",
+          "仅 millis API 名称而无时间差/条件模式就声称算法完整"
+        ],
+        "bounded_query_examples_not_executed": [
+          "Arduino millis non blocking timing Blink Without Delay",
+          "Arduino random function bounds range"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "随机等待 2–5 秒，期间可立刻判抢按，不能 delay 阻塞等待",
+          "去抖检测始终继续，不能只在亮灯后读按钮"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "包含端点与 random(2000,5001) 是已接受默认；随机值每轮抽取、保存而非每个 loop 重抽；引脚/时间变量名可改"
+        ],
+        "original_project_task_verbatim": "在等待状态中生成2000到5000毫秒的随机等待时长，用millis()比较已过时间，同时持续执行按钮去抖检测。",
+        "original_practice_check_verbatim": "等待期间按下按钮能立即被检测到，3次测试亮灯时间随机分布在2-5秒内且不阻塞。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [
+        {
+          "resource_id": "res_9c8f95fa623e8cfd6ab407dc",
+          "title_verbatim": "arduino函数 数学 random() 产生随机数",
+          "url": "https://www.bilibili.com/video/BV1Lb41147Ep/?uid=4256314C6234313134374570",
+          "video_evidence_status": "page_verified",
+          "pointer": "/points/3/result/partial_items/0",
+          "reason_verbatim": "与“Arduino 非阻塞随机等待与millis计时”相关：已有来源证据：random API 使用核心（参数未确认）。尚未确认：Arduino 非阻塞随机等待与millis计时、random(2000, 5001)范围、millis()记录时间戳、非阻塞条件检查。此局部核心仅限来源原拼写 API 的使用，不表示别名或参数等价。尚未确认的原概念：random(2000, 5001)范围、millis()记录时间戳、非阻塞条件检查、状态变量控制流程；项目行为仍需分别取证。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+          "supported_rows_verbatim": [
+            {
+              "id": "api_operation_core_1",
+              "text": "random API 使用核心（参数未确认）",
+              "status": "supported",
+              "evidence_ids": [
+                "ev_688d67cf-066c-450c-8e48-392d33ff5555"
+              ],
+              "reason": "仅来源自己的已验证视频标题明确讲授这一原拼写 API 的使用核心；不是别名或参数等价，原确认目标和项目限定仍未知。"
+            }
+          ],
+          "supporting_observations_verbatim": [
+            {
+              "id": "ev_fc36ad3f297fbdb97a9c",
+              "evidence_id": "ev_688d67cf-066c-450c-8e48-392d33ff5555",
+              "kind": "page",
+              "url": "https://www.bilibili.com/video/BV1Lb41147Ep/",
+              "field": "title",
+              "source": "html.bilibili.video_title",
+              "text": "arduino函数 数学 random() 产生随机数",
+              "fetched_at": "2026-10-18T18:49:14.161980+00:00",
+              "observed_at": "2026-10-18T18:49:14.161980+00:00",
+              "cache": {
+                "hit": true,
+                "stale": false,
+                "cached_at": "2026-10-18T18:49:14.191836+00:00"
+              }
+            }
+          ]
+        }
+      ],
+      "source_availability_conclusion": "有真实局部候选但原正文/目录目标仍未知；只记录现有范围，不追认新教学支持。"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "point_id": "k5",
+      "source_path": "evidence\\phase2-read-r9c\\arduino_reaction_beginner\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/4",
+      "result_pointer": "/points/4/result",
+      "original": {
+        "id": "k5",
+        "name": "反应时间游戏状态机与主循环",
+        "technology": "Arduino",
+        "learning_goal": "能将游戏规则转化为状态机，并在不阻塞主循环的前提下管理状态切换。",
+        "concepts": [
+          "状态枚举或常量",
+          "switch-case状态切换",
+          "LED输出控制",
+          "反应时间计算：millis()差值"
+        ],
+        "project_task": "实现状态机：IDLE等待按钮，WAITING随机等待，LIGHT_ON记录反应并显示毫秒数，EARLY提示抢按后可再按开始。",
+        "practice_check": "完整流程可运行：按按钮→等待→亮灯→再按显示反应毫秒；等待中抢按显示提示，再按可开始新一轮。",
+        "prerequisite_ids": [
+          "k3",
+          "k4"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 6 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 6
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "integration_practice_not_project_identical_video",
+        "explanation": "完整状态路径是项目迁移成果；视频教授通用状态转换模式即可相关，不应要求四个状态名称逐字相同。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "Arduino 事件驱动状态机与输出动作",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "integration_practice_with_reusable_prerequisite_material",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "把输入事件、当前状态和转换动作组织成非阻塞状态机",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "在实际输出动作时记录时间基准并计算事件时间差",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "需要 k2 输入输出、k3 稳定按下、k4 非阻塞时间。作为集成练习复用这些材料，硬件执行仍另需实测。",
+        "acceptable_video_scope": [
+          "任何 Arduino 非阻塞状态机与事件动作示例；需明确条件转换及不同状态继续处理输入",
+          "结合已经学过的 LED 输出、millis 与按钮事件做迁移，不强制新搜完整同款游戏"
+        ],
+        "reject_as_substitute": [
+          "只有 switch-case 语法课当作整个反应状态机",
+          "起始按钮时刻而非亮灯时刻作为反应计时起点",
+          "先修/未来章节或项目演示无说明冒充教学"
+        ],
+        "bounded_query_examples_not_executed": [
+          "Arduino finite state machine non blocking inputs millis",
+          "Arduino 状态机 LED 按钮 事件驱动"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "等待中提前按是抢按；亮 LED 后的按下才计算反应时间",
+          "计时从实际亮灯动作开始，显示毫秒结果；结束/抢按后可再开始",
+          "全程去抖、长按不连续开始、loop 不被等待阻塞"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "IDLE/WAITING/LIGHT_ON/EARLY 名称、enum/switch/if 实现与串口文案可变"
+        ],
+        "original_project_task_verbatim": "实现状态机：IDLE等待按钮，WAITING随机等待，LIGHT_ON记录反应并显示毫秒数，EARLY提示抢按后可再按开始。",
+        "original_practice_check_verbatim": "完整流程可运行：按按钮→等待→亮灯→再按显示反应毫秒；等待中抢按显示提示，再按可开始新一轮。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k2",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/1",
+      "result_pointer": "/points/1/result",
+      "original": {
+        "id": "k2",
+        "name": "pandas 列校验与逐行规则验证",
+        "technology": "pandas",
+        "learning_goal": "会把校验写成返回有效数据与排除数的普通函数，并区分缺列与行级不合格。",
+        "concepts": [
+          "必需列检查",
+          "to_datetime 格式解析",
+          "布尔掩码逐条组合",
+          "occupied<=capacity*open_minutes",
+          "排除行计数",
+          "不去重"
+        ],
+        "project_task": "编写 validate(df) 函数：检查必需列，解析 date、校验 room/visits/capacity/open_minutes/occupied 约束，返回有效数据与被排除行数。",
+        "practice_check": "对含负数、零容量、日期非法、超占用行的样本，只剩合规行，排除数正确且零 visits 行保留。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 8 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 8
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "keep_unit_separate_teaching_facets",
+        "explanation": "多个字段规则是项目数据契约，不是六门视频主题；保留一单元、分结构错误和行规则两个切面。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "pandas 输入结构校验与规则掩码",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "区分表结构/解析失败与逐行数据不合格，返回明确校验结果",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "组合数值、日期、缺失和列间关系的布尔规则并统计排除记录",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "pandas 读取/布尔筛选为学生已知；只对未掌握的校验组织补资料。此函数不依赖 Streamlit 控件机制。",
+        "acceptable_video_scope": [
+          "pandas 的输入验证、模式检查与复合布尔掩码课，可用其他数据集",
+          "学生已会 read_csv/布尔筛选，可只补校验组织和错误分类，不重学整套 pandas"
+        ],
+        "reject_as_substitute": [
+          "通用数据清洗自动删除零值/重复行而迁移为本项目策略",
+          "只有 dropna 就声称数值整数/关系规则已教",
+          "从关键词 validation 推断全部六列条件"
+        ],
+        "bounded_query_examples_not_executed": [
+          "pandas schema validation required columns boolean masks",
+          "pandas 数据校验 类型 缺失 多条件筛选"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "六列均需检查；日期按 YYYY-MM-DD；room 非空",
+          "visits 非负整数，capacity/open_minutes 正整数；occupied 非负且 <=capacity*open_minutes",
+          "零 visits 保留，不额外去重；缺列/格式错误与逐行排除分别提示"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "validate 函数名、内部中间列和 mask 名可变；不能把六个业务字段名都当来源必须出现的知识点"
+        ],
+        "original_project_task_verbatim": "编写 validate(df) 函数：检查必需列，解析 date、校验 room/visits/capacity/open_minutes/occupied 约束，返回有效数据与被排除行数。",
+        "original_practice_check_verbatim": "对含负数、零容量、日期非法、超占用行的样本，只剩合规行，排除数正确且零 visits 行保留。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k3",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/2",
+      "result_pointer": "/points/2/result",
+      "original": {
+        "id": "k3",
+        "name": "Streamlit 日期区间与多选控件",
+        "technology": "Streamlit",
+        "learning_goal": "能设置默认值并让房间选空返回空结果而非全部。",
+        "concepts": [
+          "st.date_input",
+          "st.multiselect",
+          "两端包含区间",
+          "空选择=无结果",
+          "默认值"
+        ],
+        "project_task": "添加起止日期（两端包含）与房间多选（默认全部），实现筛选函数。",
+        "practice_check": "默认展示全部数据；房间全不选时结果为空；起止两端日期记录被包含。",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 7 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 7
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "keep_unit_separate_teaching_facets",
+        "explanation": "控件与筛选连接是合理单元。包含端点/空集政策是项目验收，不要求来源有相同自习室业务。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "Streamlit 日期与多选控件到筛选条件",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "读取日期/多选控件值并设置默认值，理解重运行时输入值的作用",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "把控件返回值显式转换成筛选谓词，处理空选择",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "需要 k1 重运行机制；布尔筛选为已知。不要把重新学 pandas 整课当必修先修。",
+        "acceptable_video_scope": [
+          "Streamlit st.date_input/st.multiselect 等对应控件示例；数据集可完全不同",
+          "返回值/默认值的教学与 pandas 谓词可分别取材，项目空选策略由学生设定"
+        ],
+        "reject_as_substitute": [
+          "只有 Streamlit 安装/hello world",
+          "框架默认行为被误写成项目必须的空选政策",
+          "来源教单选就声称已教多选返回集合"
+        ],
+        "bounded_query_examples_not_executed": [
+          "Streamlit date_input multiselect default values",
+          "Streamlit widget values pandas filtering empty selection"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "起止日期两端包含；默认全部有效日期和全部房间",
+          "空房间选择必须无结果，不能自动当全部",
+          "全部指标与图用同一份筛选后有效数据"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "具体房间名、控件 key、布局以及过滤函数名可变"
+        ],
+        "original_project_task_verbatim": "添加起止日期（两端包含）与房间多选（默认全部），实现筛选函数。",
+        "original_practice_check_verbatim": "默认展示全部数据；房间全不选时结果为空；起止两端日期记录被包含。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k4",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/3",
+      "result_pointer": "/points/3/result",
+      "original": {
+        "id": "k4",
+        "name": "筛选后数据的加权使用率聚合",
+        "technology": "pandas",
+        "learning_goal": "理解为何不能平均各行百分比，会写 sum(占用)/sum(容量*时长) 并格式化。",
+        "concepts": [
+          "sum 聚合",
+          "加权比率",
+          "百分比格式化 f-string",
+          "单一数据口径"
+        ],
+        "project_task": "写 compute_metrics(filtered)：返回 visits 总和、occupied 总和、加权使用率（%保留1位小数）。",
+        "practice_check": "用两行不同容量数据验证结果是加权比，且格式为带1位小数的百分数。",
+        "prerequisite_ids": [
+          "k2",
+          "k3"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "coherent_skill_keep_granularity",
+        "explanation": "这是一个连贯的分析概念。来源可用不同应用的加权率，数据口径与具体公式实例由学生迁移检验。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "聚合比率与加权口径",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "new_or_reinforced_transferable_skill",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "区分比率的简单平均与总分子/总分母，统一聚合数据口径",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "需要 k2 有效数据及 k3 筛选；sum/groupby 已知，主要补数学口径。保留一个单元，不拆成 f-string/小数位语法碎片。",
+        "acceptable_video_scope": [
+          "清楚解释加权比率/分母权重的统计示例，或 pandas ratio-of-sums 实例",
+          "学生若已掌握，可用本项目两行不同分母反例直接验证，数学原理不要求来自同一工具课"
+        ],
+        "reject_as_substitute": [
+          "只有 sum 或 mean API 入门就声称加权口径已学",
+          "把行百分比 mean 当正确结果",
+          "不同权重定义不核对就套用 weighted average 结论"
+        ],
+        "bounded_query_examples_not_executed": [
+          "ratio of sums weighted rate pandas",
+          "加权比率 总分子 总分母 平均百分比 区别"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "使用同一 filtered 有效数据；sum(visits)、sum(occupied) 和 sum(occupied)/sum(capacity*open_minutes)",
+          "使用率百分比保留 1 位小数；不得平均各行百分比；有效零到访行保留",
+          "空数据不除零，由 k6 展示为 —"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "中间变量、指标布局与 f-string 拼写可变；业务列名不是必须在视频中出现的参数"
+        ],
+        "original_project_task_verbatim": "写 compute_metrics(filtered)：返回 visits 总和、occupied 总和、加权使用率（%保留1位小数）。",
+        "original_practice_check_verbatim": "用两行不同容量数据验证结果是加权比，且格式为带1位小数的百分数。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "point_id": "k6",
+      "source_path": "evidence\\phase2-read-r9c\\study_room_streamlit_intermediate\\project-results.json",
+      "analysis_pointer": "/version/analysis/knowledge_points/5",
+      "result_pointer": "/points/5/result",
+      "original": {
+        "id": "k6",
+        "name": "空结果的安全展示",
+        "technology": "Streamlit",
+        "learning_goal": "会在计算前判断空数据并分支展示。",
+        "concepts": [
+          "空 DataFrame 判断",
+          "除零防护",
+          "条件渲染",
+          "错误提示 st.info/st.error"
+        ],
+        "project_task": "在指标与图表前加入空数据与错误状态判断，显示“—”和提示，阻止除零。",
+        "practice_check": "筛选无匹配时三项显示“—”，无 NaN 报错，且无图表；页面仍可继续操作。",
+        "prerequisite_ids": [
+          "k3",
+          "k5"
+        ],
+        "selection": "learn"
+      },
+      "observed": {
+        "ui_own_body_or_catalog_support": false,
+        "ui_label": "0 / 5 项有内容依据",
+        "ui_supported_verbatim": [],
+        "api_status": "none",
+        "partial_cards": 0,
+        "review_cards": 0,
+        "original_collection_target_count": 5
+      },
+      "title_and_confirmed_concepts_both_in_denominator": true,
+      "audit_status": "gap_requires_proposal",
+      "diagnosis": {
+        "primary": "integration_practice_not_project_identical_video",
+        "explanation": "这是贯穿全流程的集成验收。资料教授条件渲染/守卫模式，业务错误分支和 — 由学生具体实现。",
+        "causation_limit": "规范性学习目标审计，不是证明该设计导致所有搜索失败的干预实验。未展示候选不能证明不存在相关视频。"
+      },
+      "proposed_learning": {
+        "unit_title": "Streamlit 条件展示与数据状态分支",
+        "unit_shape": "保留同一个项目子任务；教学切面可由不同针对性来源组合，不新增变量名/单行语法级单元。",
+        "role": "integration_practice_with_reusable_prerequisite_material",
+        "targets": [
+          {
+            "suggested_id": "skill_1",
+            "text": "按未上传、输入错误、空结果和正常数据选择展示分支",
+            "status": "proposed_unsearched_not_source_evidence"
+          },
+          {
+            "suggested_id": "skill_2",
+            "text": "在依赖数据的计算/图表前保护空值或零分母",
+            "status": "proposed_unsearched_not_source_evidence"
+          }
+        ],
+        "prerequisites": "复用 k1/k2/k3/k5。未上传/无效输入的保护应从最小页面就存在，最后单元统一检查，而不是到最后才首次避免崩溃。",
+        "acceptable_video_scope": [
+          "Streamlit 的条件渲染、异常/空数据反馈示例；不要求同三指标或同 CSV",
+          "已有重运行/布尔判断技能可通过集成练习复用，必要时补针对性消息 API 片段"
+        ],
+        "reject_as_substitute": [
+          "泛 Python try/except 替代 Streamlit 可继续交互的状态流",
+          "用 0 伪造无数据指标",
+          "图有空数据仍显示误导图形或页面崩溃"
+        ],
+        "bounded_query_examples_not_executed": [
+          "Streamlit conditional rendering empty data info error",
+          "Streamlit file upload empty DataFrame guard"
+        ]
+      },
+      "project_transfer_not_video_literal_requirements": {
+        "immutable_or_derived_user_requirements": [
+          "未上传、缺列/格式错误、筛选无匹配都要清晰提示且仍可继续操作",
+          "空结果三指标为 —，无 NaN、除零或误导性图",
+          "筛选变化可正常重运行，不意外退出应用"
+        ],
+        "editable_accepted_defaults_never_silently_deleted": [
+          "st.info/st.error、st.stop 或普通条件分支可作为实现选择；符号 — 是本项目展示约定，不要求教程同符号"
+        ],
+        "original_project_task_verbatim": "在指标与图表前加入空数据与错误状态判断，显示“—”和提示，阻止除零。",
+        "original_practice_check_verbatim": "筛选无匹配时三项显示“—”，无 NaN 报错，且无图表；页面仍可继续操作。",
+        "separate_assessment": "视频相关性/教学范围与学生项目是否完成分别评估；原练习约束不因来源未逐字出现而从项目删除。"
+      },
+      "retained_partial_candidate_cues": [],
+      "source_availability_conclusion": "留存结果无展示局部候选；无法仅据空集合归因于粒度或断言全网无视频。"
+    }
+  ],
+  "three_unseen_project_plans": [
+    {
+      "case_id": "phase3_review_cards_browser_beginner",
+      "status": "proposed_only_no_analysis_or_search",
+      "name": "离线复习卡网页",
+      "student_level": "beginner",
+      "background": "会基础 HTML/CSS、JavaScript 变量、if、数组与简单函数；第一次将 DOM 事件与本地保存组成应用。",
+      "synthetic_input": "使用原生 HTML/CSS/JavaScript 展示12张合成术语复习卡。上一张/下一张切换，首尾禁用对应按钮；可标记已掌握，显示已掌握数量。刷新后从 localStorage 恢复标记，首次打开无数据或本地数据损坏时给提示并安全恢复默认。手机可用，原生按钮可键盘操作。不登录、不联网、不做推荐算法、云同步或后端。",
+      "unit_budget": "4–5个练习单元，其中最后一个可为集成检查；不按每个按钮/变量拆单元。",
+      "skills_to_retrieve": [
+        {
+          "technology": "JavaScript",
+          "skill": "数组索引与 DOM 状态渲染",
+          "queries": [
+            "JavaScript array index DOM render prev next"
+          ],
+          "positive_scope": "其他卡片、图库或列表导航示例解释索引/边界更新即可相关，不必12卡或术语主题。"
+        },
+        {
+          "technology": "JavaScript",
+          "skill": "事件监听、原生按钮 disabled 与状态更新",
+          "queries": [
+            "JavaScript addEventListener button disabled state"
+          ],
+          "positive_scope": "列表/表单中的同类事件和状态控制可迁移。"
+        },
+        {
+          "technology": "JavaScript",
+          "skill": "localStorage JSON 存取与损坏/缺失数据处理",
+          "queries": [
+            "JavaScript localStorage JSON parse error default"
+          ],
+          "positive_scope": "待办/偏好设置的本地保存课可支持，不要求已掌握业务。"
+        }
+      ],
+      "independent_acceptance": [
+        "首尾边界正确，不跳错卡",
+        "每卡标记独立，计数与状态一致",
+        "刷新恢复，坏 JSON/缺键不崩溃",
+        "窄屏和键盘操作可用"
+      ],
+      "reject_as_substitute": [
+        "只有 JS 变量/循环基础替代存储/DOM 技能",
+        "React/Vue/后端数据库课程当原生 localStorage 教学",
+        "仅相同复习卡标题但没有对应方法证据"
+      ],
+      "project_only_values": [
+        "12张卡、术语内容、按钮文案与计数显示格式"
+      ]
+    },
+    {
+      "case_id": "phase3_pygame_pong_intermediate",
+      "status": "proposed_only_no_analysis_or_search",
+      "name": "pygame 双人乒乓球",
+      "student_level": "intermediate",
+      "background": "会 Python 函数/列表和 pygame 窗口、绘图、离散按键事件；未做持续输入、速度运动、反弹和一局多轮状态。",
+      "synthetic_input": "用 pygame 做本地双人乒乓球。W/S控制左拍、上下键控制右拍，按住可持续移动且球拍不出屏；球按经过时间移动，碰上下边界或球拍反弹。出左右边界给另一方加1分，显示比分并暂停等空格发球，先到3分显示获胜；获胜后R重开，Esc/关窗始终可退出。固定单屏，不做AI、联网、音效或物理引擎。",
+      "unit_budget": "5–6个可练习单元，输入/运动/碰撞/状态与文字/集成；不按每个键名或常量拆开。",
+      "skills_to_retrieve": [
+        {
+          "technology": "pygame",
+          "skill": "持续键盘状态与对象边界限制",
+          "queries": [
+            "pygame get_pressed continuous movement clamp"
+          ],
+          "positive_scope": "平台跳跃或移动方块的持续输入可迁移，不要求同 W/S。"
+        },
+        {
+          "technology": "pygame",
+          "skill": "基于经过时间的速度运动",
+          "queries": [
+            "pygame delta time velocity movement"
+          ],
+          "positive_scope": "任何 pygame 明确解释 delta time 与位移的片段；限帧本身不等于此技能。"
+        },
+        {
+          "technology": "pygame",
+          "skill": "球与边界/球拍碰撞后的方向反射",
+          "queries": [
+            "pygame ball paddle collision bounce velocity"
+          ],
+          "positive_scope": "打砖块等球拍项目可迁移；需解释碰撞与反弹方向，不只提 colliderect。"
+        },
+        {
+          "technology": "pygame",
+          "skill": "轮次状态、得分与持续事件循环",
+          "queries": [
+            "pygame game states score restart event loop"
+          ],
+          "positive_scope": "不同小游戏的回合切换/重开方法可支持，不必先到3分或同重开键。"
+        }
+      ],
+      "independent_acceptance": [
+        "持续输入与迷宫离散输入不同，球拍保持边界内",
+        "改变帧率后运动速度大致一致",
+        "反弹不反复卡在球拍中，出界只加一次分",
+        "每分/获胜后正确暂停和重开，事件仍活着"
+      ],
+      "reject_as_substitute": [
+        "Python基础整课代替 pygame 运动/碰撞",
+        "KEYDOWN一次移动当持续输入已满足",
+        "clock.tick限帧当真实时间位移已证明",
+        "同名Pong项目只有效果演示/未解释方法就声称教全"
+      ],
+      "project_only_values": [
+        "W/S与方向键、3分阈值、空格/R键、场地尺寸与颜色"
+      ]
+    },
+    {
+      "case_id": "phase3_arduino_pot_led_beginner",
+      "status": "proposed_only_no_analysis_or_search",
+      "name": "Arduino 电位器调节 LED 亮度",
+      "student_level": "beginner",
+      "background": "会上传程序、做过LED点亮；第一次使用模拟输入、PWM和数值范围映射。",
+      "synthetic_input": "用Arduino Uno、电位器、带限流电阻的LED做低压亮度调节器。读取电位器位置并映射为LED亮度，转到两端分别接近最暗/最亮，中间位置为中间亮度；串口显示原始读数和输出值。约每50ms采样一次，主循环不长时间阻塞，越界输入被限制在有效输出范围。断电接线、共地和LED极性必须说明，模拟输入电压及PWM引脚先按板卡官方说明确认。不连接市电、电机、继电器，不加按钮、传感器联网或屏幕。",
+      "unit_budget": "4–5个单元：低压接线、模拟读值、范围映射/PWM、周期采样与集成验证。",
+      "skills_to_retrieve": [
+        {
+          "technology": "Arduino",
+          "skill": "电位器模拟输入接线与 analogRead 观察",
+          "queries": [
+            "Arduino potentiometer analogRead serial wiring"
+          ],
+          "positive_scope": "同板卡的模拟输入原理/读值示例可迁移；实际额定电压和引脚另须核对。"
+        },
+        {
+          "technology": "Arduino",
+          "skill": "输入范围到PWM输出的映射与限幅",
+          "queries": [
+            "Arduino map constrain PWM analogWrite LED brightness"
+          ],
+          "positive_scope": "其他旋钮/低压LED调光例中明确解释范围映射与PWM可支持，不必相同采样间隔。"
+        },
+        {
+          "technology": "Arduino",
+          "skill": "非阻塞周期采样和串口调试",
+          "queries": [
+            "Arduino millis periodic sampling serial non blocking"
+          ],
+          "positive_scope": "其他输入的 millis 时间差采样可迁移，不要求50ms。"
+        }
+      ],
+      "independent_acceptance": [
+        "按实际板卡/元件约束检查断电接线、限流与共地",
+        "两端及中间位置输出符合单调映射，限制越界",
+        "串口读值/输出对应且周期采样不冻结loop",
+        "不把PWM误称任意引脚可输出真正模拟电压"
+      ],
+      "reject_as_substitute": [
+        "digitalWrite闪烁课替代PWM亮度控制",
+        "纯Python输入输出、其他不兼容板卡引脚示例",
+        "只含analogRead/analogWrite符号清单或无讲解演示",
+        "元件额定值/输出范围未核对却承诺硬件安全"
+      ],
+      "project_only_values": [
+        "50ms周期、元件/引脚选型与串口格式；源材料不要求相同数值"
+      ],
+      "hardware_boundary": "仅合成规划，未接硬件；执行前须用官方板卡/元件资料核对电压、引脚与量程，本审计不声称已查证或通电验证。"
+    }
+  ],
+  "prospective_acceptance": [
+    "规划质量：所有原需求/边界/排除范围有保留与映射；技能中不塞项目专属常量，也不退成泛基础；先修可解释，无不必要串行依赖。",
+    "来源相关性：不同业务实例但相同具体方法应被接纳为相应技能材料；同名项目却无方法说明、错误工具/语义、先修/否定/列表应拒绝或标线索。",
+    "证据透明：真实链接/标题/来源与推荐范围对应；未知章节、参数、门槛/授课语言不编造，访问限制不当死链。",
+    "实践：学生按原数值/字段/状态/边界完成独立例子；更换教程示例不改变项目验收。",
+    "成本/边界：三新例当前均未分析/检索；下一步仅在根线程明确分工与有界预算下执行，不能以本审计冒充真实集成通过。"
+  ],
+  "validation": {
+    "all19_gap_ids_exactly_match_historical_ui_none": true,
+    "all31_unique_case_point_ids": true,
+    "primary_counts_sum19": true,
+    "all19_have_specific_skills_and_project_constraints": true,
+    "all_source_hashes_unchanged_after_audit": true,
+    "three_unseen_plans_not_executed": true
+  }
+}

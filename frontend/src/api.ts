@@ -33,10 +33,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   }
 }
 
-export function externalUrl(value: string): string | undefined {
-  try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password ? url.href : undefined; }
-  catch { return undefined; }
-}
+export { externalUrl, courseImageUrl } from './safeUrls';
 
 export const statusNames: Record<string, string> = {
   queued: '等待执行', running: '正在查找', completed: '检索完成', partial: '部分完成',

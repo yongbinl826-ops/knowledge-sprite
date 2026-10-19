@@ -22,6 +22,17 @@ class SearchError(Exception):
         self.code, self.message = code, message
 
 
+class SearchBudgetReached(Exception):
+    """Budget stop carrying only candidates already returned by real sources."""
+    def __init__(self):
+        super().__init__()
+        self.partial_candidates: list[Candidate] = []
+
+
+class QueryBudgetReached(SearchBudgetReached):
+    """This query's fair share ended; other points may still use job budget."""
+
+
 class SearchProvider(Protocol):
     name: str
     async def search(self, query: str, language: str, limit: int, domain_filters: list[str]) -> list[Candidate]: ...
@@ -126,7 +137,11 @@ def parse_candidates(items: list, provider: str, query: str, limit: int, domains
 
 class HTTPProvider:
     name = "unknown"
+    read_error_statuses: frozenset[int] = frozenset()
     def __init__(self, settings: Settings, client: httpx.AsyncClient | None = None):
+        from contextvars import ContextVar
+        self._query_observations = ContextVar(f"provider-query-{id(self)}", default=None)
+        self._request_start_lock = asyncio.Lock()
         self.settings, self.client = settings, client
         self.paused_until = 0.0
         self.access_denied = False
@@ -136,37 +151,101 @@ class HTTPProvider:
         self.last_requests: list[dict] = []
         self.request_hook: Callable[[], Awaitable[None]] | None = None
 
-    @staticmethod
-    async def _bounded_response(client, method, url, trace, **kwargs):
+    def _get_observation(self, name, default):
+        scope = self._query_observations.get()
+        return scope.get(name, default) if scope is not None else self.__dict__.get("_" + name, default)
+
+    def _set_observation(self, name, value):
+        scope = self._query_observations.get()
+        if scope is not None:
+            scope[name] = value
+        else:
+            self.__dict__["_" + name] = value
+
+    # Query traces and hooks are task-local. Access/engine pauses and request
+    # spacing remain shared by all platform lanes using the same search service.
+    last_requests = property(lambda self: self._get_observation("last_requests", []),
+                             lambda self, value: self._set_observation("last_requests", value))
+    last_warnings = property(lambda self: self._get_observation("last_warnings", []),
+                             lambda self, value: self._set_observation("last_warnings", value))
+    last_dns_requests = property(lambda self: self._get_observation("last_dns_requests", []),
+                                 lambda self, value: self._set_observation("last_dns_requests", value))
+    last_discovery = property(lambda self: self._get_observation("last_discovery", {}),
+                              lambda self, value: self._set_observation("last_discovery", value))
+    request_hook = property(lambda self: self._get_observation("request_hook", None),
+                            lambda self, value: self._set_observation("request_hook", value))
+
+    def query_scope(self, request_hook):
+        from contextlib import contextmanager
+        @contextmanager
+        def scoped():
+            token = self._query_observations.set({"request_hook": request_hook,
+                "last_requests": [], "last_warnings": [], "last_dns_requests": [], "last_discovery": {}})
+            try:
+                yield self
+            finally:
+                self._query_observations.reset(token)
+        return scoped()
+
+    @classmethod
+    async def _bounded_response(cls, client, method, url, trace, **kwargs):
         # Bound the actual read, not just the already-buffered response. Search
         # endpoints are trusted server configuration; their content is untrusted.
         kwargs["headers"] = {**kwargs.get("headers", {}), "Accept-Encoding": "identity"}
         async with client.stream(method, url, **kwargs) as response:
             trace["http_status"] = response.status_code
-            if response.status_code != 200:
+            if response.status_code != 200 and response.status_code not in cls.read_error_statuses:
                 return httpx.Response(response.status_code, headers=response.headers, content=b"")
             if response.headers.get("content-encoding", "identity").lower() not in {"", "identity"}:
+                if response.status_code != 200:
+                    return httpx.Response(response.status_code, headers=response.headers, content=b"")
                 raise SearchError("invalid_response", "搜索响应使用非预期压缩，未解压读取")
             body = bytearray()
             async for chunk in response.aiter_bytes(chunk_size=65536):
+                if response.status_code != 200 and len(body) + len(chunk) > 16384:
+                    return httpx.Response(response.status_code, headers=response.headers, content=b"")
                 if len(body) + len(chunk) > 2_000_000:
                     raise SearchError("invalid_response", "搜索响应超过允许大小")
                 body.extend(chunk)
             trace["response_bytes"] = len(body)
             return httpx.Response(response.status_code, headers=response.headers, content=bytes(body))
 
+    def observe_response(self, response, trace):
+        """Provider-specific bounded diagnostics, never raw response headers."""
+
+    def normalize_response(self, body):
+        """Normalize a provider envelope without altering source URLs or text."""
+        return body
+
     async def request(self, method: str, url: str, **kwargs) -> dict:
+        if getattr(self, "quota_exhausted", False):
+            raise SearchError("quota_exhausted", "搜索来源额度已用尽，未再次请求")
         if self.access_denied:
             raise SearchError("access_denied", "搜索服务此前拒绝访问；请修正权限或配置后重启，未再次请求")
         if time.monotonic() < self.paused_until:
             raise SearchError("rate_limited", "搜索来源仍在 Retry-After 暂停期内")
         for attempt in range(self.settings.search_max_retries + 1):
-            interval = self.settings.search_min_interval_seconds - (time.monotonic() - self.last_request_started)
-            if interval > 0:
-                await asyncio.sleep(interval)
-            if self.request_hook:
-                await self.request_hook()
-            self.last_request_started = time.monotonic()
+            async with self._request_start_lock:
+                interval = self.settings.search_min_interval_seconds - (time.monotonic() - self.last_request_started)
+                if interval > 0:
+                    await asyncio.sleep(interval)
+                if getattr(self, "quota_exhausted", False):
+                    raise SearchError("quota_exhausted", "搜索来源在等待期间额度用尽，未发起该请求")
+                if self.access_denied:
+                    raise SearchError("access_denied", "搜索服务此前拒绝访问；已停止后续请求")
+                if time.monotonic() < self.paused_until:
+                    raise SearchError("rate_limited", "搜索来源仍在 Retry-After 暂停期内")
+                # Another in-flight platform query may have observed a pause
+                # while this request waited for the shared start interval.
+                requested_engines = kwargs.get("params", {}).get("engines", "")
+                if (requested_engines and any(time.monotonic() < getattr(self, "engine_pauses", {}).get(engine, 0)
+                                              for engine in requested_engines.split(","))):
+                    raise SearchError("upstream_engine_failed", "上游引擎在等待期间进入暂停期，未发起该请求")
+                if not requested_engines and time.monotonic() < getattr(self, "default_group_pause_until", 0):
+                    raise SearchError("upstream_engine_failed", "默认引擎组仍在暂停期，未发起该请求")
+                if self.request_hook:
+                    await self.request_hook()
+                self.last_request_started = time.monotonic()
             trace = {"provider": self.name, "started_at": datetime.now(timezone.utc).isoformat(),
                      "retry_index": attempt, "status": "running"}
             if "params" in kwargs:
@@ -180,6 +259,7 @@ class HTTPProvider:
                     async with httpx.AsyncClient(timeout=httpx.Timeout(self.settings.search_timeout_seconds, connect=5), follow_redirects=False, trust_env=False) as client:
                         response = await self._bounded_response(client, method, url, trace, **kwargs)
                 trace["http_status"] = response.status_code
+                self.observe_response(response, trace)
                 if response.status_code == 429 or (response.status_code == 503 and "retry-after" in response.headers):
                     # Do not sleep past the job deadline, or retry another endpoint.
                     self.paused_until = time.monotonic() + retry_after_seconds(response.headers.get("retry-after"))
@@ -190,7 +270,7 @@ class HTTPProvider:
                     raise SearchError("access_denied", "搜索来源拒绝访问，请检查服务权限与 JSON 输出配置")
                 if response.status_code != 200:
                     raise SearchError("search_unavailable", "搜索服务返回错误，未使用替代或演示数据")
-                body = response.json()
+                body = self.normalize_response(response.json())
                 if not isinstance(body, dict) or not isinstance(body.get("results"), list):
                     raise SearchError("invalid_response", "搜索服务未返回有效的 JSON results")
                 self.last_status = "available"
@@ -226,6 +306,44 @@ class SearXNGProvider(HTTPProvider):
         super().__init__(settings, client)
         self.engine_pauses: dict[str, float] = {}
         self.default_group_pause_until = 0.0
+        self.engine_timeout_streaks: dict[str, int] = {}
+        self.engine_timeout_observations: dict[str, int] = {}
+        self.engine_timeout_cooldowns: dict[str, float] = {}
+
+    def _observe_engine_timeouts(self, failures: list[dict], requested: list[str]) -> list[dict]:
+        """Attribute only explicit observations to this requested engine group.
+
+        Transport timeouts and implicit defaults cannot identify an upstream
+        engine. Duplicate response rows are one observation, not two failures.
+        """
+        observations = []
+        unaccounted_failure = any(failure["engine"] not in requested for failure in failures)
+        for engine in dict.fromkeys(requested):
+            matching = [failure for failure in failures if failure["engine"] == engine]
+            if matching and all(failure["reason_code"] == "timeout" for failure in matching):
+                streak = self.engine_timeout_streaks.get(engine, 0) + 1
+                total = self.engine_timeout_observations.get(engine, 0) + 1
+                self.engine_timeout_streaks[engine] = streak
+                self.engine_timeout_observations[engine] = total
+                row = {"engine": engine, "reason_code": "timeout", "consecutive_timeout_count": streak,
+                       "observed_timeout_count": total, "cooldown_seconds": 0}
+                if streak >= 2:
+                    until = time.monotonic() + 60
+                    self.engine_pauses[engine] = max(self.engine_pauses.get(engine, 0), until)
+                    self.engine_timeout_cooldowns[engine] = until
+                    row["cooldown_seconds"] = 60
+                observations.append(row)
+                for failure in matching:
+                    failure.update(row)
+            elif matching or not unaccounted_failure:
+                # Normal (including empty) responses complete an observation.
+                # Unknown engine failures must not imply this engine succeeded.
+                previous = self.engine_timeout_streaks.pop(engine, 0)
+                if previous:
+                    observations.append({"engine": engine, "reason_code": "other_failure" if matching else "success",
+                        "consecutive_timeout_count": 0, "observed_timeout_count": self.engine_timeout_observations.get(engine, 0),
+                        "previous_consecutive_timeout_count": previous, "cooldown_seconds": 0})
+        return observations
 
     def _failures(self, body: dict) -> list[dict]:
         """Retain exact known public SearXNG reasons, never arbitrary error bodies."""
@@ -264,7 +382,11 @@ class SearXNGProvider(HTTPProvider):
         if domain_filters and "site:" not in query:
             query = f"site:{domain_filters[0]} {query}"
         video_intent = bool(re.search(r"视频|\bvideo\b", query, re.I))
-        primary = self.settings.searxng_video_engines if video_intent and self.settings.searxng_video_engines else self.settings.searxng_engines
+        course_scope = domain_filters == ["icourse163.org"]
+        if course_scope and not self.settings.searxng_engines:
+            raise SearchError("configuration_error", "MOOC 课程搜索尚未配置通用引擎；未使用视频引擎或未知默认组代替")
+        primary = (self.settings.searxng_video_engines
+            if not course_scope and video_intent and self.settings.searxng_video_engines else self.settings.searxng_engines)
         if not primary and self.settings.searxng_fallback_engines:
             raise SearchError("configuration_error", "使用备用引擎前须显式配置主引擎，避免未知默认组与备用组重叠")
         if not primary and time.monotonic() < self.default_group_pause_until:
@@ -289,16 +411,34 @@ class SearXNGProvider(HTTPProvider):
             chosen = list(canonical_rows.values())[:limit]
             return [item for observations in chosen for item in observations], len(canonical_rows)
         for index, engines in enumerate(groups):
-            active = [e for e in engines if time.monotonic() >= self.engine_pauses.get(e, 0)]
+            active = list(dict.fromkeys(e for e in engines if time.monotonic() >= self.engine_pauses.get(e, 0)))
+            for engine in dict.fromkeys(engines):
+                if engine in active:
+                    continue
+                timeout_pause = (time.monotonic() < self.engine_timeout_cooldowns.get(engine, 0)
+                                 and self.engine_pauses[engine] <= self.engine_timeout_cooldowns[engine])
+                warning = {"code": "upstream_engine_failed", "engine": engine,
+                    "reason_code": "timeout_cooldown" if timeout_pause else "suspended",
+                    "reason": "timeout" if timeout_pause else "suspended",
+                    "message": "已观察到连续引擎超时，短暂冷却中；未发起请求" if timeout_pause else "该引擎仍在上游限流或明确拒绝暂停期，未请求"}
+                if timeout_pause:
+                    warning.update(consecutive_timeout_count=self.engine_timeout_streaks.get(engine, 0),
+                        observed_timeout_count=self.engine_timeout_observations.get(engine, 0),
+                        cooldown_remaining_seconds=round(max(0, self.engine_pauses[engine] - time.monotonic()), 3))
+                self.last_warnings.append(warning)
             if engines and not active:
-                self.last_warnings.append({"code": "upstream_engine_failed", "engine": ",".join(engines),
-                    "reason_code": "suspended", "reason": "suspended", "message": "该引擎组仍在限流或访问拒绝暂停期，未重试"})
                 continue
             params = {"q": query, "format": "json", "language": {"zh": "zh-CN", "en": "en", "any": "all"}[language]}
             if active:
                 params["engines"] = ",".join(active)
             try:
                 body = await self.request("GET", self.settings.searxng_url.rstrip("/") + "/search", params=params)
+            except SearchBudgetReached as exc:
+                # An optional backup/retry cannot erase completed primary
+                # observations. The caller distinguishes query and job stops.
+                exc.partial_candidates = select_observations([
+                    *discovered.values(), *exc.partial_candidates])[0]
+                raise
             except SearchError as exc:
                 # Authentication, service-wide denial and rate limiting are hard stops.
                 if exc.code not in {"search_timeout", "search_unavailable"} or index == len(groups) - 1:
@@ -306,6 +446,7 @@ class SearXNGProvider(HTTPProvider):
                 self.last_warnings.append({"code": exc.code, "engine": ",".join(active) or "instance_defaults", "message": exc.message})
                 continue
             failures = self._failures(body)
+            engine_health = self._observe_engine_timeouts(failures, active)
             if not primary and any(f["reason_code"] in {"rate_limited", "captcha", "access_denied"} for f in failures):
                 self.default_group_pause_until = max(self.engine_pauses.values(), default=0)
             self.last_warnings.extend(failures)
@@ -317,7 +458,7 @@ class SearXNGProvider(HTTPProvider):
                 # observations for each chosen URL (including media evidence).
                 items, audit["deduplicated_candidate_count"] = select_observations(items)
             self.last_requests[-1].update(upstream_warnings=failures, raw_candidate_count=len(body["results"]),
-                                         candidate_count=len(items), fallback=index > 0, **audit)
+                                         candidate_count=len(items), fallback=index > 0, engine_health=engine_health, **audit)
             for item in items:
                 # Distinct search observations for the same URL must survive:
                 # a backup may supply the first relevant title or media type.
@@ -346,31 +487,148 @@ class SearXNGProvider(HTTPProvider):
 
 class TavilyProvider(HTTPProvider):
     name = "tavily"
+    read_error_statuses = frozenset({400, 401, 402, 403, 429, 432, 433})
+
+    def observe_response(self, response, trace):
+        if response.status_code in {402, 432, 433}:
+            self.quota_exhausted = True
+        if response.status_code not in self.read_error_statuses:
+            return
+        try:
+            body = response.json()
+        except (ValueError, TypeError):
+            return
+        error = body.get("error") if isinstance(body, dict) else None
+        if not isinstance(error, dict):
+            return
+        # Service messages and next_actions are untrusted prose and may echo
+        # credentials. Retain only the numeric cooldown, never their text.
+        seconds = error.get("retry_after_seconds")
+        if (isinstance(seconds, (int, float)) and not isinstance(seconds, bool)
+                and 0 <= seconds <= 31_536_000 and math.isfinite(seconds)):
+            trace["service_retry_after_seconds"] = seconds
+            if response.status_code == 429:
+                existing = retry_after_seconds(response.headers.get("retry-after"))
+                response.headers["retry-after"] = str(max(seconds, existing))
+
+    @property
+    def auth_mode(self) -> str:
+        if self.settings.tavily_api_key:
+            return "api_key"
+        return "keyless" if self.settings.tavily_allow_keyless else "unconfigured"
+
     async def search(self, query: str, language: str, limit: int, domain_filters: list[str]) -> list[Candidate]:
         self.last_requests = []
         self.last_warnings = []
-        if not self.settings.tavily_api_key:
-            raise SearchError("configuration_error", "已选择 Tavily，但尚未配置 TAVILY_API_KEY")
+        if self.auth_mode == "unconfigured":
+            raise SearchError("configuration_error", "已选择 Tavily，请启用 TAVILY_ALLOW_KEYLESS 免费试用或配置 TAVILY_API_KEY")
+        if getattr(self, "quota_exhausted", False):
+            raise SearchError("quota_exhausted", "Tavily 额度已用尽，已停止该来源；未切换账号或访问模式")
         payload = {"query": query, "max_results": min(limit, 20), "include_answer": False, "include_raw_content": False,
-                   "search_depth": "basic", "auto_parameters": False}
+                   "search_depth": "basic", "auto_parameters": False, "include_usage": True}
         if language != "any":
             payload["language"] = "zh-cn" if language == "zh" else "en"
             payload["filter_by_language"] = False
         if domain_filters:
             payload["include_domains"] = domain_filters
-        body = await self.request("POST", "https://api.tavily.com/search", headers={"Authorization": "Bearer " + self.settings.tavily_api_key}, json=payload)
+            payload["include_domains_mode"] = "restrict"
+        # Never send both headers: an API key overrides keyless access and uses
+        # the account's budget. Missing keys do not silently opt into keyless.
+        headers = ({"Authorization": "Bearer " + self.settings.tavily_api_key}
+                   if self.auth_mode == "api_key" else {"X-Tavily-Access-Mode": "keyless"})
+        try:
+            body = await self.request("POST", "https://api.tavily.com/search", headers=headers, json=payload)
+        except SearchError as exc:
+            if self.last_requests and self.last_requests[-1].get("http_status") in {402, 432, 433}:
+                self.quota_exhausted = True
+                self.last_requests[-1]["error_code"] = "quota_exhausted"
+                raise SearchError("quota_exhausted", "Tavily 额度或套餐限制，已停止该来源；未启用付费服务") from None
+            raise
+        finally:
+            for trace in self.last_requests:
+                trace.update(auth_mode=self.auth_mode, search_depth="basic")
+        usage = body.get("usage")
+        credits = usage.get("credits") if isinstance(usage, dict) else None
+        if (isinstance(credits, (int, float)) and not isinstance(credits, bool)
+                and 0 <= credits <= 1_000_000_000 and math.isfinite(credits)):
+            self.last_requests[-1]["api_credits"] = credits
         audit = {}
         items = parse_candidates(body["results"], self.name, query, limit, domain_filters, audit=audit)
         self.last_requests[-1].update(raw_candidate_count=len(body["results"]), candidate_count=len(items), **audit)
         return items
 
 
-def build_provider(settings: Settings, *, fetcher=None, store=None) -> SearchProvider:
-    if settings.search_provider == "searxng":
+class SerperProvider(HTTPProvider):
+    """Google organic search only; no scrape endpoint, account or billing changes."""
+    name = "serper"
+
+    @property
+    def auth_mode(self) -> str:
+        return "api_key" if self.settings.serper_api_key else "unconfigured"
+
+    def observe_response(self, response, trace):
+        if response.status_code == 402:
+            self.quota_exhausted = True
+
+    def normalize_response(self, body):
+        if not isinstance(body, dict) or not isinstance(body.get("organic"), list):
+            raise SearchError("invalid_response", "Serper 未返回有效的 organic 搜索结果")
+        # Only organic search observations may become candidates. Knowledge
+        # graphs, answer boxes and nested sitelinks are not course discoveries.
+        return {"results": [{"title": item.get("title"), "url": item.get("link"),
+                              "snippet": item.get("snippet")} if isinstance(item, dict) else item
+                            for item in body["organic"]], "credits": body.get("credits")}
+
+    async def search(self, query: str, language: str, limit: int, domain_filters: list[str]) -> list[Candidate]:
+        self.last_requests = []
+        self.last_warnings = []
+        if self.auth_mode == "unconfigured":
+            raise SearchError("configuration_error", "已选择 Serper，请配置 SERPER_API_KEY；可使用官网免费试用额度")
+        # Serper uses query operators instead of a structured domain filter.
+        # Keep the original query as evidence; append only trusted domain names.
+        if any(not isinstance(domain, str) or not re.fullmatch(r"[a-zA-Z0-9.-]+", domain)
+               for domain in domain_filters):
+            raise SearchError("configuration_error", "Serper 域名过滤配置无效")
+        site_filter = " OR ".join("site:" + domain for domain in domain_filters)
+        already_scoped = len(domain_filters) == 1 and re.search(
+            r"(?<!\S)site:" + re.escape(domain_filters[0]) + r"(?=[/\s)]|$)", query, re.I)
+        search_query = query + (" (" + site_filter + ")" if site_filter and not already_scoped else "")
+        # Use the standard ten-result search tier, never an automatic larger
+        # tier, pagination, retries on denial, or a source/account fallback.
+        payload = {"q": search_query, "num": min(max(limit, 1), 10), "gl": "cn" if language == "zh" else "us"}
+        if language != "any":
+            payload["hl"] = "zh-cn" if language == "zh" else "en"
+        try:
+            body = await self.request("POST", "https://google.serper.dev/search",
+                headers={"X-API-KEY": self.settings.serper_api_key}, json=payload)
+        except SearchError:
+            if getattr(self, "quota_exhausted", False):
+                if self.last_requests:
+                    self.last_requests[-1]["error_code"] = "quota_exhausted"
+                raise SearchError("quota_exhausted", "Serper 额度已用尽，已停止该来源；未启用付费服务") from None
+            raise
+        finally:
+            for trace in self.last_requests:
+                trace.update(auth_mode=self.auth_mode, result_limit=payload["num"])
+        credits = body.get("credits")
+        if (isinstance(credits, (int, float)) and not isinstance(credits, bool)
+                and 0 <= credits <= 1_000_000_000 and math.isfinite(credits)):
+            self.last_requests[-1]["api_credits"] = credits
+        audit = {}
+        items = parse_candidates(body["results"], self.name, query, min(limit, 10), domain_filters, audit=audit)
+        self.last_requests[-1].update(raw_candidate_count=len(body["results"]), candidate_count=len(items), **audit)
+        return items
+
+
+def build_provider(settings: Settings, *, fetcher=None, store=None, provider_name: str | None = None) -> SearchProvider:
+    selected = provider_name or settings.search_provider
+    if selected == "searxng":
         return SearXNGProvider(settings)
-    if settings.search_provider == "tavily":
+    if selected == "tavily":
         return TavilyProvider(settings)
-    if settings.search_provider == "official_sitemap":
+    if selected == "serper":
+        return SerperProvider(settings)
+    if selected == "official_sitemap":
         from .official_sitemap import OfficialSitemapProvider
         return OfficialSitemapProvider(settings, fetcher=fetcher, store=store)
-    raise SearchError("configuration_error", "SEARCH_PROVIDER 只支持 searxng、tavily 或 official_sitemap")
+    raise SearchError("configuration_error", "SEARCH_PROVIDER 只支持 searxng、tavily、serper 或 official_sitemap")

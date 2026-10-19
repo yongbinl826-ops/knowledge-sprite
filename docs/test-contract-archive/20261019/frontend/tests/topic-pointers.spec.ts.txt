@@ -1,0 +1,132 @@
+import { test, expect, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import type { RelatedTopicPointer, ResourceItem, ResultGroup } from '../src/types';
+import type { ProjectAnalysis, ProjectInput, ProjectView } from '../src/projectTypes';
+
+// Offline actual retained catalog projection. All API is mocked; 0 live search,
+// model, platform navigation or source instructional-quality acceptance.
+const source = JSON.parse(readFileSync(resolve(process.cwd(), 'tests/fixtures/topic-pointer-actual-p26.json'), 'utf8')) as RelatedTopicPointer;
+const out = resolve(process.cwd(), 'tests/evidence/topic-pointers');
+const time = '2026-10-18T23:29:44Z';
+const input: ProjectInput = { name: 'Arduino 调光器', requirements: '安全连接LED，通过电位器调光。', student_level: 'beginner', language: 'zh', project_context: '', technical_version: 'Arduino', preferred_platforms: ['bilibili'] };
+function fixture() {
+  const entry = structuredClone(source);
+  const analysis: ProjectAnalysis = { scope: input.requirements, technical_plan: 'Arduino', assumptions: [], functions: [{ id: 'f1', name: '控制亮度', original_requirement: input.requirements, acceptance_criteria: '两端及中间亮度正确', no_new_learning_reason: null }],
+    knowledge_points: [{ id: 'k1', name: 'Arduino analogWrite PWM 调光', description: '用PWM控制LED', project_task: '使用analogWrite把自己的电位器读数转换为LED亮度', learning_goal: '能够调光', why_needed: '实现项目亮度变化', function_ids: ['f1'], learning_order: 1, prerequisite_ids: [], necessity: 'required', selection: 'learn', learning_skills: [entry.pointer.skill, '识别并选用支持 PWM 的数字引脚'], technology: 'Arduino', concepts: ['analogWrite取值0–255', '按板卡官方说明确认PWM引脚'], practice_check: '旋转电位器检查两端及中间亮度。' }] };
+  const group: ResultGroup = { knowledge_point_id: entry.pointer.knowledge_point_id, text: analysis.knowledge_points[0].name, total_matches: 0, total_partial_matches: 0, items: [], partial_items: [], review_items: [],
+    learning_coverage: { mode: 'transferable_skills', skills: analysis.knowledge_points[0].learning_skills!.map((text,index)=>({id:`skill_${index+1}`,text,content_resource_ids:[],title_resource_ids:[],evidence_ids:[]})), disclaimer: '章节线索不等于技能教学或项目实践完成。' }, related_topic_pointers: [entry] };
+  return { entry, analysis, group };
+}
+type Fixture = ReturnType<typeof fixture>;
+const diagnostics = new WeakMap<Page, { writes: string[]; external: string[]; runtime: string[]; console: string[] }>();
+test.afterEach(async ({ page }, info) => {
+  const log = diagnostics.get(page)!;
+  await info.attach('pointer-isolated-diagnostics', { body: JSON.stringify(log,null,2), contentType: 'application/json' });
+  expect(log.writes).toEqual([]); expect(log.external).toEqual([]); expect(log.runtime).toEqual([]); expect(log.console).toEqual([]);
+});
+async function setup(page: Page, f = fixture()) {
+  const log = { writes: [] as string[], external: [] as string[], runtime: [] as string[], console: [] as string[] }; diagnostics.set(page, log);
+  page.on('pageerror', error => log.runtime.push(error.message)); page.on('console', msg => { if (['error','warning'].includes(msg.type())) log.console.push(msg.text()); });
+  const view: ProjectView = { project_id: 'pointer-project', input, current_version: 1, versions: [{ version: 1, status: 'partial', created_at: time }],
+    version: { version: 1, status: 'partial', input, analysis: f.analysis, confirmation: { confirmed_at: time }, batches: [{ batch_id: 'batch1', job_id: 'job1', status: 'completed', project_knowledge_point_ids: ['k1'] }], error: null, created_at: time },
+    points: [{ project_knowledge_point_id: 'k1', name: f.analysis.knowledge_points[0].name, selection: 'learn', status: 'partial', batch_id: 'batch1', job_id: 'job1', knowledge_point_id: f.group.knowledge_point_id, result: f.group }] };
+  const origin = new URL(process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5178').origin;
+  await page.route('**/*', async route => {
+    const request=route.request(), url=new URL(request.url());
+    if(request.method()!=='GET'){log.writes.push(`${request.method()} ${url.href}`);return route.abort('blockedbyclient');}
+    if(url.origin===origin && !url.pathname.startsWith('/api/')) return route.continue();
+    if(url.origin===origin && url.pathname==='/api/projects/pointer-project/results') return route.fulfill({json:view});
+    if(url.origin===origin && url.pathname==='/api/projects') return route.fulfill({json:{projects:[{project_id:'pointer-project',name:input.name,current_version:1,created_at:time,updated_at:time}]}});
+    if(url.origin===origin && url.pathname==='/api/capabilities') return route.fulfill({json:{mode:'live',search:{status:'configured',message:'isolated',selected_provider:'fixture',providers:[]},llm:{status:'configured',message:'isolated'},fetch:{status:'available',message:'isolated',browser_fallback:false},platforms:[],limits:{max_knowledge_points:5,max_results_per_point:5,max_search_requests:30,max_detail_pages:40}}});
+    log.external.push(url.href);return route.abort('blockedbyclient');
+  });
+  await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/?project=pointer-project&version=1');
+  await expect(page).toHaveTitle('项目制知识引导小精灵 · 课程与视频发现');
+  await expect(page.getByRole('heading',{name:'项目课程结果 · v1'})).toBeVisible(); await expect(page.locator('vite-error-overlay')).toHaveCount(0);
+  return {f,log};
+}
+const panel=(page:Page)=>page.locator('.project-result-point');
+const fold=(page:Page)=>page.locator('.related-topic-pointers');
+async function allUnknown(page:Page) {
+  await expect(panel(page).locator('.transferable-skills>li')).toHaveCount(2);
+  await expect(panel(page).locator('.transferable-skills>li[data-skill-state="unknown"]')).toHaveCount(2);
+  await expect(panel(page).locator('.project-practice-axis')).toContainText('待自己实践');
+  await expect(panel(page).locator('.project-practice-axis')).toContainText('analogWrite取值0–255');
+}
+test('zero main recommendations: actual catalog pointer opens with original p26 link and plain full-skill verification text, while0recommendations/2unknownskills stay unchanged',async({page})=>{
+  await setup(page);await expect(fold(page)).toBeVisible();await expect(fold(page)).toHaveAttribute('open','');
+  await expect(panel(page).locator('.group-heading')).toContainText('0 条推荐');await expect(panel(page).locator('.course-card')).toHaveCount(0);await allUnknown(page);
+  await fold(page).locator('summary').focus();await page.keyboard.press('Enter');await expect(fold(page)).not.toHaveAttribute('open','');
+  await page.keyboard.press('Enter');await expect(fold(page)).toHaveAttribute('open','');
+  await expect(fold(page)).toContainText('相关课题线索 · 尚未证实讲授完整技能');await expect(fold(page)).toContainText('Arduino analogWrite 占空比控制输出');
+  await expect(fold(page).locator('blockquote')).toHaveText('1-25 模拟输出1 - analogWrite');await expect(fold(page).locator('.topic-pointer-missing')).toContainText('本章是否讲授上述完整技能，仍需到平台核对。');
+  await expect(fold(page)).toContainText('章节题目只说明相关主题，具体方法和教学深度仍需核对。');
+  await expect(fold(page).locator('.topic-pointer-missing li')).toHaveCount(0);await expect(fold(page)).not.toContainText('不计入技能支持或推荐数量');
+  const link=fold(page).getByRole('link',{name:/到平台核对这节课/});await expect(link).toHaveAttribute('href','https://www.bilibili.com/video/BV164411J7GE/?p=26');await expect(link).toHaveAttribute('target','_blank');await expect(link).toHaveAttribute('rel','noopener noreferrer');
+  await page.keyboard.press('Tab');await expect(link).toBeFocused();await allUnknown(page);
+  await expect(panel(page).locator('.learning-route-next')).toContainText('主要推荐');await expect(panel(page).locator('.group-empty')).toContainText('暂无达到技能教学推荐标准');
+});
+test('platform filter hides pointer source without borrowing topic support from other visible materials',async({page})=>{
+  const f=fixture();
+  const item=(id:string,platform:string):ResourceItem=>({resource:{...structuredClone(f.entry.resource),resource_id:id,platform,thumbnail_url:null,chapters:[]},evidence:[],match:{knowledge_point_id:f.group.knowledge_point_id,resource_id:id,ranking_score:1,recommendation_reason:'隔离的部分匹配材料；教学范围待核实。',matched_evidence_ids:[],coverage_basis:[],topic_evidence_status:'partial'}});
+  const a=item('other-main','other'),b=item('bili-main','bilibili');f.group.partial_items=[a,b];f.group.partial_platform_items={other:[a],bilibili:[b]};
+  await setup(page,f);await expect(fold(page)).toBeVisible();await expect(fold(page)).not.toHaveAttribute('open','');await allUnknown(page);
+  await page.getByLabel('项目课程来源').selectOption('other');await expect(fold(page)).toHaveCount(0);await allUnknown(page);
+  await page.getByLabel('项目课程来源').selectOption('bilibili');await expect(fold(page)).toBeVisible();await allUnknown(page);
+});
+test('unverified lexical fragments stay out of student copy while complete skill and actual chapter link remain',async({page})=>{
+  const f=fixture();f.entry.pointer.missing_components=['识别','选用支持','数字引脚'];
+  await setup(page,f);await expect(fold(page)).toBeVisible();
+  await expect(fold(page).locator('.topic-pointer-goal')).toContainText(source.pointer.skill);
+  await expect(fold(page).locator('.topic-pointer-missing')).toHaveText('仍需核对本章是否讲授上述完整技能，仍需到平台核对。');
+  await expect(fold(page)).not.toContainText('选用支持');await expect(fold(page)).not.toContainText('数字引脚');
+  await expect(fold(page).getByRole('link')).toHaveAttribute('href',source.pointer.target_url);await allUnknown(page);
+  await expect(panel(page).locator('.group-heading')).toContainText('0 条推荐');
+});
+test('bad hash or wrong actual part is absent, not an unknown-source clickable lead',async({page})=>{
+  const f=fixture();f.entry.pointer.source_text_sha256='0'.repeat(64);await setup(page,f);await expect(fold(page)).toHaveCount(0);await allUnknown(page);
+  f.entry.pointer.source_text_sha256=source.pointer.source_text_sha256;f.entry.pointer.target_url='https://www.bilibili.com/video/BV164411J7GE/?p=25';await page.reload();await expect(fold(page)).toHaveCount(0);await allUnknown(page);
+});
+test('native Bili source cannot become a foreign same-page link after whole-context rewrite and a valid new hash',async({page})=>{
+  const f=fixture(),foreign='https://example.org/foreign-lesson';
+  f.entry.resource.url=foreign;f.entry.resource.canonical_url=foreign;f.entry.resource.resolved_url=foreign;
+  for(const origin of Object.values(f.entry.resource.field_provenance))if(origin&&typeof origin==='object'&&'url'in origin)origin.url=foreign;
+  for(const record of f.entry.evidence)record.url=foreign;
+  const record=f.entry.evidence.find(row=>row.evidence_id===f.entry.pointer.evidence_id)!,index=Number(record.field!.split('.')[1]);
+  const chapter=f.entry.resource.chapters[index] as typeof f.entry.resource.chapters[number]&{source_url?:string},facts=JSON.parse(record.text!);
+  chapter.url=foreign;chapter.source_url=foreign;facts.url=foreign;facts.source_url=foreign;record.text=JSON.stringify(facts);
+  f.entry.pointer.source_url=foreign;f.entry.pointer.target_url=foreign;f.entry.pointer.source_text_sha256=createHash('sha256').update(record.text!).digest('hex');
+  await setup(page,f);await expect(fold(page)).toHaveCount(0);await allUnknown(page);await expect(panel(page).locator('.resource-card')).toHaveCount(0);
+});
+test('missing pointer lane and historical absent skills cannot invent goals or display source hints',async({page})=>{
+  const f=fixture();delete f.analysis.knowledge_points[0].learning_skills;await setup(page,f);await expect(fold(page)).toHaveCount(0);
+  await expect(panel(page).locator('.transferable-skills')).toHaveCount(0);await expect(panel(page)).toContainText('此版本尚未区分可迁移技能');
+});
+test('catalog original text is React-escaped, never executable HTML or an image request',async({page})=>{
+  const f=fixture(), record=f.entry.evidence.find(row=>row.evidence_id===f.entry.pointer.evidence_id)!;
+  const chapter=f.entry.resource.chapters[Number(record.field!.split('.')[1])];
+  const malicious='<img src=https://example.org/evil onerror=alert(1)>';
+  const facts=JSON.parse(record.text!);facts.title=malicious;chapter.title=malicious;
+  record.text=JSON.stringify(facts);f.entry.pointer.quote=malicious;f.entry.pointer.source_text_sha256=createHash('sha256').update(record.text!).digest('hex');
+  await setup(page,f);await expect(fold(page)).toBeVisible();await expect(fold(page).locator('blockquote')).toHaveText(malicious);
+  await expect(fold(page).locator('img,script,iframe')).toHaveCount(0);await allUnknown(page);
+});
+test('three widths and reduce motion: folded/expanded pointer long source stays readable and keyboard reachable',async({page})=>{
+  await setup(page);await mkdir(out,{recursive:true});const observations=[];
+  for(const size of [{name:'desktop',width:1440,height:1000},{name:'tablet',width:768,height:1024},{name:'mobile',width:390,height:844}]){
+    await page.setViewportSize(size);await fold(page).evaluate(node=>(node as HTMLDetailsElement).open=false);await fold(page).scrollIntoViewIfNeeded();
+    await page.screenshot({path:resolve(out,`${size.name}-folded.png`),animations:'disabled'});
+    await fold(page).locator('summary').focus();await page.keyboard.press('Enter');await expect(fold(page)).toHaveAttribute('open','');
+    await fold(page).screenshot({path:resolve(out,`${size.name}-expanded.png`),animations:'disabled'});await allUnknown(page);
+    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);expect(overflow).toBe(false);
+    // Screen-reader text is intentionally clipped to1px; visible text remains
+    // subject to the full interior-overflow check.
+    const inner=await fold(page).evaluate(node=>[...node.querySelectorAll('*')].filter(el=>!el.classList.contains('sr-only')&&el.clientWidth>0&&el.scrollWidth>el.clientWidth+1).map(el=>el.tagName));expect(inner).toEqual([]);
+    const motions=await fold(page).evaluate(node=>({animation:getComputedStyle(node).animationName,transition:getComputedStyle(node).transitionDuration}));expect(motions).toEqual({animation:'none',transition:'0s'});
+    await page.keyboard.press('Tab');await expect(fold(page).getByRole('link')).toBeFocused();observations.push({size,overflow,inner,motions});
+  }
+  await writeFile(resolve(out,'three-width-observations.json'),JSON.stringify({mock:true,actualRetainedCatalog:true,noSourceSemanticAcceptance:true,observations},null,2));
+});

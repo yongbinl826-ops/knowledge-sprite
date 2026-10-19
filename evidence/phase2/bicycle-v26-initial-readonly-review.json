@@ -1,0 +1,338 @@
+{
+  "mode": "read-only-source-bound-review-packet",
+  "observed_at": "2026-10-18T17:08:29.381726+00:00",
+  "network_requests": 0,
+  "new_jobs": 0,
+  "query_only": true,
+  "ranking_sha256": "5baca1a0a8fc41611c3b6c8090a70024f62178d9b932381908512d413e1158c9",
+  "automatic_production_verdict": null,
+  "projects": [
+    {
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "version": 2,
+      "status": "partial",
+      "student_level": "advanced",
+      "units": [
+        {
+          "id": "k1",
+          "name": "pandas 读取骑行 CSV 与列结构检查",
+          "description": "用 read_csv 载入合成骑行数据，检查列名、数据类型与行数，为后续清洗建立基线。",
+          "function_ids": [
+            "f1",
+            "f2"
+          ],
+          "why_needed": "后续去重、解析与计数都依赖正确载入和核对原始列。",
+          "learning_goal": "理解 read_csv 的返回结构，并能用 dtypes、head、shape 快速核对数据口径。",
+          "technology": "pandas",
+          "project_task": "编写读取函数，打印原始行数、列名与每列 dtype，并保存原始行数供删除行数计算。",
+          "concepts": [
+            "pd.read_csv 参数",
+            "DataFrame.shape 与 dtypes",
+            "head() 预览",
+            "原始行数基线"
+          ],
+          "practice_check": "运行后终端显示列名、原始行数和各列 dtype，与 CSV 表头一致。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "pandas trip_id 去重与删除行数统计",
+          "description": "用 drop_duplicates 按 trip_id 保留首条记录，并用行数差计算删除行数。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "项目要求按 trip_id 去重并记录删除行数，这是可复核口径的第一步。",
+          "learning_goal": "理解 subset/keep 参数含义，并能用去重前后行数差验证删除行数。",
+          "technology": "pandas",
+          "project_task": "实现去重步骤，保留每个 trip_id 第一条记录，返回并打印删除行数。",
+          "concepts": [
+            "drop_duplicates(subset, keep)",
+            "nunique 与重复计数",
+            "去重前后行数差",
+            "顺序一致性"
+          ],
+          "practice_check": "去重前后行数之差等于打印的删除行数，且余下 trip_id 唯一。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "pandas 时间列解析与无效行分离",
+          "description": "用 to_datetime 解析起止时间，分别筛出缺失/解析失败行与严格 end<start 行并保留明细。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "需单独记录缺失或结束早于开始的无效行，且相等时间仍属有效，必须精确处理边界。",
+          "learning_goal": "理解 errors 处理与布尔筛选，能严格区分缺失、end<start 与 end==start 三种情况。",
+          "technology": "pandas",
+          "project_task": "解析两列时间，生成两个无效行子集并计数，同时验证 end==start 行不被误剔除。",
+          "concepts": [
+            "pd.to_datetime(errors)",
+            "isna 与缺失筛选",
+            "布尔条件 end < start",
+            "相等时间的边界判断"
+          ],
+          "practice_check": "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "pandas 时间差计算骑行分钟时长",
+          "description": "用日期时间相减得到 Timedelta，并转换为分钟数新增时长列。",
+          "function_ids": [
+            "f3"
+          ],
+          "why_needed": "清洗后 CSV 必须含分钟时长，后续汇总依赖有效行的时长口径。",
+          "learning_goal": "理解日期时间差与单位换算，能确保无效行不参与时长计算且不出现负值。",
+          "technology": "pandas",
+          "project_task": "在有效行上计算时长分钟列，并检查最小值与 end==start 行的时长是否为 0。",
+          "concepts": [
+            "日期时间相减得 Timedelta",
+            "dt.total_seconds 换算分钟",
+            "新增列赋值",
+            "min 值校验"
+          ],
+          "practice_check": "清洗表新增时长列，最小值 >=0，end==start 行的时长恰为 0。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "pandas 按出发小时分组计数",
+          "description": "从开始时间提取小时，用 value_counts 或 groupby 统计各出发小时的有效骑行次数。",
+          "function_ids": [
+            "f4"
+          ],
+          "why_needed": "项目要求按出发小时汇总骑行次数并导出汇总 CSV。",
+          "learning_goal": "理解 dt.hour 提取与分组计数，能验证汇总次数合计等于有效行数。",
+          "technology": "pandas",
+          "project_task": "生成按小时汇总表，按小时排序并重命名列，导出前核对总次数。",
+          "concepts": [
+            "dt.hour 提取",
+            "groupby/size 与 value_counts",
+            "汇总表排序",
+            "合计一致性校验"
+          ],
+          "practice_check": "汇总表各小时次数之和等于有效行数，小时取值为 0–23。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "k6",
+          "name": "Matplotlib 出发站 Top10 条形图",
+          "description": "用 value_counts().head(10) 准备数据，绘制横向条形图并设置标题与轴标签。",
+          "function_ids": [
+            "f5"
+          ],
+          "why_needed": "项目要求绘制 Top10 条形图且图中需有标题和轴标签。",
+          "learning_goal": "理解 Matplotlib 图形对象与坐标轴设置，能控制排序方向并添加标题与两轴标签。",
+          "technology": "Matplotlib",
+          "project_task": "编写绘图函数，绘制出发站次数 Top10 条形图，设置标题、两轴标签并保存 PNG。",
+          "concepts": [
+            "value_counts().head(10)",
+            "barh 横向条形图",
+            "set_title/set_xlabel/set_ylabel",
+            "savefig 输出"
+          ],
+          "practice_check": "生成的 PNG 显示最多 10 个出发站、次数降序，标题与两轴标签齐全。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k5"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        },
+        {
+          "id": "k7",
+          "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+          "description": "用 to_csv 导出清洗后含时长数据与按小时汇总表，并打印去重、无效、有效各计数形成复核日志。",
+          "function_ids": [
+            "f6",
+            "f1",
+            "f2"
+          ],
+          "why_needed": "项目要求导出两个 CSV，并让清洗口径可复核。",
+          "learning_goal": "理解 to_csv 的 index 参数与计数链关系，能用日志核对各阶段行数是否自洽。",
+          "technology": "pandas",
+          "project_task": "实现导出函数，写出两个 CSV 并在终端打印去重删除数、两类无效数、有效行数与汇总合计数。",
+          "concepts": [
+            "DataFrame.to_csv(index=False)",
+            "计数链核对",
+            "文件名约定",
+            "输出目录检查"
+          ],
+          "practice_check": "两个 CSV 存在且可重新读取，日志中各计数满足：原始行数-删除数-无效数=有效行数。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k6"
+          ],
+          "learning_order": 7,
+          "selection": "learn"
+        }
+      ],
+      "batches": [
+        {
+          "ordinal": 1,
+          "status": "partial",
+          "job_id": "d9eee7d1-16dc-4bc5-aeb7-290bb2c46ccb",
+          "job_status": "partial",
+          "groups": [
+            {
+              "text": "pandas 读取骑行 CSV 与列结构检查",
+              "cards": [],
+              "collection_coverage": {
+                "decomposition_status": "unknown",
+                "shared_context": [],
+                "subtopics": [],
+                "status": "unknown",
+                "single_resource_full_coverage": false,
+                "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+              }
+            },
+            {
+              "text": "pandas trip_id 去重与删除行数统计",
+              "cards": [],
+              "collection_coverage": {
+                "decomposition_status": "unknown",
+                "shared_context": [],
+                "subtopics": [],
+                "status": "unknown",
+                "single_resource_full_coverage": false,
+                "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+              }
+            },
+            {
+              "text": "pandas 时间列解析与无效行分离",
+              "cards": [],
+              "collection_coverage": {
+                "decomposition_status": "applied",
+                "shared_context": [
+                  "pandas"
+                ],
+                "subtopics": [
+                  {
+                    "id": "subtopic_1",
+                    "text": "时间列解析",
+                    "status": "unknown",
+                    "resource_ids": [],
+                    "evidence_ids": []
+                  },
+                  {
+                    "id": "subtopic_2",
+                    "text": "无效行分离",
+                    "status": "unknown",
+                    "resource_ids": [],
+                    "evidence_ids": []
+                  }
+                ],
+                "status": "unknown",
+                "single_resource_full_coverage": false,
+                "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+              }
+            },
+            {
+              "text": "pandas 时间差计算骑行分钟时长",
+              "cards": [],
+              "collection_coverage": {
+                "decomposition_status": "not_applicable",
+                "shared_context": [],
+                "subtopics": [],
+                "status": "unknown",
+                "single_resource_full_coverage": false,
+                "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+              }
+            },
+            {
+              "text": "pandas 按出发小时分组计数",
+              "cards": [],
+              "collection_coverage": {
+                "decomposition_status": "not_applicable",
+                "shared_context": [],
+                "subtopics": [],
+                "status": "unknown",
+                "single_resource_full_coverage": false,
+                "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+              }
+            }
+          ]
+        },
+        {
+          "ordinal": 2,
+          "status": "partial",
+          "job_id": "efb2423d-956e-4240-b695-ccbfed9679a5",
+          "job_status": "partial",
+          "groups": [
+            {
+              "text": "Matplotlib 出发站 Top10 条形图",
+              "cards": [],
+              "collection_coverage": {
+                "decomposition_status": "not_applicable",
+                "shared_context": [],
+                "subtopics": [],
+                "status": "unknown",
+                "single_resource_full_coverage": false,
+                "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+              }
+            },
+            {
+              "text": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+              "cards": [],
+              "collection_coverage": {
+                "decomposition_status": "applied",
+                "shared_context": [
+                  "pandas"
+                ],
+                "subtopics": [
+                  {
+                    "id": "subtopic_1",
+                    "text": "清洗结果",
+                    "status": "unknown",
+                    "resource_ids": [],
+                    "evidence_ids": []
+                  },
+                  {
+                    "id": "subtopic_2",
+                    "text": "汇总 CSV 导出",
+                    "status": "unknown",
+                    "resource_ids": [],
+                    "evidence_ids": []
+                  },
+                  {
+                    "id": "subtopic_3",
+                    "text": "复核日志",
+                    "status": "unknown",
+                    "resource_ids": [],
+                    "evidence_ids": []
+                  }
+                ],
+                "status": "unknown",
+                "single_resource_full_coverage": false,
+                "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -257,7 +257,7 @@ async def test_api_cancel_idempotency_conflict_and_missing_job(tmp_path):
 
     app = create_app(Settings(database_path=str(tmp_path / "api.sqlite3")), PendingSearch(), QuickFetcher())
     async with app.router.lifespan_context(app):
-        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://testserver") as client:
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app, client=("127.0.0.1", 50000)), base_url="http://127.0.0.1") as client:
             response = await client.post("/api/search-jobs", json=request().model_dump(), headers={"Idempotency-Key": "api-key"})
             assert response.status_code == 202 and not response.json()["reused"]
             job_id = response.json()["job_id"]

@@ -1,0 +1,943 @@
+{
+  "case_id": "bicycle_csv_advanced",
+  "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+  "source_version": 1,
+  "input": {
+    "name": "共享单车出行 CSV 分析报告",
+    "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+    "student_level": "advanced",
+    "language": "zh",
+    "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "status": "analyzed",
+  "preflight_view": {
+    "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+    "original_input": {
+      "name": "共享单车出行 CSV 分析报告",
+      "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+      "student_level": "advanced",
+      "language": "zh",
+      "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "input": {
+      "name": "共享单车出行 CSV 分析报告",
+      "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+      "student_level": "advanced",
+      "language": "zh",
+      "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "current_version": 1,
+    "created_at": "2026-10-18T16:36:40.598004+00:00",
+    "updated_at": "2026-10-18T16:36:52.483332+00:00",
+    "versions": [
+      {
+        "version": 1,
+        "status": "analyzed",
+        "created_at": "2026-10-18T16:36:40.606116+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+      }
+    ],
+    "version": {
+      "version": 1,
+      "input": {
+        "name": "共享单车出行 CSV 分析报告",
+        "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+        "student_level": "advanced",
+        "language": "zh",
+        "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "analyzed",
+      "analysis": {
+        "scope": "在本机用 Python、pandas 与 Matplotlib 分析一份合成共享单车骑行 CSV：按 trip_id 去重并记录删除行数，解析时间，单独记录时间缺失或结束早于开始的无效行，对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数 Top10 条形图，导出清洗后 CSV、按小时汇总 CSV 与带标题和轴标签的 PNG。不做预测、仪表盘、地图、账号或云部署。",
+        "technical_plan": "使用 Python 脚本单文件流程：pandas.read_csv 读取并记录原始行数；按 trip_id 去重并用 len 差值记录删除行数；to_datetime 解析 start_time/end_time，将无法解析或缺失的行单独筛出记录；在可解析行中筛出 end_time < start_time 的无效行并单独记录；对有效行计算 (end_time-start_time).dt.total_seconds()/60 得时长；用 dt.hour 分组统计骑行次数并输出汇总 CSV；对 start_station 分组计数取前 10 用 plot.barh 绘制，设置 title/set_xlabel/set_ylabel，savefig 输出 PNG。各步骤的行数记录为可复核口径。所有依赖与库选择为可修改假设。",
+        "assumptions": [
+          "CSV 为本地文件，编码 utf-8，列名与需求一致。",
+          "时间解析假定为同城本地时间，不做时区转换。",
+          "Top10 按出发站骑行次数降序，不足 10 站则全部绘制。",
+          "技术选型（纯 pandas+Matplotlib 脚本，无额外可视化库）为可修改假设。",
+          "可安装 pandas 与 Matplotlib，无需联网或云服务。"
+        ],
+        "learner_profile": {
+          "student_level": "advanced",
+          "assumed_knowledge": [
+            "Python 函数与文件读写",
+            "基本调试方法",
+            "描述统计概念（计数、缺失值）",
+            "会用命令行运行脚本"
+          ],
+          "adjustment_note": "已按 advanced 处理，不安排通用 Python 入门内容，重点放在 pandas 时间清洗、分组与可复核口径；若实际不熟 pandas/Matplotlib API，可将级别改为 intermediate 或调整选学单元后重新生成。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "读取 CSV 与 trip_id 去重",
+            "original_requirement": "按trip_id去重并记录删行数",
+            "acceptance_criteria": "读入 CSV 并输出原始行数、去重后行数与删除行数，三者满足 原始=去重后+删除。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "时间解析与无效行分类记录",
+            "original_requirement": "解析时间，单独记录缺失或结束早于开始的无效行",
+            "acceptance_criteria": "输出可解析行数、时间缺失/无法解析行数与结束早于开始行数，且各类互不重复计数。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "计算分钟时长并导出清洗 CSV",
+            "original_requirement": "对有效行计算分钟时长；导出清洗后含时长的CSV",
+            "acceptance_criteria": "有效行含 duration_min 列且数值为正值，导出的 CSV 行数与记录的有效行数一致。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "按出发小时汇总并导出",
+            "original_requirement": "按出发小时汇总骑行次数；导出按小时汇总CSV",
+            "acceptance_criteria": "生成 0–23 小时的骑行次数汇总 CSV，次数合计等于有效行数。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "出发站 Top10 条形图导出 PNG",
+            "original_requirement": "绘制出发站次数Top10条形图；图要有标题、轴标签；导出 PNG",
+            "acceptance_criteria": "生成 PNG，含标题与轴标签，条形按次数降序且不超过 10 个站。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "pandas 读取 CSV 与行数口径记录",
+            "description": "用 read_csv 读入数据，记录原始行数作为后续清洗的基线。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "去重删除行数需要可复核的原始行数基线。",
+            "learning_goal": "理解如何用 shape/len 记录行数并在清洗各阶段对比。",
+            "technology": "pandas",
+            "project_task": "编写读取函数，打印并保存原始行数。",
+            "concepts": [
+              "read_csv",
+              "DataFrame.shape",
+              "行数基线记录"
+            ],
+            "practice_check": "运行后输出原始行数并与文件行数一致。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "pandas 去重与删除行数统计",
+            "description": "用 drop_duplicates 按 trip_id 去重并计算删除行数。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "需求要求去重且记录删行数。",
+            "learning_goal": "理解 subset 去重与行数差值的关系。",
+            "technology": "pandas",
+            "project_task": "实现按 trip_id 去重并输出删除行数。",
+            "concepts": [
+              "drop_duplicates",
+              "subset 参数",
+              "行数差值"
+            ],
+            "practice_check": "构造含重复 trip_id 的小数据验证删除行数正确。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "pandas 时间列解析与缺失识别",
+            "description": "用 to_datetime 解析起止时间，识别缺失或无法解析的行。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "后续时长计算与小时汇总依赖有效时间。",
+            "learning_goal": "理解 errors 参数与 NaT 的含义和计数方式。",
+            "technology": "pandas",
+            "project_task": "解析两列时间并统计缺失/无法解析行数。",
+            "concepts": [
+              "to_datetime",
+              "errors='coerce'",
+              "NaT",
+              "isna 计数"
+            ],
+            "practice_check": "用包含空值和乱码时间的样本验证缺失计数准确。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "时间先后校验与无效行单独记录",
+            "description": "筛出 end_time 早于 start_time 的无效行并单独保存。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "需求要求单独记录结束早于开始的行。",
+            "learning_goal": "理解布尔掩码筛选并可分离有效与无效样本。",
+            "technology": "pandas",
+            "project_task": "用比较掩码拆分有效行和无效行并分别导出记录。",
+            "concepts": [
+              "布尔掩码",
+              "时间比较",
+              "有效/无效拆分"
+            ],
+            "practice_check": "检查有效行与无效行数之和等于可解析行数。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "pandas 时长计算与清洗结果导出",
+            "description": "用时间差计算分钟时长并导出含时长的 CSV。",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "需求要求有效行含分钟时长并导出。",
+            "learning_goal": "理解 Timedelta 换算与 to_csv 写出。",
+            "technology": "pandas",
+            "project_task": "计算 duration_min 列并导出清洗 CSV。",
+            "concepts": [
+              "时间差运算",
+              "total_seconds",
+              "to_csv"
+            ],
+            "practice_check": "导出的 CSV 含正数时长列，行数等于有效行数。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "k6",
+            "name": "pandas 按出发小时分组汇总",
+            "description": "用 dt.hour 提取出发小时并按小时统计骑行次数。",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "需求要求按出发小时汇总骑行次数。",
+            "learning_goal": "理解 groupby 与 size 的汇总口径及导出。",
+            "technology": "pandas",
+            "project_task": "生成 0–23 小时汇总表并导出 CSV。",
+            "concepts": [
+              "dt.hour",
+              "groupby",
+              "size",
+              "汇总导出"
+            ],
+            "practice_check": "汇总次数合计与有效行数一致且覆盖 0–23 小时。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k5"
+            ],
+            "learning_order": 6,
+            "selection": "learn"
+          },
+          {
+            "id": "k7",
+            "name": "出发站计数与 Top10 排序",
+            "description": "按 start_station 分组计数并取前 10 站。",
+            "function_ids": [
+              "f5"
+            ],
+            "why_needed": "Top10 条形图需要正确的排序与截取。",
+            "learning_goal": "理解 value_counts 与 sort_values/head 的用法。",
+            "technology": "pandas",
+            "project_task": "生成出发站次数 Top10 序列。",
+            "concepts": [
+              "value_counts",
+              "sort_values",
+              "head"
+            ],
+            "practice_check": "输出序列降序且长度不超过 10。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k6"
+            ],
+            "learning_order": 7,
+            "selection": "learn"
+          },
+          {
+            "id": "k8",
+            "name": "Matplotlib 条形图绘制与标签导出",
+            "description": "用 barh 绘制 Top10 并设置标题、轴标签，savefig 输出 PNG。",
+            "function_ids": [
+              "f5"
+            ],
+            "why_needed": "需求要求带标题和轴标签的 PNG 图。",
+            "learning_goal": "理解面向对象的图形绘制与保存流程。",
+            "technology": "Matplotlib",
+            "project_task": "绘制 Top10 条形图并导出 PNG。",
+            "concepts": [
+              "barh",
+              "set_title",
+              "set_xlabel/set_ylabel",
+              "savefig"
+            ],
+            "practice_check": "PNG 中可见标题、轴标签和不超过 10 个条形。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k7"
+            ],
+            "learning_order": 8,
+            "selection": "learn"
+          }
+        ]
+      },
+      "confirmation": null,
+      "batches": [],
+      "budgets": null,
+      "error": null,
+      "warnings": [],
+      "created_at": "2026-10-18T16:36:40.606116+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+      "origin": "analysis",
+      "search_started_at": null,
+      "cancel_requested": false,
+      "updated_at": "2026-10-18T16:36:52.483163+00:00"
+    }
+  },
+  "expected_version": 1,
+  "expected_new_version": 2,
+  "analysis_submission_attempted": true,
+  "analysis_submitted_at": "2026-10-18T16:51:42.583768+00:00",
+  "model_event_start_line": 6,
+  "analysis_http_status": 202,
+  "analysis_submission_response": {
+    "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+    "original_input": {
+      "name": "共享单车出行 CSV 分析报告",
+      "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+      "student_level": "advanced",
+      "language": "zh",
+      "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "input": {
+      "name": "共享单车出行 CSV 分析报告",
+      "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+      "student_level": "advanced",
+      "language": "zh",
+      "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "current_version": 2,
+    "created_at": "2026-10-18T16:36:40.598004+00:00",
+    "updated_at": "2026-10-18T16:51:42.587362+00:00",
+    "versions": [
+      {
+        "version": 2,
+        "status": "analyzing",
+        "created_at": "2026-10-18T16:51:42.587263+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+      },
+      {
+        "version": 1,
+        "status": "analyzed",
+        "created_at": "2026-10-18T16:36:40.606116+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+      }
+    ],
+    "version": {
+      "version": 2,
+      "input": {
+        "name": "共享单车出行 CSV 分析报告",
+        "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+        "student_level": "advanced",
+        "language": "zh",
+        "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "analyzing",
+      "analysis": null,
+      "confirmation": null,
+      "batches": [],
+      "budgets": null,
+      "error": null,
+      "warnings": [],
+      "created_at": "2026-10-18T16:51:42.587263+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+      "origin": "analysis",
+      "search_started_at": null,
+      "cancel_requested": false,
+      "updated_at": "2026-10-18T16:51:42.587277+00:00"
+    }
+  },
+  "last_observed_status": "analyzed",
+  "version": 2,
+  "persisted_view": {
+    "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+    "original_input": {
+      "name": "共享单车出行 CSV 分析报告",
+      "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+      "student_level": "advanced",
+      "language": "zh",
+      "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "input": {
+      "name": "共享单车出行 CSV 分析报告",
+      "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+      "student_level": "advanced",
+      "language": "zh",
+      "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "current_version": 2,
+    "created_at": "2026-10-18T16:36:40.598004+00:00",
+    "updated_at": "2026-10-18T16:52:15.034490+00:00",
+    "versions": [
+      {
+        "version": 2,
+        "status": "analyzed",
+        "created_at": "2026-10-18T16:51:42.587263+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+      },
+      {
+        "version": 1,
+        "status": "analyzed",
+        "created_at": "2026-10-18T16:36:40.606116+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+      }
+    ],
+    "version": {
+      "version": 2,
+      "input": {
+        "name": "共享单车出行 CSV 分析报告",
+        "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+        "student_level": "advanced",
+        "language": "zh",
+        "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "analyzed",
+      "analysis": {
+        "scope": "本机单脚本分析一份共享单车骑行 CSV：按 trip_id 去重并报告删除行数；解析同城本地时间；分别统计缺失时间与结束早于开始（严格早于，相等时间视为有效）的无效行；对有效行计算分钟时长；按出发小时汇总次数；绘制出发站 Top10 条形图；导出清洗后 CSV、按小时汇总 CSV 与带标题和轴标签的 PNG。不做预测、仪表盘、地图、账号或云部署。",
+        "technical_plan": "使用 Python + pandas + Matplotlib 的单一本地脚本，按阶段拆分函数：load_and_dedupe 读取 CSV 并保留首个 trip_id、返回删除行数；parse_and_split 用 pd.to_datetime 解析两列时间并统计解析失败行；split_invalid 单独收集缺失时间行与 end<start 行（end==start 合法）；add_duration 计算 (end-start) 的分钟数；hourly_summary 用 dt.hour 分组计数；station_bar 用 value_counts().head(10) 画横向条形图并设置标题与轴标签；最后统一写出三个产物文件并打印各项计数以便复核。所有口径（去重、无效判定、单位、Top10 顺序）在打印日志与 CSV 中保持一致。",
+        "assumptions": [
+          "合成 CSV 的时间两列使用 pandas 可解析的统一字符串格式（如 ISO），解析失败行按缺失处理并计数。",
+          "Top10 按出发站次数降序，取前 10 个站；不足 10 个时全部展示。",
+          "按出发小时汇总使用 0–23 的整点小时，不按日期拆分。",
+          "无效行在被去重之后、计算时长之前剔除；去重优先于无效判定。",
+          "图表与文件均输出到本机当前工作目录的指定文件名。",
+          "学生可修改学生阶段、项目背景与技术选择后重新生成。"
+        ],
+        "learner_profile": {
+          "student_level": "advanced",
+          "assumed_knowledge": [
+            "Python 函数定义与文件读写",
+            "基础调试与异常排查",
+            "描述性统计概念",
+            "尚未使用 pandas 处理出行数据",
+            "尚未接触 Matplotlib API"
+          ],
+          "adjustment_note": "按高级阶段设计：少讲通用语法，重点在时间口径、分组与可复核输出；但明确不假定已会 pandas/Matplotlib。学生可修改阶段、项目背景或技术选择后重新生成。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "读取 CSV 并按 trip_id 去重",
+            "original_requirement": "按trip_id去重并记录删行数",
+            "acceptance_criteria": "读入后保留每个 trip_id 的首条记录，打印并返回删除行数，使去重前后行数之差等于该数。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "解析时间并区分无效行",
+            "original_requirement": "解析时间，单独记录缺失或结束早于开始的无效行",
+            "acceptance_criteria": "两列时间被解析为日期时间；缺失/解析失败行单独计数，严格 end<start 行单独计数并保留明细；end==start 不计入无效。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "计算有效行分钟时长",
+            "original_requirement": "对有效行计算分钟时长",
+            "acceptance_criteria": "每行时长为 (end_time-start_time) 的分钟数，数据集中不含无效行，时长均 >=0 且 end==start 行时长为 0。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "按出发小时汇总骑行次数",
+            "original_requirement": "按出发小时汇总骑行次数",
+            "acceptance_criteria": "输出 0–23 中实际出现的出发小时及各小时有效骑行次数，合计等于有效行数。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "绘制出发站 Top10 条形图",
+            "original_requirement": "绘制出发站次数Top10条形图；图要有标题、轴标签",
+            "acceptance_criteria": "条形图展示次数最多的前 10 个出发站，降序排列，含非空标题与两轴标签，并可保存为 PNG。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f6",
+            "name": "导出清洗后 CSV、按小时 CSV 与 PNG",
+            "original_requirement": "导出清洗后含时长的CSV、按小时汇总CSV和PNG图",
+            "acceptance_criteria": "三个文件成功写出：清洗数据含时长列，按小时 CSV 含小时与次数，PNG 可正常打开且图形与统计一致。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "pandas 读取骑行 CSV 与列结构检查",
+            "description": "用 read_csv 载入合成骑行数据，检查列名、数据类型与行数，为后续清洗建立基线。",
+            "function_ids": [
+              "f1",
+              "f2"
+            ],
+            "why_needed": "后续去重、解析与计数都依赖正确载入和核对原始列。",
+            "learning_goal": "理解 read_csv 的返回结构，并能用 dtypes、head、shape 快速核对数据口径。",
+            "technology": "pandas",
+            "project_task": "编写读取函数，打印原始行数、列名与每列 dtype，并保存原始行数供删除行数计算。",
+            "concepts": [
+              "pd.read_csv 参数",
+              "DataFrame.shape 与 dtypes",
+              "head() 预览",
+              "原始行数基线"
+            ],
+            "practice_check": "运行后终端显示列名、原始行数和各列 dtype，与 CSV 表头一致。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "pandas trip_id 去重与删除行数统计",
+            "description": "用 drop_duplicates 按 trip_id 保留首条记录，并用行数差计算删除行数。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "项目要求按 trip_id 去重并记录删除行数，这是可复核口径的第一步。",
+            "learning_goal": "理解 subset/keep 参数含义，并能用去重前后行数差验证删除行数。",
+            "technology": "pandas",
+            "project_task": "实现去重步骤，保留每个 trip_id 第一条记录，返回并打印删除行数。",
+            "concepts": [
+              "drop_duplicates(subset, keep)",
+              "nunique 与重复计数",
+              "去重前后行数差",
+              "顺序一致性"
+            ],
+            "practice_check": "去重前后行数之差等于打印的删除行数，且余下 trip_id 唯一。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "pandas 时间列解析与无效行分离",
+            "description": "用 to_datetime 解析起止时间，分别筛出缺失/解析失败行与严格 end<start 行并保留明细。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "需单独记录缺失或结束早于开始的无效行，且相等时间仍属有效，必须精确处理边界。",
+            "learning_goal": "理解 errors 处理与布尔筛选，能严格区分缺失、end<start 与 end==start 三种情况。",
+            "technology": "pandas",
+            "project_task": "解析两列时间，生成两个无效行子集并计数，同时验证 end==start 行不被误剔除。",
+            "concepts": [
+              "pd.to_datetime(errors)",
+              "isna 与缺失筛选",
+              "布尔条件 end < start",
+              "相等时间的边界判断"
+            ],
+            "practice_check": "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "pandas 时间差计算骑行分钟时长",
+            "description": "用日期时间相减得到 Timedelta，并转换为分钟数新增时长列。",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "清洗后 CSV 必须含分钟时长，后续汇总依赖有效行的时长口径。",
+            "learning_goal": "理解日期时间差与单位换算，能确保无效行不参与时长计算且不出现负值。",
+            "technology": "pandas",
+            "project_task": "在有效行上计算时长分钟列，并检查最小值与 end==start 行的时长是否为 0。",
+            "concepts": [
+              "日期时间相减得 Timedelta",
+              "dt.total_seconds 换算分钟",
+              "新增列赋值",
+              "min 值校验"
+            ],
+            "practice_check": "清洗表新增时长列，最小值 >=0，end==start 行的时长恰为 0。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "pandas 按出发小时分组计数",
+            "description": "从开始时间提取小时，用 value_counts 或 groupby 统计各出发小时的有效骑行次数。",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "项目要求按出发小时汇总骑行次数并导出汇总 CSV。",
+            "learning_goal": "理解 dt.hour 提取与分组计数，能验证汇总次数合计等于有效行数。",
+            "technology": "pandas",
+            "project_task": "生成按小时汇总表，按小时排序并重命名列，导出前核对总次数。",
+            "concepts": [
+              "dt.hour 提取",
+              "groupby/size 与 value_counts",
+              "汇总表排序",
+              "合计一致性校验"
+            ],
+            "practice_check": "汇总表各小时次数之和等于有效行数，小时取值为 0–23。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "k6",
+            "name": "Matplotlib 出发站 Top10 条形图",
+            "description": "用 value_counts().head(10) 准备数据，绘制横向条形图并设置标题与轴标签。",
+            "function_ids": [
+              "f5"
+            ],
+            "why_needed": "项目要求绘制 Top10 条形图且图中需有标题和轴标签。",
+            "learning_goal": "理解 Matplotlib 图形对象与坐标轴设置，能控制排序方向并添加标题与两轴标签。",
+            "technology": "Matplotlib",
+            "project_task": "编写绘图函数，绘制出发站次数 Top10 条形图，设置标题、两轴标签并保存 PNG。",
+            "concepts": [
+              "value_counts().head(10)",
+              "barh 横向条形图",
+              "set_title/set_xlabel/set_ylabel",
+              "savefig 输出"
+            ],
+            "practice_check": "生成的 PNG 显示最多 10 个出发站、次数降序，标题与两轴标签齐全。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k5"
+            ],
+            "learning_order": 6,
+            "selection": "learn"
+          },
+          {
+            "id": "k7",
+            "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+            "description": "用 to_csv 导出清洗后含时长数据与按小时汇总表，并打印去重、无效、有效各计数形成复核日志。",
+            "function_ids": [
+              "f6",
+              "f1",
+              "f2"
+            ],
+            "why_needed": "项目要求导出两个 CSV，并让清洗口径可复核。",
+            "learning_goal": "理解 to_csv 的 index 参数与计数链关系，能用日志核对各阶段行数是否自洽。",
+            "technology": "pandas",
+            "project_task": "实现导出函数，写出两个 CSV 并在终端打印去重删除数、两类无效数、有效行数与汇总合计数。",
+            "concepts": [
+              "DataFrame.to_csv(index=False)",
+              "计数链核对",
+              "文件名约定",
+              "输出目录检查"
+            ],
+            "practice_check": "两个 CSV 存在且可重新读取，日志中各计数满足：原始行数-删除数-无效数=有效行数。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k6"
+            ],
+            "learning_order": 7,
+            "selection": "learn"
+          }
+        ]
+      },
+      "confirmation": null,
+      "batches": [],
+      "budgets": null,
+      "error": null,
+      "warnings": [],
+      "created_at": "2026-10-18T16:51:42.587263+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+      "origin": "analysis",
+      "search_started_at": null,
+      "cancel_requested": false,
+      "updated_at": "2026-10-18T16:52:15.034283+00:00"
+    }
+  },
+  "completed_at": "2026-10-18T16:52:15.129843+00:00",
+  "client_analysis_elapsed_seconds": 32.546064,
+  "error": null,
+  "observations": {
+    "analysis_available": true,
+    "input_preserved": true,
+    "schema_valid": true,
+    "quality_guard_issues": [],
+    "function_count": 6,
+    "unit_count": 7,
+    "soft_unit_range_4_to_8": true,
+    "technology_targets": [
+      {
+        "id": "k1",
+        "name": "pandas 读取骑行 CSV 与列结构检查",
+        "technology": "pandas"
+      },
+      {
+        "id": "k2",
+        "name": "pandas trip_id 去重与删除行数统计",
+        "technology": "pandas"
+      },
+      {
+        "id": "k3",
+        "name": "pandas 时间列解析与无效行分离",
+        "technology": "pandas"
+      },
+      {
+        "id": "k4",
+        "name": "pandas 时间差计算骑行分钟时长",
+        "technology": "pandas"
+      },
+      {
+        "id": "k5",
+        "name": "pandas 按出发小时分组计数",
+        "technology": "pandas"
+      },
+      {
+        "id": "k6",
+        "name": "Matplotlib 出发站 Top10 条形图",
+        "technology": "Matplotlib"
+      },
+      {
+        "id": "k7",
+        "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+        "technology": "pandas"
+      }
+    ],
+    "coverage_observations": [
+      {
+        "criterion": "载入与去重审计",
+        "keyword_observed": true
+      },
+      {
+        "criterion": "时间解析与无效行",
+        "keyword_observed": true
+      },
+      {
+        "criterion": "分钟时长",
+        "keyword_observed": true
+      },
+      {
+        "criterion": "出发小时计数",
+        "keyword_observed": true
+      },
+      {
+        "criterion": "出发站Top10与图标签",
+        "keyword_observed": true
+      },
+      {
+        "criterion": "CSV及PNG导出",
+        "keyword_observed": true
+      }
+    ],
+    "latency_goal_met": true,
+    "latency_hard_limit_met": true,
+    "manual_review_required": true,
+    "manual_semantic_pass": null,
+    "analysis_sha256": "0a16fe3591e43e43ec4d5c992aa98866999ba96dabcd90bdfaae2eb6329164ca"
+  },
+  "model_events": [
+    {
+      "event_type": "model_call_started",
+      "call_id": "76c5314fc84d473e8fad9ed291151099",
+      "task": "project_analysis",
+      "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+      "started_at": "2026-10-18T16:51:42.591666+00:00"
+    },
+    {
+      "event_type": "model_call_finished",
+      "call_id": "76c5314fc84d473e8fad9ed291151099",
+      "task": "project_analysis",
+      "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+      "started_at": "2026-10-18T16:51:42.591666+00:00",
+      "finished_at": "2026-10-18T16:51:57.111345+00:00",
+      "elapsed_seconds": 14.51968,
+      "outcome": "json_returned",
+      "failure_type": null,
+      "http_status": 200,
+      "response_body_sha256": "46c464f3a67a3335bd42a01b226c3033a2cecef735c9bf2c5d71d311bc29b6f4",
+      "response_bytes": 11629,
+      "message_content_sha256": "6f7eec2f8791b7572b1b26e6ab71d390eb5353f7497c4b8eb55f5adad9d62ecc",
+      "message_content_chars": 6328,
+      "provider_response_id": "28f70e83-324d-4e41-9bb4-364665a9072f",
+      "provider_model": "deepseek-flash",
+      "usage": {
+        "prompt_tokens": 3183,
+        "completion_tokens": 2641,
+        "total_tokens": 5824,
+        "prompt_cache_hit_tokens": 1408,
+        "prompt_cache_miss_tokens": 1775,
+        "prompt_tokens_details": {
+          "cached_tokens": 1408
+        }
+      },
+      "finish_reason": "stop",
+      "response_read_complete": true
+    },
+    {
+      "event_type": "model_call_started",
+      "call_id": "7f5c01cf09304ad6b07cd6dafc48e5cc",
+      "task": "project_analysis",
+      "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+      "started_at": "2026-10-18T16:51:57.112704+00:00"
+    },
+    {
+      "event_type": "model_call_finished",
+      "call_id": "7f5c01cf09304ad6b07cd6dafc48e5cc",
+      "task": "project_analysis",
+      "system_prompt_sha256": "5f0e52be29b0b87422ad0648c1e32359b60daf6a0818b00eb6f969439d4ca3a4",
+      "started_at": "2026-10-18T16:51:57.112704+00:00",
+      "finished_at": "2026-10-18T16:52:11.245961+00:00",
+      "elapsed_seconds": 14.133267,
+      "outcome": "json_returned",
+      "failure_type": null,
+      "http_status": 200,
+      "response_body_sha256": "4dd52da8b1e35f144c01e4631e16664dfd6abcd18251a2aa7d7e90fbda9fca76",
+      "response_bytes": 11193,
+      "message_content_sha256": "fdeaa7f7c44f20ee3146b755d7aaa825a29ded536e1aae4e872c43cf759f1382",
+      "message_content_chars": 6023,
+      "provider_response_id": "b819fba7-a88a-48b5-ac74-d519c6356249",
+      "provider_model": "deepseek-flash",
+      "usage": {
+        "prompt_tokens": 3226,
+        "completion_tokens": 2528,
+        "total_tokens": 5754,
+        "prompt_cache_hit_tokens": 3072,
+        "prompt_cache_miss_tokens": 154,
+        "prompt_tokens_details": {
+          "cached_tokens": 3072
+        }
+      },
+      "finish_reason": "stop",
+      "response_read_complete": true
+    },
+    {
+      "event_type": "model_call_started",
+      "call_id": "583a6a742dd249a19d6495505a30e037",
+      "task": "project_analysis_review",
+      "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+      "started_at": "2026-10-18T16:52:11.250341+00:00"
+    },
+    {
+      "event_type": "model_call_finished",
+      "call_id": "583a6a742dd249a19d6495505a30e037",
+      "task": "project_analysis_review",
+      "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+      "started_at": "2026-10-18T16:52:11.250341+00:00",
+      "finished_at": "2026-10-18T16:52:15.032488+00:00",
+      "elapsed_seconds": 3.782151,
+      "outcome": "json_returned",
+      "failure_type": null,
+      "http_status": 200,
+      "response_body_sha256": "27ed8f3c16119006ce66cb5db1f0ffde1d92d03cadf1682487c1c218442ef316",
+      "response_bytes": 497,
+      "message_content_sha256": "443b357dbac0138b317ce5c502659832dbd0f5c86556345a672b0f1d3c1077e0",
+      "message_content_chars": 30,
+      "provider_response_id": "c02b25ac-8077-4d0e-8973-99b33008971c",
+      "provider_model": "deepseek-flash",
+      "usage": {
+        "prompt_tokens": 4019,
+        "completion_tokens": 10,
+        "total_tokens": 4029,
+        "prompt_cache_hit_tokens": 512,
+        "prompt_cache_miss_tokens": 3507,
+        "prompt_tokens_details": {
+          "cached_tokens": 512
+        }
+      },
+      "finish_reason": "stop",
+      "response_read_complete": true
+    }
+  ]
+}

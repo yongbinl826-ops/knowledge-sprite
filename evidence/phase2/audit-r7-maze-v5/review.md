@@ -1,0 +1,11 @@
+Maze v5 is a genuine failed product-search sample: **0/6 units, 0 cards**, terminal partial in 116.692655 s. No new upstream/model request, source DB write, source change or test run was made by this review. r6 failure records remain untouched.
+
+Confirmed targets reached runtime: every TWT attempt contains recall v2, four targets and a recomputed matching target hash. Eight distinct actual lesson pages have valid own-video summaries. The new Snake #1 summary includes the explained Clock/main-loop demo. This is not an unloaded r7 fix or a general TWT access failure.
+
+Two remaining retrieval limitations are concrete. State/font intent selects Snake because the literal stem `play` matches category prose `play area`; the score/health hint is applied only after this one-series choice. The observed Pygame series has Scoring & Health Bars, and the actual current recall plan orders it first if that other series is considered. It was not discovered for this state unit, so its prior lesson evidence is not claimed as a new result. For the Clock unit, all category/lesson scores are zero and only the stable first six Pygame lessons are returned. Snake #1 with actual clock.tick teaching was fetched for other batch1 points but is absent from Clock's batch2 candidates. A clearly labeled zero-network cross-batch pure assessment supports only `clock.tick 限帧`; get_ticks, elapsed difference and reset basis remain unknown. No real match was inserted.
+
+A bounded fair series/lesson continuation or reuse of independently verified project sources could address retrieval, under the same source/provenance and cost boundaries. Directory headings remain discovery hints, not video teaching proof. No lesson/video URL should become a hardcoded answer.
+
+Other present sources remain insufficient for the exact maze skills: sustained get_pressed is not single-trigger KEYDOWN; a 20x20 drawn grid is not an 8x8 map with wall/exit cell logic; sprites/projectile hit boxes do not establish target-cell blocking or the READY/PLAYING/WIN and R/Esc lifecycle. These unknowns are correct evidence boundaries, not a claim that no relevant online video exists.
+
+Machine evidence: audit.json and sqlite-readonly-snapshot.json, including actual URLs/evidence, candidate-point associations, runtime recall hashes, category scores and diagnostic-only assessment.

@@ -1,0 +1,1838 @@
+{
+  "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+  "original_input": {
+    "name": "Arduino LED 按钮反应时间小游戏",
+    "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "input": {
+    "name": "Arduino LED 按钮反应时间小游戏",
+    "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "current_version": 4,
+  "created_at": "2026-10-18T16:36:53.029359+00:00",
+  "updated_at": "2026-10-18T19:37:10.444697+00:00",
+  "versions": [
+    {
+      "version": 4,
+      "status": "partial",
+      "created_at": "2026-10-18T19:29:34.571039+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+    },
+    {
+      "version": 3,
+      "status": "partial",
+      "created_at": "2026-10-18T17:00:28.668581+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+    },
+    {
+      "version": 2,
+      "status": "analysis_failed",
+      "created_at": "2026-10-18T16:52:15.143368+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 1,
+      "status": "analyzed",
+      "created_at": "2026-10-18T16:36:53.036133+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+    }
+  ],
+  "version": {
+    "version": 4,
+    "input": {
+      "name": "Arduino LED 按钮反应时间小游戏",
+      "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+      "student_level": "beginner",
+      "language": "zh",
+      "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "status": "partial",
+    "analysis": {
+      "scope": "使用Arduino Uno、一个带限流电阻的LED和一个按钮制作低压反应时间小游戏。按钮采用INPUT_PULLUP接地，串口监视器显示提示和结果。游戏流程：按按钮开始一轮，随机等待2到5秒后点亮LED，亮灯后按按钮显示反应毫秒数；若等待期间按下则判为抢按，之后可再按按钮开始新一轮。全程必须能识别按钮，不得用delay阻塞随机等待；按钮需去抖，长按不能连续启动多轮。包含断电接线、LED极性、共地说明，不涉及市电、电机或继电器。",
+      "technical_plan": "使用Arduino Uno、一个LED（串联限流电阻）和一个按钮。按钮接法：一端接GND，另一端接D2引脚，使用pinMode(2, INPUT_PULLUP)。LED阳极经电阻接D9引脚，阴极接GND，注意极性和共地。程序采用非阻塞状态机：状态包括IDLE（等待开始）、WAITING（随机等待2-5秒）、LIGHT_ON（灯亮等待反应）、EARLY（抢按提示）。随机等待使用random(2000, 5001)获取毫秒数，配合millis()计时，不使用delay。按钮去抖采用稳定时间窗口：每5ms采样一次，连续4次（20ms）电平相同才确认状态变化，从去抖后的下降沿检测一次按下。主循环始终运行，不阻塞按钮采样。串口监视器9600波特率，显示提示和反应时间。",
+      "assumptions": [
+        "使用Arduino Uno和Arduino IDE，串口监视器波特率设为9600。",
+        "按钮和LED的引脚可修改，方案中默认按钮接D2、LED接D9。",
+        "随机等待范围2到5秒包含端点，程序使用random(2000, 5001)实现。",
+        "去抖参数（稳定采样次数和间隔）是可修改假设，默认每5ms采样一次，连续4次相同电平确认。",
+        "硬件接线为低压直流，不涉及市电、电机或继电器。",
+        "学生可更换开发板型号、引脚或去抖参数并重新生成方案。"
+      ],
+      "learner_profile": {
+        "student_level": "beginner",
+        "assumed_knowledge": [
+          "能在Arduino IDE中编写并上传简单程序",
+          "知道LED需要串联限流电阻并区分极性",
+          "了解Arduino基本数字输入输出函数"
+        ],
+        "adjustment_note": "你是初学者，假设你只做过点亮LED。如果实际经验不同，或想调整项目范围、硬件引脚和去抖参数，可以随时修改并重新生成学习方案。"
+      },
+      "functions": [
+        {
+          "id": "f1",
+          "name": "安全断电接线与LED/按钮电路搭建",
+          "original_requirement": "说明断电接线、LED极性和共地，不接市电、电机或继电器。按钮使用INPUT_PULLUP接地。",
+          "acceptance_criteria": "在断电状态下完成接线：LED阳极经限流电阻接D9，阴极接GND；按钮一端接GND，另一端接D2；所有地线共地；上电后LED不异常常亮，按钮可被读取；不接入市电、电机或继电器。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2",
+          "name": "按钮去抖与单次按下检测",
+          "original_requirement": "按钮需要去抖，长按不能连续启动多轮。",
+          "acceptance_criteria": "按住按钮不放时，串口只打印一次按下事件，不会连续触发开始；松开后再次按下可产生新事件。去抖采用稳定时间窗口，而非仅比较上次电平。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3",
+          "name": "非阻塞随机等待与提前按下判定",
+          "original_requirement": "随机等待2到5秒再亮LED；等待期间若提前按下则判抢按；全程仍能识别按钮，不能用delay阻塞随机等待。",
+          "acceptance_criteria": "在等待期间按下按钮，串口立即显示抢按提示；等待期间按钮检测正常，不因等待而丢失按下；到达随机时间后LED点亮。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4",
+          "name": "亮灯后测量并显示反应毫秒数",
+          "original_requirement": "亮灯后按按钮显示反应毫秒数。",
+          "acceptance_criteria": "LED点亮后按下按钮，串口显示反应时间（毫秒），数值为非负整数；按钮去抖后只记录第一次有效按下。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5",
+          "name": "抢按后开始新一轮",
+          "original_requirement": "等待期间若提前按下则判抢按，之后可按按钮开始新一轮。",
+          "acceptance_criteria": "抢按提示后，再次按下按钮可开始新一轮随机等待；长按不会连续启动多轮。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1",
+          "name": "Arduino低压电路安全接线与LED极性",
+          "description": "学习断电接线顺序、LED阳极阴极识别、限流电阻作用与共地连接，完成安全的上电前检查。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "正确接线是项目运行和安全的前提，避免LED损坏或短路。",
+          "learning_goal": "理解LED极性、限流电阻和共地的作用，能独立完成并检查低压接线。",
+          "technology": "Arduino",
+          "project_task": "在断电状态下将LED经电阻接D9，按钮一端接GND另一端接D2，确认所有地线共地。",
+          "concepts": [
+            "LED阳极阴极识别",
+            "限流电阻计算与连接",
+            "共地连接",
+            "断电接线检查"
+          ],
+          "practice_check": "上电后LED不异常常亮，按钮可被读取；用万用表检查GND连通。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+          "description": "学习pinMode(INPUT_PULLUP)配置内部上拉，用digitalRead读取按钮状态，并通过串口监视器打印状态变化。",
+          "function_ids": [
+            "f1",
+            "f2"
+          ],
+          "why_needed": "项目需要可靠读取按钮并观察去抖效果，串口是主要反馈工具。",
+          "learning_goal": "能配置内部上拉按钮，并在串口监视器中正确打印按钮原始状态。",
+          "technology": "Arduino",
+          "project_task": "编写程序读取D2按钮状态，并每100ms在串口监视器打印一次原始电平值。",
+          "concepts": [
+            "pinMode INPUT_PULLUP",
+            "digitalRead",
+            "Serial.begin与Serial.println",
+            "按钮按下为LOW"
+          ],
+          "practice_check": "串口监视器显示：未按时为1，按下时为0。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "按钮去抖的稳定时间窗口实现",
+          "description": "学习用millis()定时采样，连续多次电平一致才确认按钮状态变化，并检测从松开到按下的单次边沿。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "机械按钮会产生抖动，不处理会导致一次按下被误判为多次，长按也会连续触发。",
+          "learning_goal": "理解去抖需要稳定时间窗口而非仅比较上次电平，并能实现单次按下检测。",
+          "technology": "Arduino",
+          "project_task": "在程序中每5ms读取按钮，连续4次电平相同才更新稳定状态；在稳定状态从HIGH变为LOW时产生一次按下事件。",
+          "concepts": [
+            "millis()非阻塞定时采样",
+            "稳定时间窗口去抖",
+            "下降沿单次触发",
+            "长按不重复触发"
+          ],
+          "practice_check": "快速按下松开一次，串口只打印一次“按下”；按住不放3秒，也只打印一次；抖动时不会打印多次。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "非阻塞随机等待与millis计时",
+          "description": "学习用random()生成2到5秒的毫秒数，用millis()记录开始时间，在主循环中检查是否达到等待时间，避免delay阻塞。",
+          "function_ids": [
+            "f3"
+          ],
+          "why_needed": "随机等待期间仍需持续检测按钮，用delay会导致无法识别提前按下。",
+          "learning_goal": "理解非阻塞等待模式，能实现不冻结按钮检测的随机延时。",
+          "technology": "Arduino",
+          "project_task": "在等待状态中生成2000到5000毫秒的随机等待时长，用millis()比较已过时间，同时持续执行按钮去抖检测。",
+          "concepts": [
+            "random(2000, 5001)范围",
+            "millis()记录时间戳",
+            "非阻塞条件检查",
+            "状态变量控制流程"
+          ],
+          "practice_check": "等待期间按下按钮能立即被检测到，3次测试亮灯时间随机分布在2-5秒内且不阻塞。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "反应时间游戏状态机与主循环",
+          "description": "设计IDLE、WAITING、LIGHT_ON、EARLY四个状态的状态机，在loop中根据状态和按钮事件切换，LED亮灭与串口提示对应。",
+          "function_ids": [
+            "f3",
+            "f4",
+            "f5"
+          ],
+          "why_needed": "整合按钮事件、随机等待、抢按处理、反应计时和重新开始，需要清晰的状态管理。",
+          "learning_goal": "能将游戏规则转化为状态机，并在不阻塞主循环的前提下管理状态切换。",
+          "technology": "Arduino",
+          "project_task": "实现状态机：IDLE等待按钮，WAITING随机等待，LIGHT_ON记录反应并显示毫秒数，EARLY提示抢按后可再按开始。",
+          "concepts": [
+            "状态枚举或常量",
+            "switch-case状态切换",
+            "LED输出控制",
+            "反应时间计算：millis()差值"
+          ],
+          "practice_check": "完整流程可运行：按按钮→等待→亮灯→再按显示反应毫秒；等待中抢按显示提示，再按可开始新一轮。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3",
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": {
+      "confirmation_version": 4,
+      "confirmed_at": "2026-10-18T19:35:43.703285+00:00",
+      "selected_ids": [
+        "k1",
+        "k2",
+        "k3",
+        "k4",
+        "k5"
+      ],
+      "selections": {
+        "k1": "learn",
+        "k2": "learn",
+        "k3": "learn",
+        "k4": "learn",
+        "k5": "learn"
+      },
+      "acknowledged_skipped_prerequisites": [],
+      "analysis": {
+        "scope": "使用Arduino Uno、一个带限流电阻的LED和一个按钮制作低压反应时间小游戏。按钮采用INPUT_PULLUP接地，串口监视器显示提示和结果。游戏流程：按按钮开始一轮，随机等待2到5秒后点亮LED，亮灯后按按钮显示反应毫秒数；若等待期间按下则判为抢按，之后可再按按钮开始新一轮。全程必须能识别按钮，不得用delay阻塞随机等待；按钮需去抖，长按不能连续启动多轮。包含断电接线、LED极性、共地说明，不涉及市电、电机或继电器。",
+        "technical_plan": "使用Arduino Uno、一个LED（串联限流电阻）和一个按钮。按钮接法：一端接GND，另一端接D2引脚，使用pinMode(2, INPUT_PULLUP)。LED阳极经电阻接D9引脚，阴极接GND，注意极性和共地。程序采用非阻塞状态机：状态包括IDLE（等待开始）、WAITING（随机等待2-5秒）、LIGHT_ON（灯亮等待反应）、EARLY（抢按提示）。随机等待使用random(2000, 5001)获取毫秒数，配合millis()计时，不使用delay。按钮去抖采用稳定时间窗口：每5ms采样一次，连续4次（20ms）电平相同才确认状态变化，从去抖后的下降沿检测一次按下。主循环始终运行，不阻塞按钮采样。串口监视器9600波特率，显示提示和反应时间。",
+        "assumptions": [
+          "使用Arduino Uno和Arduino IDE，串口监视器波特率设为9600。",
+          "按钮和LED的引脚可修改，方案中默认按钮接D2、LED接D9。",
+          "随机等待范围2到5秒包含端点，程序使用random(2000, 5001)实现。",
+          "去抖参数（稳定采样次数和间隔）是可修改假设，默认每5ms采样一次，连续4次相同电平确认。",
+          "硬件接线为低压直流，不涉及市电、电机或继电器。",
+          "学生可更换开发板型号、引脚或去抖参数并重新生成方案。"
+        ],
+        "learner_profile": {
+          "student_level": "beginner",
+          "assumed_knowledge": [
+            "能在Arduino IDE中编写并上传简单程序",
+            "知道LED需要串联限流电阻并区分极性",
+            "了解Arduino基本数字输入输出函数"
+          ],
+          "adjustment_note": "你是初学者，假设你只做过点亮LED。如果实际经验不同，或想调整项目范围、硬件引脚和去抖参数，可以随时修改并重新生成学习方案。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "安全断电接线与LED/按钮电路搭建",
+            "original_requirement": "说明断电接线、LED极性和共地，不接市电、电机或继电器。按钮使用INPUT_PULLUP接地。",
+            "acceptance_criteria": "在断电状态下完成接线：LED阳极经限流电阻接D9，阴极接GND；按钮一端接GND，另一端接D2；所有地线共地；上电后LED不异常常亮，按钮可被读取；不接入市电、电机或继电器。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "按钮去抖与单次按下检测",
+            "original_requirement": "按钮需要去抖，长按不能连续启动多轮。",
+            "acceptance_criteria": "按住按钮不放时，串口只打印一次按下事件，不会连续触发开始；松开后再次按下可产生新事件。去抖采用稳定时间窗口，而非仅比较上次电平。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "非阻塞随机等待与提前按下判定",
+            "original_requirement": "随机等待2到5秒再亮LED；等待期间若提前按下则判抢按；全程仍能识别按钮，不能用delay阻塞随机等待。",
+            "acceptance_criteria": "在等待期间按下按钮，串口立即显示抢按提示；等待期间按钮检测正常，不因等待而丢失按下；到达随机时间后LED点亮。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "亮灯后测量并显示反应毫秒数",
+            "original_requirement": "亮灯后按按钮显示反应毫秒数。",
+            "acceptance_criteria": "LED点亮后按下按钮，串口显示反应时间（毫秒），数值为非负整数；按钮去抖后只记录第一次有效按下。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "抢按后开始新一轮",
+            "original_requirement": "等待期间若提前按下则判抢按，之后可按按钮开始新一轮。",
+            "acceptance_criteria": "抢按提示后，再次按下按钮可开始新一轮随机等待；长按不会连续启动多轮。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "Arduino低压电路安全接线与LED极性",
+            "description": "学习断电接线顺序、LED阳极阴极识别、限流电阻作用与共地连接，完成安全的上电前检查。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "正确接线是项目运行和安全的前提，避免LED损坏或短路。",
+            "learning_goal": "理解LED极性、限流电阻和共地的作用，能独立完成并检查低压接线。",
+            "technology": "Arduino",
+            "project_task": "在断电状态下将LED经电阻接D9，按钮一端接GND另一端接D2，确认所有地线共地。",
+            "concepts": [
+              "LED阳极阴极识别",
+              "限流电阻计算与连接",
+              "共地连接",
+              "断电接线检查"
+            ],
+            "practice_check": "上电后LED不异常常亮，按钮可被读取；用万用表检查GND连通。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+            "description": "学习pinMode(INPUT_PULLUP)配置内部上拉，用digitalRead读取按钮状态，并通过串口监视器打印状态变化。",
+            "function_ids": [
+              "f1",
+              "f2"
+            ],
+            "why_needed": "项目需要可靠读取按钮并观察去抖效果，串口是主要反馈工具。",
+            "learning_goal": "能配置内部上拉按钮，并在串口监视器中正确打印按钮原始状态。",
+            "technology": "Arduino",
+            "project_task": "编写程序读取D2按钮状态，并每100ms在串口监视器打印一次原始电平值。",
+            "concepts": [
+              "pinMode INPUT_PULLUP",
+              "digitalRead",
+              "Serial.begin与Serial.println",
+              "按钮按下为LOW"
+            ],
+            "practice_check": "串口监视器显示：未按时为1，按下时为0。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "按钮去抖的稳定时间窗口实现",
+            "description": "学习用millis()定时采样，连续多次电平一致才确认按钮状态变化，并检测从松开到按下的单次边沿。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "机械按钮会产生抖动，不处理会导致一次按下被误判为多次，长按也会连续触发。",
+            "learning_goal": "理解去抖需要稳定时间窗口而非仅比较上次电平，并能实现单次按下检测。",
+            "technology": "Arduino",
+            "project_task": "在程序中每5ms读取按钮，连续4次电平相同才更新稳定状态；在稳定状态从HIGH变为LOW时产生一次按下事件。",
+            "concepts": [
+              "millis()非阻塞定时采样",
+              "稳定时间窗口去抖",
+              "下降沿单次触发",
+              "长按不重复触发"
+            ],
+            "practice_check": "快速按下松开一次，串口只打印一次“按下”；按住不放3秒，也只打印一次；抖动时不会打印多次。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "非阻塞随机等待与millis计时",
+            "description": "学习用random()生成2到5秒的毫秒数，用millis()记录开始时间，在主循环中检查是否达到等待时间，避免delay阻塞。",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "随机等待期间仍需持续检测按钮，用delay会导致无法识别提前按下。",
+            "learning_goal": "理解非阻塞等待模式，能实现不冻结按钮检测的随机延时。",
+            "technology": "Arduino",
+            "project_task": "在等待状态中生成2000到5000毫秒的随机等待时长，用millis()比较已过时间，同时持续执行按钮去抖检测。",
+            "concepts": [
+              "random(2000, 5001)范围",
+              "millis()记录时间戳",
+              "非阻塞条件检查",
+              "状态变量控制流程"
+            ],
+            "practice_check": "等待期间按下按钮能立即被检测到，3次测试亮灯时间随机分布在2-5秒内且不阻塞。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "反应时间游戏状态机与主循环",
+            "description": "设计IDLE、WAITING、LIGHT_ON、EARLY四个状态的状态机，在loop中根据状态和按钮事件切换，LED亮灭与串口提示对应。",
+            "function_ids": [
+              "f3",
+              "f4",
+              "f5"
+            ],
+            "why_needed": "整合按钮事件、随机等待、抢按处理、反应计时和重新开始，需要清晰的状态管理。",
+            "learning_goal": "能将游戏规则转化为状态机，并在不阻塞主循环的前提下管理状态切换。",
+            "technology": "Arduino",
+            "project_task": "实现状态机：IDLE等待按钮，WAITING随机等待，LIGHT_ON记录反应并显示毫秒数，EARLY提示抢按后可再按开始。",
+            "concepts": [
+              "状态枚举或常量",
+              "switch-case状态切换",
+              "LED输出控制",
+              "反应时间计算：millis()差值"
+            ],
+            "practice_check": "完整流程可运行：按按钮→等待→亮灯→再按显示反应毫秒；等待中抢按显示提示，再按可开始新一轮。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3",
+              "k4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          }
+        ]
+      },
+      "input": {
+        "name": "Arduino LED 按钮反应时间小游戏",
+        "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      }
+    },
+    "batches": [
+      {
+        "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v4-b1",
+        "ordinal": 1,
+        "project_knowledge_point_ids": [
+          "k1",
+          "k2",
+          "k3",
+          "k4",
+          "k5"
+        ],
+        "status": "partial",
+        "job_id": "f9cb2504-216f-4351-b644-b217d7902f02",
+        "mappings": [
+          {
+            "project_knowledge_point_id": "k1",
+            "knowledge_point_id": "442879c4-9b7d-4103-a53f-a581d8deb131"
+          },
+          {
+            "project_knowledge_point_id": "k2",
+            "knowledge_point_id": "de12099e-45d1-449b-b7db-c2927d4a1d68"
+          },
+          {
+            "project_knowledge_point_id": "k3",
+            "knowledge_point_id": "8819c618-f42d-44a3-ad01-1a60d4e6c372"
+          },
+          {
+            "project_knowledge_point_id": "k4",
+            "knowledge_point_id": "548308a0-d1d3-4df7-a695-1e82ad50669d"
+          },
+          {
+            "project_knowledge_point_id": "k5",
+            "knowledge_point_id": "05e2f1e5-1ed4-46ab-9c6c-a934cc8f0115"
+          }
+        ],
+        "error": null,
+        "reused": false,
+        "job_status": "partial",
+        "progress": {
+          "queries_planned": 30,
+          "queries_completed": 20,
+          "search_requests": 30,
+          "search_successes": 20,
+          "search_failures": 0,
+          "candidates_discovered": 120,
+          "resources_discovered": 91,
+          "details_attempted": 11,
+          "details_completed": 11,
+          "details_cached": 20,
+          "cache_hits": 20,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0
+        },
+        "warnings": [
+          "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+          "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+          "部分公开目录页未完成补全，已保存主页证据；目录状态与失败原因可在资源详情查看",
+          "62 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "5 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "errors": []
+      }
+    ],
+    "budgets": {
+      "batch_size": 5,
+      "batch_count": 1,
+      "selected_count": 5,
+      "reserved_search_requests": 30,
+      "reserved_detail_pages": 40,
+      "reserved_task_seconds": 240,
+      "max_batches": 6,
+      "max_search_requests": 180,
+      "max_detail_pages": 240,
+      "deadline_seconds": 1800,
+      "per_batch_search_requests": 30,
+      "per_batch_deadline_seconds": 240,
+      "per_batch_detail_pages": 40,
+      "actual_search_requests": 30,
+      "actual_detail_pages": 11
+    },
+    "error": null,
+    "warnings": [],
+    "created_at": "2026-10-18T19:29:34.571039+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+    "origin": "student_edit",
+    "search_started_at": "2026-10-18T19:35:43.719038+00:00",
+    "cancel_requested": false,
+    "parent_version": 3,
+    "updated_at": "2026-10-18T19:37:10.444457+00:00"
+  },
+  "points": [
+    {
+      "project_knowledge_point_id": "k1",
+      "name": "Arduino低压电路安全接线与LED极性",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v4-b1",
+      "job_id": "f9cb2504-216f-4351-b644-b217d7902f02",
+      "knowledge_point_id": "442879c4-9b7d-4103-a53f-a581d8deb131",
+      "result": {
+        "knowledge_point_id": "442879c4-9b7d-4103-a53f-a581d8deb131",
+        "text": "Arduino 低压电路安全接线与LED极性",
+        "learning_targets": [
+          "LED阳极阴极识别",
+          "限流电阻计算与连接",
+          "共地连接",
+          "断电接线检查"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "unknown",
+          "shared_context": [],
+          "subtopics": [
+            {
+              "id": "whole_topic",
+              "text": "Arduino 低压电路安全接线与LED极性",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "LED阳极阴极识别",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "限流电阻计算与连接",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "共地连接",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "断电接线检查",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k2",
+      "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v4-b1",
+      "job_id": "f9cb2504-216f-4351-b644-b217d7902f02",
+      "knowledge_point_id": "de12099e-45d1-449b-b7db-c2927d4a1d68",
+      "result": {
+        "knowledge_point_id": "de12099e-45d1-449b-b7db-c2927d4a1d68",
+        "text": "Arduino 按钮INPUT_PULLUP与串口监视器调试",
+        "learning_targets": [
+          "pinMode INPUT_PULLUP",
+          "digitalRead",
+          "Serial.begin与Serial.println",
+          "按钮按下为LOW"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 1,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [
+          {
+            "resource": {
+              "resource_id": "res_6c6304ef61575d3522e75330",
+              "title": "5_arduino_串口监视器_调试程序",
+              "url": "https://www.bilibili.com/video/BV1MisozpEm2/?uid=4256314D69736F7A70456D32",
+              "canonical_url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+              "resolved_url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "page_verified",
+              "author": "AniPython",
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "evidence_ids": [
+                  "ev_fcfc70b4-d783-4f21-9eef-0211ff1097b6"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "5_arduino_串口监视器_调试程序, 视频播放量 2307、弹幕量 0、点赞数 11、投硬币枚数 2、收藏人数 21、转发人数 6, 视频作者 AniPython, 作者简介 原创动画可视化Python视频教学和在线接单，相关视频：2_quad_四足机器人安装，蓝牙模块&蓝牙串口小程序 使用教程，微雪 ESP32 Arduino 入门教程 01 | 认识 ESP32 和配置 Arduino 开发环境，小智 AI 无线语音遥控 ESP32 四足机器人 MCP 接入点方式，让AI自己编译、烧录、看串口、抓HardFault！我开源了一套STM32全自动调试工具链，【Arduino项目】手把手教你制作天气时钟（ESP8266 OLED版），STM32手表教程（全网最详细!)，ESP32S3+ESPIDF入门教程 程序纯手打 手把手教学 中文字幕 持续更新中，STM32单片机+DHT11温湿度传感器+OLED屏幕+蜂鸣器报警+温湿度数据发送到串口调试助手+源代码，串口调试助手使用教程简介",
+              "video_topic_summary": null,
+              "thumbnail_url": "http://i1.hdslb.com/bfs/archive/825af616689c7fd6ab4faef4dcdd58027a89daa3.jpg",
+              "language": "zh-Hans",
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T19:35:58.456118+00:00",
+              "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+              "fetch_status": "fetched",
+              "metadata_evidence_level": "catalog",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [
+                {
+                  "title": "5_arduino_串口监视器_调试程序",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/?p=1",
+                  "start_seconds": null,
+                  "end_seconds": null,
+                  "source_url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "duration_seconds": 222,
+                  "page_number": 1,
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "evidence_id": "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+                }
+              ],
+              "catalog_kind": "video_parts",
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                  "source": "html.bilibili.video_title",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                },
+                "url": {
+                  "evidence_id": "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/?uid=4256314D69736F7A70456D32"
+                },
+                "description": {
+                  "evidence_id": "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                  "source": "meta.og:description",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_e7492209-fdc1-428a-8ad5-c4d2d5d26bf3",
+                  "source": "meta.og:type",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_fcfc70b4-d783-4f21-9eef-0211ff1097b6",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_d5408226-d99f-46f6-a737-86cfcaa6e70a",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                },
+                "author": {
+                  "evidence_id": "ev_2034860d-a703-4c90-b451-594297cf88d1",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                },
+                "language": {
+                  "evidence_id": "ev_1e440b4c-2315-4b03-a463-f6c97603d368",
+                  "source": "html.lang",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                },
+                "chapters": {
+                  "evidence_id": "ev_69a0c0fa-a9f7-4b90-9eed-7016e7382f2d",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                }
+              },
+              "cache": {
+                "hit": true,
+                "stale": false,
+                "cached_at": "2026-10-18T18:48:37.767109+00:00"
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "de12099e-45d1-449b-b7db-c2927d4a1d68",
+              "resource_id": "res_6c6304ef61575d3522e75330",
+              "ranking_score": 53.67,
+              "recommendation_reason": "与“Arduino 按钮INPUT_PULLUP与串口监视器调试”相关：已有来源证据：串口监视器调试。尚未确认：按钮INPUT_PULLUP、pinMode INPUT_PULLUP、digitalRead、Serial.begin与Serial.println。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+              "matched_evidence_ids": [
+                "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                "ev_6f223225-47e9-45f1-ad91-c86c10645739",
+                "ev_69a0c0fa-a9f7-4b90-9eed-7016e7382f2d"
+              ],
+              "coverage_basis": [
+                "title",
+                "snippet",
+                "description",
+                "catalog"
+              ],
+              "topic_match_rules": [
+                "search_related_recommendations_excluded",
+                "page_related_recommendations_excluded"
+              ],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                    "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                    "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                    "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "subtopic_1",
+                  "text": "按钮INPUT_PULLUP",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                },
+                {
+                  "id": "subtopic_2",
+                  "text": "串口监视器调试",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                    "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                    "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                    "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+                  ],
+                  "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "pinMode INPUT_PULLUP",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "digitalRead",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "Serial.begin与Serial.println",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_4",
+                  "text": "按钮按下为LOW",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                "candidate_id": "64502265533da0f3f29055a7",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "de12099e-45d1-449b-b7db-c2927d4a1d68",
+                "query": "site:bilibili.com/video Arduino 按钮INPUT_PULLUP与串口监视器调试 视频教程",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/?uid=4256314D69736F7A70456D32",
+                "title": "5_arduino_串口监视器_调试程序",
+                "snippet": "5_arduino_串口监视器_调试程序, 视频播放量 791、弹幕量 0、点赞数 6、投硬币枚数 0、收藏人数 9、转发人数 2, 视频作者 AniPython, 作者简介 原创动画可视化Python视频教学和在线接单，相关视频：STM32单片机+DHT11温湿度传感器+OLED屏幕+面包板+串口调试助手+源码 ...",
+                "observed_at": "2026-10-18T19:35:58.456118+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.ySsx5zOeGVW40eYn5mU1tgEsCo?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              },
+              {
+                "id": "ev_39e6927a48ff8be14058",
+                "evidence_id": "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "field": "title",
+                "source": "html.bilibili.video_title",
+                "text": "5_arduino_串口监视器_调试程序",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                }
+              },
+              {
+                "id": "ev_b8aa1c775ef4d1358e6f",
+                "evidence_id": "ev_d5408226-d99f-46f6-a737-86cfcaa6e70a",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "field": "thumbnail_url",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                "text": "http://i1.hdslb.com/bfs/archive/825af616689c7fd6ab4faef4dcdd58027a89daa3.jpg",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                }
+              },
+              {
+                "id": "ev_95b1d1414a3765658be1",
+                "evidence_id": "ev_2034860d-a703-4c90-b451-594297cf88d1",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "field": "author",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                "text": "AniPython",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                }
+              },
+              {
+                "id": "ev_eddb1db95b913a545552",
+                "evidence_id": "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "field": "description",
+                "source": "meta.og:description",
+                "text": "5_arduino_串口监视器_调试程序, 视频播放量 2307、弹幕量 0、点赞数 11、投硬币枚数 2、收藏人数 21、转发人数 6, 视频作者 AniPython, 作者简介 原创动画可视化Python视频教学和在线接单，相关视频：2_quad_四足机器人安装，蓝牙模块&蓝牙串口小程序 使用教程，微雪 ESP32 Arduino 入门教程 01 | 认识 ESP32 和配置 Arduino 开发环境，小智 AI 无线语音遥控 ESP32 四足机器人 MCP 接入点方式，让AI自己编译、烧录、看串口、抓HardFault！我开源了一套STM32全自动调试工具链，【Arduino项目】手把手教你制作天气时钟（ESP8266 OLED版），STM32手表教程（全网最详细!)，ESP32S3+ESPIDF入门教程 程序纯手打 手把手教学 中文字幕 持续更新中，STM32单片机+DHT11温湿度传感器+OLED屏幕+蜂鸣器报警+温湿度数据发送到串口调试助手+源代码，串口调试助手使用教程简介",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                }
+              },
+              {
+                "id": "ev_67915993db8eb2836758",
+                "evidence_id": "ev_1e440b4c-2315-4b03-a463-f6c97603d368",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "field": "language",
+                "source": "html.lang",
+                "text": "zh-Hans",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                }
+              },
+              {
+                "id": "ev_bf342c8e5ef3bae0e744",
+                "evidence_id": "ev_e7492209-fdc1-428a-8ad5-c4d2d5d26bf3",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "field": "resource_type",
+                "source": "meta.og:type",
+                "text": "video",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                }
+              },
+              {
+                "id": "ev_3bf9a92aa440d81b7025",
+                "evidence_id": "ev_fcfc70b4-d783-4f21-9eef-0211ff1097b6",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "field": "video_evidence_status",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                }
+              },
+              {
+                "id": "ev_4925d442042e76e38237",
+                "evidence_id": "ev_6f223225-47e9-45f1-ad91-c86c10645739",
+                "kind": "catalog",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "field": "chapters.0",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "text": "{\"duration_seconds\": 222, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1MisozpEm2/\", \"start_seconds\": null, \"title\": \"5_arduino_串口监视器_调试程序\", \"url\": \"https://www.bilibili.com/video/BV1MisozpEm2/?p=1\"}",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                }
+              },
+              {
+                "id": "ev_bf01400a3d59c463d374",
+                "evidence_id": "ev_69a0c0fa-a9f7-4b90-9eed-7016e7382f2d",
+                "kind": "catalog",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "field": "chapters",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "text": "[{'title': '5_arduino_串口监视器_调试程序', 'url': 'https://www.bilibili.com/video/BV1MisozpEm2/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV1MisozpEm2/', 'duration_seconds': 222, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_4925d442042e76e38237'}]",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                }
+              }
+            ]
+          }
+        ],
+        "partial_platform_items": {
+          "bilibili": [
+            {
+              "resource": {
+                "resource_id": "res_6c6304ef61575d3522e75330",
+                "title": "5_arduino_串口监视器_调试程序",
+                "url": "https://www.bilibili.com/video/BV1MisozpEm2/?uid=4256314D69736F7A70456D32",
+                "canonical_url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "resolved_url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "page_verified",
+                "author": "AniPython",
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "evidence_ids": [
+                    "ev_fcfc70b4-d783-4f21-9eef-0211ff1097b6"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "5_arduino_串口监视器_调试程序, 视频播放量 2307、弹幕量 0、点赞数 11、投硬币枚数 2、收藏人数 21、转发人数 6, 视频作者 AniPython, 作者简介 原创动画可视化Python视频教学和在线接单，相关视频：2_quad_四足机器人安装，蓝牙模块&蓝牙串口小程序 使用教程，微雪 ESP32 Arduino 入门教程 01 | 认识 ESP32 和配置 Arduino 开发环境，小智 AI 无线语音遥控 ESP32 四足机器人 MCP 接入点方式，让AI自己编译、烧录、看串口、抓HardFault！我开源了一套STM32全自动调试工具链，【Arduino项目】手把手教你制作天气时钟（ESP8266 OLED版），STM32手表教程（全网最详细!)，ESP32S3+ESPIDF入门教程 程序纯手打 手把手教学 中文字幕 持续更新中，STM32单片机+DHT11温湿度传感器+OLED屏幕+蜂鸣器报警+温湿度数据发送到串口调试助手+源代码，串口调试助手使用教程简介",
+                "video_topic_summary": null,
+                "thumbnail_url": "http://i1.hdslb.com/bfs/archive/825af616689c7fd6ab4faef4dcdd58027a89daa3.jpg",
+                "language": "zh-Hans",
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T19:35:58.456118+00:00",
+                "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                "fetch_status": "fetched",
+                "metadata_evidence_level": "catalog",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [
+                  {
+                    "title": "5_arduino_串口监视器_调试程序",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/?p=1",
+                    "start_seconds": null,
+                    "end_seconds": null,
+                    "source_url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                    "duration_seconds": 222,
+                    "page_number": 1,
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                    "evidence_id": "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+                  }
+                ],
+                "catalog_kind": "video_parts",
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                    "source": "html.bilibili.video_title",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                    "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                  },
+                  "url": {
+                    "evidence_id": "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/?uid=4256314D69736F7A70456D32"
+                  },
+                  "description": {
+                    "evidence_id": "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                    "source": "meta.og:description",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                    "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_e7492209-fdc1-428a-8ad5-c4d2d5d26bf3",
+                    "source": "meta.og:type",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                    "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_fcfc70b4-d783-4f21-9eef-0211ff1097b6",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                    "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_d5408226-d99f-46f6-a737-86cfcaa6e70a",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                    "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                  },
+                  "author": {
+                    "evidence_id": "ev_2034860d-a703-4c90-b451-594297cf88d1",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                    "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                  },
+                  "language": {
+                    "evidence_id": "ev_1e440b4c-2315-4b03-a463-f6c97603d368",
+                    "source": "html.lang",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                    "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                  },
+                  "chapters": {
+                    "evidence_id": "ev_69a0c0fa-a9f7-4b90-9eed-7016e7382f2d",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                    "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                    "fetched_at": "2026-10-18T18:48:37.730659+00:00"
+                  }
+                },
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "de12099e-45d1-449b-b7db-c2927d4a1d68",
+                "resource_id": "res_6c6304ef61575d3522e75330",
+                "ranking_score": 53.67,
+                "recommendation_reason": "与“Arduino 按钮INPUT_PULLUP与串口监视器调试”相关：已有来源证据：串口监视器调试。尚未确认：按钮INPUT_PULLUP、pinMode INPUT_PULLUP、digitalRead、Serial.begin与Serial.println。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+                "matched_evidence_ids": [
+                  "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                  "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                  "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                  "ev_6f223225-47e9-45f1-ad91-c86c10645739",
+                  "ev_69a0c0fa-a9f7-4b90-9eed-7016e7382f2d"
+                ],
+                "coverage_basis": [
+                  "title",
+                  "snippet",
+                  "description",
+                  "catalog"
+                ],
+                "topic_match_rules": [
+                  "search_related_recommendations_excluded",
+                  "page_related_recommendations_excluded"
+                ],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                      "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                      "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                      "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                  "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                  "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                  "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "subtopic_1",
+                    "text": "按钮INPUT_PULLUP",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "当前资源自身的观察未同时证明共同技术上下文和这一子项。"
+                  },
+                  {
+                    "id": "subtopic_2",
+                    "text": "串口监视器调试",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                      "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                      "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                      "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+                    ],
+                    "reason": "同一条观察明确包含共同技术上下文和该子项。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "pinMode INPUT_PULLUP",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "digitalRead",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "Serial.begin与Serial.println",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_4",
+                    "text": "按钮按下为LOW",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                  "candidate_id": "64502265533da0f3f29055a7",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "de12099e-45d1-449b-b7db-c2927d4a1d68",
+                  "query": "site:bilibili.com/video Arduino 按钮INPUT_PULLUP与串口监视器调试 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/?uid=4256314D69736F7A70456D32",
+                  "title": "5_arduino_串口监视器_调试程序",
+                  "snippet": "5_arduino_串口监视器_调试程序, 视频播放量 791、弹幕量 0、点赞数 6、投硬币枚数 0、收藏人数 9、转发人数 2, 视频作者 AniPython, 作者简介 原创动画可视化Python视频教学和在线接单，相关视频：STM32单片机+DHT11温湿度传感器+OLED屏幕+面包板+串口调试助手+源码 ...",
+                  "observed_at": "2026-10-18T19:35:58.456118+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.ySsx5zOeGVW40eYn5mU1tgEsCo?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                },
+                {
+                  "id": "ev_39e6927a48ff8be14058",
+                  "evidence_id": "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "field": "title",
+                  "source": "html.bilibili.video_title",
+                  "text": "5_arduino_串口监视器_调试程序",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                  "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                  }
+                },
+                {
+                  "id": "ev_b8aa1c775ef4d1358e6f",
+                  "evidence_id": "ev_d5408226-d99f-46f6-a737-86cfcaa6e70a",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "field": "thumbnail_url",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                  "text": "http://i1.hdslb.com/bfs/archive/825af616689c7fd6ab4faef4dcdd58027a89daa3.jpg",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                  "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                  }
+                },
+                {
+                  "id": "ev_95b1d1414a3765658be1",
+                  "evidence_id": "ev_2034860d-a703-4c90-b451-594297cf88d1",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "field": "author",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                  "text": "AniPython",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                  "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                  }
+                },
+                {
+                  "id": "ev_eddb1db95b913a545552",
+                  "evidence_id": "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "field": "description",
+                  "source": "meta.og:description",
+                  "text": "5_arduino_串口监视器_调试程序, 视频播放量 2307、弹幕量 0、点赞数 11、投硬币枚数 2、收藏人数 21、转发人数 6, 视频作者 AniPython, 作者简介 原创动画可视化Python视频教学和在线接单，相关视频：2_quad_四足机器人安装，蓝牙模块&蓝牙串口小程序 使用教程，微雪 ESP32 Arduino 入门教程 01 | 认识 ESP32 和配置 Arduino 开发环境，小智 AI 无线语音遥控 ESP32 四足机器人 MCP 接入点方式，让AI自己编译、烧录、看串口、抓HardFault！我开源了一套STM32全自动调试工具链，【Arduino项目】手把手教你制作天气时钟（ESP8266 OLED版），STM32手表教程（全网最详细!)，ESP32S3+ESPIDF入门教程 程序纯手打 手把手教学 中文字幕 持续更新中，STM32单片机+DHT11温湿度传感器+OLED屏幕+蜂鸣器报警+温湿度数据发送到串口调试助手+源代码，串口调试助手使用教程简介",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                  "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                  }
+                },
+                {
+                  "id": "ev_67915993db8eb2836758",
+                  "evidence_id": "ev_1e440b4c-2315-4b03-a463-f6c97603d368",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "field": "language",
+                  "source": "html.lang",
+                  "text": "zh-Hans",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                  "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                  }
+                },
+                {
+                  "id": "ev_bf342c8e5ef3bae0e744",
+                  "evidence_id": "ev_e7492209-fdc1-428a-8ad5-c4d2d5d26bf3",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "field": "resource_type",
+                  "source": "meta.og:type",
+                  "text": "video",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                  "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                  }
+                },
+                {
+                  "id": "ev_3bf9a92aa440d81b7025",
+                  "evidence_id": "ev_fcfc70b4-d783-4f21-9eef-0211ff1097b6",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "field": "video_evidence_status",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                  "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                  "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                  }
+                },
+                {
+                  "id": "ev_4925d442042e76e38237",
+                  "evidence_id": "ev_6f223225-47e9-45f1-ad91-c86c10645739",
+                  "kind": "catalog",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "field": "chapters.0",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "text": "{\"duration_seconds\": 222, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1MisozpEm2/\", \"start_seconds\": null, \"title\": \"5_arduino_串口监视器_调试程序\", \"url\": \"https://www.bilibili.com/video/BV1MisozpEm2/?p=1\"}",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                  "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                  }
+                },
+                {
+                  "id": "ev_bf01400a3d59c463d374",
+                  "evidence_id": "ev_69a0c0fa-a9f7-4b90-9eed-7016e7382f2d",
+                  "kind": "catalog",
+                  "url": "https://www.bilibili.com/video/BV1MisozpEm2/",
+                  "field": "chapters",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "text": "[{'title': '5_arduino_串口监视器_调试程序', 'url': 'https://www.bilibili.com/video/BV1MisozpEm2/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV1MisozpEm2/', 'duration_seconds': 222, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_4925d442042e76e38237'}]",
+                  "fetched_at": "2026-10-18T18:48:37.730659+00:00",
+                  "observed_at": "2026-10-18T18:48:37.730659+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T18:48:37.767109+00:00"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "Arduino"
+          ],
+          "subtopics": [
+            {
+              "id": "subtopic_1",
+              "text": "按钮INPUT_PULLUP",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "subtopic_2",
+              "text": "串口监视器调试",
+              "status": "supported",
+              "resource_ids": [
+                "res_6c6304ef61575d3522e75330"
+              ],
+              "evidence_ids": [
+                "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+              ]
+            },
+            {
+              "id": "learning_target_1",
+              "text": "pinMode INPUT_PULLUP",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "digitalRead",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "Serial.begin与Serial.println",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "按钮按下为LOW",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "some_subtopics_supported",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {
+          "bilibili": {
+            "decomposition_status": "applied",
+            "shared_context": [
+              "Arduino"
+            ],
+            "subtopics": [
+              {
+                "id": "subtopic_1",
+                "text": "按钮INPUT_PULLUP",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "subtopic_2",
+                "text": "串口监视器调试",
+                "status": "supported",
+                "resource_ids": [
+                  "res_6c6304ef61575d3522e75330"
+                ],
+                "evidence_ids": [
+                  "ev_ac88449e-34dd-4991-9865-a7696445f88e",
+                  "ev_9e4d4027-ebd8-42de-99dc-11fd6b85b294",
+                  "ev_6b6faec5-9ce2-489c-b61c-ce806f841294",
+                  "ev_6f223225-47e9-45f1-ad91-c86c10645739"
+                ]
+              },
+              {
+                "id": "learning_target_1",
+                "text": "pinMode INPUT_PULLUP",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_2",
+                "text": "digitalRead",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_3",
+                "text": "Serial.begin与Serial.println",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_4",
+                "text": "按钮按下为LOW",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              }
+            ],
+            "status": "some_subtopics_supported",
+            "single_resource_full_coverage": false,
+            "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+          }
+        }
+      }
+    },
+    {
+      "project_knowledge_point_id": "k3",
+      "name": "按钮去抖的稳定时间窗口实现",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v4-b1",
+      "job_id": "f9cb2504-216f-4351-b644-b217d7902f02",
+      "knowledge_point_id": "8819c618-f42d-44a3-ad01-1a60d4e6c372",
+      "result": {
+        "knowledge_point_id": "8819c618-f42d-44a3-ad01-1a60d4e6c372",
+        "text": "Arduino 按钮去抖的稳定时间窗口实现",
+        "learning_targets": [
+          "millis()非阻塞定时采样",
+          "稳定时间窗口去抖",
+          "下降沿单次触发",
+          "长按不重复触发"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "not_applicable",
+          "shared_context": [],
+          "subtopics": [
+            {
+              "id": "whole_topic",
+              "text": "Arduino 按钮去抖的稳定时间窗口实现",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "millis()非阻塞定时采样",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "稳定时间窗口去抖",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "下降沿单次触发",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "长按不重复触发",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k4",
+      "name": "非阻塞随机等待与millis计时",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v4-b1",
+      "job_id": "f9cb2504-216f-4351-b644-b217d7902f02",
+      "knowledge_point_id": "548308a0-d1d3-4df7-a695-1e82ad50669d",
+      "result": {
+        "knowledge_point_id": "548308a0-d1d3-4df7-a695-1e82ad50669d",
+        "text": "Arduino 非阻塞随机等待与millis计时",
+        "learning_targets": [
+          "random(2000, 5001)范围",
+          "millis()记录时间戳",
+          "非阻塞条件检查",
+          "状态变量控制流程"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "unknown",
+          "shared_context": [],
+          "subtopics": [
+            {
+              "id": "whole_topic",
+              "text": "Arduino 非阻塞随机等待与millis计时",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "random(2000, 5001)范围",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "millis()记录时间戳",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "非阻塞条件检查",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "状态变量控制流程",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k5",
+      "name": "反应时间游戏状态机与主循环",
+      "selection": "learn",
+      "status": "partial",
+      "batch_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45-v4-b1",
+      "job_id": "f9cb2504-216f-4351-b644-b217d7902f02",
+      "knowledge_point_id": "05e2f1e5-1ed4-46ab-9c6c-a934cc8f0115",
+      "result": {
+        "knowledge_point_id": "05e2f1e5-1ed4-46ab-9c6c-a934cc8f0115",
+        "text": "Arduino 反应时间游戏状态机与主循环",
+        "learning_targets": [
+          "状态枚举或常量",
+          "switch-case状态切换",
+          "LED输出控制",
+          "反应时间计算：millis()差值"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "Arduino"
+          ],
+          "subtopics": [
+            {
+              "id": "subtopic_1",
+              "text": "反应时间游戏状态机",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "subtopic_2",
+              "text": "主循环",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "状态枚举或常量",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "switch-case状态切换",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "LED输出控制",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "反应时间计算：millis()差值",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    }
+  ],
+  "functions": [
+    {
+      "id": "f1",
+      "name": "安全断电接线与LED/按钮电路搭建",
+      "original_requirement": "说明断电接线、LED极性和共地，不接市电、电机或继电器。按钮使用INPUT_PULLUP接地。",
+      "acceptance_criteria": "在断电状态下完成接线：LED阳极经限流电阻接D9，阴极接GND；按钮一端接GND，另一端接D2；所有地线共地；上电后LED不异常常亮，按钮可被读取；不接入市电、电机或继电器。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f2",
+      "name": "按钮去抖与单次按下检测",
+      "original_requirement": "按钮需要去抖，长按不能连续启动多轮。",
+      "acceptance_criteria": "按住按钮不放时，串口只打印一次按下事件，不会连续触发开始；松开后再次按下可产生新事件。去抖采用稳定时间窗口，而非仅比较上次电平。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f3",
+      "name": "非阻塞随机等待与提前按下判定",
+      "original_requirement": "随机等待2到5秒再亮LED；等待期间若提前按下则判抢按；全程仍能识别按钮，不能用delay阻塞随机等待。",
+      "acceptance_criteria": "在等待期间按下按钮，串口立即显示抢按提示；等待期间按钮检测正常，不因等待而丢失按下；到达随机时间后LED点亮。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f4",
+      "name": "亮灯后测量并显示反应毫秒数",
+      "original_requirement": "亮灯后按按钮显示反应毫秒数。",
+      "acceptance_criteria": "LED点亮后按下按钮，串口显示反应时间（毫秒），数值为非负整数；按钮去抖后只记录第一次有效按下。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f5",
+      "name": "抢按后开始新一轮",
+      "original_requirement": "等待期间若提前按下则判抢按，之后可按按钮开始新一轮。",
+      "acceptance_criteria": "抢按提示后，再次按下按钮可开始新一轮随机等待；长按不会连续启动多轮。",
+      "no_new_learning_reason": null
+    }
+  ]
+}

@@ -1,0 +1,580 @@
+{
+  "reviewed_at": "2026-10-18T16:56:12.569274+00:00",
+  "mode": "independent_static_v26_manual_review",
+  "network_requests": 0,
+  "provider_requests": 0,
+  "production_code_changed": false,
+  "fixed_requirement_total": 24,
+  "assessed_requirements": 11,
+  "unassessed_requirements": 13,
+  "assessed_requirement_passes": 11,
+  "cohort_acceptance_pass": false,
+  "accepted_output_semantic_pass": true,
+  "case_reviews": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "version": 2,
+      "api_status": "analysis_failed",
+      "review_type": "unavailable_accepted_output",
+      "verdict": "analysis_generation_failed_not_reviewable",
+      "error": {
+        "code": "schema",
+        "message": "项目分析结构校验失败，有限修正仍未通过。原始输入已保留，请调整需求后重试。"
+      },
+      "requirements": [],
+      "unassessed_requirements": [
+        {
+          "id": "w1",
+          "requirement": "Show phase, 25/5 duration, formatted remaining time and count"
+        },
+        {
+          "id": "w2",
+          "requirement": "Start, pause and resume"
+        },
+        {
+          "id": "w3",
+          "requirement": "On expiry switch phase and wait paused"
+        },
+        {
+          "id": "w4",
+          "requirement": "Increment count only for completed focus phases"
+        },
+        {
+          "id": "w5",
+          "requirement": "Background-tab return retains accurate remaining time"
+        },
+        {
+          "id": "w6",
+          "requirement": "Mobile layout and full keyboard access"
+        },
+        {
+          "id": "w7",
+          "requirement": "Reset clears active work and restores a usable initial state"
+        }
+      ],
+      "unit_reviews": [],
+      "background": {
+        "passed": null,
+        "reason": "No accepted new analysis was persisted."
+      },
+      "prerequisites": {
+        "passed": null,
+        "reason": "The rejected provider candidates are not present in the API evidence."
+      },
+      "technical_correctness": {
+        "passed": null,
+        "reason": "Do not infer candidate correctness from HTTP200 or old accepted versions."
+      },
+      "known_high_or_medium_issues": [],
+      "candidate_quality_unknown": true,
+      "input_preserved": true,
+      "calls": [
+        {
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3132,
+            "completion_tokens": 1968,
+            "total_tokens": 5100,
+            "prompt_cache_hit_tokens": 768,
+            "prompt_cache_miss_tokens": 2364,
+            "prompt_tokens_details": {
+              "cached_tokens": 768
+            }
+          },
+          "elapsed_seconds": 12.794058
+        },
+        {
+          "task": "project_analysis_review",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3385,
+            "completion_tokens": 147,
+            "total_tokens": 3532,
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 3385,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            }
+          },
+          "elapsed_seconds": 3.551042
+        },
+        {
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3285,
+            "completion_tokens": 2222,
+            "total_tokens": 5507,
+            "prompt_cache_hit_tokens": 3072,
+            "prompt_cache_miss_tokens": 213,
+            "prompt_tokens_details": {
+              "cached_tokens": 3072
+            }
+          },
+          "elapsed_seconds": 14.099071
+        }
+      ],
+      "no_manual_retry": true
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "version": 2,
+      "api_status": "analyzed",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+      "analysis_sha256": "0a16fe3591e43e43ec4d5c992aa98866999ba96dabcd90bdfaae2eb6329164ca",
+      "review_type": "independent_static_semantic_review",
+      "verdict": "static_pass",
+      "requirements": [
+        {
+          "id": "d1",
+          "requirement": "Read CSV and audit trip_id deduplication",
+          "unit_ids": [
+            "k1",
+            "k2"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Read/column/type baseline then trip_id keep-first with before/after deletion counts."
+        },
+        {
+          "id": "d2",
+          "requirement": "Parse timestamps and separate invalid reasons",
+          "unit_ids": [
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "Missing/failed parsing and strict end<start are separate invalid sets; end==start is explicitly retained."
+        },
+        {
+          "id": "d3",
+          "requirement": "Compute duration for all rows valid under the requested boundary",
+          "unit_ids": [
+            "k4"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "f3 and k4 explicitly require nonnegative duration and zero for equal timestamps; total_seconds/minutes are taught."
+        },
+        {
+          "id": "d4",
+          "requirement": "Aggregate by departure hour and export counts",
+          "unit_ids": [
+            "k5"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "Departure dt.hour and group counts use valid data and reconcile to the valid row total."
+        },
+        {
+          "id": "d5",
+          "requirement": "Departure-station Top10 chart with labels",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "Actual station counts feed a labeled Top10 PNG; fewer than ten stations are expressly allowed."
+        },
+        {
+          "id": "d6",
+          "requirement": "Export cleaned CSV, hourly CSV and PNG",
+          "unit_ids": [
+            "k6",
+            "k7"
+          ],
+          "function_ids": [
+            "f6"
+          ],
+          "passed": true,
+          "reason": "Both CSVs and the PNG have concrete export tasks and count/file checks."
+        }
+      ],
+      "unassessed_requirements": [],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "pandas 读取骑行 CSV 与列结构检查",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Read a specific schema, inspect columns/dtypes and retain a row baseline."
+        },
+        {
+          "id": "k2",
+          "name": "pandas trip_id 去重与删除行数统计",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Deduplication and deletion audit are a coherent data-cleaning task."
+        },
+        {
+          "id": "k3",
+          "name": "pandas 时间列解析与无效行分离",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Parse timestamps and partition two invalid reasons with equality handled explicitly."
+        },
+        {
+          "id": "k4",
+          "name": "pandas 时间差计算骑行分钟时长",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Compute actual minute durations and test the zero boundary."
+        },
+        {
+          "id": "k5",
+          "name": "pandas 按出发小时分组计数",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Produce departure-hour counts and reconcile totals."
+        },
+        {
+          "id": "k6",
+          "name": "Matplotlib 出发站 Top10 条形图",
+          "technology": "Matplotlib",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Build and export the required labeled station chart."
+        },
+        {
+          "id": "k7",
+          "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Export two tables and reconcile the cleaning count chain."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Matches advanced Python/statistics background while explicitly recording that pandas travel-data work and Matplotlib APIs are new. No generic Python course substitutes for project skills."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "DataFrame baseline precedes dedup, parsing/invalid partition, durations, hour counts and exports. All necessary foundations appear earlier; the final CSV/log unit is unnecessarily serialized after plotting, noted below as a low-impact curriculum edge."
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "The end<start versus equality rule is consistent across scope, technical plan, f2/f3, k3/k4 and practical zero-row tests. Units, valid-row statistics, dedup counts and export reconciliation agree."
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "k7 exports CSV and logs but depends on the plotting unit k6; its true data prerequisites can be expressed directly, with the final workflow order kept separately. This is an extra curriculum edge, not a missing requirement or a correctness contradiction."
+      ],
+      "not_executed": true,
+      "resolved_previous_issue": {
+        "source": "evidence/phase2-learning-v25/manual-review-before-duration-fix.json",
+        "issue_id": "zero_duration_boundary_narrowed_to_strict_positive",
+        "resolved_in_this_output": true
+      },
+      "numeric_boundary_checks": [
+        {
+          "probe": "Equal nonmissing start/end timestamps",
+          "expected_minutes": 0,
+          "observed_plan": "Explicitly valid and duration 0",
+          "passed": true
+        },
+        {
+          "probe": "Strict end<start or missing/unparseable timestamp",
+          "expected": "Separate invalid subsets excluded before duration/aggregation",
+          "passed": true
+        },
+        {
+          "probe": "No more than ten station bars",
+          "expected": "Use all stations if fewer than ten",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "version": 2,
+      "api_status": "analysis_failed",
+      "review_type": "unavailable_accepted_output",
+      "verdict": "analysis_generation_failed_not_reviewable",
+      "error": {
+        "code": "quality",
+        "message": "学习单元的需求覆盖、行为约束或学习说明复核未通过，有限修正仍有问题。原始输入已保留，请检查需求和项目背景后重试。"
+      },
+      "requirements": [],
+      "unassessed_requirements": [
+        {
+          "id": "h1",
+          "requirement": "Low-voltage safe LED/button wiring"
+        },
+        {
+          "id": "h2",
+          "requirement": "INPUT_PULLUP active-low button"
+        },
+        {
+          "id": "h3",
+          "requirement": "Actual debounce plus one event per held press"
+        },
+        {
+          "id": "h4",
+          "requirement": "Responsive random wait and early-press false start"
+        },
+        {
+          "id": "h5",
+          "requirement": "Reaction milliseconds and readable serial output"
+        },
+        {
+          "id": "h6",
+          "requirement": "A fresh press can start another round without long-hold repetition"
+        }
+      ],
+      "unit_reviews": [],
+      "background": {
+        "passed": null,
+        "reason": "No accepted new analysis was persisted."
+      },
+      "prerequisites": {
+        "passed": null,
+        "reason": "The rejected provider candidates are not present in the API evidence."
+      },
+      "technical_correctness": {
+        "passed": null,
+        "reason": "Do not infer candidate correctness from HTTP200 or old accepted versions."
+      },
+      "known_high_or_medium_issues": [],
+      "candidate_quality_unknown": true,
+      "input_preserved": true,
+      "calls": [
+        {
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3154,
+            "completion_tokens": 2607,
+            "total_tokens": 5761,
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 1746,
+            "prompt_tokens_details": {
+              "cached_tokens": 1408
+            }
+          },
+          "elapsed_seconds": 14.70199
+        },
+        {
+          "task": "project_analysis",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3199,
+            "completion_tokens": 2039,
+            "total_tokens": 5238,
+            "prompt_cache_hit_tokens": 2944,
+            "prompt_cache_miss_tokens": 255,
+            "prompt_tokens_details": {
+              "cached_tokens": 2944
+            }
+          },
+          "elapsed_seconds": 11.714129
+        },
+        {
+          "task": "project_analysis_review",
+          "outcome": "json_returned",
+          "failure_type": null,
+          "usage": {
+            "prompt_tokens": 3555,
+            "completion_tokens": 257,
+            "total_tokens": 3812,
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 3043,
+            "prompt_tokens_details": {
+              "cached_tokens": 512
+            }
+          },
+          "elapsed_seconds": 3.574131
+        }
+      ],
+      "no_manual_retry": true
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "version": 2,
+      "api_status": "analyzed",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+      "analysis_sha256": "88631330503dbb9cc96177354725ede8de0ef7bd1ff98634d5650e74535b8f2a",
+      "review_type": "independent_static_semantic_review",
+      "verdict": "static_pass",
+      "requirements": [
+        {
+          "id": "m1",
+          "requirement": "Fixed 8x8 wall/path/exit grid",
+          "unit_ids": [
+            "k1"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "The 8x8 list representation, coordinate mapping and visible wall/path/exit colors are concrete."
+        },
+        {
+          "id": "m2",
+          "requirement": "One step per key, no walls/boundary crossing",
+          "unit_ids": [
+            "k2",
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "Target row/column 0..7 checks precede map access and position update; KEYDOWN gives one movement event."
+        },
+        {
+          "id": "m3",
+          "requirement": "Freeze real elapsed time on victory",
+          "unit_ids": [
+            "k4",
+            "k6"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "WIN captures the end timestamp and displays the true elapsed difference; frame limiting does not determine elapsed time."
+        },
+        {
+          "id": "m4",
+          "requirement": "R resets player, clock and game state",
+          "unit_ids": [
+            "k5",
+            "k6"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "R restores position, time origin and playable state; repeat-play checking is explicit."
+        },
+        {
+          "id": "m5",
+          "requirement": "Ready/won still handle R/Esc/QUIT; frame rate bounded",
+          "unit_ids": [
+            "k4",
+            "k5",
+            "k6"
+          ],
+          "function_ids": [
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "READY/PLAYING/WIN all keep event/render handling; only QUIT/Esc ends the loop, and tick caps the frame rate."
+        }
+      ],
+      "unassessed_requirements": [],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "pygame 二维列表网格地图绘制",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Represent and draw a fixed grid using specific map values."
+        },
+        {
+          "id": "k2",
+          "name": "网格坐标的合法移动与阻挡判定",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Combine grid deltas, legal bounds and wall checks before movement."
+        },
+        {
+          "id": "k3",
+          "name": "pygame 键盘输入边沿处理",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Clarify event edges versus held-key polling for the requested step movement."
+        },
+        {
+          "id": "k4",
+          "name": "pygame 游戏状态机与胜利判定",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Use three states and an exit test to control game behavior."
+        },
+        {
+          "id": "k5",
+          "name": "pygame 持续主循环与 R/Esc 键处理",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Keep reset/quit event handling outside gameplay updates."
+        },
+        {
+          "id": "k6",
+          "name": "真实时间计时与限帧",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Measure elapsed real time and limit frame rate as distinct mechanisms."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Preserves intermediate Python/list/function and prior pygame drawing experience. New work focuses on grid, input semantics, states and time instead of a generic introductory course."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "Grid data precedes legality and input semantics; states then persistent events/reset and actual timing extend existing pygame skills. Some state/timing exercises are completed at final integration, but the learning path remains coherent."
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "The plan distinguishes grid coordinates from pixels, checks legal target bounds before access, uses KEYDOWN rather than per-frame key state, keeps event/render handling active on WIN, freezes the end time, and exits only on explicit quit input."
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "The plan calls pygame an assumption despite Python and pygame being explicitly requested; the chosen implementation and all tool targets still correctly use pygame. Improve attribution without changing the actual selected route."
+      ],
+      "not_executed": true,
+      "numeric_boundary_checks": [
+        {
+          "probe": "Target col/row -1 or 8",
+          "expected": "Reject before lookup; legal indices 0..7",
+          "passed": true
+        },
+        {
+          "probe": "Win state after reaching exit",
+          "expected": "Continue events/rendering, freeze elapsed end time, accept R/Esc/QUIT",
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "unassessed_reason": "Two new versions were rejected without accepted analysis objects; historical v2.5 success is not substituted.",
+  "limits": [
+    "Static review is not student-code or hardware execution.",
+    "Provider semantic-review pass is not the independent manual verdict.",
+    "No video relevance or URL validation is included."
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "scope": "在本地读取成绩表并统计平均分，不涉及登录和云端部署。",
+  "technical_plan": "可修改的建议假设：使用 Python 与 pandas 完成本地处理。",
+  "assumptions": [
+    "输入为包含姓名与成绩列的 Excel 文件。"
+  ],
+  "functions": [
+    {
+      "id": "f1",
+      "name": "读取成绩",
+      "original_requirement": "读取本地 Excel 成绩表",
+      "acceptance_criteria": "能读取表格并显示行数"
+    },
+    {
+      "id": "f2",
+      "name": "平均分统计",
+      "original_requirement": "统计平均分",
+      "acceptance_criteria": "输出有效成绩的平均分"
+    }
+  ],
+  "knowledge_points": [
+    {
+      "id": "k1",
+      "name": "pandas Excel 文件读取",
+      "description": "读取工作表并识别列名",
+      "function_ids": [
+        "f1",
+        "f2"
+      ],
+      "why_needed": "将成绩文件转为可统计的表",
+      "learning_goal": "能够读取指定工作表并验证列名",
+      "necessity": "required",
+      "prerequisite_ids": [],
+      "learning_order": 1,
+      "selection": "learn"
+    },
+    {
+      "id": "k2",
+      "name": "pandas 缺失值处理与平均值统计",
+      "description": "处理缺失成绩并计算均值",
+      "function_ids": [
+        "f2"
+      ],
+      "why_needed": "让统计遵循有效成绩范围",
+      "learning_goal": "能对数值列处理缺失值并计算均值",
+      "necessity": "required",
+      "prerequisite_ids": [
+        "k1"
+      ],
+      "learning_order": 2,
+      "selection": "learn"
+    }
+  ]
+}

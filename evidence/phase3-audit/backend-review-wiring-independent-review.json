@@ -1,0 +1,155 @@
+{
+  "scope": "Independent read-only audit of phase3 claim-review wiring, after the root malformed-empty GET correction. Sources/tests/runtime/live DB were not changed by this audit.",
+  "result": "No additional confirmed P1/P2 in the inspected source/call/persistence boundaries; the known falsy {} read gate is closed in the audited version.",
+  "source_hashes": {
+    "tmp\\phase3-work\\backend\\app\\service.py": "2569fb2250c0b477990c19f45d54f18a74b184de8f86780f8056790e0c92cd6a",
+    "tmp\\phase3-work\\backend\\app\\queries.py": "022292cbdd8a970f270e580577bf943cf55a0b9ce813ae9d467150b6c09673e4",
+    "tmp\\phase3-work\\backend\\app\\learning_support.py": "e0070183ce2db3b21d07f8b395a66897d5196389e8b8076fe4575f370824bbdf",
+    "tmp\\phase3-work\\backend\\app\\teaching_match.py": "dc1a866cf5d96709740418c3ad80388fc8b319042192baeb15f45ef782164a39",
+    "tmp\\phase3-work\\backend\\app\\teaching_review.py": "355b0027d1e4b7f9d123872638e1827c934c4dff72835053007aa381656f1964"
+  },
+  "source_unchanged": true,
+  "evidence": "evidence/phase3-audit/backend-review-wiring-probes.json",
+  "evidence_sha256": "2e3f47daa34011239908355aa20c6567398ea521a105bb6b1b9a220f68e7d1d8",
+  "checks": [
+    {
+      "boundary": "Persistent call caps",
+      "evidence": {
+        "calls": [
+          [
+            "judge",
+            10
+          ],
+          [
+            "judge",
+            10
+          ],
+          [
+            "review",
+            20
+          ]
+        ],
+        "persistent_counters": {
+          "queries_planned": 0,
+          "queries_completed": 0,
+          "search_requests": 0,
+          "search_successes": 0,
+          "search_failures": 0,
+          "candidates_discovered": 0,
+          "resources_discovered": 0,
+          "details_attempted": 0,
+          "details_completed": 0,
+          "details_cached": 0,
+          "cache_hits": 0,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0,
+          "teaching_match_calls": 2,
+          "teaching_pairs_evaluated": 20,
+          "teaching_cache_hits": 20,
+          "teaching_review_calls": 1,
+          "teaching_claims_reviewed": 20,
+          "teaching_claims_accepted": 20
+        },
+        "get_db_changes": 0,
+        "get_equal": true,
+        "reviewed_saved_claims": 20
+      },
+      "conclusion": "Two judge calls and one claim-review call consumed and persisted before awaits; reentry uses cache and cannot reset them."
+    },
+    {
+      "boundary": "GET has no model or database writes",
+      "conclusion": "Two equal result projections, zero connection.total_changes delta, no additional mocked judge/review calls."
+    },
+    {
+      "boundary": "Old v1 cache and unsealed claims",
+      "evidence": {
+        "calls": [
+          "judge"
+        ],
+        "v1_unchanged": true,
+        "v1_was_used": false,
+        "new_valid_unknown_cache_hit": 1,
+        "review_calls": 0,
+        "upstream_partial": false
+      },
+      "unsealed_read": {
+        "old_nonempty_unsealed_cards": 0,
+        "malformed_empty_saved_cards": 0,
+        "get_db_changes": 0
+      },
+      "conclusion": "v1 positive was not reused; nonempty raw old claims and a saved malformed {} both remain absent from cards; no read-time fallback resurrection."
+    },
+    {
+      "boundary": "Failed versus valid unknown",
+      "evidence": {
+        "calls": [
+          "judge",
+          "review",
+          "judge"
+        ],
+        "cache_rows": 0,
+        "cards": 0,
+        "upstream_partial": true,
+        "positive_matches": 0
+      },
+      "conclusion": "None review stores no cache entry or positive match, sets upstream_partial, and cannot exceed call caps. Valid judge-empty is cacheable and requires no claim review. The failed job persists a sealed empty projection only as an unknown display guard; it is not reused as a successful cache negative."
+    },
+    {
+      "boundary": "Cancellation",
+      "evidence": {
+        "events": [
+          "review_started",
+          "cancel_propagated"
+        ],
+        "persisted_judge_calls": 1,
+        "persisted_review_calls": 1,
+        "positive_matches": 0,
+        "cache_rows": 0
+      },
+      "conclusion": "Cancellation propagates; call cost counters persist; no unreviewed positive decision, match or cache is committed."
+    },
+    {
+      "boundary": "Review overflow",
+      "evidence": {
+        "synthetic_review_cap": 1,
+        "positive_supports": 1,
+        "budget_limited": true,
+        "unreviewed_supports_did_not_survive": 19
+      },
+      "conclusion": "Synthetic cap reduction leaves only actually reviewed claims supported; excess stays unknown with budget_limited. No positive claim bypasses review through cap truncation."
+    },
+    {
+      "boundary": "Fair discovery and candidate allocation",
+      "evidence": {
+        "_search_queries": true,
+        "_targeted_catalog_probe": true,
+        "_declared_api_probe": true,
+        "skill_queries": true,
+        "four_slot_selection_and_point_roundrobin": true
+      },
+      "conclusion": "AST-equivalent original-query retention/public source frames/reserve/API prefetch functions; identical four-slot marginal lexical selection and point round robin."
+    },
+    {
+      "boundary": "Shared deadline and new-flow cost",
+      "evidence": {
+        "full_deadline_owner": "JobService.run sets FETCH_DEADLINE_AT; _run_job wraps entire _execute in asyncio.timeout_at",
+        "preview_source_reserved_seconds": 45,
+        "judge_max_calls": 2,
+        "review_max_calls": 1,
+        "max_output_tokens_new_matching": 7500
+      },
+      "conclusion": "At preview deadline240 and two judges, source phase reserves45 seconds within the existing total deadline. No new timeout expands the outer task deadline. New semantic matching output cap is7500 tokens across two3000-token judges plus one1500-token review."
+    }
+  ],
+  "remaining_limits": [
+    "This is orchestration/source-binding verification with fake model protocols, not a measured proof of semantic entailment. Independent review itself can be wrong; the separately owned real-source evaluation remains required.",
+    "Reviewer input/output caps may leave later claims unknown; warnings/unknown denominators are retained. Four sources and40 reviewed claims cannot guarantee support for every requested skill.",
+    "The2judge+1review cap applies to the new skill-matching branch. Mixed legacy points can still use existing legacy query expansion/reranking, as preserved for compatibility; those are not GET calls or extra claim-review retries.",
+    "Generic no-colon peer headings can still cause conservative unknown decisions. No additional heading dictionary was added in this audit."
+  ],
+  "new_external_requests": 0,
+  "new_model_calls": 0,
+  "live_db_writes": 0,
+  "source_or_test_edits": 0,
+  "harness": "evidence/phase3-audit/backend_review_wiring_probe.py"
+}

@@ -1,0 +1,60 @@
+{
+  "scope": "Independent audit of phase3 service scheduling and read/model boundaries; fixes only in isolated candidate package",
+  "baseline_source_sha256": "a25412b04bce2368e284732c81e3d423bbf6861190883daf0e3f214cf5b6abc4",
+  "evidence": {
+    "synthetic_actual_helpers": "evidence/phase3-audit/backend-service-orchestration-probes.json",
+    "read_only_live_metadata": "evidence/phase3-audit/web-live-prefetch-audit.json",
+    "isolated_regressions": "tmp/phase3-service-orchestration-patch/focused-freeze.xml"
+  },
+  "findings": [
+    {
+      "id": "P2-skill-query-overwrite",
+      "function": "JobService._search_queries",
+      "observed": "Six skill queries with sufficient budget execute five original skills; public-round replacement removes skill3 and queries unit/project text. Tight schedules can replace skill2 instead.",
+      "fix_candidate": "Insert full public fair frame without deleting originals, use declared skill text, preserve actual unequal/mixed frame boundaries, update queries_planned."
+    },
+    {
+      "id": "P2-duplicate-skill-inspection-slots",
+      "function": "JobService._match_learning_skills",
+      "observed": "Four skill1 sources win max-relevance/rid ties; five own-bound specialists for skill2..6 are never judged, although at least four distinct skills could be inspected in the same four slots.",
+      "fix_candidate": "Greedy marginal lexical relevance gain over requested skills chooses four distinct useful source inspections; lexical score remains scheduling only, never evidence."
+    },
+    {
+      "id": "P2-public-source-reserve-unreachable",
+      "function": "JobService._search_queries",
+      "observed": "Five units, global30, legal three-request primary cost consumes30 in ten priority queries; no public-source HTTP can execute because reserve was only enabled for tight budgets.",
+      "fix_candidate": "Enable existing distinct-family cold reserve (FCC3/TWT4) for new-skill jobs at ordinary budgets; first primary frame remains reserved; public frame visits distinct families before repeats; total budget unchanged."
+    },
+    {
+      "id": "P2-declared-api-prefetch-owner-gate",
+      "function": "JobService._targeted_catalog_probe",
+      "actual_job": "add14f3d-016f-4592-9593-68cede905ccd",
+      "actual_resources": [
+        "res_81374abf89d3892a777b1032",
+        "res_ffe4ef770da8463f6a151705"
+      ],
+      "observed": "Native video titles contain addEventListener/localStorage explicitly declared in the same point but lack full JavaScript owner. Both provisional and metadata probe are false. No retained un-fetched native title explicitly naming textContent/querySelector was found, so those remain unconfirmed hypotheses.",
+      "fix_candidate": "Same-point, same-normalized-URL native video observation with exact declared shaped API identifier may enter existing four-probe quota. No coverage/admission changes; raw original spelling preserved."
+    }
+  ],
+  "verified_boundaries": [
+    "Same-job own page metadata can be reused across points by explicit design; a source from a different job has no qualifying evidence rows and cannot form a pair.",
+    "Successful empty decision cache is revalidated and suppresses literal resurrection; repeat matching uses cache; GET makes no model call or SQLite write.",
+    "Judge calls remain <=2/job, <=10 pairs/call, <=20 supports/call; each point <=4 source pairs and total <=20 pairs. This patch does not change these caps.",
+    "All source/model work stays under existing absolute job deadline. Candidate patch leaves source-time reserve logic untouched for root review integration.",
+    "New skill sources always remain partial; project parameters, practice completion and student mastery are not inferred."
+  ],
+  "limits": [
+    "Four inspected resources cannot guarantee six requested skills; no suitable source still means unknown.",
+    "Distinct-source reserve guarantees room for the declared cold provider families, not every different tag/category query at an arbitrarily small global budget. Additional distinct tags still consume the same budget and may be partial.",
+    "20 supports/call requires model prioritization; valid omissions mean unknown, not proof that no lawful course exists.",
+    "Source/hash binding does not guarantee semantic entailment. Parent-reported actual compound-skill overclaims require the separately owned review work and new real evaluation.",
+    "All patch results are offline simulated orchestration checks; no postpatch real search has been run."
+  ],
+  "test_history": {
+    "initial": "35 passed, one new test setup did not supply a third legacy query; corrected input to exercise existing legacy public replacement. No production assertion was changed.",
+    "focused_final": "95 passed, 0 failed, 0 skipped; includes asyncio.",
+    "source_touched": "isolated service/queries copies, new canonical test and retained fixture only; stage runtime/prod unchanged by this agent"
+  },
+  "integration_manifest": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\tmp\\phase3-service-orchestration-patch\\manifest.json"
+}

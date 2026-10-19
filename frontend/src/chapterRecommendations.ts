@@ -126,18 +126,38 @@ function scoreTitle(title: string, courseTitle: string, topic: Topic): number {
  * upgrading the resource's topic/teaching coverage assessment. */
 export function recommendChapters(item: ResourceItem, knowledgePoints: string[], limit = 2): ChapterRecommendation[] {
   const bounded = Number.isSafeInteger(limit) && limit > 0 ? Math.min(limit, 10) : 2;
-  const topics = knowledgePoints.filter(point => typeof point === 'string' && point.trim()).map(topicFor);
-  if (!topics.length) return [];
+  const requestedPoints = knowledgePoints.filter(point => typeof point === 'string' && point.trim());
+  if (!requestedPoints.length) return [];
   const supporting = new Set(item.match.supporting_evidence_ids || []);
+  const partial = item.match.topic_evidence_status === 'partial';
+  const observed = new Set((item.evidence || []).filter(record => ['search', 'page', 'catalog'].includes(record.kind)).map(record => record.evidence_id));
+  const supportedParts = (item.match.subtopic_coverage || []).filter(part => part.status === 'supported'
+    && typeof part.text === 'string' && part.text.trim()
+    && part.evidence_ids.some(id => supporting.has(id) && observed.has(id)));
+  const chapterSupport = new Set(supportedParts.flatMap(part => part.evidence_ids.filter(id => supporting.has(id) && observed.has(id))));
+  // A partial resource's unknown tasks must not create chapter recommendations.
+  // Keep only catalog records the backend explicitly bound to a supported part;
+  // page-only support leaves the learning location unconfirmed.
+  const topics = (partial ? supportedParts.map(part => part.text) : requestedPoints)
+    .filter(point => typeof point === 'string' && point.trim()).map(topicFor);
+  if (!topics.length) return [];
   // Only explicitly matched parts participate in diversity. Course context and
   // generic introductions cannot stand in for a missing list/tuple/etc. title.
   const parts = [...new Map(topics.flatMap(topic => topic.parts.filter(part => part.concepts.length || part.words.length).map(part => {
     const key = JSON.stringify([topic.languages, [...part.concepts].sort(), [...part.words].sort()]);
     return [key, { ...topic, parts: [part] }] as [string, Topic];
   }))).entries()];
-  const ranked = verifiedChapters(item).map(chapter => ({
+  const requestedTopics = requestedPoints.map(topicFor);
+  const ranked = verifiedChapters(item).filter(chapter => {
+    if (!partial) return true;
+    if (!chapterSupport.has(chapter.evidenceId) || assessment.test(chapter.title)) return false;
+    const explicit = languages.flatMap((pattern, index) => matches(pattern, chapter.title) ? [index] : []);
+    // API-title fallback may lack literal topic words, but it must not override
+    // an explicit different programming language or an assessment-only lesson.
+    return requestedTopics.some(topic => !topic.languages.length || explicit.every(index => topic.languages.includes(index)));
+  }).map(chapter => ({
     chapter,
-    score: Math.max(0, ...topics.map(topic => scoreTitle(chapter.title, item.resource.title || '', topic))),
+    score: Math.max(partial ? 1 : 0, ...topics.map(topic => scoreTitle(chapter.title, item.resource.title || '', topic))),
     parts: parts.filter(([, topic]) => scoreTitle(chapter.title, item.resource.title || '', topic) > 0).map(([key]) => key),
   }))
     .filter(row => row.score > 0)

@@ -1,0 +1,1516 @@
+{
+  "mode": "live_same_project_regression",
+  "created_at": "2026-10-18T16:59:59.754767+00:00",
+  "source_run": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v25\\run.json",
+  "source_run_sha256": "45aef961e907415531a9b452b0792c3ac3977f713130990950d1ef2518bbff7f",
+  "expected_prompt": "project-analysis-v2.6.1-review-repair-context",
+  "classification": "same_synthetic_non_sensitive_inputs",
+  "selected_count": 2,
+  "selected_cases": [
+    "web_pomodoro_beginner",
+    "arduino_reaction_beginner"
+  ],
+  "original_cohort_requirement_total": 24,
+  "selected_requirement_total": 13,
+  "limits": {
+    "max_analysis_api_submissions": 2,
+    "per_analysis_max_model_calls": 4,
+    "max_generation_calls": 2,
+    "max_semantic_review_calls": 2,
+    "review_completion_token_cap": 1500,
+    "server_total_budget_seconds": 120,
+    "client_observation_deadline_seconds": 150,
+    "search_submissions": 0
+  },
+  "semantic_acceptance": "Independently review the selected cases from the fixed original 24-requirement rubric; preserve source numeric/equality boundaries, concrete tasks, prerequisites, tool relevance, debounce and persistent post-win events. Model review success alone is insufficient.",
+  "rubric_source": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v25\\manual-review-before-duration-fix.json",
+  "rubric_source_sha256": "e6cd76b61756e82c5dbae8540ee1f5374cd5c4edc33058ebd6292488af5fa372",
+  "independent_requirement_rubric": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "requirements": [
+        {
+          "id": "w1",
+          "requirement": "Show phase, 25/5 duration, formatted remaining time and count"
+        },
+        {
+          "id": "w2",
+          "requirement": "Start, pause and resume"
+        },
+        {
+          "id": "w3",
+          "requirement": "On expiry switch phase and wait paused"
+        },
+        {
+          "id": "w4",
+          "requirement": "Increment count only for completed focus phases"
+        },
+        {
+          "id": "w5",
+          "requirement": "Background-tab return retains accurate remaining time"
+        },
+        {
+          "id": "w6",
+          "requirement": "Mobile layout and full keyboard access"
+        },
+        {
+          "id": "w7",
+          "requirement": "Reset clears active work and restores a usable initial state"
+        }
+      ]
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "requirements": [
+        {
+          "id": "h1",
+          "requirement": "Low-voltage safe LED/button wiring"
+        },
+        {
+          "id": "h2",
+          "requirement": "INPUT_PULLUP active-low button"
+        },
+        {
+          "id": "h3",
+          "requirement": "Actual debounce plus one event per held press"
+        },
+        {
+          "id": "h4",
+          "requirement": "Responsive random wait and early-press false start"
+        },
+        {
+          "id": "h5",
+          "requirement": "Reaction milliseconds and readable serial output"
+        },
+        {
+          "id": "h6",
+          "requirement": "A fresh press can start another round without long-hold repetition"
+        }
+      ]
+    }
+  ],
+  "numeric_boundary_probes": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "probe": "Remaining time reaches exactly zero",
+      "expected": "Transition once, pause the next fixed 25/5-minute stage, and increment only completed focus."
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "probe": "Active-low input, random 2-5-second window and repeated raw bounce",
+      "expected": "LOW means pressed; a real stable-input condition precedes press edges, timing remains responsive and within the requested range."
+    }
+  ],
+  "records": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "source_version": 1,
+      "input": {
+        "name": "离线番茄钟学习网页",
+        "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "analyzed",
+      "preflight_view": {
+        "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+        "original_input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:36:25.218819+00:00",
+        "updated_at": "2026-10-18T16:51:42.216378+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analysis_failed",
+            "created_at": "2026-10-18T16:51:11.756174+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:25.223939+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "离线番茄钟学习网页",
+            "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analysis_failed",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": {
+            "code": "schema",
+            "message": "项目分析结构校验失败，有限修正仍未通过。原始输入已保留，请调整需求后重试。"
+          },
+          "warnings": [],
+          "created_at": "2026-10-18T16:51:11.756174+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:51:42.216220+00:00"
+        }
+      },
+      "expected_version": 2,
+      "expected_new_version": 3,
+      "analysis_submission_attempted": true,
+      "analysis_submitted_at": "2026-10-18T16:59:59.969174+00:00",
+      "model_event_start_line": 0,
+      "analysis_http_status": 202,
+      "analysis_submission_response": {
+        "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+        "original_input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 3,
+        "created_at": "2026-10-18T16:36:25.218819+00:00",
+        "updated_at": "2026-10-18T16:59:59.971678+00:00",
+        "versions": [
+          {
+            "version": 3,
+            "status": "analyzing",
+            "created_at": "2026-10-18T16:59:59.971515+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+          },
+          {
+            "version": 2,
+            "status": "analysis_failed",
+            "created_at": "2026-10-18T16:51:11.756174+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:25.223939+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 3,
+          "input": {
+            "name": "离线番茄钟学习网页",
+            "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzing",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:59:59.971515+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:59:59.971532+00:00"
+        }
+      },
+      "last_observed_status": "analyzed",
+      "version": 3,
+      "persisted_view": {
+        "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+        "original_input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "离线番茄钟学习网页",
+          "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 3,
+        "created_at": "2026-10-18T16:36:25.218819+00:00",
+        "updated_at": "2026-10-18T17:00:28.627303+00:00",
+        "versions": [
+          {
+            "version": 3,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:59:59.971515+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+          },
+          {
+            "version": 2,
+            "status": "analysis_failed",
+            "created_at": "2026-10-18T16:51:11.756174+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:25.223939+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 3,
+          "input": {
+            "name": "离线番茄钟学习网页",
+            "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzed",
+          "analysis": {
+            "scope": "用 HTML、CSS、JavaScript 制作一个纯本机浏览器运行的番茄钟网页：专注固定 25 分钟、休息固定 5 分钟；支持开始、暂停、继续、重置；阶段倒计时结束自动切换到下一阶段并暂停等待用户开始；每完成一个专注阶段计数加 1；显示当前阶段、剩余时间与已完成次数；切换标签页后剩余时间仍准确；手机窄屏可用；键盘可操作所有按钮。不含账号、联网、通知、音效或后端。",
+            "technical_plan": "单一静态页面（index.html + style.css + script.js），按要求使用原生 HTML/CSS/JavaScript，不引入框架或构建工具。倒计时以每阶段结束的绝对时间戳为目标，每次显示刷新用 Date.now() 求剩余毫秒并取整格式化，setInterval 只负责定期刷新显示，避免累减。用一个状态对象记录阶段（专注/休息）、是否运行、结束时间戳、暂停剩余毫秒、已完成专注次数；集中渲染函数更新阶段文字、mm:ss 与次数，并据此更新按钮可用状态。开始/暂停/继续/重置由原生 <button> 点击事件驱动，保留浏览器默认键盘激活与 focus-visible 焦点样式，不拦截默认按键行为，保证 Tab/Enter/空格可用。窄屏用 viewport meta 与弹性/相对单位布局。",
+            "assumptions": [
+              "未指定 CSS 框架、构建工具或图形库，采用原生 CSS 与单个 script.js 文件；如学生更换工具可重新生成。",
+              "休息结束后同样切回专注并暂停，等待用户点开始；这是对“切换到下一阶段并暂停”的对称解释，可修改。",
+              "仅完成专注阶段时次数加 1，休息阶段完成不加。",
+              "按钮采用原生 <button>，优先用浏览器默认键盘激活而非自定义快捷键。",
+              "不做页面关闭后的持久化，刷新即重置。",
+              "暂停后继续时以保存的剩余毫秒重新计算结束时间戳。"
+            ],
+            "learner_profile": {
+              "student_level": "beginner",
+              "assumed_knowledge": [
+                "基础 HTML 标签与页面结构",
+                "基础 CSS 选择器与样式",
+                "JavaScript 变量与 if 判断",
+                "尚未做过完整交互项目"
+              ],
+              "adjustment_note": "当前按初学者与“会基础 HTML/CSS 和 JavaScript 变量、if”的背景设计，先补少量基础再进入实际功能。你可以修改学习阶段、项目背景或技术选择后重新生成。"
+            },
+            "functions": [
+              {
+                "id": "f1",
+                "name": "开始、暂停、继续控制倒计时",
+                "original_requirement": "能开始、暂停、继续和重置",
+                "acceptance_criteria": "点击开始后倒计时按真实时间递减；暂停后显示冻结；继续后从冻结的剩余时间接着走，不跳变。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f2",
+                "name": "固定时长阶段与结束自动切换并暂停",
+                "original_requirement": "专注固定25分钟、休息固定5分钟……倒计时结束后切换到下一阶段并暂停等待用户开始",
+                "acceptance_criteria": "专注到 00:00 后自动切到休息并处于暂停态；休息结束后切回专注并暂停；两者均需用户点开始才继续计时。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f3",
+                "name": "完成专注计数",
+                "original_requirement": "每完成一个专注阶段次数加1",
+                "acceptance_criteria": "每完成一次专注阶段次数恰好加 1；休息阶段结束不加；重置时是否清零见假设。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f4",
+                "name": "阶段、剩余时间与次数显示",
+                "original_requirement": "显示当前阶段、剩余时间和已完成次数",
+                "acceptance_criteria": "页面始终显示当前阶段名称、mm:ss 格式剩余时间与已完成次数，状态变化后立即更新。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f5",
+                "name": "切后台后剩余时间仍准确",
+                "original_requirement": "切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1",
+                "acceptance_criteria": "计时中切到其他标签页停留一段时间再回来，显示剩余时间与真实经过时间一致（误差在 1 秒显示取整内）。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f6",
+                "name": "窄屏可用布局",
+                "original_requirement": "手机窄屏可用",
+                "acceptance_criteria": "在约 360px 宽视口下，阶段、时间、次数与全部按钮完整可见且不横向溢出。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f7",
+                "name": "键盘操作所有按钮",
+                "original_requirement": "键盘能操作所有按钮",
+                "acceptance_criteria": "仅用 Tab 可依次聚焦所有按钮并有可见焦点；Enter 或空格能触发每个按钮，功能与鼠标点击一致。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f8",
+                "name": "重置",
+                "original_requirement": "能开始、暂停、继续和重置",
+                "acceptance_criteria": "重置后回到专注阶段初始 25:00 且处于暂停态，计时停止。",
+                "no_new_learning_reason": null
+              }
+            ],
+            "knowledge_points": [
+              {
+                "id": "k1",
+                "name": "番茄钟页面结构与语义化按钮",
+                "description": "用 HTML 搭建阶段、时间、次数三个显示区域与开始/暂停/继续/重置四个原生 button，并配可读标签。",
+                "function_ids": [
+                  "f4",
+                  "f7"
+                ],
+                "why_needed": "显示区域与语义化按钮是后续 JS 更新和键盘操作的基础。",
+                "learning_goal": "理解语义化 HTML 结构如何同时服务于显示更新和无障碍键盘操作。",
+                "technology": "HTML",
+                "project_task": "写出包含阶段文字、时间显示、次数显示和四个 <button> 的静态页面骨架。",
+                "concepts": [
+                  "语义化分区与文本占位",
+                  "原生 button 元素",
+                  "可读标签"
+                ],
+                "practice_check": "打开页面能看到三块显示内容和四个可用 Tab 聚焦的按钮。",
+                "necessity": "required",
+                "prerequisite_ids": [],
+                "learning_order": 1,
+                "selection": "learn"
+              },
+              {
+                "id": "k2",
+                "name": "CSS 弹性布局与窄屏适配",
+                "description": "用相对单位、flex 布局与 viewport meta 让内容在窄屏下纵向排列不溢出。",
+                "function_ids": [
+                  "f6"
+                ],
+                "why_needed": "用户要求手机窄屏可用，需要布局而不只是功能。",
+                "learning_goal": "理解 viewport 设置、弹性布局和相对字号如何保证小屏可读。",
+                "technology": "CSS",
+                "project_task": "为页面骨架加样式，使宽屏横排、窄屏纵向堆叠，时间数字足够大。",
+                "concepts": [
+                  "viewport meta",
+                  "flex 布局与换行",
+                  "相对单位与媒体查询"
+                ],
+                "practice_check": "浏览器缩到约 360px 宽，所有内容与按钮可见且无横向滚动条。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 2,
+                "selection": "learn"
+              },
+              {
+                "id": "k3",
+                "name": "JavaScript 状态对象与阶段时长常量",
+                "description": "用对象记录当前阶段、是否运行、剩余毫秒与完成次数，并定义 25/5 分钟常量。",
+                "function_ids": [
+                  "f2",
+                  "f3",
+                  "f4"
+                ],
+                "why_needed": "分离状态与显示是正确实现切换、计数和暂停的前提。",
+                "learning_goal": "理解用单一状态对象驱动界面，而不是散落的全局变量。",
+                "technology": "JavaScript",
+                "project_task": "定义专注/休息常量、初始状态对象和一个根据状态更新页面文本的渲染函数。",
+                "concepts": [
+                  "状态对象",
+                  "常量与毫秒换算",
+                  "渲染函数集中更新 DOM"
+                ],
+                "practice_check": "手动修改状态值后调用渲染函数，页面阶段、时间、次数同步变化。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 3,
+                "selection": "learn"
+              },
+              {
+                "id": "k4",
+                "name": "时间戳倒计时与后台标签页准确性",
+                "description": "保存阶段结束的绝对时间戳，用 Date.now() 计算剩余毫秒并渲染，而非每次减 1。",
+                "function_ids": [
+                  "f1",
+                  "f5"
+                ],
+                "why_needed": "setInterval 在后台会被节流，只有按真实时间差计算才能保证切回后准确。",
+                "learning_goal": "理解基于截止时间戳与时间差计算剩余量，比累减计数器更稳健。",
+                "technology": "JavaScript",
+                "project_task": "实现用结束时间戳和 Date.now() 求剩余毫秒、格式化为 mm:ss 并更新的渲染。",
+                "concepts": [
+                  "Date.now() 与绝对截止时间",
+                  "剩余毫秒计算与显示取整",
+                  "setInterval 仅用于刷新显示"
+                ],
+                "practice_check": "计时中切到其他标签页等十几秒再回来，剩余时间与真实经过一致。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k3"
+                ],
+                "learning_order": 4,
+                "selection": "learn"
+              },
+              {
+                "id": "k5",
+                "name": "开始暂停继续重置的状态转换",
+                "description": "用按钮事件切换运行标志，暂停时冻结剩余毫秒，继续时重算截止时间，重置回初始状态。",
+                "function_ids": [
+                  "f1",
+                  "f8"
+                ],
+                "why_needed": "暂停继续与重置是本项目核心交互，需要明确的状态转换。",
+                "learning_goal": "理解暂停保存剩余量、继续重建截止时间戳、重置恢复初始状态的逻辑。",
+                "technology": "JavaScript",
+                "project_task": "为四个按钮绑定点击处理，实现开始、暂停、继续、重置并调用渲染。",
+                "concepts": [
+                  "addEventListener 点击事件",
+                  "运行标志与暂停剩余量",
+                  "继续时重算截止时间戳",
+                  "重置状态"
+                ],
+                "practice_check": "依次点开始、暂停、继续、重置，观察显示按预期冻结、续走并回到 25:00。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k4"
+                ],
+                "learning_order": 5,
+                "selection": "learn"
+              },
+              {
+                "id": "k6",
+                "name": "阶段结束切换与专注计数",
+                "description": "剩余归零时切换专注/休息、置为暂停并等待开始，完成专注时次数加 1。",
+                "function_ids": [
+                  "f2",
+                  "f3"
+                ],
+                "why_needed": "固定 25/5 切换、结束后暂停、专注计数都需要在归零时正确处理。",
+                "learning_goal": "理解在倒计时归零时执行阶段切换、暂停与按阶段条件计数的组合逻辑。",
+                "technology": "JavaScript",
+                "project_task": "在渲染检测到剩余小于等于 0 时切阶段、暂停并仅对专注阶段加 1。",
+                "concepts": [
+                  "归零判定与阶段切换",
+                  "结束后暂停等待开始",
+                  "按阶段条件计数"
+                ],
+                "practice_check": "用缩短的时长测试：专注结束切休息并暂停、次数加 1；休息结束切专注且次数不变。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k5"
+                ],
+                "learning_order": 6,
+                "selection": "learn"
+              },
+              {
+                "id": "k7",
+                "name": "原生按钮键盘操作与焦点样式",
+                "description": "保留原生 button 默认键盘激活，保证 Tab 顺序和可见焦点样式。",
+                "function_ids": [
+                  "f7"
+                ],
+                "why_needed": "用户要求键盘能操作所有按钮，需验证不破坏默认行为。",
+                "learning_goal": "理解原生按钮自带的键盘激活，以及为何不应自定义拦截按键。",
+                "technology": "CSS",
+                "project_task": "添加清晰的 :focus-visible 焦点样式，并检查按钮未被脚本阻止默认键盘行为。",
+                "concepts": [
+                  "Tab 聚焦顺序",
+                  "Enter/空格触发原生按钮",
+                  "focus-visible 样式"
+                ],
+                "practice_check": "仅用键盘 Tab 到每个按钮并按 Enter/空格，功能与鼠标一致且焦点清晰可见。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1",
+                  "k5"
+                ],
+                "learning_order": 7,
+                "selection": "learn"
+              }
+            ]
+          },
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T16:59:59.971515+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T17:00:28.627094+00:00"
+        }
+      },
+      "completed_at": "2026-10-18T17:00:28.657397+00:00",
+      "client_analysis_elapsed_seconds": 28.68821,
+      "error": null,
+      "observations": {
+        "analysis_available": true,
+        "input_preserved": true,
+        "schema_valid": true,
+        "quality_guard_issues": [],
+        "function_count": 8,
+        "unit_count": 7,
+        "soft_unit_range_4_to_8": true,
+        "technology_targets": [
+          {
+            "id": "k1",
+            "name": "番茄钟页面结构与语义化按钮",
+            "technology": "HTML"
+          },
+          {
+            "id": "k2",
+            "name": "CSS 弹性布局与窄屏适配",
+            "technology": "CSS"
+          },
+          {
+            "id": "k3",
+            "name": "JavaScript 状态对象与阶段时长常量",
+            "technology": "JavaScript"
+          },
+          {
+            "id": "k4",
+            "name": "时间戳倒计时与后台标签页准确性",
+            "technology": "JavaScript"
+          },
+          {
+            "id": "k5",
+            "name": "开始暂停继续重置的状态转换",
+            "technology": "JavaScript"
+          },
+          {
+            "id": "k6",
+            "name": "阶段结束切换与专注计数",
+            "technology": "JavaScript"
+          },
+          {
+            "id": "k7",
+            "name": "原生按钮键盘操作与焦点样式",
+            "technology": "CSS"
+          }
+        ],
+        "coverage_observations": [
+          {
+            "criterion": "页面状态与可访问按钮",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "倒计时与后台时间准确性",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "暂停继续重置",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "阶段切换与完成次数",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "手机与键盘",
+            "keyword_observed": true
+          }
+        ],
+        "latency_goal_met": true,
+        "latency_hard_limit_met": true,
+        "manual_review_required": true,
+        "manual_semantic_pass": null,
+        "analysis_sha256": "99729fa69f61786176b5968ac8e218fecc57508c6dc7b1733ea4d826c7796a91"
+      },
+      "model_events": [
+        {
+          "event_type": "model_call_started",
+          "call_id": "1cdb51cfdb3c468abab28640a76f3bf4",
+          "task": "project_analysis",
+          "system_prompt_sha256": "a214a2104b55099d5259e2c16529d3e9d826f378f6e26178ae9a0b7f082fbb4f",
+          "started_at": "2026-10-18T16:59:59.978850+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "1cdb51cfdb3c468abab28640a76f3bf4",
+          "task": "project_analysis",
+          "system_prompt_sha256": "a214a2104b55099d5259e2c16529d3e9d826f378f6e26178ae9a0b7f082fbb4f",
+          "started_at": "2026-10-18T16:59:59.978850+00:00",
+          "finished_at": "2026-10-18T17:00:14.301061+00:00",
+          "elapsed_seconds": 14.32221,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "7749631804c6b4c5e17d1c0aefd18ce932fec1ec9be19faa9b144bf1b54d6a8e",
+          "response_bytes": 10966,
+          "message_content_sha256": "9ab3d3e090d7789e986f2ed7ffd226da98aad1177e48505394771b2114fd2f2f",
+          "message_content_chars": 5425,
+          "provider_response_id": "6c7f1f76-286b-4280-a00a-23df3446872d",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3196,
+            "completion_tokens": 2314,
+            "total_tokens": 5510,
+            "prompt_cache_hit_tokens": 1408,
+            "prompt_cache_miss_tokens": 1788,
+            "prompt_tokens_details": {
+              "cached_tokens": 1408
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "acd527d547b04ef3aa6d2b51640d751e",
+          "task": "project_analysis",
+          "system_prompt_sha256": "a214a2104b55099d5259e2c16529d3e9d826f378f6e26178ae9a0b7f082fbb4f",
+          "started_at": "2026-10-18T17:00:14.305457+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "acd527d547b04ef3aa6d2b51640d751e",
+          "task": "project_analysis",
+          "system_prompt_sha256": "a214a2104b55099d5259e2c16529d3e9d826f378f6e26178ae9a0b7f082fbb4f",
+          "started_at": "2026-10-18T17:00:14.305457+00:00",
+          "finished_at": "2026-10-18T17:00:25.291704+00:00",
+          "elapsed_seconds": 10.986253,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "c6b19de6b29523b2b6849d52ea8a47f6ecc89a8284b296c0d04e4615beb9831f",
+          "response_bytes": 12079,
+          "message_content_sha256": "e6f59d9bedbfceef5ce69202e7b57360551cdb5c2211436308eea1d52f177931",
+          "message_content_chars": 6242,
+          "provider_response_id": "ce4a48e6-fca1-474a-87c9-ad73c2127329",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 5882,
+            "completion_tokens": 2759,
+            "total_tokens": 8641,
+            "prompt_cache_hit_tokens": 3072,
+            "prompt_cache_miss_tokens": 2810,
+            "prompt_tokens_details": {
+              "cached_tokens": 3072
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "c822d67b3d3a4682946438cc5191362e",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T17:00:25.295541+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "c822d67b3d3a4682946438cc5191362e",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T17:00:25.295541+00:00",
+          "finished_at": "2026-10-18T17:00:28.623958+00:00",
+          "elapsed_seconds": 3.328434,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "565665c49ffb25f73f5fd78649a5861fa52bad3c911e82e781e2c255aff2f999",
+          "response_bytes": 1247,
+          "message_content_sha256": "28b1162b9c09063048c6324e87f242033ce2a26646045c22c742ccaa788e582f",
+          "message_content_chars": 437,
+          "provider_response_id": "3d5dcfb3-8126-4359-9789-0b153314e594",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3958,
+            "completion_tokens": 198,
+            "total_tokens": 4156,
+            "prompt_cache_hit_tokens": 640,
+            "prompt_cache_miss_tokens": 3318,
+            "prompt_tokens_details": {
+              "cached_tokens": 640
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        }
+      ]
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "source_version": 1,
+      "input": {
+        "name": "Arduino LED 按钮反应时间小游戏",
+        "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "analyzed",
+      "preflight_view": {
+        "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+        "original_input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 2,
+        "created_at": "2026-10-18T16:36:53.029359+00:00",
+        "updated_at": "2026-10-18T16:52:45.146785+00:00",
+        "versions": [
+          {
+            "version": 2,
+            "status": "analysis_failed",
+            "created_at": "2026-10-18T16:52:15.143368+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:53.036133+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 2,
+          "input": {
+            "name": "Arduino LED 按钮反应时间小游戏",
+            "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analysis_failed",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": {
+            "code": "quality",
+            "message": "学习单元的需求覆盖、行为约束或学习说明复核未通过，有限修正仍有问题。原始输入已保留，请检查需求和项目背景后重试。"
+          },
+          "warnings": [],
+          "created_at": "2026-10-18T16:52:15.143368+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T16:52:45.146683+00:00"
+        }
+      },
+      "expected_version": 2,
+      "expected_new_version": 3,
+      "analysis_submission_attempted": true,
+      "analysis_submitted_at": "2026-10-18T17:00:28.665368+00:00",
+      "model_event_start_line": 6,
+      "analysis_http_status": 202,
+      "analysis_submission_response": {
+        "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+        "original_input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 3,
+        "created_at": "2026-10-18T16:36:53.029359+00:00",
+        "updated_at": "2026-10-18T17:00:28.668667+00:00",
+        "versions": [
+          {
+            "version": 3,
+            "status": "analyzing",
+            "created_at": "2026-10-18T17:00:28.668581+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+          },
+          {
+            "version": 2,
+            "status": "analysis_failed",
+            "created_at": "2026-10-18T16:52:15.143368+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:53.036133+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 3,
+          "input": {
+            "name": "Arduino LED 按钮反应时间小游戏",
+            "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzing",
+          "analysis": null,
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T17:00:28.668581+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T17:00:28.668594+00:00"
+        }
+      },
+      "last_observed_status": "analyzed",
+      "version": 3,
+      "persisted_view": {
+        "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+        "original_input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "input": {
+          "name": "Arduino LED 按钮反应时间小游戏",
+          "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+          "student_level": "beginner",
+          "language": "zh",
+          "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163",
+            "xuetangx"
+          ]
+        },
+        "current_version": 3,
+        "created_at": "2026-10-18T16:36:53.029359+00:00",
+        "updated_at": "2026-10-18T17:00:47.319003+00:00",
+        "versions": [
+          {
+            "version": 3,
+            "status": "analyzed",
+            "created_at": "2026-10-18T17:00:28.668581+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6.1-review-repair-context"
+          },
+          {
+            "version": 2,
+            "status": "analysis_failed",
+            "created_at": "2026-10-18T16:52:15.143368+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+          },
+          {
+            "version": 1,
+            "status": "analyzed",
+            "created_at": "2026-10-18T16:36:53.036133+00:00",
+            "model": "deepseek-flash",
+            "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+          }
+        ],
+        "version": {
+          "version": 3,
+          "input": {
+            "name": "Arduino LED 按钮反应时间小游戏",
+            "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+            "student_level": "beginner",
+            "language": "zh",
+            "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+            "technical_version": "",
+            "preferred_platforms": [
+              "bilibili",
+              "icourse163",
+              "xuetangx"
+            ]
+          },
+          "status": "analyzed",
+          "analysis": {
+            "scope": "使用Arduino Uno、一个带限流电阻的LED和一个按钮制作低压反应时间小游戏。按钮采用INPUT_PULLUP接地，串口监视器显示提示和结果。游戏流程：按按钮开始一轮，随机等待2到5秒后点亮LED，亮灯后按按钮显示反应毫秒数；若等待期间按下则判为抢按，之后可再按按钮开始新一轮。全程必须能识别按钮，不得用delay阻塞随机等待；按钮需去抖，长按不能连续启动多轮。包含断电接线、LED极性、共地说明，不涉及市电、电机或继电器。",
+            "technical_plan": "使用Arduino Uno、一个LED（串联限流电阻）和一个按钮。按钮接法：一端接GND，另一端接D2引脚，使用pinMode(2, INPUT_PULLUP)。LED阳极经电阻接D9引脚，阴极接GND，注意极性和共地。程序采用非阻塞状态机：状态包括IDLE（等待开始）、WAITING（随机等待2-5秒）、LIGHT_ON（灯亮等待反应）、EARLY（抢按提示）。随机等待使用random(2000, 5001)获取毫秒数，配合millis()计时，不使用delay。按钮去抖采用稳定时间窗口：每5ms采样一次，连续4次（20ms）电平相同才确认状态变化，从去抖后的下降沿检测一次按下。主循环始终运行，不阻塞按钮采样。串口监视器9600波特率，显示提示和反应时间。",
+            "assumptions": [
+              "使用Arduino Uno和Arduino IDE，串口监视器波特率设为9600。",
+              "按钮和LED的引脚可修改，方案中默认按钮接D2、LED接D9。",
+              "随机等待范围2到5秒包含端点，程序使用random(2000, 5001)实现。",
+              "去抖参数（稳定采样次数和间隔）是可修改假设，默认每5ms采样一次，连续4次相同电平确认。",
+              "硬件接线为低压直流，不涉及市电、电机或继电器。",
+              "学生可更换开发板型号、引脚或去抖参数并重新生成方案。"
+            ],
+            "learner_profile": {
+              "student_level": "beginner",
+              "assumed_knowledge": [
+                "能在Arduino IDE中编写并上传简单程序",
+                "知道LED需要串联限流电阻并区分极性",
+                "了解Arduino基本数字输入输出函数"
+              ],
+              "adjustment_note": "你是初学者，假设你只做过点亮LED。如果实际经验不同，或想调整项目范围、硬件引脚和去抖参数，可以随时修改并重新生成学习方案。"
+            },
+            "functions": [
+              {
+                "id": "f1",
+                "name": "安全断电接线与LED/按钮电路搭建",
+                "original_requirement": "说明断电接线、LED极性和共地，不接市电、电机或继电器。按钮使用INPUT_PULLUP接地。",
+                "acceptance_criteria": "在断电状态下完成接线：LED阳极经限流电阻接D9，阴极接GND；按钮一端接GND，另一端接D2；所有地线共地；上电后LED不异常常亮，按钮可被读取；不接入市电、电机或继电器。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f2",
+                "name": "按钮去抖与单次按下检测",
+                "original_requirement": "按钮需要去抖，长按不能连续启动多轮。",
+                "acceptance_criteria": "按住按钮不放时，串口只打印一次按下事件，不会连续触发开始；松开后再次按下可产生新事件。去抖采用稳定时间窗口，而非仅比较上次电平。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f3",
+                "name": "非阻塞随机等待与提前按下判定",
+                "original_requirement": "随机等待2到5秒再亮LED；等待期间若提前按下则判抢按；全程仍能识别按钮，不能用delay阻塞随机等待。",
+                "acceptance_criteria": "在等待期间按下按钮，串口立即显示抢按提示；等待期间按钮检测正常，不因等待而丢失按下；到达随机时间后LED点亮。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f4",
+                "name": "亮灯后测量并显示反应毫秒数",
+                "original_requirement": "亮灯后按按钮显示反应毫秒数。",
+                "acceptance_criteria": "LED点亮后按下按钮，串口显示反应时间（毫秒），数值为非负整数；按钮去抖后只记录第一次有效按下。",
+                "no_new_learning_reason": null
+              },
+              {
+                "id": "f5",
+                "name": "抢按后开始新一轮",
+                "original_requirement": "等待期间若提前按下则判抢按，之后可按按钮开始新一轮。",
+                "acceptance_criteria": "抢按提示后，再次按下按钮可开始新一轮随机等待；长按不会连续启动多轮。",
+                "no_new_learning_reason": null
+              }
+            ],
+            "knowledge_points": [
+              {
+                "id": "k1",
+                "name": "Arduino低压电路安全接线与LED极性",
+                "description": "学习断电接线顺序、LED阳极阴极识别、限流电阻作用与共地连接，完成安全的上电前检查。",
+                "function_ids": [
+                  "f1"
+                ],
+                "why_needed": "正确接线是项目运行和安全的前提，避免LED损坏或短路。",
+                "learning_goal": "理解LED极性、限流电阻和共地的作用，能独立完成并检查低压接线。",
+                "technology": "Arduino",
+                "project_task": "在断电状态下将LED经电阻接D9，按钮一端接GND另一端接D2，确认所有地线共地。",
+                "concepts": [
+                  "LED阳极阴极识别",
+                  "限流电阻计算与连接",
+                  "共地连接",
+                  "断电接线检查"
+                ],
+                "practice_check": "上电后LED不异常常亮，按钮可被读取；用万用表检查GND连通。",
+                "necessity": "required",
+                "prerequisite_ids": [],
+                "learning_order": 1,
+                "selection": "learn"
+              },
+              {
+                "id": "k2",
+                "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+                "description": "学习pinMode(INPUT_PULLUP)配置内部上拉，用digitalRead读取按钮状态，并通过串口监视器打印状态变化。",
+                "function_ids": [
+                  "f1",
+                  "f2"
+                ],
+                "why_needed": "项目需要可靠读取按钮并观察去抖效果，串口是主要反馈工具。",
+                "learning_goal": "能配置内部上拉按钮，并在串口监视器中正确打印按钮原始状态。",
+                "technology": "Arduino",
+                "project_task": "编写程序读取D2按钮状态，并每100ms在串口监视器打印一次原始电平值。",
+                "concepts": [
+                  "pinMode INPUT_PULLUP",
+                  "digitalRead",
+                  "Serial.begin与Serial.println",
+                  "按钮按下为LOW"
+                ],
+                "practice_check": "串口监视器显示：未按时为1，按下时为0。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k1"
+                ],
+                "learning_order": 2,
+                "selection": "learn"
+              },
+              {
+                "id": "k3",
+                "name": "按钮去抖的稳定时间窗口实现",
+                "description": "学习用millis()定时采样，连续多次电平一致才确认按钮状态变化，并检测从松开到按下的单次边沿。",
+                "function_ids": [
+                  "f2"
+                ],
+                "why_needed": "机械按钮会产生抖动，不处理会导致一次按下被误判为多次，长按也会连续触发。",
+                "learning_goal": "理解去抖需要稳定时间窗口而非仅比较上次电平，并能实现单次按下检测。",
+                "technology": "Arduino",
+                "project_task": "在程序中每5ms读取按钮，连续4次电平相同才更新稳定状态；在稳定状态从HIGH变为LOW时产生一次按下事件。",
+                "concepts": [
+                  "millis()非阻塞定时采样",
+                  "稳定时间窗口去抖",
+                  "下降沿单次触发",
+                  "长按不重复触发"
+                ],
+                "practice_check": "快速按下松开一次，串口只打印一次“按下”；按住不放3秒，也只打印一次；抖动时不会打印多次。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k2"
+                ],
+                "learning_order": 3,
+                "selection": "learn"
+              },
+              {
+                "id": "k4",
+                "name": "非阻塞随机等待与millis计时",
+                "description": "学习用random()生成2到5秒的毫秒数，用millis()记录开始时间，在主循环中检查是否达到等待时间，避免delay阻塞。",
+                "function_ids": [
+                  "f3"
+                ],
+                "why_needed": "随机等待期间仍需持续检测按钮，用delay会导致无法识别提前按下。",
+                "learning_goal": "理解非阻塞等待模式，能实现不冻结按钮检测的随机延时。",
+                "technology": "Arduino",
+                "project_task": "在等待状态中生成2000到5000毫秒的随机等待时长，用millis()比较已过时间，同时持续执行按钮去抖检测。",
+                "concepts": [
+                  "random(2000, 5001)范围",
+                  "millis()记录时间戳",
+                  "非阻塞条件检查",
+                  "状态变量控制流程"
+                ],
+                "practice_check": "等待期间按下按钮能立即被检测到，3次测试亮灯时间随机分布在2-5秒内且不阻塞。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k3"
+                ],
+                "learning_order": 4,
+                "selection": "learn"
+              },
+              {
+                "id": "k5",
+                "name": "反应时间游戏状态机与主循环",
+                "description": "设计IDLE、WAITING、LIGHT_ON、EARLY四个状态的状态机，在loop中根据状态和按钮事件切换，LED亮灭与串口提示对应。",
+                "function_ids": [
+                  "f3",
+                  "f4",
+                  "f5"
+                ],
+                "why_needed": "整合按钮事件、随机等待、抢按处理、反应计时和重新开始，需要清晰的状态管理。",
+                "learning_goal": "能将游戏规则转化为状态机，并在不阻塞主循环的前提下管理状态切换。",
+                "technology": "Arduino",
+                "project_task": "实现状态机：IDLE等待按钮，WAITING随机等待，LIGHT_ON记录反应并显示毫秒数，EARLY提示抢按后可再按开始。",
+                "concepts": [
+                  "状态枚举或常量",
+                  "switch-case状态切换",
+                  "LED输出控制",
+                  "反应时间计算：millis()差值"
+                ],
+                "practice_check": "完整流程可运行：按按钮→等待→亮灯→再按显示反应毫秒；等待中抢按显示提示，再按可开始新一轮。",
+                "necessity": "required",
+                "prerequisite_ids": [
+                  "k3",
+                  "k4"
+                ],
+                "learning_order": 5,
+                "selection": "learn"
+              }
+            ]
+          },
+          "confirmation": null,
+          "batches": [],
+          "budgets": null,
+          "error": null,
+          "warnings": [],
+          "created_at": "2026-10-18T17:00:28.668581+00:00",
+          "model": "deepseek-flash",
+          "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+          "origin": "analysis",
+          "search_started_at": null,
+          "cancel_requested": false,
+          "updated_at": "2026-10-18T17:00:47.318744+00:00"
+        }
+      },
+      "completed_at": "2026-10-18T17:00:48.052320+00:00",
+      "client_analysis_elapsed_seconds": 19.38694,
+      "error": null,
+      "observations": {
+        "analysis_available": true,
+        "input_preserved": true,
+        "schema_valid": true,
+        "quality_guard_issues": [],
+        "function_count": 5,
+        "unit_count": 5,
+        "soft_unit_range_4_to_8": true,
+        "technology_targets": [
+          {
+            "id": "k1",
+            "name": "Arduino低压电路安全接线与LED极性",
+            "technology": "Arduino"
+          },
+          {
+            "id": "k2",
+            "name": "Arduino按钮INPUT_PULLUP与串口监视器调试",
+            "technology": "Arduino"
+          },
+          {
+            "id": "k3",
+            "name": "按钮去抖的稳定时间窗口实现",
+            "technology": "Arduino"
+          },
+          {
+            "id": "k4",
+            "name": "非阻塞随机等待与millis计时",
+            "technology": "Arduino"
+          },
+          {
+            "id": "k5",
+            "name": "反应时间游戏状态机与主循环",
+            "technology": "Arduino"
+          }
+        ],
+        "coverage_observations": [
+          {
+            "criterion": "安全低压LED按钮接线",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "INPUT_PULLUP低电平输入",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "去抖与单次按下",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "随机等待与非阻塞计时",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "抢按与状态转换",
+            "keyword_observed": true
+          },
+          {
+            "criterion": "反应毫秒与串口结果",
+            "keyword_observed": true
+          }
+        ],
+        "latency_goal_met": true,
+        "latency_hard_limit_met": true,
+        "manual_review_required": true,
+        "manual_semantic_pass": null,
+        "analysis_sha256": "8b60141a6527ce27b2cef7cf983f1d718bfcaa7e12d6b1f185659de86fff703b"
+      },
+      "model_events": [
+        {
+          "event_type": "model_call_started",
+          "call_id": "381460a65a50463a95c2b4aa3d53a0dc",
+          "task": "project_analysis",
+          "system_prompt_sha256": "a214a2104b55099d5259e2c16529d3e9d826f378f6e26178ae9a0b7f082fbb4f",
+          "started_at": "2026-10-18T17:00:28.672324+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "381460a65a50463a95c2b4aa3d53a0dc",
+          "task": "project_analysis",
+          "system_prompt_sha256": "a214a2104b55099d5259e2c16529d3e9d826f378f6e26178ae9a0b7f082fbb4f",
+          "started_at": "2026-10-18T17:00:28.672324+00:00",
+          "finished_at": "2026-10-18T17:00:42.662139+00:00",
+          "elapsed_seconds": 13.989823,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "54af47e250f91fe8cd588ab7e82a717e24c2bf3076d5fba1304b976f5908a886",
+          "response_bytes": 11034,
+          "message_content_sha256": "280e2069faad062575b6dfd092b77824c4dc5188551c120adbd1f4c5ef4c2be6",
+          "message_content_chars": 5802,
+          "provider_response_id": "c60a6cd6-f635-46ad-875e-8b4632844615",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3218,
+            "completion_tokens": 2538,
+            "total_tokens": 5756,
+            "prompt_cache_hit_tokens": 1536,
+            "prompt_cache_miss_tokens": 1682,
+            "prompt_tokens_details": {
+              "cached_tokens": 1536
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        },
+        {
+          "event_type": "model_call_started",
+          "call_id": "7e611b07716646f1babfd0cf38a7a1fa",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T17:00:42.666485+00:00"
+        },
+        {
+          "event_type": "model_call_finished",
+          "call_id": "7e611b07716646f1babfd0cf38a7a1fa",
+          "task": "project_analysis_review",
+          "system_prompt_sha256": "cbcb0e2d28aa9a722087ecdc139f1207938429a50670c68ea735e37080f98b85",
+          "started_at": "2026-10-18T17:00:42.666485+00:00",
+          "finished_at": "2026-10-18T17:00:47.316862+00:00",
+          "elapsed_seconds": 4.650387,
+          "outcome": "json_returned",
+          "failure_type": null,
+          "http_status": 200,
+          "response_body_sha256": "399047d8d275adf5a117356d2cfcc6c137b2a7521473a1aaa2f24c2130ef986f",
+          "response_bytes": 1378,
+          "message_content_sha256": "f0821581063c502fe870f8c0e371cfa3261356e7e2135b80181ab6f889e657f2",
+          "message_content_chars": 484,
+          "provider_response_id": "b8aa60af-df16-4993-a2d9-d19f8944edf6",
+          "provider_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 3594,
+            "completion_tokens": 238,
+            "total_tokens": 3832,
+            "prompt_cache_hit_tokens": 768,
+            "prompt_cache_miss_tokens": 2826,
+            "prompt_tokens_details": {
+              "cached_tokens": 768
+            }
+          },
+          "finish_reason": "stop",
+          "response_read_complete": true
+        }
+      ]
+    }
+  ],
+  "started_at": "2026-10-18T16:59:59.761927+00:00",
+  "base_url": "http://127.0.0.1:8000",
+  "max_analysis_submissions": 2,
+  "runtime_binding": {
+    "source": "evidence\\phase2\\runtime-v261-manifest.json",
+    "source_sha256": "9145e9701ee6715347750d83f2b4cae20cec871ea937c2d0b8ee50d1494cea3b",
+    "pid": 32228,
+    "root": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2",
+    "port": 8000,
+    "files": {
+      "backend/app/__init__.py": "15a60366b3bc7e11073b251ebe3de20d4630e45c6ffdaab43087128909631a40",
+      "backend/app/analysis_review.py": "9140ea3c4dbf3f29b138007ff8f8dcc051450f677f827600d9ffbe1e3f85c4b2",
+      "backend/app/config.py": "66c2b2cffe88229d869a5071d6937aa355526188298dde544fcfa31541a9475a",
+      "backend/app/db.py": "9674136aa46301b2364491b5b041ba4a47e26be3046f76794e8be959f2d81521",
+      "backend/app/extractor.py": "bd22a1069a2b436d03760ceae873d168fd8ae975b2217658488197fae3f946ed",
+      "backend/app/fetcher.py": "e5e8ff4c1e9e85c5f1caf3b522f378570be60df9a595e9c27e37bf9926d8a0e5",
+      "backend/app/llm.py": "9a176a2a2e67cfb9d48baa5cb3b4db5c8a8b354857bb9b1304c94b45b63b453c",
+      "backend/app/main.py": "c8ff53b5795e06a8c22d9516739b6bcc6525f797c2a65decc8cd77632cd43346",
+      "backend/app/models.py": "c80b7796729d913e662accf3c95ac4918d94500299a22d00051d8ad23030554a",
+      "backend/app/official_sitemap.py": "eea7b2297ee7c2eb09314b0d715408c96e7fdf06646e8f4199b085183fa989e9",
+      "backend/app/project_analysis.py": "571858fe06cad4880960302ed85c6760b92bbb4230336e82953c245fc3395eb2",
+      "backend/app/project_db.py": "a7c8767e16e23aaa62b37e043c41eca9dbf6d6131dde1ebe30321f3bcec60a02",
+      "backend/app/project_models.py": "74f9fc8bda7c85c3fe85f96f3d6aaac696fc56b51414bde586b3eb0f82692679",
+      "backend/app/project_search.py": "54672c86ef464b90bd3a3aab4d59113d1b7427de5dcae7250a9a3f191ce8b850",
+      "backend/app/project_service.py": "390afe0cf05d45847dadf6a714cd2544c6c260c405d7818f73de93619f7a0ea6",
+      "backend/app/providers.py": "3eac384c9fc2a2fc5e43c2b43ed098c40a27f5117eacec65636bbc5dede733a0",
+      "backend/app/public_catalog.py": "8e5147dcbae69ec99d3244446c1e55f33f17307bb75143023ab189f28a919e1d",
+      "backend/app/queries.py": "745f82f5545f8077e2331ff48bd355d4e9dae8cbc279faab353575fa84e15aaf",
+      "backend/app/ranking.py": "7bc67c76a63da2a29e04d46bc952118382dd349c4ab6331f184d5f1e30196082",
+      "backend/app/rendering.py": "caa4b7d0b4e88d170ec29450b589b4a995ac3429a211b8f276d049535bd0e3c4",
+      "backend/app/resource_identity.py": "c7fae602e7a74852be002ce2c140c8347a5982f2061b4007bc7fa61dfc04a755",
+      "backend/app/security.py": "fe0feabd5f4d15cefc63ab14a9e4b74b0381d089bd31bee6d68adb7ee268b46a",
+      "backend/app/service.py": "cb17eb03f41665e30992883d463615b986f63a6338a9a3797b6a99636967c61e",
+      "backend/app/source_adapters/__init__.py": "2afcabc4ffa15b5814334cdb87f4927ab5c7f112fc8616657edceb956fed4aa5",
+      "backend/app/source_adapters/archive.py": "ddbbeb108ce42321b53713233f8b6c1ef15719e0a3917f8d18950bf2f1ae27fd",
+      "backend/app/source_adapters/base.py": "28640f96adabbe3c117f5d93d2621193c810a582c0d47163749a6dcb42084100",
+      "backend/app/source_adapters/bilibili.py": "98dcda771d1aefd94e0301047e19a6c2be69f68ce97407413ecda70441642f38",
+      "backend/app/source_adapters/freecodecamp.py": "3eafc46273196ea8d2f753abf7910da519012a1a127b6a99d1b8550a55e3d797",
+      "backend/app/source_adapters/icourse163.py": "424c803e9897228cd744151d8d111751879afd4c3faa32239e8ffd438d123c5a",
+      "backend/app/source_adapters/microsoft_curriculum.py": "3313cc0787433b7cf49ad3bc6e3d957a56ada9a446fb607f82faf8b4fff5f21d",
+      "backend/app/source_adapters/mit_ocw.py": "ef643e23c30d9a6ad15250332b35f62b814f3da03ba0ef5e7dba89debbf092b7",
+      "backend/app/topic_operations.py": "ec84712c3317bacdd4d1d5b40941ac72984727f76f074f9acc64aa4ef1a137ed",
+      "backend/app/url_utils.py": "e6de280756b3db39aed1d56583f4fa0cd417391e1d6adf3411d6a1c2e008d72c"
+    }
+  },
+  "model_events_source": "evidence\\phase2\\runtime-v261\\model-events.jsonl",
+  "analysis_capability": {
+    "status": "configured",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+    "max_functions": 12,
+    "max_knowledge_points": 24,
+    "semantic_review_enabled": true,
+    "max_model_calls": 4,
+    "review_max_output_tokens": 1500,
+    "message": "项目分析使用独立提示词；内容需学生检查确认"
+  },
+  "summary": {
+    "expected_selected_count": 2,
+    "analysis_api_submissions": 2,
+    "completed_analyses": 2,
+    "failed_analyses": 0,
+    "pending_or_unsubmitted": 0,
+    "generation_model_events": 3,
+    "review_model_events": 2,
+    "all_model_finished_events": 5,
+    "reported_completion_tokens": 8047,
+    "reported_total_tokens": 27895,
+    "model_calls_with_unknown_usage": 0,
+    "per_case_max4_model_events_met": true,
+    "configured_review_completion_cap": 1500,
+    "review_1500_completion_cap_observed": true,
+    "review_operator_completion_cap_observed": true,
+    "successful_cases_have_observed_review_call": true,
+    "search_submissions": 0,
+    "manual_semantic_acceptance_pass": null
+  },
+  "last_observed_at": "2026-10-18T17:00:48.063008+00:00"
+}

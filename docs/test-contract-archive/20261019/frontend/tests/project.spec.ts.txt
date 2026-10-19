@@ -1,0 +1,706 @@
+import { test, expect, type Page } from '@playwright/test';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import type { Capabilities, ResourceItem } from '../src/types';
+import type { ProjectAnalysis, ProjectInput, ProjectPointResult, ProjectVersion, ProjectView } from '../src/projectTypes';
+
+// Offline Mock transport fixtures only. These are not production templates or live acceptance evidence.
+const time = '2026-10-17T08:00:00Z';
+const input: ProjectInput = { name: 'Mock：Excel 成绩分析工具', requirements: '读取本地 Excel，统计、绘图和导出。', student_level: 'beginner', language: 'zh', project_context: '', technical_version: 'Python 3.11', preferred_platforms: ['bilibili'] };
+const caps: Capabilities = {
+  mode: 'live', search: { selected_provider: 'fixture', status: 'configured', message: '离线 Mock', providers: [] }, llm: { status: 'configured', message: '离线 Mock' },
+  fetch: { status: 'available', message: '离线 Mock', browser_fallback: false }, platforms: [], limits: { max_knowledge_points: 5, max_results_per_point: 5, max_search_requests: 30, max_detail_pages: 40 },
+  project_analysis: { status: 'configured', message: '离线 Mock 分析', model: 'mock-test-only', prompt_version: 'test-v1', max_functions: 12, max_knowledge_points: 24 },
+  project_search: { max_batches: 5, max_search_requests: 150, max_detail_pages: 200, deadline_seconds: 900, batch_size: 5 },
+};
+function analysis(count = 3): ProjectAnalysis {
+  return { scope: '本地成绩分析，不引入登录或云部署', technical_plan: '建议 Python、pandas 和 Matplotlib；这是可修改的假设。', assumptions: ['输入为本地 Excel 文件'],
+    functions: [{ id: 'f1', name: '读取与统计', original_requirement: '读取本地 Excel 并统计', acceptance_criteria: '得到均值统计表', no_new_learning_reason: null }, { id: 'f2', name: '图表与导出', original_requirement: '绘图和导出', acceptance_criteria: '导出图表和统计表', no_new_learning_reason: null }],
+    knowledge_points: Array.from({ length: count }, (_, index) => ({ id: `kp${index + 1}`, name: ['pandas 读取 Excel', 'pandas 计算均值', 'Matplotlib 柱状图绘制'][index] || `明确检索知识点 ${index + 1}`, description: '离线 Mock 知识点说明', function_ids: index === 0 ? ['f1', 'f2'] : [index === 1 ? 'f1' : 'f2'], why_needed: '完成所关联的功能', learning_goal: '能够在本地工具中应用', necessity: 'required', prerequisite_ids: index ? ['kp1'] : [], learning_order: index + 1, selection: 'learn' })),
+  };
+}
+function version(document = analysis(), number = 1): ProjectVersion { return { version: number, status: 'analyzed', input: structuredClone(input), analysis: document, confirmation: null, batches: [], error: null, created_at: time, model: 'mock-test-only', prompt_version: 'test-v1' }; }
+function resource(pointId: string): ResourceItem {
+  return {
+    resource: { resource_id: `mock-${pointId}`, title: `离线 Mock 课程 ${pointId}`, url: 'https://example.org/mock-course', canonical_url: 'https://example.org/mock-course', platform: 'other', resource_type: 'course', author: null, description: '仅测试展示', language: 'zh', duration_seconds: null, published_at: null, discovered_at: time, fetched_at: time, fetch_status: 'fetched', metadata_evidence_level: 'page', requires_login: false, requires_payment: false, requires_enrollment: false, chapters: [], field_provenance: {}, playback_verified: false },
+    match: { knowledge_point_id: pointId, resource_id: `mock-${pointId}`, ranking_score: 0.8, recommendation_reason: '离线测试匹配', matched_evidence_ids: [], coverage_basis: ['title'], topic_evidence_status: 'supported' }, evidence: [],
+  };
+}
+type MockOptions = { count?: number; unconfigured?: boolean; initial?: boolean; running?: boolean; failConfirmOnce?: boolean; failAnalyzeOnce?: boolean; analysisPending?: boolean; noResults?: boolean; maxBatches?: number; scopeMismatch?: boolean };
+async function mockProject(page: Page, options: MockOptions = {}) {
+  const versions = new Map<number, ProjectVersion>();
+  if (options.initial) versions.set(1, version(analysis(options.count)));
+  let currentVersion = options.initial ? 1 : 0;
+  let savedInput = structuredClone(input);
+  let created = !!options.initial;
+  let confirmFailures = options.failConfirmOnce ? 1 : 0;
+  let analysisFailures = options.failAnalyzeOnce ? 1 : 0;
+  const calls = { create: [] as ProjectInput[], analyze: 0, edit: [] as ProjectAnalysis[], confirm: [] as { version: number; acknowledged_skipped_prerequisites: string[] }[], search: [] as number[], cancel: 0, selected: [] as string[], unexpected: [] as string[], runtime: [] as string[], console: [] as string[] };
+  page.on('pageerror', error => calls.runtime.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') calls.console.push(message.text()); });
+  function view(chosen = currentVersion): ProjectView {
+    const current = versions.get(chosen) || null;
+    const points: ProjectPointResult[] = (current?.analysis?.knowledge_points || []).map(point => {
+      const batch = current!.batches.find(item => item.project_knowledge_point_ids.includes(point.id));
+      const mismatch=options.scopeMismatch&&chosen===1&&batch?.status==='completed';
+      return { project_knowledge_point_id: point.id, name: point.name, selection: point.selection, status: mismatch ? 'scope_mismatch' : point.selection !== 'learn' ? point.selection : batch?.status === 'completed' && options.noResults ? 'no_results' : batch?.status || 'not_started', batch_id: batch?.batch_id || null, job_id: batch?.job_id || null, knowledge_point_id: batch ? point.id : null, result: batch?.status === 'completed' ? { knowledge_point_id: point.id, text: point.name, total_matches: options.noResults ? 0 : 1, items: options.noResults ? [] : [resource(point.id)],
+        ...(mismatch ? {scope_status:'mismatch' as const,scope_notice:'旧检索技术与本单元不一致，结果已隐藏；请重新检索。',expected_search_text:point.name} : {}) } : null };
+    });
+    return { project_id: 'mock-project', input: savedInput, current_version: currentVersion, versions: [...versions.values()].map(item => ({ version: item.version, status: item.status, created_at: time })), version: current, points, functions: current?.analysis?.functions || [] };
+  }
+  await page.route('**/*', async route => {
+    const url = new URL(route.request().url());
+    if (!url.pathname.startsWith('/api/')) {
+      if (url.origin === new URL(process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5173').origin) return route.continue();
+      calls.unexpected.push(url.href); return route.abort();
+    }
+    const method = route.request().method();
+    const body = method === 'POST' ? route.request().postDataJSON() : {};
+    if (url.pathname === '/api/capabilities') return route.fulfill({ json: { ...caps, project_analysis: { ...caps.project_analysis, status: options.unconfigured ? 'unconfigured' : 'configured' }, project_search: { ...caps.project_search, max_batches: options.maxBatches || 5 } } });
+    if (url.pathname === '/api/projects' && method === 'GET') return route.fulfill({ json: { projects: created ? [{ project_id: 'mock-project', name: savedInput.name, current_version: currentVersion, created_at: time, updated_at: time }] : [] } });
+    if (url.pathname === '/api/projects' && method === 'POST') { calls.create.push(body); savedInput = body; created = true; return route.fulfill({ json: view() }); }
+    if (url.pathname === '/api/projects/mock-project/results') return route.fulfill({ json: view(Number(url.searchParams.get('version')) || currentVersion) });
+    if (url.pathname === '/api/projects/mock-project/analyze') {
+      calls.analyze += 1; savedInput = body.input;
+      if (analysisFailures) { analysisFailures -= 1; return route.fulfill({ status: 503, json: { detail: '离线 Mock：模型暂时不可用，请重试。' } }); }
+      currentVersion += 1;
+      const next = version(analysis(options.count), currentVersion); next.input = savedInput;
+      if (options.analysisPending) { next.status = 'analyzing'; next.analysis = null; }
+      if (options.unconfigured) { next.status = 'analysis_failed'; next.analysis = null; next.error = { code: 'unconfigured', message: '未配置可用模型，分析失败。' }; }
+      versions.set(currentVersion, next); return route.fulfill({ json: view() });
+    }
+    if (url.pathname === '/api/projects/mock-project/edit') { calls.edit.push(body.analysis); currentVersion += 1; const next = version(body.analysis, currentVersion); next.input = savedInput; versions.set(currentVersion, next); return route.fulfill({ json: view() }); }
+    if (url.pathname === '/api/projects/mock-project/confirm') {
+      calls.confirm.push(body);
+      if (confirmFailures) { confirmFailures -= 1; return route.fulfill({ status: 422, json: { detail: 'Mock：暂时超出项目预算，修改已保存。', code: 'project_budget_exceeded' } }); }
+      const next = versions.get(body.version)!; next.status = 'confirmed'; next.confirmation = { version: body.version, confirmed_at: time };
+      return route.fulfill({ json: view(body.version) });
+    }
+    if (url.pathname === '/api/projects/mock-project/search') {
+      calls.search.push(body.version);
+      const next = versions.get(body.version)!;
+      if (!next.confirmation) return route.fulfill({ status: 409, json: { detail: '必须先确认' } });
+      const selected = next.analysis!.knowledge_points.filter(point => point.selection === 'learn'); calls.selected = selected.map(point => point.id);
+      if (!next.batches.length) for (let offset = 0; offset < selected.length; offset += 5) next.batches.push({ batch_id: `batch-${offset}`, status: options.running ? offset ? 'pending' : 'submitted' : 'completed', project_knowledge_point_ids: selected.slice(offset, offset + 5).map(point => point.id), job_id: options.running && offset ? null : `job-${offset}` });
+      next.status = options.running ? 'running' : 'completed';
+      return route.fulfill({ json: view(body.version) });
+    }
+    if (url.pathname === '/api/projects/mock-project/cancel') { calls.cancel += 1; const next = versions.get(body.version)!; next.status = 'cancelled'; for (const batch of next.batches) if (batch.status === 'pending') batch.status = 'cancelled'; return route.fulfill({ json: view(body.version) }); }
+    calls.unexpected.push(`${method} ${url.pathname}`); return route.abort();
+  });
+  return { calls, versions, view };
+}
+async function enterProject(page: Page, initial = false) {
+  await page.goto(initial ? '/?project=mock-project&version=1' : '/');
+}
+function firstPoint(page: Page, id: string) { return page.locator(`.project-point[data-point-id="${id}"]`).first(); }
+
+test('phase3 历史缺省技能不算用户修改：直接确认保留版本，不制造空技能或调用edit', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true });
+  await enterProject(page, true);
+  expect(mock.versions.get(1)!.analysis!.knowledge_points.every(point => !('learning_skills' in point))).toBe(true);
+  await page.getByRole('button', { name: '查找推荐视频', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v1' })).toBeVisible();
+  expect(mock.calls.edit).toEqual([]);
+  expect(mock.calls.confirm.map(call => call.version)).toEqual([1]);
+  expect(mock.calls.search).toEqual([1]);
+  expect(mock.versions.get(1)!.analysis!.knowledge_points.every(point => !('learning_skills' in point))).toBe(true);
+  expect(mock.calls.unexpected).toEqual([]); expect(mock.calls.runtime).toEqual([]); expect(mock.calls.console).toEqual([]);
+});
+
+test('离线 Mock：真实入口结构、原始输入、共享勾选与只搜索勾选项', async ({ page }, testInfo) => {
+  const mock = await mockProject(page);
+  await enterProject(page);
+  await page.getByLabel('项目名称', { exact: true }).fill('  我的成绩工具  ');
+  await page.getByLabel('功能需求', { exact: true }).fill('  读取 Excel\n统计并绘图\n导出结果  ');
+  await page.getByRole('button', { name: '分析项目' }).click();
+  await expect(page.getByRole('heading', { name: '确认知识点 · v1' })).toBeVisible();
+  expect(mock.calls.search).toEqual([]);
+  expect(mock.calls.create[0].name).toBe('  我的成绩工具  ');
+  expect(mock.calls.create[0].requirements).toBe('  读取 Excel\n统计并绘图\n导出结果  ');
+  await firstPoint(page, 'kp1').getByLabel('想学习', { exact: true }).uncheck();
+  await expect(page.locator('.project-point[data-point-id="kp1"]')).toHaveCount(1);
+  await firstPoint(page, 'kp1').locator('summary').click();
+  await expect(firstPoint(page, 'kp1').locator('.learning-detail-copy')).toContainText('读取与统计、图表与导出');
+  await expect(firstPoint(page, 'kp1').getByLabel('想学习', { exact: true })).not.toBeChecked();
+  await firstPoint(page, 'kp3').getByLabel('想学习', { exact: true }).uncheck();
+  await expect(page.locator('.project-search-summary')).toContainText('已勾选 1 项 · 未勾选 2 项');
+  await page.getByRole('checkbox', { name: /我了解未勾选/ }).check();
+  await page.getByRole('button', { name: '查找推荐视频', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v2' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '离线 Mock 课程 kp2' })).toBeVisible();
+  expect(mock.calls.selected).toEqual(['kp2']);
+  expect(mock.calls.edit[0].knowledge_points.map(point => point.selection)).toEqual(['skip', 'learn', 'skip']);
+  await expect(page.locator('.resource-card')).toHaveCount(1);
+  await page.screenshot({ path: testInfo.outputPath('project-desktop-results.png'), fullPage: true });
+  expect(mock.calls.unexpected).toEqual([]); expect(mock.calls.runtime).toEqual([]); expect(mock.calls.console).toEqual([]);
+});
+
+test('离线 Mock：未勾选前置必须明确确认；刷新恢复、超过五点分批与取消', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true, count: 7, running: true });
+  await enterProject(page, true);
+  await firstPoint(page, 'kp1').getByLabel('想学习', { exact: true }).uncheck();
+  await expect(page.getByRole('button', { name: '查找推荐视频', exact: true })).toBeDisabled();
+  await page.getByRole('checkbox', { name: /我了解未勾选/ }).check();
+  await page.getByRole('button', { name: '查找推荐视频', exact: true }).dblclick();
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v2' })).toBeVisible();
+  expect(mock.calls.confirm[0].acknowledged_skipped_prerequisites).toEqual(['kp1']);
+  expect(mock.calls.selected).toEqual(['kp2', 'kp3', 'kp4', 'kp5', 'kp6', 'kp7']);
+  expect(mock.versions.get(2)!.batches.map(batch => batch.project_knowledge_point_ids.length)).toEqual([5, 1]);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v2' })).toBeVisible();
+  expect(mock.calls.search).toEqual([2]);
+  await expect(page.locator('.platform-search-fallback')).toHaveCount(0);
+  await captureResponsiveState(page, 'search-loading');
+  await page.getByRole('button', { name: '取消项目检索' }).click();
+  await page.locator('.search-diagnostics > summary').click();
+  await expect(page.locator('.project-batches').getByText('已取消', { exact: true })).toBeVisible();
+  expect(mock.calls.cancel).toBe(1); expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：全部取消勾选只保存选择，不创建空检索', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true });
+  await enterProject(page, true);
+  for (const id of ['kp1', 'kp2', 'kp3']) await firstPoint(page, id).getByLabel('想学习', { exact: true }).uncheck();
+  await page.getByRole('button', { name: '保存选择', exact: true }).click();
+  await expect(page.getByText('已保存选择；没有勾选知识点，未创建检索任务。')).toBeVisible();
+  expect(mock.calls.confirm).toHaveLength(1); expect(mock.calls.search).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：旧版掌握仅在草稿转换，明确保存才建新版且历史不变', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true });
+  mock.versions.get(1)!.analysis!.knowledge_points[0].selection = 'mastered';
+  await enterProject(page, true);
+  await expect(firstPoint(page, 'kp1').getByRole('checkbox', { name: '想学习', exact: true })).not.toBeChecked();
+  await expect(page.locator('.point-choices input[type="radio"]')).toHaveCount(0);
+  await expect(page.getByText('已经掌握', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('暂时跳过', { exact: true })).toHaveCount(0);
+  expect(mock.versions.get(1)!.analysis!.knowledge_points[0].selection).toBe('mastered');
+  expect(mock.calls.edit).toHaveLength(0);
+  await expect(page.getByRole('region', { name: '前置知识冲突' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '查找推荐视频', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: '保存修改，稍后确认', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '确认知识点 · v2' })).toBeVisible();
+  expect(mock.calls.edit[0].knowledge_points[0].selection).toBe('skip');
+  expect(mock.calls.edit[0].knowledge_points.every(point => ['learn', 'skip'].includes(point.selection))).toBe(true);
+  await firstPoint(page, 'kp1').getByRole('checkbox', { name: '想学习', exact: true }).check();
+  await expect(page.locator('.project-point[data-point-id="kp1"]')).toHaveCount(1);
+  await expect(firstPoint(page, 'kp1').getByRole('checkbox', { name: '想学习', exact: true })).toBeChecked();
+  await page.getByRole('button', { name: '保存修改，稍后确认', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '确认知识点 · v3' })).toBeVisible();
+  expect(mock.calls.edit[1].knowledge_points[0].selection).toBe('learn');
+  await page.getByRole('button', { name: '我的项目' }).click();
+  await page.getByLabel('查看版本', { exact: true }).selectOption('1');
+  await expect(firstPoint(page, 'kp1').getByRole('checkbox', { name: '想学习', exact: true })).not.toBeChecked();
+  await expect(firstPoint(page, 'kp1').getByRole('checkbox', { name: '想学习', exact: true })).toBeDisabled();
+  expect(mock.versions.get(1)!.analysis!.knowledge_points[0].selection).toBe('mastered');
+  expect(mock.calls.edit).toHaveLength(2);
+  expect(mock.calls.search).toEqual([]); expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：增删改与方案编辑生成新版本，删除前置需先处理引用', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true });
+  await enterProject(page, true);
+  await firstPoint(page, 'kp1').getByRole('button', { name: /删除知识点/ }).click();
+  await expect(page.getByRole('alert')).toContainText('仍依赖这个知识点');
+  await firstPoint(page, 'kp2').getByRole('button', { name: /删除知识点/ }).click();
+  await expect(page.locator('[data-point-id="kp2"]')).toHaveCount(0);
+  await page.getByRole('button', { name: '按项目任务', exact: true }).click();
+  await page.getByRole('button', { name: '＋ 为“读取与统计”添加知识点', exact: true }).click();
+  await page.getByLabel('知识点名称：新增知识点', { exact: true }).fill('pandas 处理空值');
+  await page.locator('.analysis-suggestions > summary').click();
+  await page.getByLabel('建议技术方案（可修改的假设）').fill('使用 Python 和 pandas，暂不绘图。');
+  await page.getByRole('button', { name: '保存修改，稍后确认' }).click();
+  await expect(page.getByRole('heading', { name: '确认知识点 · v2' })).toBeVisible();
+  expect(mock.calls.edit[0].knowledge_points.map(point => point.name)).toContain('pandas 处理空值');
+  expect(mock.calls.edit[0].knowledge_points.map(point => point.id)).not.toContain('kp2');
+  expect(mock.calls.edit[0].technical_plan).toBe('使用 Python 和 pandas，暂不绘图。');
+  expect(mock.calls.confirm).toEqual([]); expect(mock.calls.search).toEqual([]);
+});
+
+test('离线 Mock：保存编辑后确认失败仍恢复新版本，重试不重复编辑', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true, failConfirmOnce: true });
+  await enterProject(page, true);
+  await firstPoint(page, 'kp2').locator('.point-title-line input').fill('pandas 均值与缺失值');
+  await page.getByRole('button', { name: '查找推荐视频', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('修改已保存');
+  await expect(page.getByRole('heading', { name: '确认知识点 · v2' })).toBeVisible();
+  await page.getByRole('button', { name: '查找推荐视频', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v2' })).toBeVisible();
+  expect(mock.calls.edit).toHaveLength(1); expect(mock.calls.confirm.map(call => call.version)).toEqual([2, 2]);
+});
+
+test('离线 Mock：单元技术默认显示并随完整分析保存，历史空值兼容且只读', async ({ page }, testInfo) => {
+  const mock = await mockProject(page, { initial: true });
+  const initial = mock.versions.get(1)!.analysis!;
+  initial.knowledge_points[0].technology = 'pandas';
+  const original = structuredClone(initial);
+  const changedTechnology = 'Python 3 / pandas（本地 Excel）';
+  await enterProject(page, true);
+  await firstPoint(page, 'kp1').locator('summary').click();
+  const technology = firstPoint(page, 'kp1').getByLabel('本单元使用的工具或技术', { exact: true });
+  await expect(technology).toBeVisible();
+  await expect(technology).toHaveValue('pandas');
+  await expect(technology).toHaveAttribute('maxlength', '80');
+  await expect(technology).toBeEditable();
+  // A legacy unit can omit the optional field without a render or draft mutation.
+  await firstPoint(page, 'kp2').locator('summary').click();
+  await expect(firstPoint(page, 'kp2').getByLabel('本单元使用的工具或技术', { exact: true })).toHaveValue('');
+  await technology.fill(changedTechnology);
+  await page.getByRole('button', { name: '保存修改，稍后确认', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '确认知识点 · v2' })).toBeVisible();
+  expect(mock.calls.edit).toEqual([{ ...original, knowledge_points: original.knowledge_points.map(point => point.id === 'kp1' ? { ...point, technology: changedTechnology } : point) }]);
+  await firstPoint(page, 'kp1').locator('summary').click();
+  const savedTechnology = firstPoint(page, 'kp1').getByLabel('本单元使用的工具或技术', { exact: true });
+  await expect(savedTechnology).toHaveValue(changedTechnology);
+  await savedTechnology.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('unit-technology-saved.png'), fullPage: false, animations: 'disabled' });
+  const technologyLayout = await savedTechnology.evaluate(element => ({ clientWidth: element.clientWidth, scrollWidth: element.scrollWidth }));
+  expect(technologyLayout.scrollWidth).toBeLessThanOrEqual(technologyLayout.clientWidth + 1);
+  await page.getByRole('button', { name: '我的项目' }).click();
+  await page.getByLabel('查看版本', { exact: true }).selectOption('1');
+  await expect(page.getByRole('heading', { name: '确认知识点 · v1' })).toBeVisible();
+  await firstPoint(page, 'kp1').locator('summary').click();
+  await expect(firstPoint(page, 'kp1').getByLabel('本单元使用的工具或技术', { exact: true })).toHaveValue('pandas');
+  await expect(firstPoint(page, 'kp1').getByLabel('本单元使用的工具或技术', { exact: true })).toBeDisabled();
+  await firstPoint(page, 'kp2').locator('summary').click();
+  const historicalEmpty = firstPoint(page, 'kp2').getByLabel('本单元使用的工具或技术', { exact: true });
+  await expect(historicalEmpty).toHaveValue('');
+  await expect(historicalEmpty).toBeDisabled();
+  expect(mock.versions.get(1)!.analysis!.knowledge_points[0].technology).toBe('pandas');
+  expect(mock.versions.get(1)!.analysis!.knowledge_points[1].technology).toBeUndefined();
+  expect(mock.calls.edit).toHaveLength(1); expect(mock.calls.confirm).toHaveLength(0); expect(mock.calls.search).toHaveLength(0);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.console).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+  await writeFile(resolve(process.cwd(), process.env.QA_EVIDENCE_ROOT || '../evidence/browser', 'unit-technology-browser-observations.json'), JSON.stringify({ kind: 'isolated browser transport fixture, not live model evidence', defaultTechnology: 'pandas', submittedTechnology: mock.calls.edit[0].knowledge_points[0].technology,
+    entireAnalysisPreserved: true, inputMaxLength: 80, technologyLayout, historicalDefaultUnchanged: true, historicalMissingTechnology: '', historicalFieldsDisabled: true, mutationRequests: mock.calls.edit.length }, null, 2));
+});
+
+test('离线 Mock：预算超限保留全部知识点，需求修改后阻止旧分析确认', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true, count: 7, maxBatches: 1 });
+  await enterProject(page, true);
+  await expect(page.getByText(/超过项目 1 批上限/)).toBeVisible();
+  await expect(page.getByRole('button', { name: '查找推荐视频', exact: true })).toBeDisabled();
+  expect(new Set(await page.locator('[data-point-id]').evaluateAll(elements => elements.map(element => element.getAttribute('data-point-id')))).size).toBe(7);
+  await page.getByRole('button', { name: '查看或修改项目描述' }).click();
+  await page.getByLabel('功能需求', { exact: true }).fill('功能需求有实质变化，需要重新分析。');
+  await page.getByRole('navigation', { name: '项目学习流程' }).getByRole('button', { name: /选择知识点/ }).click();
+  await expect(page.getByText(/需求已有未保存修改/)).toBeVisible();
+  await expect(page.getByRole('button', { name: '查找推荐视频', exact: true })).toBeDisabled();
+  expect(mock.calls.search).toEqual([]);
+});
+
+test('离线 Mock：模型未配置仍保存原始输入，保留直接搜索入口', async ({ page }) => {
+  const mock = await mockProject(page, { unconfigured: true });
+  await enterProject(page);
+  await expect(page.getByText(/项目分析不可用/)).toBeVisible();
+  await page.getByLabel('项目名称', { exact: true }).fill('不能丢失的需求');
+  await page.getByLabel('功能需求', { exact: true }).fill('读取表格并导出统计图');
+  await page.getByRole('button', { name: '保存项目并检查分析配置' }).click();
+  await expect(page.getByRole('alert')).toContainText('未配置可用模型');
+  await expect(page.getByLabel('功能需求', { exact: true })).toHaveValue('读取表格并导出统计图');
+  expect(mock.calls.create[0].requirements).toBe('读取表格并导出统计图');
+  expect(mock.calls.search).toEqual([]);
+  await page.getByRole('button', { name: '直接搜索知识点', exact: true }).click();
+  await expect(page.getByLabel('知识点', { exact: true })).toBeVisible();
+});
+
+test('离线 Mock：历史结果保留版本，新版本不混入旧课程；手机布局无溢出', async ({ page }, testInfo) => {
+  const mock = await mockProject(page, { initial: true });
+  await enterProject(page, true);
+  await page.getByRole('button', { name: '查找推荐视频', exact: true }).click();
+  await expect(page.locator('.resource-card')).toHaveCount(3);
+  await page.getByRole('button', { name: '← 调整知识点', exact: true }).click();
+  await firstPoint(page, 'kp2').locator('.point-title-line input').fill('新版本统计方法');
+  await page.getByRole('button', { name: '保存修改，稍后确认' }).click();
+  await expect(page.getByRole('heading', { name: '确认知识点 · v2' })).toBeVisible();
+  await expect(page.locator('.resource-card')).toHaveCount(0);
+  await page.getByRole('button', { name: '我的项目' }).click();
+  await page.getByLabel('查看版本', { exact: true }).selectOption('1');
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v1' })).toBeVisible();
+  await expect(page.locator('.resource-card')).toHaveCount(3);
+  await expect(page.getByRole('button', { name: '查找推荐视频', exact: true })).toHaveCount(0);
+  const historyRetry = page.getByRole('button', { name: '重新检索这些知识点' });
+  expect(await historyRetry.count() === 0 || await historyRetry.isDisabled()).toBe(true);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: testInfo.outputPath('project-mobile-history.png'), fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：部分完成仅有文字资源时显示明确空态，不假示仍在检索', async ({ page }, testInfo) => {
+  const mock = await mockProject(page, { initial: true });
+  const current = mock.versions.get(1)!;
+  current.status = 'partial'; current.confirmation = { version: 1, confirmed_at: time };
+  current.batches = [{ batch_id: 'partial-batch', status: 'partial', project_knowledge_point_ids: ['kp1', 'kp2', 'kp3'], job_id: 'partial-job' }];
+  await page.route('**/api/projects/mock-project/results*', route => {
+    const snapshot = mock.view();
+    snapshot.points = snapshot.points!.map(point => ({ ...point, status: 'partial', result: {
+      knowledge_point_id: point.project_knowledge_point_id, text: point.name, total_matches: 0, items: [],
+      partial_items: [{ ...resource(point.project_knowledge_point_id), resource: { ...resource(point.project_knowledge_point_id).resource, resource_type: 'article' } }],
+    } }));
+    return route.fulfill({ json: snapshot });
+  });
+  await enterProject(page, true);
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v1' })).toBeVisible();
+  await expect(page.getByText('本次检索部分完成，暂无达到技能教学推荐标准的课程。', { exact: true })).toHaveCount(3);
+  await expect(page.getByText('正在读取或查找课程…', { exact: true })).toHaveCount(0);
+  await expect(page.locator('.resource-card')).toHaveCount(0);
+  await page.locator('.project-results').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('partial-terminal-empty.png'), fullPage: false });
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：平台筛选无匹配区别于本次无结果，切回全部恢复课程', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true });
+  const current = mock.versions.get(1)!;
+  current.status = 'completed'; current.confirmation = { version: 1, confirmed_at: time };
+  current.batches = [{ batch_id: 'completed-batch', status: 'completed', project_knowledge_point_ids: ['kp1', 'kp2', 'kp3'], job_id: 'completed-job' }];
+  await page.route('**/api/projects/mock-project/results*', route => {
+    const snapshot = mock.view();
+    snapshot.points = snapshot.points!.map(point => {
+      const item = resource(point.project_knowledge_point_id);
+      if (point.project_knowledge_point_id === 'kp2') item.resource.platform = 'bilibili';
+      return { ...point, status: point.project_knowledge_point_id === 'kp3' ? 'no_results' : 'completed', result: {
+        knowledge_point_id: point.project_knowledge_point_id, text: point.name,
+        total_matches: point.project_knowledge_point_id === 'kp3' ? 0 : 1, items: point.project_knowledge_point_id === 'kp3' ? [] : [item],
+      } };
+    });
+    return route.fulfill({ json: snapshot });
+  });
+  await enterProject(page, true);
+  await expect(page.locator('.resource-card')).toHaveCount(2);
+  await expect(page.getByText('本次暂无达到技能教学推荐标准的课程。', { exact: true })).toHaveCount(1);
+  await page.getByLabel('项目课程来源', { exact: true }).selectOption('bilibili');
+  await expect(page.locator('.resource-card')).toHaveCount(1);
+  await expect(page.locator('.platform-search-fallback')).toHaveCount(0);
+  await expect(page.getByText('当前平台下暂无可展示课程，可切换到全部平台。', { exact: true })).toHaveCount(2);
+  await expect(page.getByText('正在读取或查找课程…', { exact: true })).toHaveCount(0);
+  await page.getByLabel('项目课程来源', { exact: true }).selectOption('all');
+  await expect(page.locator('.resource-card')).toHaveCount(2);
+  await expect(page.getByText('本次暂无达到技能教学推荐标准的课程。', { exact: true })).toHaveCount(1);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：轮询自动恢复清除读取错误，同时保留确认预算失败', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true, failConfirmOnce: true });
+  let reads = 0;
+  let failNextRead = false;
+  await page.route('**/api/projects/mock-project/results*', route => {
+    reads += 1;
+    if (failNextRead) { failNextRead = false; return route.fulfill({ status: 503, json: { detail: 'Mock：一次暂时读取失败' } }); }
+    return route.fulfill({ json: mock.view() });
+  });
+  await enterProject(page, true);
+  await expect(page.getByRole('heading', { name: '确认知识点 · v1' })).toBeVisible();
+  failNextRead = true;
+  await page.getByRole('button', { name: '我的项目' }).click();
+  await page.getByRole('button', { name: '重新读取', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('一次暂时读取失败');
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  const readsBeforeConfirm = reads;
+  await page.getByRole('button', { name: '查找推荐视频', exact: true }).click();
+  await expect.poll(() => reads).toBeGreaterThan(readsBeforeConfirm);
+  await expect(page.getByRole('alert')).toContainText('Mock：暂时超出项目预算，修改已保存。');
+  expect(mock.calls.confirm).toHaveLength(1); expect(mock.calls.search).toHaveLength(0);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+const screenshotRoot = resolve(process.cwd(), process.env.QA_EVIDENCE_ROOT || '../evidence/browser', 'screenshots');
+const responsiveViewports = [{ name: 'desktop', width: 1440, height: 1000 }, { name: 'tablet', width: 768, height: 1024 }, { name: 'mobile', width: 390, height: 844 }];
+async function capture(page: Page, name: string) {
+  await mkdir(screenshotRoot, { recursive: true });
+  await page.screenshot({ path: resolve(screenshotRoot, name), fullPage: false, animations: 'disabled' });
+}
+async function assertNoOverflow(page: Page) {
+  const measurement = await page.evaluate(() => ({ width: innerWidth, scroll: document.documentElement.scrollWidth,
+    overflow: [...document.querySelectorAll('body *')].filter(element => {
+      const bounds = element.getBoundingClientRect();
+      return bounds.width > 0 && (bounds.left < -1 || bounds.right > innerWidth + 1) && getComputedStyle(element).position !== 'absolute';
+    }).map(element => ({ tag: element.tagName, class: element.className })).slice(0, 8) }));
+  expect(measurement.scroll, JSON.stringify(measurement)).toBeLessThanOrEqual(measurement.width);
+}
+async function captureResponsiveState(page: Page, state: string) {
+  for (const viewport of responsiveViewports) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await assertNoOverflow(page);
+    await capture(page, `mock-${viewport.name}-${state}.png`);
+  }
+}
+async function fillBrief(page: Page) {
+  await page.getByLabel('项目名称', { exact: true }).fill('Excel 成绩分析工具');
+  await page.getByLabel('功能需求', { exact: true }).fill('读取本地 Excel 成绩表，统计均值，绘制柱状图并导出图表与统计表。');
+}
+async function assertKeyTextContrast(page: Page, viewport: string, state = 'entry') {
+  const observations = await page.evaluate(() => {
+    const channels = (value: string) => value.match(/[\d.]+/g)!.map(Number);
+    const background = (element: Element): number[] => {
+      const color = channels(getComputedStyle(element).backgroundColor);
+      return color.length < 4 || color[3] > 0 ? color : element.parentElement ? background(element.parentElement) : [255, 255, 255];
+    };
+    const luminance = (rgb: number[]) => rgb.slice(0, 3).map(channel => {
+      const value = channel / 255; return value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4;
+    }).reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0);
+    return ['h1', '.stage-description', '.project-description .field > label', '.default-assumption', '.primary-button', '.stage-navigation button:not(:disabled)'].flatMap(selector => [...document.querySelectorAll(selector)].filter(element => element.checkVisibility()).map(element => {
+      const style = getComputedStyle(element);
+      const foreground = channels(style.color); const backdrop = background(element);
+      const first = luminance(foreground); const second = luminance(backdrop);
+      const ratio = (Math.max(first, second) + .05) / (Math.min(first, second) + .05);
+      const size = parseFloat(style.fontSize); const bold = parseInt(style.fontWeight) >= 700;
+      return { selector, text: element.textContent?.trim(), foreground, background: backdrop, ratio, minimum: size >= 24 || (bold && size >= 18.66) ? 3 : 4.5 };
+    }));
+  });
+  await mkdir(screenshotRoot, { recursive: true });
+  await writeFile(resolve(screenshotRoot, `../contrast-${viewport}${state === 'entry' ? '' : `-${state}`}.json`), JSON.stringify({ kind: 'sampled key text contrast, not a full accessibility audit', viewport, state, observations }, null, 2));
+  expect(observations.every(row => row.ratio >= row.minimum), JSON.stringify(observations)).toBe(true);
+}
+async function assertStep(page: Page, step: number) {
+  await expect(page.locator('.stage-navigation [aria-current="step"]')).toHaveText(new RegExp(`0${step}`));
+  await expect(page.locator('.stage-main')).toHaveClass(new RegExp(`stage-${step}`));
+  await expect(page.locator('vite-error-overlay')).toHaveCount(0);
+  await expect(page.locator('h1')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  const headingLines = await page.locator('h1').evaluate(heading => [...heading.childNodes]
+    .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim())
+    .flatMap(node => { const range = document.createRange(); range.selectNodeContents(node); return [...range.getClientRects()]; }).length);
+  expect(headingLines).toBe(2);
+}
+
+for (const viewport of responsiveViewports) {
+  test(`离线 Mock：${viewport.name} 三步流程、共享项去重与关键截图`, async ({ page }) => {
+    const mock = await mockProject(page);
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await enterProject(page);
+    await expect(page).toHaveTitle('项目制知识引导小精灵 · 课程与视频发现');
+    await assertStep(page, 1);
+    await expect(page.getByRole('navigation', { name: '项目学习流程' }).getByRole('button', { name: /选择知识点/ })).toBeDisabled();
+    await expect(page.getByRole('navigation', { name: '项目学习流程' }).getByRole('button', { name: /推荐视频/ })).toBeDisabled();
+    await expect(page.locator('.project-confirmation,.project-results')).toHaveCount(0);
+    await fillBrief(page);
+    await expect(page.getByText('需求保存在本机，并会发送至已配置的模型服务；所选知识点用于课程检索。请勿输入敏感信息。', { exact: true })).toBeVisible();
+    await assertNoOverflow(page);
+    await assertKeyTextContrast(page, viewport.name);
+    await capture(page, `mock-${viewport.name}-01-input.png`);
+    if (viewport.name === 'mobile') {
+      await page.getByRole('button', { name: '分析项目' }).scrollIntoViewIfNeeded();
+      await capture(page, 'mock-mobile-01-action.png');
+    }
+    await page.getByRole('button', { name: '分析项目' }).click();
+    await expect(page.getByRole('heading', { name: '确认知识点 · v1' })).toBeVisible();
+    await assertStep(page, 2);
+    await assertKeyTextContrast(page, viewport.name, 'selection');
+    await expect(page.locator('#project-name,.project-results')).toHaveCount(0);
+    await expect(page.locator('.project-point')).toHaveCount(3);
+    await expect(page.locator('.project-point[data-point-id="kp1"]')).toHaveCount(1);
+    await expect(page.locator('.analysis-suggestions')).not.toHaveAttribute('open', '');
+    await assertNoOverflow(page);
+    await capture(page, `mock-${viewport.name}-02-selection.png`);
+    await page.getByRole('button', { name: '查找推荐视频', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '项目课程结果 · v1' })).toBeVisible();
+    await assertStep(page, 3);
+    await assertKeyTextContrast(page, viewport.name, 'results');
+    await expect(page.locator('.project-confirmation,#project-name')).toHaveCount(0);
+    await expect(page.locator('.project-result-point')).toHaveCount(3);
+    await expect(page.locator('.resource-card')).toHaveCount(3);
+    await assertNoOverflow(page);
+    await capture(page, `mock-${viewport.name}-03-results.png`);
+    await page.getByRole('button', { name: 'pandas 计算均值', exact: true }).click();
+    await expect(page.locator('.project-result-point')).toHaveCount(1);
+    await expect(page.locator('.resource-card')).toHaveCount(1);
+    await page.getByRole('button', { name: '← 调整知识点', exact: true }).click();
+    await assertStep(page, 2);
+    await expect(page.locator('.project-results')).toHaveCount(0);
+    expect(mock.calls.runtime).toEqual([]); expect(mock.calls.console).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+  });
+}
+
+test('离线 Mock：键盘可跳过页头、填写需求、提交并将焦点移至新步骤标题', async ({ page }) => {
+  const mock = await mockProject(page);
+  await enterProject(page);
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: '跳转到主要内容' })).toBeFocused();
+  await capture(page, 'mock-desktop-keyboard-skip-link.png');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#stage-title')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByLabel('项目名称', { exact: true })).toBeFocused();
+  await page.keyboard.type('Keyboard learning project');
+  await page.keyboard.press('Tab');
+  await expect(page.getByLabel('功能需求', { exact: true })).toBeFocused();
+  await page.keyboard.type('Read a local dataset, summarize values and export a chart.');
+  await page.keyboard.press('Tab');
+  await expect(page.locator('summary').first()).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: '分析项目' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('heading', { name: '确认知识点 · v1' })).toBeVisible();
+  await expect(page.locator('#stage-title')).toBeFocused();
+  const checkbox = firstPoint(page, 'kp1').getByRole('checkbox', { name: '想学习', exact: true });
+  await checkbox.focus();
+  await page.keyboard.press('Space');
+  await expect(checkbox).not.toBeChecked();
+  await expect(page.getByRole('button', { name: '查找推荐视频', exact: true })).toBeDisabled();
+  await page.getByRole('checkbox', { name: /我了解未勾选/ }).focus();
+  await page.keyboard.press('Space');
+  await page.getByRole('button', { name: '查找推荐视频', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  await assertStep(page, 3);
+  await expect(page.locator('#stage-title')).toBeFocused();
+  expect(mock.calls.selected).toEqual(['kp2', 'kp3']);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：默认按先修学习顺序排列，切换项目任务仍单列并保留选择', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true });
+  const current = mock.versions.get(1)!.analysis!;
+  current.knowledge_points = [current.knowledge_points[2], current.knowledge_points[0], current.knowledge_points[1]];
+  current.knowledge_points.find(point => point.id === 'kp1')!.function_ids = ['f2', 'f1'];
+  await enterProject(page, true);
+  await expect(page.getByRole('button', { name: '按学习顺序', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.locator('.project-point').evaluateAll(points => points.map(point => point.getAttribute('data-point-id')))).toEqual(['kp1', 'kp2', 'kp3']);
+  await firstPoint(page, 'kp3').getByRole('checkbox', { name: '想学习', exact: true }).uncheck();
+  await expect(page.locator('.selection-count')).toContainText('2');
+  await page.getByRole('button', { name: '按项目任务', exact: true }).click();
+  await expect(page.getByRole('button', { name: '按项目任务', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.locator('.project-point').evaluateAll(points => points.map(point => point.getAttribute('data-point-id')))).toEqual(['kp2', 'kp1', 'kp3']);
+  await expect(page.locator('.project-point[data-point-id="kp1"]')).toHaveCount(1);
+  await expect(firstPoint(page, 'kp3').getByRole('checkbox', { name: '想学习', exact: true })).not.toBeChecked();
+  await page.getByRole('button', { name: '按学习顺序', exact: true }).click();
+  expect(await page.locator('.project-point').evaluateAll(points => points.map(point => point.getAttribute('data-point-id')))).toEqual(['kp1', 'kp2', 'kp3']);
+  expect(mock.calls.edit).toHaveLength(0); expect(mock.calls.search).toHaveLength(0);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：输入草稿与学习单元草稿刷新恢复，不隐式创建项目或新版本', async ({ page }) => {
+  const mock = await mockProject(page);
+  await enterProject(page);
+  await fillBrief(page);
+  await page.locator('.project-description .search-options > summary').click();
+  await page.getByLabel('我的学习起点').selectOption('intermediate');
+  await page.getByLabel('我已经会什么（选填）').fill('已学循环和函数，第一次做图形游戏');
+  await page.reload();
+  await expect(page.getByLabel('项目名称', { exact: true })).toHaveValue('Excel 成绩分析工具');
+  await expect(page.getByLabel('功能需求', { exact: true })).toHaveValue(/读取本地 Excel/);
+  await page.locator('.project-description .search-options > summary').click();
+  await expect(page.getByLabel('我的学习起点')).toHaveValue('intermediate');
+  await expect(page.getByLabel('我已经会什么（选填）')).toHaveValue('已学循环和函数，第一次做图形游戏');
+  expect(mock.calls.create).toHaveLength(0); expect(mock.calls.analyze).toBe(0);
+  await page.getByRole('button', { name: '分析项目' }).click();
+  await firstPoint(page, 'kp2').locator('.point-title-line input').fill('保留的单元名称草稿');
+  await firstPoint(page, 'kp3').getByRole('checkbox', { name: '想学习', exact: true }).uncheck();
+  await page.reload();
+  await expect(firstPoint(page, 'kp2').locator('.point-title-line input')).toHaveValue('保留的单元名称草稿');
+  await expect(firstPoint(page, 'kp3').getByRole('checkbox', { name: '想学习', exact: true })).not.toBeChecked();
+  expect(mock.calls.edit).toHaveLength(0); expect(mock.calls.confirm).toHaveLength(0); expect(mock.calls.search).toHaveLength(0);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：分析失败保留输入，修改后重试复用已保存项目', async ({ page }) => {
+  const mock = await mockProject(page, { failAnalyzeOnce: true });
+  await enterProject(page);
+  await fillBrief(page);
+  await page.getByRole('button', { name: '分析项目' }).click();
+  await expect(page.getByRole('alert')).toContainText('模型暂时不可用');
+  await expect(page.getByLabel('项目名称', { exact: true })).toHaveValue('Excel 成绩分析工具');
+  await captureResponsiveState(page, 'analysis-error');
+  await page.getByLabel('功能需求', { exact: true }).fill('方向键控制挡板，记录得分，结束后能够重新开始。');
+  await page.getByRole('button', { name: '分析项目' }).click();
+  await expect(page.getByRole('heading', { name: '确认知识点 · v1' })).toBeVisible();
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  expect(mock.calls.create).toHaveLength(1); expect(mock.calls.analyze).toBe(2);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：无结果重试创建并确认新版本，旧结果可回看且不重复同版检索', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true, noResults: true });
+  await enterProject(page, true);
+  await page.getByRole('button', { name: '查找推荐视频', exact: true }).click();
+  await expect(page.getByText('本次暂无达到技能教学推荐标准的课程。', { exact: true })).toHaveCount(3);
+  await captureResponsiveState(page, 'no-results');
+  await page.getByRole('button', { name: '重新检索这些知识点' }).click();
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v2' })).toBeVisible();
+  expect(mock.calls.edit).toHaveLength(1);
+  expect(mock.calls.search).toEqual([1, 2]);
+  expect(mock.calls.confirm.map(call => call.version)).toEqual([1, 2]);
+  expect(mock.versions.get(1)!.status).toBe('completed');
+  await page.getByRole('button', { name: '我的项目' }).click();
+  await page.getByLabel('查看版本', { exact: true }).selectOption('1');
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v1' })).toBeVisible();
+  await expect(page.getByText('本次暂无达到技能教学推荐标准的课程。', { exact: true })).toHaveCount(3);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：检索范围失配明确重试建新版，历史仍只读且旧卡片不可用',async({page})=>{
+  const mock=await mockProject(page,{initial:true,scopeMismatch:true});
+  const old=mock.versions.get(1)!;old.status='partial';old.confirmation={version:1,confirmed_at:time};
+  old.batches=[{batch_id:'old-scope-batch',status:'completed',project_knowledge_point_ids:['kp1','kp2','kp3'],job_id:'old-scope-job'}];
+  await enterProject(page,true);
+  await expect(page.getByRole('heading',{name:'项目课程结果 · v1'})).toBeVisible();
+  await expect(page.locator('.scope-mismatch-notice')).toHaveCount(3);
+  await expect(page.locator('.resource-card,.unit-coverage,.skeleton-card,.search-progress')).toHaveCount(0);
+  expect((await page.locator('.project-result-point').allTextContents()).every(text=>!text.includes('本次没有找到'))).toBe(true);
+  await expect(page.locator('.scope-mismatch-notice').first()).toContainText('创建新版本');
+  await page.getByRole('button',{name:'重新检索这些知识点'}).click();
+  await expect(page.getByRole('heading',{name:'项目课程结果 · v2'})).toBeVisible();
+  await expect(page.locator('.scope-mismatch-notice')).toHaveCount(0);
+  expect(mock.calls.edit).toHaveLength(1);expect(mock.calls.search).toEqual([2]);
+  expect(mock.calls.confirm.map(call=>call.version)).toEqual([2]);
+  expect(old.batches[0].job_id).toBe('old-scope-job');expect(old.status).toBe('partial');
+  await page.getByRole('button',{name:'我的项目'}).click();
+  await page.getByLabel('查看版本',{exact:true}).selectOption('1');
+  await expect(page.getByRole('heading',{name:'项目课程结果 · v1'})).toBeVisible();
+  await expect(page.locator('.scope-mismatch-notice').first()).toContainText('当前为历史结果');
+  await expect(page.getByRole('button',{name:'重新检索这些知识点'})).toHaveCount(0);
+  await expect(page.locator('.resource-card,.unit-coverage')).toHaveCount(0);
+  expect(mock.calls.edit).toHaveLength(1);expect(mock.calls.search).toEqual([2]);
+  expect(mock.calls.runtime).toEqual([]);expect(mock.calls.console).toEqual([]);expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：无结果的平台搜索固定HTTPS来源并编码原单元词，明确区别推荐视频', async ({ page }) => {
+  const mock = await mockProject(page, { initial: true, noResults: true });
+  const current = mock.versions.get(1)!;
+  current.status = 'completed'; current.confirmation = { version: 1, confirmed_at: time };
+  current.batches = [{ batch_id: 'empty-batch', status: 'completed', project_knowledge_point_ids: ['kp1', 'kp2', 'kp3'], job_id: 'empty-job' }];
+  const keyword = 'pandas C++ & 空值? <script>alert(1)</script> #主题';
+  current.analysis!.knowledge_points[0].name = keyword;
+  await enterProject(page, true);
+  const links = page.locator('.platform-search-fallback');
+  await expect(links).toHaveCount(3);
+  const target = new URL((await links.first().getAttribute('href'))!);
+  expect(target.protocol).toBe('https:'); expect(target.hostname).toBe('search.bilibili.com'); expect(target.pathname).toBe('/all');
+  expect([...target.searchParams.keys()]).toEqual(['keyword']);
+  expect(target.searchParams.get('keyword')).toBe(keyword);
+  expect(target.hash).toBe(''); expect(target.username).toBe(''); expect(target.password).toBe('');
+  await expect(links.first()).toHaveAttribute('target', '_blank');
+  await expect(links.first()).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(links.first()).toHaveAccessibleName(/平台搜索入口，非已推荐视频/);
+  await expect(page.locator('.resource-card, .project-results script')).toHaveCount(0);
+  // A student who did not choose this platform should not receive that fallback.
+  current.input.preferred_platforms = ['icourse163'];
+  await page.reload();
+  await expect(page.getByRole('heading', { name: '项目课程结果 · v1' })).toBeVisible();
+  await expect(page.locator('.platform-search-fallback')).toHaveCount(0);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});
+
+test('离线 Mock：分析加载可刷新恢复，减少动态偏好停用所有动画与过渡', async ({ page }) => {
+  const mock = await mockProject(page, { analysisPending: true });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await enterProject(page);
+  await fillBrief(page);
+  await page.getByRole('button', { name: '分析项目' }).click();
+  await expect(page.getByText('正在梳理项目知识点', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '正在梳理知识点…' })).toBeDisabled();
+  await page.reload();
+  await expect(page.getByText('正在梳理项目知识点', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('功能需求', { exact: true })).toHaveValue(/读取本地 Excel/);
+  const motions = await page.locator('.breathing-dots i,.stage-content,.primary-button').evaluateAll(elements => elements.map(element => {
+    const style = getComputedStyle(element); return { animation: style.animationName, transition: style.transitionDuration };
+  }));
+  expect(motions.every(motion => motion.animation === 'none' && motion.transition.split(',').every(value => parseFloat(value) === 0))).toBe(true);
+  await captureResponsiveState(page, 'loading-reduced-motion');
+  await mkdir(screenshotRoot, { recursive: true });
+  await writeFile(resolve(screenshotRoot, '../motion-observations.json'), JSON.stringify({ fixture: 'offline mocked analysis loading', reducedMotion: 'reduce', computedStyles: motions }, null, 2));
+  expect(mock.calls.create).toHaveLength(1); expect(mock.calls.analyze).toBe(1);
+  expect(mock.calls.runtime).toEqual([]); expect(mock.calls.unexpected).toEqual([]);
+});

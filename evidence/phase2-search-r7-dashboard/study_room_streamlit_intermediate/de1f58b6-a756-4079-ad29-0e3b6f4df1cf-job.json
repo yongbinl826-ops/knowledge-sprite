@@ -1,0 +1,740 @@
+{
+  "job_id": "de1f58b6-a756-4079-ad29-0e3b6f4df1cf",
+  "status": "partial",
+  "phase": "done",
+  "created_at": "2026-10-18T19:39:40.766703+00:00",
+  "updated_at": "2026-10-18T19:40:12.036430+00:00",
+  "request": {
+    "knowledge_points": [
+      "Streamlit 空结果的安全展示"
+    ],
+    "student_level": "intermediate",
+    "language": "zh",
+    "project_context": "校园自习室使用情况本地看板 技术栈按指定使用 Python + pandas + Streamlit，全部在本机运行。结构：1) 用 st.file_uploader 读取 CSV；2) 独立校验函数：解析 date（YYYY-MM-DD）、检查 room 非空、visits 非负整数、capacity 与 open_minutes 为正整数、occupied_seat_minutes 非负且不超过 capacity*open_minutes，返回有效数据与被排除行数；3) 用 st.date_input 取起止日期（两端包含）与 st.multiselect 取房间；房间选空时返回空结果；4) 指标与图都基于同一份 filtered 数据：sum 聚合计算加权使用率=sum(occupied)/sum(capacity*open_minutes)，用 f-string 格式化百分比保留1位小数；5) 空结果指标显示“—”且不调用 st.bar_chart。为便于学习，拆成不超过6个练习单元，从上传与重运行、校验、筛选、聚合口径、条件化展示逐步搭建。校验与聚合逻辑写成可单独测试的普通函数。 已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。 用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_se",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ],
+    "learning_targets": {
+      "Streamlit 空结果的安全展示": [
+        "空 DataFrame 判断",
+        "除零防护",
+        "条件渲染",
+        "错误提示 st.info/st.error"
+      ]
+    }
+  },
+  "knowledge_points": [
+    {
+      "knowledge_point_id": "5bd7fd66-1d13-4117-8d98-051ebc9cb4b2",
+      "text": "Streamlit 空结果的安全展示",
+      "learning_targets": [
+        "空 DataFrame 判断",
+        "除零防护",
+        "条件渲染",
+        "错误提示 st.info/st.error"
+      ]
+    }
+  ],
+  "progress": {
+    "queries_planned": 6,
+    "queries_completed": 6,
+    "search_requests": 10,
+    "search_successes": 6,
+    "search_failures": 0,
+    "candidates_discovered": 31,
+    "resources_discovered": 20,
+    "details_attempted": 4,
+    "details_completed": 4,
+    "details_cached": 3,
+    "cache_hits": 3,
+    "catalog_pages_attempted": 0,
+    "catalog_pages_completed": 0
+  },
+  "budgets": {
+    "max_search_requests": 30,
+    "max_detail_pages": 40,
+    "deadline_seconds": 240
+  },
+  "warnings": [
+    "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+    "13 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+    "1 个候选缺少课程或视频类型依据，未作为学习资源展示"
+  ],
+  "errors": [],
+  "queue_wait_seconds": 0.047,
+  "fetch_diagnostics": {
+    "available": true,
+    "started_at": "2026-10-18T19:39:40.813563+00:00",
+    "finished_at": "2026-10-18T19:40:12.036421+00:00",
+    "counts_delta": {
+      "dns_started": 4,
+      "dns_completed": 4,
+      "http_started": 4,
+      "http_transport": 4,
+      "http_completed": 4
+    },
+    "events": [
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:39:50.554632+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Wo4y1x7Ar/",
+        "url_sha256": "52b6545ff050937f4c708b12e936747428edf2738dbc12f8a6a5670773163a58",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:39:51.878600+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Wo4y1x7Ar/",
+        "url_sha256": "52b6545ff050937f4c708b12e936747428edf2738dbc12f8a6a5670773163a58",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:39:51.878623+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Wo4y1x7Ar/",
+        "url_sha256": "52b6545ff050937f4c708b12e936747428edf2738dbc12f8a6a5670773163a58",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:39:51.878787+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Wo4y1x7Ar/",
+        "url_sha256": "52b6545ff050937f4c708b12e936747428edf2738dbc12f8a6a5670773163a58",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:39:51.878782+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:39:52.042396+00:00",
+              "elapsed_seconds": 0.163628
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:39:52.044362+00:00",
+              "elapsed_seconds": 0.165586
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:39:52.044385+00:00",
+              "elapsed_seconds": 0.165605
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:39:52.817646+00:00",
+              "elapsed_seconds": 0.938871
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:39:52.818794+00:00",
+              "elapsed_seconds": 0.940018
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:39:52.818957+00:00",
+              "elapsed_seconds": 0.940179
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:39:52.818965+00:00",
+              "elapsed_seconds": 0.940186
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:39:52.819004+00:00",
+              "elapsed_seconds": 0.940224
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:39:52.819008+00:00",
+              "elapsed_seconds": 0.940228
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:39:53.445244+00:00",
+              "elapsed_seconds": 1.566475
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:39:53.445636+00:00",
+              "elapsed_seconds": 1.566856
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:39:53.842163+00:00",
+              "elapsed_seconds": 1.963386
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:39:53.843100+00:00",
+              "elapsed_seconds": 1.964323
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:39:53.843136+00:00",
+              "elapsed_seconds": 1.964356
+            }
+          ],
+          "bytes_read": 75258,
+          "body_complete": true,
+          "body_sha256": "ecf68e9f7e40ab603bdeea6a990566712be7aa39923594c22d477066741d0036",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 75258,
+          "decoded_bytes_read": 383160,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "b3c523ed443e188255dd4fd3b96ad3310bd3c452b8b8f487757c5d345f5315c1",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:39:53.445565+00:00",
+          "headers_elapsed_seconds": 1.566786,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:39:53.843855+00:00",
+          "finished_at": "2026-10-18T19:39:53.844461+00:00",
+          "elapsed_seconds": 1.965684,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:39:53.844508+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Wo4y1x7Ar/",
+        "url_sha256": "52b6545ff050937f4c708b12e936747428edf2738dbc12f8a6a5670773163a58",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 383160
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:39:56.547544+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Ha4y157Bz/",
+        "url_sha256": "e28fb0bcba4fd8367145f3fa9cafb9c3d89321fea6c9e9c447bc6672600e2a7d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:39:57.832637+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Ha4y157Bz/",
+        "url_sha256": "e28fb0bcba4fd8367145f3fa9cafb9c3d89321fea6c9e9c447bc6672600e2a7d",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:39:57.832659+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Ha4y157Bz/",
+        "url_sha256": "e28fb0bcba4fd8367145f3fa9cafb9c3d89321fea6c9e9c447bc6672600e2a7d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:39:57.832806+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Ha4y157Bz/",
+        "url_sha256": "e28fb0bcba4fd8367145f3fa9cafb9c3d89321fea6c9e9c447bc6672600e2a7d",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:39:57.832800+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:39:57.997965+00:00",
+              "elapsed_seconds": 0.165177
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:39:57.999720+00:00",
+              "elapsed_seconds": 0.166925
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:39:57.999742+00:00",
+              "elapsed_seconds": 0.166944
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:39:58.637146+00:00",
+              "elapsed_seconds": 0.804362
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:39:58.638337+00:00",
+              "elapsed_seconds": 0.805542
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:39:58.638512+00:00",
+              "elapsed_seconds": 0.805715
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:39:58.638521+00:00",
+              "elapsed_seconds": 0.805722
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:39:58.638565+00:00",
+              "elapsed_seconds": 0.805767
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:39:58.638570+00:00",
+              "elapsed_seconds": 0.805771
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:39:59.277956+00:00",
+              "elapsed_seconds": 1.44517
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:39:59.278431+00:00",
+              "elapsed_seconds": 1.445633
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:39:59.660026+00:00",
+              "elapsed_seconds": 1.827235
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:39:59.660931+00:00",
+              "elapsed_seconds": 1.828139
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:39:59.660989+00:00",
+              "elapsed_seconds": 1.828191
+            }
+          ],
+          "bytes_read": 49187,
+          "body_complete": true,
+          "body_sha256": "d5349d8b203cb3059f0217953b36c7002ab8099d77de4a63ce078e907ac93d8b",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 49187,
+          "decoded_bytes_read": 166041,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "4d7ad576218f38211b96088172fd8bf480b8119978ec4b90c95b32445fe8c9e9",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:39:59.278358+00:00",
+          "headers_elapsed_seconds": 1.445564,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:39:59.661861+00:00",
+          "finished_at": "2026-10-18T19:39:59.662605+00:00",
+          "elapsed_seconds": 1.82981,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:39:59.662659+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Ha4y157Bz/",
+        "url_sha256": "e28fb0bcba4fd8367145f3fa9cafb9c3d89321fea6c9e9c447bc6672600e2a7d",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 166041
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:40:02.468735+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1o24y1N7XL/",
+        "url_sha256": "1c2e5192e45b688646583e4c2a715de8a9c38d867c29753af136b97d628927d5",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:40:03.849648+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1o24y1N7XL/",
+        "url_sha256": "1c2e5192e45b688646583e4c2a715de8a9c38d867c29753af136b97d628927d5",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:40:03.849673+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1o24y1N7XL/",
+        "url_sha256": "1c2e5192e45b688646583e4c2a715de8a9c38d867c29753af136b97d628927d5",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:40:03.849850+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1o24y1N7XL/",
+        "url_sha256": "1c2e5192e45b688646583e4c2a715de8a9c38d867c29753af136b97d628927d5",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:40:03.849844+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:40:04.014064+00:00",
+              "elapsed_seconds": 0.164232
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:40:04.104298+00:00",
+              "elapsed_seconds": 0.254459
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:40:04.104328+00:00",
+              "elapsed_seconds": 0.254486
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:40:04.657441+00:00",
+              "elapsed_seconds": 0.80761
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:40:04.658492+00:00",
+              "elapsed_seconds": 0.808654
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:40:04.658656+00:00",
+              "elapsed_seconds": 0.808816
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:40:04.658663+00:00",
+              "elapsed_seconds": 0.808821
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:40:04.658717+00:00",
+              "elapsed_seconds": 0.808879
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:40:04.658730+00:00",
+              "elapsed_seconds": 0.808889
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:40:05.366042+00:00",
+              "elapsed_seconds": 1.516223
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:40:05.366592+00:00",
+              "elapsed_seconds": 1.51675
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:40:05.793470+00:00",
+              "elapsed_seconds": 1.943637
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:40:05.794545+00:00",
+              "elapsed_seconds": 1.944706
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:40:05.794583+00:00",
+              "elapsed_seconds": 1.944741
+            }
+          ],
+          "bytes_read": 62765,
+          "body_complete": true,
+          "body_sha256": "ff79c3e07f33096a26dffee65006ec1ed3e1f1fb38fb516eb0578c273f542cd7",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 62765,
+          "decoded_bytes_read": 245018,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "e67d8897beee891c9c462f2a6c488efc270b7b85dd8086cce6b0f9fd48a713c0",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:40:05.366525+00:00",
+          "headers_elapsed_seconds": 1.516684,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:40:05.795391+00:00",
+          "finished_at": "2026-10-18T19:40:05.796041+00:00",
+          "elapsed_seconds": 1.946202,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:40:05.796095+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1o24y1N7XL/",
+        "url_sha256": "1c2e5192e45b688646583e4c2a715de8a9c38d867c29753af136b97d628927d5",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 245018
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:40:08.713187+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1KALZzhE4G/",
+        "url_sha256": "7343be245a2a90ceddcb6a1226db892aa831703a4475720168e5aeed2f496a9c",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:40:09.999974+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1KALZzhE4G/",
+        "url_sha256": "7343be245a2a90ceddcb6a1226db892aa831703a4475720168e5aeed2f496a9c",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:40:09.999995+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1KALZzhE4G/",
+        "url_sha256": "7343be245a2a90ceddcb6a1226db892aa831703a4475720168e5aeed2f496a9c",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:40:10.000159+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1KALZzhE4G/",
+        "url_sha256": "7343be245a2a90ceddcb6a1226db892aa831703a4475720168e5aeed2f496a9c",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:40:10.000151+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:40:10.164359+00:00",
+              "elapsed_seconds": 0.164221
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:40:10.166275+00:00",
+              "elapsed_seconds": 0.16613
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:40:10.166303+00:00",
+              "elapsed_seconds": 0.166155
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:40:10.867001+00:00",
+              "elapsed_seconds": 0.866867
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:40:10.868229+00:00",
+              "elapsed_seconds": 0.868084
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:40:10.868407+00:00",
+              "elapsed_seconds": 0.86826
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:40:10.868422+00:00",
+              "elapsed_seconds": 0.868274
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:40:10.868467+00:00",
+              "elapsed_seconds": 0.868318
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:40:10.868471+00:00",
+              "elapsed_seconds": 0.868322
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:40:11.469967+00:00",
+              "elapsed_seconds": 1.469831
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:40:11.470787+00:00",
+              "elapsed_seconds": 1.470641
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:40:11.808987+00:00",
+              "elapsed_seconds": 1.808845
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:40:11.810695+00:00",
+              "elapsed_seconds": 1.810553
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:40:11.810753+00:00",
+              "elapsed_seconds": 1.810605
+            }
+          ],
+          "bytes_read": 45760,
+          "body_complete": true,
+          "body_sha256": "2841a4f26483a963a032891de0a650d28e5a6178c1c4fe66cf39b078ec541ff1",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 45760,
+          "decoded_bytes_read": 167694,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "118a04381bd2e0c52d7aac8d3b3d94940fa8a8313b86a476b7ad5d771d7e31e6",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:40:11.470644+00:00",
+          "headers_elapsed_seconds": 1.470517,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:40:11.811843+00:00",
+          "finished_at": "2026-10-18T19:40:11.812731+00:00",
+          "elapsed_seconds": 1.812585,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:40:11.812772+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1KALZzhE4G/",
+        "url_sha256": "7343be245a2a90ceddcb6a1226db892aa831703a4475720168e5aeed2f496a9c",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 167694
+      }
+    ],
+    "truncated": false,
+    "scope": "target HTML/XML+robots only; DoH HTTP separately traced for official discovery"
+  }
+}

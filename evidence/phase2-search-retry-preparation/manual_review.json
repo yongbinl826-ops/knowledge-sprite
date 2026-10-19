@@ -1,0 +1,403 @@
+{
+  "mode": "inherited_exact_content_approval",
+  "inherited_at": "2026-10-18T17:35:32.609027+00:00",
+  "original_reviewed_at": "2026-10-18T16:56:12.569274+00:00",
+  "source_manual_review": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v26\\manual-review.json",
+  "source_manual_review_sha256": "d82880e8eb39b19b96aec59a25a07bd2de89eb4d387dab1461612eef8448e70c",
+  "new_independent_semantic_review": false,
+  "new_model_analysis": false,
+  "case_reviews": [
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "version": 3,
+      "api_status": "analyzed",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+      "analysis_sha256": "0a16fe3591e43e43ec4d5c992aa98866999ba96dabcd90bdfaae2eb6329164ca",
+      "review_type": "inherited_exact_content_approval",
+      "verdict": "static_pass",
+      "requirements": [
+        {
+          "id": "d1",
+          "requirement": "Read CSV and audit trip_id deduplication",
+          "unit_ids": [
+            "k1",
+            "k2"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Read/column/type baseline then trip_id keep-first with before/after deletion counts."
+        },
+        {
+          "id": "d2",
+          "requirement": "Parse timestamps and separate invalid reasons",
+          "unit_ids": [
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "Missing/failed parsing and strict end<start are separate invalid sets; end==start is explicitly retained."
+        },
+        {
+          "id": "d3",
+          "requirement": "Compute duration for all rows valid under the requested boundary",
+          "unit_ids": [
+            "k4"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "f3 and k4 explicitly require nonnegative duration and zero for equal timestamps; total_seconds/minutes are taught."
+        },
+        {
+          "id": "d4",
+          "requirement": "Aggregate by departure hour and export counts",
+          "unit_ids": [
+            "k5"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "Departure dt.hour and group counts use valid data and reconcile to the valid row total."
+        },
+        {
+          "id": "d5",
+          "requirement": "Departure-station Top10 chart with labels",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "Actual station counts feed a labeled Top10 PNG; fewer than ten stations are expressly allowed."
+        },
+        {
+          "id": "d6",
+          "requirement": "Export cleaned CSV, hourly CSV and PNG",
+          "unit_ids": [
+            "k6",
+            "k7"
+          ],
+          "function_ids": [
+            "f6"
+          ],
+          "passed": true,
+          "reason": "Both CSVs and the PNG have concrete export tasks and count/file checks."
+        }
+      ],
+      "unassessed_requirements": [],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "pandas 读取骑行 CSV 与列结构检查",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Read a specific schema, inspect columns/dtypes and retain a row baseline."
+        },
+        {
+          "id": "k2",
+          "name": "pandas trip_id 去重与删除行数统计",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Deduplication and deletion audit are a coherent data-cleaning task."
+        },
+        {
+          "id": "k3",
+          "name": "pandas 时间列解析与无效行分离",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Parse timestamps and partition two invalid reasons with equality handled explicitly."
+        },
+        {
+          "id": "k4",
+          "name": "pandas 时间差计算骑行分钟时长",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Compute actual minute durations and test the zero boundary."
+        },
+        {
+          "id": "k5",
+          "name": "pandas 按出发小时分组计数",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Produce departure-hour counts and reconcile totals."
+        },
+        {
+          "id": "k6",
+          "name": "Matplotlib 出发站 Top10 条形图",
+          "technology": "Matplotlib",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Build and export the required labeled station chart."
+        },
+        {
+          "id": "k7",
+          "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Export two tables and reconcile the cleaning count chain."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Matches advanced Python/statistics background while explicitly recording that pandas travel-data work and Matplotlib APIs are new. No generic Python course substitutes for project skills."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "DataFrame baseline precedes dedup, parsing/invalid partition, durations, hour counts and exports. All necessary foundations appear earlier; the final CSV/log unit is unnecessarily serialized after plotting, noted below as a low-impact curriculum edge."
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "The end<start versus equality rule is consistent across scope, technical plan, f2/f3, k3/k4 and practical zero-row tests. Units, valid-row statistics, dedup counts and export reconciliation agree."
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "k7 exports CSV and logs but depends on the plotting unit k6; its true data prerequisites can be expressed directly, with the final workflow order kept separately. This is an extra curriculum edge, not a missing requirement or a correctness contradiction."
+      ],
+      "not_executed": true,
+      "resolved_previous_issue": {
+        "source": "evidence/phase2-learning-v25/manual-review-before-duration-fix.json",
+        "issue_id": "zero_duration_boundary_narrowed_to_strict_positive",
+        "resolved_in_this_output": true
+      },
+      "numeric_boundary_checks": [
+        {
+          "probe": "Equal nonmissing start/end timestamps",
+          "expected_minutes": 0,
+          "observed_plan": "Explicitly valid and duration 0",
+          "passed": true
+        },
+        {
+          "probe": "Strict end<start or missing/unparseable timestamp",
+          "expected": "Separate invalid subsets excluded before duration/aggregation",
+          "passed": true
+        },
+        {
+          "probe": "No more than ten station bars",
+          "expected": "Use all stations if fewer than ten",
+          "passed": true
+        }
+      ],
+      "approval": {
+        "type": "inherited_exact_content_approval",
+        "inherited_at": "2026-10-18T17:35:32.607830+00:00",
+        "inherited_from": {
+          "source_run": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v26\\run.json",
+          "source_run_sha256": "ee6b78c2c9235362d82a9301825aa0ce016d5b79915290a8fe4921abed1b44a8",
+          "source_record_sha256": "36f42edc9bdc82a78868fca90d9ae7c61c46ec8a7549338c94cbf3955e30785f",
+          "manual_review": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v26\\manual-review.json",
+          "manual_review_sha256": "d82880e8eb39b19b96aec59a25a07bd2de89eb4d387dab1461612eef8448e70c",
+          "case_review_sha256": "aed59a92295efb5b0a97ad9c64fba933e284a0ceb3d033115454139073f91ca7",
+          "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+          "version": 2,
+          "input_sha256": "6cbd5cc4cc298491446c686e26a4d5141b6c4388cf29584ee51e5369c9b61178",
+          "analysis_sha256": "0a16fe3591e43e43ec4d5c992aa98866999ba96dabcd90bdfaae2eb6329164ca",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+        },
+        "bound_version": 3,
+        "content_changes": false,
+        "new_model_analysis": false,
+        "new_independent_semantic_review": false
+      },
+      "original_review_type": "independent_static_semantic_review"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "version": 3,
+      "api_status": "analyzed",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+      "analysis_sha256": "88631330503dbb9cc96177354725ede8de0ef7bd1ff98634d5650e74535b8f2a",
+      "review_type": "inherited_exact_content_approval",
+      "verdict": "static_pass",
+      "requirements": [
+        {
+          "id": "m1",
+          "requirement": "Fixed 8x8 wall/path/exit grid",
+          "unit_ids": [
+            "k1"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "The 8x8 list representation, coordinate mapping and visible wall/path/exit colors are concrete."
+        },
+        {
+          "id": "m2",
+          "requirement": "One step per key, no walls/boundary crossing",
+          "unit_ids": [
+            "k2",
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "Target row/column 0..7 checks precede map access and position update; KEYDOWN gives one movement event."
+        },
+        {
+          "id": "m3",
+          "requirement": "Freeze real elapsed time on victory",
+          "unit_ids": [
+            "k4",
+            "k6"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "WIN captures the end timestamp and displays the true elapsed difference; frame limiting does not determine elapsed time."
+        },
+        {
+          "id": "m4",
+          "requirement": "R resets player, clock and game state",
+          "unit_ids": [
+            "k5",
+            "k6"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "R restores position, time origin and playable state; repeat-play checking is explicit."
+        },
+        {
+          "id": "m5",
+          "requirement": "Ready/won still handle R/Esc/QUIT; frame rate bounded",
+          "unit_ids": [
+            "k4",
+            "k5",
+            "k6"
+          ],
+          "function_ids": [
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "READY/PLAYING/WIN all keep event/render handling; only QUIT/Esc ends the loop, and tick caps the frame rate."
+        }
+      ],
+      "unassessed_requirements": [],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "pygame 二维列表网格地图绘制",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Represent and draw a fixed grid using specific map values."
+        },
+        {
+          "id": "k2",
+          "name": "网格坐标的合法移动与阻挡判定",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Combine grid deltas, legal bounds and wall checks before movement."
+        },
+        {
+          "id": "k3",
+          "name": "pygame 键盘输入边沿处理",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Clarify event edges versus held-key polling for the requested step movement."
+        },
+        {
+          "id": "k4",
+          "name": "pygame 游戏状态机与胜利判定",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Use three states and an exit test to control game behavior."
+        },
+        {
+          "id": "k5",
+          "name": "pygame 持续主循环与 R/Esc 键处理",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Keep reset/quit event handling outside gameplay updates."
+        },
+        {
+          "id": "k6",
+          "name": "真实时间计时与限帧",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Measure elapsed real time and limit frame rate as distinct mechanisms."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Preserves intermediate Python/list/function and prior pygame drawing experience. New work focuses on grid, input semantics, states and time instead of a generic introductory course."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "Grid data precedes legality and input semantics; states then persistent events/reset and actual timing extend existing pygame skills. Some state/timing exercises are completed at final integration, but the learning path remains coherent."
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "The plan distinguishes grid coordinates from pixels, checks legal target bounds before access, uses KEYDOWN rather than per-frame key state, keeps event/render handling active on WIN, freezes the end time, and exits only on explicit quit input."
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "The plan calls pygame an assumption despite Python and pygame being explicitly requested; the chosen implementation and all tool targets still correctly use pygame. Improve attribution without changing the actual selected route."
+      ],
+      "not_executed": true,
+      "numeric_boundary_checks": [
+        {
+          "probe": "Target col/row -1 or 8",
+          "expected": "Reject before lookup; legal indices 0..7",
+          "passed": true
+        },
+        {
+          "probe": "Win state after reaching exit",
+          "expected": "Continue events/rendering, freeze elapsed end time, accept R/Esc/QUIT",
+          "passed": true
+        }
+      ],
+      "approval": {
+        "type": "inherited_exact_content_approval",
+        "inherited_at": "2026-10-18T17:35:32.608473+00:00",
+        "inherited_from": {
+          "source_run": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v26\\run.json",
+          "source_run_sha256": "ee6b78c2c9235362d82a9301825aa0ce016d5b79915290a8fe4921abed1b44a8",
+          "source_record_sha256": "a1549874e929daa6934f9b422871e24242141ac276ccb8760b036208e8311b21",
+          "manual_review": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v26\\manual-review.json",
+          "manual_review_sha256": "d82880e8eb39b19b96aec59a25a07bd2de89eb4d387dab1461612eef8448e70c",
+          "case_review_sha256": "57320c31efaa0cdb02484880fe3f9b63305085cdcd139fef21df8a1a7585228a",
+          "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+          "version": 2,
+          "input_sha256": "1ca3a0798f7ec91870c343e74a526feaa47aaba795073329d29265b4cb1d373d",
+          "analysis_sha256": "88631330503dbb9cc96177354725ede8de0ef7bd1ff98634d5650e74535b8f2a",
+          "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+        },
+        "bound_version": 3,
+        "content_changes": false,
+        "new_model_analysis": false,
+        "new_independent_semantic_review": false
+      },
+      "original_review_type": "independent_static_semantic_review"
+    }
+  ],
+  "assessed_requirements": 11,
+  "assessed_requirement_passes": 11,
+  "unassessed_requirements": 0,
+  "accepted_output_semantic_pass": true,
+  "limits": "Only version binding changed after exact input/analysis/prompt hash verification. Original independent judgments and low-priority notes are inherited; no new precision reading, project execution, search, video or production pass is claimed."
+}

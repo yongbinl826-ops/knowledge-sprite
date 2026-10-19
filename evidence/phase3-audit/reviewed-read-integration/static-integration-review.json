@@ -1,0 +1,40 @@
+{
+  "mode": "independent static integration review plus actual raw-card read-method replay; no HTTP/model/Store writes",
+  "source_hashes": {
+    "tmp/phase3-work/backend/app/learning_support.py": "e0070183ce2db3b21d07f8b395a66897d5196389e8b8076fe4575f370824bbdf",
+    "tmp/phase3-work/backend/app/service.py": "642a570d4ee29a2ec19c67a3643ab72b85afdbb152d7d58d3a97baa5dec402ee",
+    "tmp/phase3-work/backend/app/teaching_review.py": "355b0027d1e4b7f9d123872638e1827c934c4dff72835053007aa381656f1964",
+    "tmp/phase3-work/backend/app/teaching_match.py": "dc1a866cf5d96709740418c3ad80388fc8b319042192baeb15f45ef782164a39",
+    "tmp/phase3-work/backend/app/read_rank_cache.py": "b5e6d6bd51d11946a9bc8678f631b2eaef85331127f4fc386b459e286d891f64"
+  },
+  "confirmed": [
+    "Saved unreviewed/stale decisions return None in learning_skill_assessment before any literal fallback.",
+    "No saved decision permits only the existing exact-full-skill, own technical context and nonteaching-guarded literal rule.",
+    "A valid sealed empty result remains unknown and does not restore literal support.",
+    "Mutation phase keeps raw judge cores local, gathers two bounded batches, makes at most one persisted review call, then validates/seals/applies.",
+    "Cache key namespace teaching_decision-v2-reviewed ignores old unreviewed caches; every cache read passes validate_reviewed.",
+    "Failed review applies empty unknown to the job but does not cache it; review-call cap is deducted from persisted job progress.",
+    "Actual JobService.results cold/warm replay removes old raw unreviewed cards, retains only the sealed accepted button-title pointer and never calls a model or writes a store.",
+    "The original two overclaims stay absent after warm read caching and positive-seal tampering."
+  ],
+  "remaining": [
+    {
+      "severity": "defensive P2",
+      "location": "JobService.results ranked_point conditional",
+      "detail": "An explicitly saved malformed empty dict is falsy and dropped before the helper, which can restore an independently literal-exact card. Current actual reviewed records are valid truthy dictionaries, so original two overclaim closure is unaffected.",
+      "recommendation": "Use decision is not None to preserve present invalid saved values for fail-closed validation.",
+      "evidence": "evidence/phase3-audit/reviewed-read-integration/malformed-saved-dict-probe.json"
+    }
+  ],
+  "evidence": [
+    "evidence/phase3-audit/reviewed-read-integration/audit.json",
+    "evidence/phase3-audit/reviewed-read-integration/old-unreviewed-read.json",
+    "evidence/phase3-audit/reviewed-read-integration/reviewed-read.json",
+    "evidence/phase3-audit/reviewed-read-integration/stale-seal-read.json"
+  ],
+  "http_requests": 0,
+  "model_requests": 0,
+  "database_writes": 0,
+  "source_edits": 0,
+  "not_proven": "New runtime process/UI output and unseen-project semantic accuracy remain separate acceptance."
+}

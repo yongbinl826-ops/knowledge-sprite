@@ -30,14 +30,14 @@ async def test_site_video_search_uses_video_engine_and_fallback_counts_real_requ
         seen.append(request.url.params["engines"])
         if len(seen) == 1:
             return httpx.Response(200, json={"results": [], "unresponsive_engines": [["video", "timeout"]]})
-        return httpx.Response(200, json={"results": [{"title": "D3 course", "url": "https://www.icourse163.org/course/ABC-123"}]})
+        return httpx.Response(200, json={"results": [{"title": "D3 video", "url": "https://www.bilibili.com/video/BVoffline001/"}]})
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         provider = SearXNGProvider(Settings(searxng_url="http://trusted", searxng_engines=("primary",),
             searxng_video_engines=("video",), searxng_fallback_engines=("backup",)), client)
         async def count():
             budget.append(1)
         provider.request_hook = count
-        items = await provider.search("D3 视频教程", "zh", 5, ["icourse163.org"])
+        items = await provider.search("D3 视频教程", "zh", 5, ["bilibili.com"])
     assert seen == ["video", "backup"] and len(budget) == 2 and len(items) == 1
     assert provider.last_warnings[0]["reason"] == "timeout"
     assert provider.last_requests[1]["fallback"] is True
@@ -52,7 +52,8 @@ async def test_generated_platform_queries_retain_site_restriction_and_video_rout
     seen = []
     def respond(outgoing):
         seen.append(outgoing)
-        assert outgoing.url.params["engines"] == "duckduckgo videos"
+        expected_engine = "bing" if outgoing.url.params["q"].startswith("site:icourse163.org ") else "duckduckgo videos"
+        assert outgoing.url.params["engines"] == expected_engine
         assert outgoing.url.params["q"].startswith("site:")
         return httpx.Response(200, json={"results": []})
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
@@ -61,6 +62,7 @@ async def test_generated_platform_queries_retain_site_restriction_and_video_rout
         for query in queries:
             await provider.search(query.query, language, 5, query.domain_filters)
     assert len(seen) == len(queries) == 3
+    assert [outgoing.url.params["q"] for outgoing in seen] == [query.query for query in queries]
 
 
 def test_candidate_filter_audit_is_bounded_and_never_reflects_sensitive_urls():

@@ -1,0 +1,4550 @@
+{
+  "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+  "original_input": {
+    "name": "共享单车出行 CSV 分析报告",
+    "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+    "student_level": "advanced",
+    "language": "zh",
+    "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "input": {
+    "name": "共享单车出行 CSV 分析报告",
+    "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+    "student_level": "advanced",
+    "language": "zh",
+    "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "current_version": 4,
+  "created_at": "2026-10-18T16:36:40.598004+00:00",
+  "updated_at": "2026-10-18T18:29:23.445669+00:00",
+  "versions": [
+    {
+      "version": 4,
+      "status": "running",
+      "created_at": "2026-10-18T18:28:22.793945+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 3,
+      "status": "partial",
+      "created_at": "2026-10-18T17:35:32.405651+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 2,
+      "status": "partial",
+      "created_at": "2026-10-18T16:51:42.587263+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 1,
+      "status": "analyzed",
+      "created_at": "2026-10-18T16:36:40.606116+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+    }
+  ],
+  "version": {
+    "version": 4,
+    "input": {
+      "name": "共享单车出行 CSV 分析报告",
+      "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+      "student_level": "advanced",
+      "language": "zh",
+      "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "status": "running",
+    "analysis": {
+      "scope": "本机单脚本分析一份共享单车骑行 CSV：按 trip_id 去重并报告删除行数；解析同城本地时间；分别统计缺失时间与结束早于开始（严格早于，相等时间视为有效）的无效行；对有效行计算分钟时长；按出发小时汇总次数；绘制出发站 Top10 条形图；导出清洗后 CSV、按小时汇总 CSV 与带标题和轴标签的 PNG。不做预测、仪表盘、地图、账号或云部署。",
+      "technical_plan": "使用 Python + pandas + Matplotlib 的单一本地脚本，按阶段拆分函数：load_and_dedupe 读取 CSV 并保留首个 trip_id、返回删除行数；parse_and_split 用 pd.to_datetime 解析两列时间并统计解析失败行；split_invalid 单独收集缺失时间行与 end<start 行（end==start 合法）；add_duration 计算 (end-start) 的分钟数；hourly_summary 用 dt.hour 分组计数；station_bar 用 value_counts().head(10) 画横向条形图并设置标题与轴标签；最后统一写出三个产物文件并打印各项计数以便复核。所有口径（去重、无效判定、单位、Top10 顺序）在打印日志与 CSV 中保持一致。",
+      "assumptions": [
+        "合成 CSV 的时间两列使用 pandas 可解析的统一字符串格式（如 ISO），解析失败行按缺失处理并计数。",
+        "Top10 按出发站次数降序，取前 10 个站；不足 10 个时全部展示。",
+        "按出发小时汇总使用 0–23 的整点小时，不按日期拆分。",
+        "无效行在被去重之后、计算时长之前剔除；去重优先于无效判定。",
+        "图表与文件均输出到本机当前工作目录的指定文件名。",
+        "学生可修改学生阶段、项目背景与技术选择后重新生成。"
+      ],
+      "learner_profile": {
+        "student_level": "advanced",
+        "assumed_knowledge": [
+          "Python 函数定义与文件读写",
+          "基础调试与异常排查",
+          "描述性统计概念",
+          "尚未使用 pandas 处理出行数据",
+          "尚未接触 Matplotlib API"
+        ],
+        "adjustment_note": "按高级阶段设计：少讲通用语法，重点在时间口径、分组与可复核输出；但明确不假定已会 pandas/Matplotlib。学生可修改阶段、项目背景或技术选择后重新生成。"
+      },
+      "functions": [
+        {
+          "id": "f1",
+          "name": "读取 CSV 并按 trip_id 去重",
+          "original_requirement": "按trip_id去重并记录删行数",
+          "acceptance_criteria": "读入后保留每个 trip_id 的首条记录，打印并返回删除行数，使去重前后行数之差等于该数。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2",
+          "name": "解析时间并区分无效行",
+          "original_requirement": "解析时间，单独记录缺失或结束早于开始的无效行",
+          "acceptance_criteria": "两列时间被解析为日期时间；缺失/解析失败行单独计数，严格 end<start 行单独计数并保留明细；end==start 不计入无效。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3",
+          "name": "计算有效行分钟时长",
+          "original_requirement": "对有效行计算分钟时长",
+          "acceptance_criteria": "每行时长为 (end_time-start_time) 的分钟数，数据集中不含无效行，时长均 >=0 且 end==start 行时长为 0。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4",
+          "name": "按出发小时汇总骑行次数",
+          "original_requirement": "按出发小时汇总骑行次数",
+          "acceptance_criteria": "输出 0–23 中实际出现的出发小时及各小时有效骑行次数，合计等于有效行数。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5",
+          "name": "绘制出发站 Top10 条形图",
+          "original_requirement": "绘制出发站次数Top10条形图；图要有标题、轴标签",
+          "acceptance_criteria": "条形图展示次数最多的前 10 个出发站，降序排列，含非空标题与两轴标签，并可保存为 PNG。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f6",
+          "name": "导出清洗后 CSV、按小时 CSV 与 PNG",
+          "original_requirement": "导出清洗后含时长的CSV、按小时汇总CSV和PNG图",
+          "acceptance_criteria": "三个文件成功写出：清洗数据含时长列，按小时 CSV 含小时与次数，PNG 可正常打开且图形与统计一致。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1",
+          "name": "pandas 读取骑行 CSV 与列结构检查",
+          "description": "用 read_csv 载入合成骑行数据，检查列名、数据类型与行数，为后续清洗建立基线。",
+          "function_ids": [
+            "f1",
+            "f2"
+          ],
+          "why_needed": "后续去重、解析与计数都依赖正确载入和核对原始列。",
+          "learning_goal": "理解 read_csv 的返回结构，并能用 dtypes、head、shape 快速核对数据口径。",
+          "technology": "pandas",
+          "project_task": "编写读取函数，打印原始行数、列名与每列 dtype，并保存原始行数供删除行数计算。",
+          "concepts": [
+            "pd.read_csv 参数",
+            "DataFrame.shape 与 dtypes",
+            "head() 预览",
+            "原始行数基线"
+          ],
+          "practice_check": "运行后终端显示列名、原始行数和各列 dtype，与 CSV 表头一致。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "pandas trip_id 去重与删除行数统计",
+          "description": "用 drop_duplicates 按 trip_id 保留首条记录，并用行数差计算删除行数。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "项目要求按 trip_id 去重并记录删除行数，这是可复核口径的第一步。",
+          "learning_goal": "理解 subset/keep 参数含义，并能用去重前后行数差验证删除行数。",
+          "technology": "pandas",
+          "project_task": "实现去重步骤，保留每个 trip_id 第一条记录，返回并打印删除行数。",
+          "concepts": [
+            "drop_duplicates(subset, keep)",
+            "nunique 与重复计数",
+            "去重前后行数差",
+            "顺序一致性"
+          ],
+          "practice_check": "去重前后行数之差等于打印的删除行数，且余下 trip_id 唯一。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "pandas 时间列解析与无效行分离",
+          "description": "用 to_datetime 解析起止时间，分别筛出缺失/解析失败行与严格 end<start 行并保留明细。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "需单独记录缺失或结束早于开始的无效行，且相等时间仍属有效，必须精确处理边界。",
+          "learning_goal": "理解 errors 处理与布尔筛选，能严格区分缺失、end<start 与 end==start 三种情况。",
+          "technology": "pandas",
+          "project_task": "解析两列时间，生成两个无效行子集并计数，同时验证 end==start 行不被误剔除。",
+          "concepts": [
+            "pd.to_datetime(errors)",
+            "isna 与缺失筛选",
+            "布尔条件 end < start",
+            "相等时间的边界判断"
+          ],
+          "practice_check": "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "pandas 时间差计算骑行分钟时长",
+          "description": "用日期时间相减得到 Timedelta，并转换为分钟数新增时长列。",
+          "function_ids": [
+            "f3"
+          ],
+          "why_needed": "清洗后 CSV 必须含分钟时长，后续汇总依赖有效行的时长口径。",
+          "learning_goal": "理解日期时间差与单位换算，能确保无效行不参与时长计算且不出现负值。",
+          "technology": "pandas",
+          "project_task": "在有效行上计算时长分钟列，并检查最小值与 end==start 行的时长是否为 0。",
+          "concepts": [
+            "日期时间相减得 Timedelta",
+            "dt.total_seconds 换算分钟",
+            "新增列赋值",
+            "min 值校验"
+          ],
+          "practice_check": "清洗表新增时长列，最小值 >=0，end==start 行的时长恰为 0。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "pandas 按出发小时分组计数",
+          "description": "从开始时间提取小时，用 value_counts 或 groupby 统计各出发小时的有效骑行次数。",
+          "function_ids": [
+            "f4"
+          ],
+          "why_needed": "项目要求按出发小时汇总骑行次数并导出汇总 CSV。",
+          "learning_goal": "理解 dt.hour 提取与分组计数，能验证汇总次数合计等于有效行数。",
+          "technology": "pandas",
+          "project_task": "生成按小时汇总表，按小时排序并重命名列，导出前核对总次数。",
+          "concepts": [
+            "dt.hour 提取",
+            "groupby/size 与 value_counts",
+            "汇总表排序",
+            "合计一致性校验"
+          ],
+          "practice_check": "汇总表各小时次数之和等于有效行数，小时取值为 0–23。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "k6",
+          "name": "Matplotlib 出发站 Top10 条形图",
+          "description": "用 value_counts().head(10) 准备数据，绘制横向条形图并设置标题与轴标签。",
+          "function_ids": [
+            "f5"
+          ],
+          "why_needed": "项目要求绘制 Top10 条形图且图中需有标题和轴标签。",
+          "learning_goal": "理解 Matplotlib 图形对象与坐标轴设置，能控制排序方向并添加标题与两轴标签。",
+          "technology": "Matplotlib",
+          "project_task": "编写绘图函数，绘制出发站次数 Top10 条形图，设置标题、两轴标签并保存 PNG。",
+          "concepts": [
+            "value_counts().head(10)",
+            "barh 横向条形图",
+            "set_title/set_xlabel/set_ylabel",
+            "savefig 输出"
+          ],
+          "practice_check": "生成的 PNG 显示最多 10 个出发站、次数降序，标题与两轴标签齐全。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k5"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        },
+        {
+          "id": "k7",
+          "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+          "description": "用 to_csv 导出清洗后含时长数据与按小时汇总表，并打印去重、无效、有效各计数形成复核日志。",
+          "function_ids": [
+            "f6",
+            "f1",
+            "f2"
+          ],
+          "why_needed": "项目要求导出两个 CSV，并让清洗口径可复核。",
+          "learning_goal": "理解 to_csv 的 index 参数与计数链关系，能用日志核对各阶段行数是否自洽。",
+          "technology": "pandas",
+          "project_task": "实现导出函数，写出两个 CSV 并在终端打印去重删除数、两类无效数、有效行数与汇总合计数。",
+          "concepts": [
+            "DataFrame.to_csv(index=False)",
+            "计数链核对",
+            "文件名约定",
+            "输出目录检查"
+          ],
+          "practice_check": "两个 CSV 存在且可重新读取，日志中各计数满足：原始行数-删除数-无效数=有效行数。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k6"
+          ],
+          "learning_order": 7,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": {
+      "confirmation_version": 4,
+      "confirmed_at": "2026-10-18T18:28:36.464731+00:00",
+      "selected_ids": [
+        "k1",
+        "k2",
+        "k3",
+        "k4",
+        "k5",
+        "k6",
+        "k7"
+      ],
+      "selections": {
+        "k1": "learn",
+        "k2": "learn",
+        "k3": "learn",
+        "k4": "learn",
+        "k5": "learn",
+        "k6": "learn",
+        "k7": "learn"
+      },
+      "acknowledged_skipped_prerequisites": [],
+      "analysis": {
+        "scope": "本机单脚本分析一份共享单车骑行 CSV：按 trip_id 去重并报告删除行数；解析同城本地时间；分别统计缺失时间与结束早于开始（严格早于，相等时间视为有效）的无效行；对有效行计算分钟时长；按出发小时汇总次数；绘制出发站 Top10 条形图；导出清洗后 CSV、按小时汇总 CSV 与带标题和轴标签的 PNG。不做预测、仪表盘、地图、账号或云部署。",
+        "technical_plan": "使用 Python + pandas + Matplotlib 的单一本地脚本，按阶段拆分函数：load_and_dedupe 读取 CSV 并保留首个 trip_id、返回删除行数；parse_and_split 用 pd.to_datetime 解析两列时间并统计解析失败行；split_invalid 单独收集缺失时间行与 end<start 行（end==start 合法）；add_duration 计算 (end-start) 的分钟数；hourly_summary 用 dt.hour 分组计数；station_bar 用 value_counts().head(10) 画横向条形图并设置标题与轴标签；最后统一写出三个产物文件并打印各项计数以便复核。所有口径（去重、无效判定、单位、Top10 顺序）在打印日志与 CSV 中保持一致。",
+        "assumptions": [
+          "合成 CSV 的时间两列使用 pandas 可解析的统一字符串格式（如 ISO），解析失败行按缺失处理并计数。",
+          "Top10 按出发站次数降序，取前 10 个站；不足 10 个时全部展示。",
+          "按出发小时汇总使用 0–23 的整点小时，不按日期拆分。",
+          "无效行在被去重之后、计算时长之前剔除；去重优先于无效判定。",
+          "图表与文件均输出到本机当前工作目录的指定文件名。",
+          "学生可修改学生阶段、项目背景与技术选择后重新生成。"
+        ],
+        "learner_profile": {
+          "student_level": "advanced",
+          "assumed_knowledge": [
+            "Python 函数定义与文件读写",
+            "基础调试与异常排查",
+            "描述性统计概念",
+            "尚未使用 pandas 处理出行数据",
+            "尚未接触 Matplotlib API"
+          ],
+          "adjustment_note": "按高级阶段设计：少讲通用语法，重点在时间口径、分组与可复核输出；但明确不假定已会 pandas/Matplotlib。学生可修改阶段、项目背景或技术选择后重新生成。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "读取 CSV 并按 trip_id 去重",
+            "original_requirement": "按trip_id去重并记录删行数",
+            "acceptance_criteria": "读入后保留每个 trip_id 的首条记录，打印并返回删除行数，使去重前后行数之差等于该数。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "解析时间并区分无效行",
+            "original_requirement": "解析时间，单独记录缺失或结束早于开始的无效行",
+            "acceptance_criteria": "两列时间被解析为日期时间；缺失/解析失败行单独计数，严格 end<start 行单独计数并保留明细；end==start 不计入无效。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "计算有效行分钟时长",
+            "original_requirement": "对有效行计算分钟时长",
+            "acceptance_criteria": "每行时长为 (end_time-start_time) 的分钟数，数据集中不含无效行，时长均 >=0 且 end==start 行时长为 0。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "按出发小时汇总骑行次数",
+            "original_requirement": "按出发小时汇总骑行次数",
+            "acceptance_criteria": "输出 0–23 中实际出现的出发小时及各小时有效骑行次数，合计等于有效行数。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "绘制出发站 Top10 条形图",
+            "original_requirement": "绘制出发站次数Top10条形图；图要有标题、轴标签",
+            "acceptance_criteria": "条形图展示次数最多的前 10 个出发站，降序排列，含非空标题与两轴标签，并可保存为 PNG。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f6",
+            "name": "导出清洗后 CSV、按小时 CSV 与 PNG",
+            "original_requirement": "导出清洗后含时长的CSV、按小时汇总CSV和PNG图",
+            "acceptance_criteria": "三个文件成功写出：清洗数据含时长列，按小时 CSV 含小时与次数，PNG 可正常打开且图形与统计一致。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "pandas 读取骑行 CSV 与列结构检查",
+            "description": "用 read_csv 载入合成骑行数据，检查列名、数据类型与行数，为后续清洗建立基线。",
+            "function_ids": [
+              "f1",
+              "f2"
+            ],
+            "why_needed": "后续去重、解析与计数都依赖正确载入和核对原始列。",
+            "learning_goal": "理解 read_csv 的返回结构，并能用 dtypes、head、shape 快速核对数据口径。",
+            "technology": "pandas",
+            "project_task": "编写读取函数，打印原始行数、列名与每列 dtype，并保存原始行数供删除行数计算。",
+            "concepts": [
+              "pd.read_csv 参数",
+              "DataFrame.shape 与 dtypes",
+              "head() 预览",
+              "原始行数基线"
+            ],
+            "practice_check": "运行后终端显示列名、原始行数和各列 dtype，与 CSV 表头一致。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "pandas trip_id 去重与删除行数统计",
+            "description": "用 drop_duplicates 按 trip_id 保留首条记录，并用行数差计算删除行数。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "项目要求按 trip_id 去重并记录删除行数，这是可复核口径的第一步。",
+            "learning_goal": "理解 subset/keep 参数含义，并能用去重前后行数差验证删除行数。",
+            "technology": "pandas",
+            "project_task": "实现去重步骤，保留每个 trip_id 第一条记录，返回并打印删除行数。",
+            "concepts": [
+              "drop_duplicates(subset, keep)",
+              "nunique 与重复计数",
+              "去重前后行数差",
+              "顺序一致性"
+            ],
+            "practice_check": "去重前后行数之差等于打印的删除行数，且余下 trip_id 唯一。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "pandas 时间列解析与无效行分离",
+            "description": "用 to_datetime 解析起止时间，分别筛出缺失/解析失败行与严格 end<start 行并保留明细。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "需单独记录缺失或结束早于开始的无效行，且相等时间仍属有效，必须精确处理边界。",
+            "learning_goal": "理解 errors 处理与布尔筛选，能严格区分缺失、end<start 与 end==start 三种情况。",
+            "technology": "pandas",
+            "project_task": "解析两列时间，生成两个无效行子集并计数，同时验证 end==start 行不被误剔除。",
+            "concepts": [
+              "pd.to_datetime(errors)",
+              "isna 与缺失筛选",
+              "布尔条件 end < start",
+              "相等时间的边界判断"
+            ],
+            "practice_check": "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "pandas 时间差计算骑行分钟时长",
+            "description": "用日期时间相减得到 Timedelta，并转换为分钟数新增时长列。",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "清洗后 CSV 必须含分钟时长，后续汇总依赖有效行的时长口径。",
+            "learning_goal": "理解日期时间差与单位换算，能确保无效行不参与时长计算且不出现负值。",
+            "technology": "pandas",
+            "project_task": "在有效行上计算时长分钟列，并检查最小值与 end==start 行的时长是否为 0。",
+            "concepts": [
+              "日期时间相减得 Timedelta",
+              "dt.total_seconds 换算分钟",
+              "新增列赋值",
+              "min 值校验"
+            ],
+            "practice_check": "清洗表新增时长列，最小值 >=0，end==start 行的时长恰为 0。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "pandas 按出发小时分组计数",
+            "description": "从开始时间提取小时，用 value_counts 或 groupby 统计各出发小时的有效骑行次数。",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "项目要求按出发小时汇总骑行次数并导出汇总 CSV。",
+            "learning_goal": "理解 dt.hour 提取与分组计数，能验证汇总次数合计等于有效行数。",
+            "technology": "pandas",
+            "project_task": "生成按小时汇总表，按小时排序并重命名列，导出前核对总次数。",
+            "concepts": [
+              "dt.hour 提取",
+              "groupby/size 与 value_counts",
+              "汇总表排序",
+              "合计一致性校验"
+            ],
+            "practice_check": "汇总表各小时次数之和等于有效行数，小时取值为 0–23。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "k6",
+            "name": "Matplotlib 出发站 Top10 条形图",
+            "description": "用 value_counts().head(10) 准备数据，绘制横向条形图并设置标题与轴标签。",
+            "function_ids": [
+              "f5"
+            ],
+            "why_needed": "项目要求绘制 Top10 条形图且图中需有标题和轴标签。",
+            "learning_goal": "理解 Matplotlib 图形对象与坐标轴设置，能控制排序方向并添加标题与两轴标签。",
+            "technology": "Matplotlib",
+            "project_task": "编写绘图函数，绘制出发站次数 Top10 条形图，设置标题、两轴标签并保存 PNG。",
+            "concepts": [
+              "value_counts().head(10)",
+              "barh 横向条形图",
+              "set_title/set_xlabel/set_ylabel",
+              "savefig 输出"
+            ],
+            "practice_check": "生成的 PNG 显示最多 10 个出发站、次数降序，标题与两轴标签齐全。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k5"
+            ],
+            "learning_order": 6,
+            "selection": "learn"
+          },
+          {
+            "id": "k7",
+            "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+            "description": "用 to_csv 导出清洗后含时长数据与按小时汇总表，并打印去重、无效、有效各计数形成复核日志。",
+            "function_ids": [
+              "f6",
+              "f1",
+              "f2"
+            ],
+            "why_needed": "项目要求导出两个 CSV，并让清洗口径可复核。",
+            "learning_goal": "理解 to_csv 的 index 参数与计数链关系，能用日志核对各阶段行数是否自洽。",
+            "technology": "pandas",
+            "project_task": "实现导出函数，写出两个 CSV 并在终端打印去重删除数、两类无效数、有效行数与汇总合计数。",
+            "concepts": [
+              "DataFrame.to_csv(index=False)",
+              "计数链核对",
+              "文件名约定",
+              "输出目录检查"
+            ],
+            "practice_check": "两个 CSV 存在且可重新读取，日志中各计数满足：原始行数-删除数-无效数=有效行数。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k6"
+            ],
+            "learning_order": 7,
+            "selection": "learn"
+          }
+        ]
+      },
+      "input": {
+        "name": "共享单车出行 CSV 分析报告",
+        "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+        "student_level": "advanced",
+        "language": "zh",
+        "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      }
+    },
+    "batches": [
+      {
+        "batch_id": "424bd3d9-7626-4498-bc90-703aab564b01-v4-b1",
+        "ordinal": 1,
+        "project_knowledge_point_ids": [
+          "k1",
+          "k2",
+          "k3",
+          "k4",
+          "k5"
+        ],
+        "status": "submitted",
+        "job_id": "6e2e9205-d862-4834-982f-8cf09202ecff",
+        "mappings": [
+          {
+            "project_knowledge_point_id": "k1",
+            "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d"
+          },
+          {
+            "project_knowledge_point_id": "k2",
+            "knowledge_point_id": "3dc1e910-6489-4a61-b0e4-dbe9633f7648"
+          },
+          {
+            "project_knowledge_point_id": "k3",
+            "knowledge_point_id": "5fc9a399-eecb-4d92-9c74-5e298869bcf6"
+          },
+          {
+            "project_knowledge_point_id": "k4",
+            "knowledge_point_id": "62120c6d-a98c-41e1-9665-9a13caf79d37"
+          },
+          {
+            "project_knowledge_point_id": "k5",
+            "knowledge_point_id": "7eecac3a-8b32-4ba0-8df4-f06417189fa7"
+          }
+        ],
+        "error": null,
+        "reused": false,
+        "job_status": "running",
+        "progress": {
+          "queries_planned": 30,
+          "queries_completed": 8,
+          "search_requests": 18,
+          "search_successes": 8,
+          "search_failures": 0,
+          "candidates_discovered": 48,
+          "resources_discovered": 45,
+          "details_attempted": 3,
+          "details_completed": 3,
+          "details_cached": 8,
+          "cache_hits": 8,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0
+        },
+        "warnings": [
+          "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限"
+        ],
+        "errors": []
+      },
+      {
+        "batch_id": "424bd3d9-7626-4498-bc90-703aab564b01-v4-b2",
+        "ordinal": 2,
+        "project_knowledge_point_ids": [
+          "k6",
+          "k7"
+        ],
+        "status": "pending",
+        "job_id": null,
+        "mappings": [],
+        "error": null,
+        "reused": false
+      }
+    ],
+    "budgets": {
+      "batch_size": 5,
+      "batch_count": 2,
+      "selected_count": 7,
+      "reserved_search_requests": 60,
+      "reserved_detail_pages": 80,
+      "reserved_task_seconds": 480,
+      "max_batches": 6,
+      "max_search_requests": 180,
+      "max_detail_pages": 240,
+      "deadline_seconds": 1800,
+      "per_batch_search_requests": 30,
+      "per_batch_deadline_seconds": 240,
+      "per_batch_detail_pages": 40,
+      "actual_search_requests": 18,
+      "actual_detail_pages": 3
+    },
+    "error": null,
+    "warnings": [],
+    "created_at": "2026-10-18T18:28:22.793945+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+    "origin": "student_edit",
+    "search_started_at": "2026-10-18T18:28:36.479450+00:00",
+    "cancel_requested": false,
+    "parent_version": 3,
+    "updated_at": "2026-10-18T18:29:23.445283+00:00"
+  },
+  "points": [
+    {
+      "project_knowledge_point_id": "k1",
+      "name": "pandas 读取骑行 CSV 与列结构检查",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "424bd3d9-7626-4498-bc90-703aab564b01-v4-b1",
+      "job_id": "6e2e9205-d862-4834-982f-8cf09202ecff",
+      "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+      "result": {
+        "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+        "text": "pandas 读取骑行 CSV 与列结构检查",
+        "learning_targets": [
+          "pd.read_csv 参数",
+          "DataFrame.shape 与 dtypes",
+          "head() 预览",
+          "原始行数基线"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 5,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [
+          {
+            "resource": {
+              "resource_id": "res_0299dc3686f2271b9fd39b21",
+              "title": "利用pandas读取csv格式文件",
+              "url": "https://www.bilibili.com/video/BV1dK411M7oM/?uid=425631644B3431314D376F4D",
+              "canonical_url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+              "resolved_url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "page_verified",
+              "author": "Satan小袁",
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "evidence_ids": [
+                  "ev_4c1354b9-4b17-49ee-bed0-2a8fe1b98171"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "-",
+              "video_topic_summary": null,
+              "thumbnail_url": "http://i1.hdslb.com/bfs/archive/c67822b99b0edd9b51029620573f7b3714116ace.jpg",
+              "language": "zh-Hans",
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:29:03.667971+00:00",
+              "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+              "fetch_status": "fetched",
+              "metadata_evidence_level": "catalog",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [
+                {
+                  "title": "利用pandas读取csv格式文件",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/?p=1",
+                  "start_seconds": null,
+                  "end_seconds": null,
+                  "source_url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "duration_seconds": 119,
+                  "page_number": 1,
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "evidence_id": "ev_f16e847f-7089-403d-b5c4-e9ea2a263068"
+                }
+              ],
+              "catalog_kind": "video_parts",
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                  "source": "html.bilibili.video_title",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                },
+                "url": {
+                  "evidence_id": "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/?uid=425631644B3431314D376F4D"
+                },
+                "description": {
+                  "evidence_id": "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.desc",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_92a87c17-2dad-44ab-a172-262d77e4ea39",
+                  "source": "meta.og:type",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_4c1354b9-4b17-49ee-bed0-2a8fe1b98171",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_e7479d6f-70e5-4cf1-871e-44b24caa8aad",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                },
+                "author": {
+                  "evidence_id": "ev_bca898f2-ca09-4310-847a-1d3e0e404441",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                },
+                "language": {
+                  "evidence_id": "ev_af95fc4f-9435-4356-82e3-1524a6bf06fa",
+                  "source": "html.lang",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                },
+                "chapters": {
+                  "evidence_id": "ev_cc6caa9f-4d1c-4474-9119-ca3cdfe61ff9",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                }
+              },
+              "cache": {
+                "hit": true,
+                "stale": false,
+                "cached_at": "2026-10-18T17:50:37.043687+00:00"
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+              "resource_id": "res_0299dc3686f2271b9fd39b21",
+              "ranking_score": 49.67,
+              "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+              "matched_evidence_ids": [
+                "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                "ev_f16e847f-7089-403d-b5c4-e9ea2a263068",
+                "ev_cc6caa9f-4d1c-4474-9119-ca3cdfe61ff9",
+                "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a"
+              ],
+              "coverage_basis": [
+                "title",
+                "catalog"
+              ],
+              "topic_match_rules": [],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                    "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                    "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                    "ev_f16e847f-7089-403d-b5c4-e9ea2a263068"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                "ev_f16e847f-7089-403d-b5c4-e9ea2a263068"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "operation_core",
+                  "text": "pandas 读取 CSV",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                    "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                    "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                    "ev_f16e847f-7089-403d-b5c4-e9ea2a263068"
+                  ],
+                  "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                },
+                {
+                  "id": "operation_qualification",
+                  "text": "骑行 与列结构检查",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "pd.read_csv 参数",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "DataFrame.shape 与 dtypes",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "head() 预览",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_4",
+                  "text": "原始行数基线",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                "candidate_id": "198036911ffd48c4ea8a311a",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "query": "pandas pd.read_csv 参数 视频教程",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/?uid=425631644B3431314D376F4D",
+                "title": "利用pandas读取csv格式文件",
+                "snippet": "",
+                "observed_at": "2026-10-18T18:29:03.667971+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.NhP6nmBvcGdBzBFoWAp5LwIIEk?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              },
+              {
+                "id": "ev_88fa426d2d2106efdb54",
+                "evidence_id": "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "field": "title",
+                "source": "html.bilibili.video_title",
+                "text": "利用pandas读取csv格式文件",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                }
+              },
+              {
+                "id": "ev_987d7f43b12de7bfc448",
+                "evidence_id": "ev_e7479d6f-70e5-4cf1-871e-44b24caa8aad",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "field": "thumbnail_url",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                "text": "http://i1.hdslb.com/bfs/archive/c67822b99b0edd9b51029620573f7b3714116ace.jpg",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                }
+              },
+              {
+                "id": "ev_8d07b35f8209ccd26a44",
+                "evidence_id": "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "field": "description",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.desc",
+                "text": "-",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                }
+              },
+              {
+                "id": "ev_af7e41b418052e365d6a",
+                "evidence_id": "ev_bca898f2-ca09-4310-847a-1d3e0e404441",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "field": "author",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                "text": "Satan小袁",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                }
+              },
+              {
+                "id": "ev_8209a2cd7b332471ffe9",
+                "evidence_id": "ev_af95fc4f-9435-4356-82e3-1524a6bf06fa",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "field": "language",
+                "source": "html.lang",
+                "text": "zh-Hans",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                }
+              },
+              {
+                "id": "ev_10f1c3e7510429bc78d5",
+                "evidence_id": "ev_92a87c17-2dad-44ab-a172-262d77e4ea39",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "field": "resource_type",
+                "source": "meta.og:type",
+                "text": "video",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                }
+              },
+              {
+                "id": "ev_7ac96372872674e1ba55",
+                "evidence_id": "ev_4c1354b9-4b17-49ee-bed0-2a8fe1b98171",
+                "kind": "page",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "field": "video_evidence_status",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                }
+              },
+              {
+                "id": "ev_f1aa3aadd79d59374f8c",
+                "evidence_id": "ev_f16e847f-7089-403d-b5c4-e9ea2a263068",
+                "kind": "catalog",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "field": "chapters.0",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "text": "{\"duration_seconds\": 119, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1dK411M7oM/\", \"start_seconds\": null, \"title\": \"利用pandas读取csv格式文件\", \"url\": \"https://www.bilibili.com/video/BV1dK411M7oM/?p=1\"}",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                }
+              },
+              {
+                "id": "ev_f72a2f656dbe8d1f2574",
+                "evidence_id": "ev_cc6caa9f-4d1c-4474-9119-ca3cdfe61ff9",
+                "kind": "catalog",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "field": "chapters",
+                "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                "text": "[{'title': '利用pandas读取csv格式文件', 'url': 'https://www.bilibili.com/video/BV1dK411M7oM/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV1dK411M7oM/', 'duration_seconds': 119, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_f1aa3aadd79d59374f8c'}]",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                }
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "res_2d62908f87d8f06e9048d0d6",
+              "title": "【python数据分析】pandas读取csv文件 python一对一视频讲解 经典实战 朝天吼数据",
+              "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+              "canonical_url": "https://www.bilibili.com/video/BV1qi4y157hc/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1qi4y157hc/",
+                "evidence_ids": [
+                  "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": null,
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.JqWuUoIqPVyJXQ5NukEs3AIIEk?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:28:50.492161+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863"
+                },
+                "url": {
+                  "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863"
+                },
+                "description": {
+                  "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                  "observed_at": "2026-10-18T18:28:50.492161+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+              "resource_id": "res_2d62908f87d8f06e9048d0d6",
+              "ranking_score": 40.67,
+              "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                "ev_c2a163c7-5175-47dc-be58-e8616c14f901"
+              ],
+              "coverage_basis": [
+                "title"
+              ],
+              "topic_match_rules": [],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                    "ev_c2a163c7-5175-47dc-be58-e8616c14f901"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                "ev_c2a163c7-5175-47dc-be58-e8616c14f901"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "operation_core",
+                  "text": "pandas 读取 CSV",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                    "ev_c2a163c7-5175-47dc-be58-e8616c14f901"
+                  ],
+                  "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                },
+                {
+                  "id": "operation_qualification",
+                  "text": "骑行 与列结构检查",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "pd.read_csv 参数",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "DataFrame.shape 与 dtypes",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "head() 预览",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_4",
+                  "text": "原始行数基线",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                "candidate_id": "f21910ed36e36d8336fc7903",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "query": "site:bilibili.com/video pandas 读取骑行 CSV 与列结构检查 视频教程",
+                "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                "title": "【python数据分析】pandas读取csv文件 python一对一视频讲解 经典实战 朝天吼数据",
+                "snippet": "",
+                "observed_at": "2026-10-18T18:28:50.492161+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.JqWuUoIqPVyJXQ5NukEs3AIIEk?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              },
+              {
+                "evidence_id": "ev_c2a163c7-5175-47dc-be58-e8616c14f901",
+                "candidate_id": "98130e3059e257330a748cb8",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "query": "pandas pd.read_csv 参数 视频教程",
+                "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                "title": "【python数据分析】pandas读取csv文件 python一对一视频讲解 经典实战 朝天吼数据",
+                "snippet": "",
+                "observed_at": "2026-10-18T18:29:03.667778+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.JqWuUoIqPVyJXQ5NukEs3AIIEk?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "res_2fb809d99a9ee70cd2f14d51",
+              "title": "使用pandas库读取csv文件并筛选行和列数据",
+              "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+              "canonical_url": "https://www.bilibili.com/video/BV1gZ421i7Fy/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1gZ421i7Fy/",
+                "evidence_ids": [
+                  "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "使用pandas库读取csv文件并筛选行和列数据, 视频播放量 8107、弹幕量 0、点赞数 111、投硬币枚数 29、收藏人数 188、转发人数 29, 视频作者 北外田园-DS社, 作者简介 我们透过数据，观察这个世界!，相关视频：",
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.GOAZfHZBi-8aZc-viF3fEAEsCo?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:28:50.491529+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679"
+                },
+                "url": {
+                  "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679"
+                },
+                "description": {
+                  "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+                  "observed_at": "2026-10-18T18:28:50.491529+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+              "resource_id": "res_2fb809d99a9ee70cd2f14d51",
+              "ranking_score": 40.67,
+              "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+              ],
+              "coverage_basis": [
+                "title",
+                "snippet"
+              ],
+              "topic_match_rules": [
+                "search_related_recommendations_excluded"
+              ],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "operation_core",
+                  "text": "pandas 读取 CSV",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+                  ],
+                  "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                },
+                {
+                  "id": "operation_qualification",
+                  "text": "骑行 与列结构检查",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "pd.read_csv 参数",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "DataFrame.shape 与 dtypes",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "head() 预览",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_4",
+                  "text": "原始行数基线",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                "candidate_id": "324513dbd137adb1aea0856b",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "query": "site:bilibili.com/video pandas 读取骑行 CSV 与列结构检查 视频教程",
+                "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+                "title": "使用pandas库读取csv文件并筛选行和列数据",
+                "snippet": "使用pandas库读取csv文件并筛选行和列数据, 视频播放量 8107、弹幕量 0、点赞数 111、投硬币枚数 29、收藏人数 188、转发人数 29, 视频作者 北外田园-DS社, 作者简介 我们透过数据，观察这个世界!，相关视频：",
+                "observed_at": "2026-10-18T18:28:50.491529+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.GOAZfHZBi-8aZc-viF3fEAEsCo?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "res_d7e319f7ade620e49018665f",
+              "title": "完整的Python Pandas数据科学教程! （读取CSV / Excel文件，排序，过滤，分组依据）",
+              "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+              "canonical_url": "https://www.bilibili.com/video/BV1o54y1L7em/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1o54y1L7em/",
+                "evidence_ids": [
+                  "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "介绍了许多Python Pandas数据科学库的基本概念。 同学们喜欢的话记得三连哦~",
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse3.mm.bing.net/th/id/OVP.hnLS__mDlGO6pcUTxOjprgIIFE?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:28:50.492043+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D"
+                },
+                "url": {
+                  "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D"
+                },
+                "description": {
+                  "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+                  "observed_at": "2026-10-18T18:28:50.492043+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+              "resource_id": "res_d7e319f7ade620e49018665f",
+              "ranking_score": 40.67,
+              "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+              ],
+              "coverage_basis": [
+                "title"
+              ],
+              "topic_match_rules": [],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "operation_core",
+                  "text": "pandas 读取 CSV",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+                  ],
+                  "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                },
+                {
+                  "id": "operation_qualification",
+                  "text": "骑行 与列结构检查",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "pd.read_csv 参数",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "DataFrame.shape 与 dtypes",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "head() 预览",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_4",
+                  "text": "原始行数基线",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                "candidate_id": "0c57094ff46e27d748886e44",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "query": "site:bilibili.com/video pandas 读取骑行 CSV 与列结构检查 视频教程",
+                "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+                "title": "完整的Python Pandas数据科学教程! （读取CSV / Excel文件，排序，过滤，分组依据）",
+                "snippet": "介绍了许多Python Pandas数据科学库的基本概念。 同学们喜欢的话记得三连哦~",
+                "observed_at": "2026-10-18T18:28:50.492043+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse3.mm.bing.net/th/id/OVP.hnLS__mDlGO6pcUTxOjprgIIFE?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "res_eca7196aadb2a0115bc8d0d6",
+              "title": "Python pandas 读取csv/txt数据文件 csv文件数据批处理",
+              "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+              "canonical_url": "https://www.bilibili.com/video/BV1n8411e79h/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1n8411e79h/",
+                "evidence_ids": [
+                  "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "Python pandas 读取csv/txt数据文件 csv文件数据批处理, 视频播放量 24812、弹幕量 7、点赞数 271、投硬币枚数 141、收藏人数 533、转发人数 54, 视频作者 喜马高, 作者简介 量化Python从业人员\\n分享一些工作中遇到的Python\\n尽可能简洁用通俗易懂的方式呈现给大家 ...",
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.dBI9iIyXn_Q8xR_cm7rNKwIIFF?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:28:50.492313+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968"
+                },
+                "url": {
+                  "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968"
+                },
+                "description": {
+                  "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                  "observed_at": "2026-10-18T18:28:50.492313+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+              "resource_id": "res_eca7196aadb2a0115bc8d0d6",
+              "ranking_score": 40.67,
+              "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+              ],
+              "coverage_basis": [
+                "title",
+                "snippet"
+              ],
+              "topic_match_rules": [],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                    "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "operation_core",
+                  "text": "pandas 读取 CSV",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                    "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+                  ],
+                  "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                },
+                {
+                  "id": "operation_qualification",
+                  "text": "骑行 与列结构检查",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "pd.read_csv 参数",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "DataFrame.shape 与 dtypes",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "head() 预览",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_4",
+                  "text": "原始行数基线",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                "candidate_id": "bb5d298f37903aa4c769054a",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "query": "site:bilibili.com/video pandas 读取骑行 CSV 与列结构检查 视频教程",
+                "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                "title": "Python pandas 读取csv/txt数据文件 csv文件数据批处理",
+                "snippet": "Python pandas 读取csv/txt数据文件 csv文件数据批处理, 视频播放量 24812、弹幕量 7、点赞数 271、投硬币枚数 141、收藏人数 533、转发人数 54, 视频作者 喜马高, 作者简介 量化Python从业人员\\n分享一些工作中遇到的Python\\n尽可能简洁用通俗易懂的方式呈现给大家 ...",
+                "observed_at": "2026-10-18T18:28:50.492313+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.dBI9iIyXn_Q8xR_cm7rNKwIIFF?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              },
+              {
+                "evidence_id": "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233",
+                "candidate_id": "d80986d13af52668d95922ab",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "query": "pandas pd.read_csv 参数 视频教程",
+                "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                "title": "Python pandas 读取csv/txt数据文件 csv文件数据批处理",
+                "snippet": "Python pandas 读取csv/txt数据文件 csv文件数据批处理, 视频播放量 24812、弹幕量 7、点赞数 271、投硬币枚数 141、收藏人数 533、转发人数 54, 视频作者 喜马高, 作者简介 量化Python从业人员\\n分享一些工作中遇到的Python\\n尽可能简洁用通俗易懂的方式呈现给大家 ...",
+                "observed_at": "2026-10-18T18:29:03.668043+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.dBI9iIyXn_Q8xR_cm7rNKwIIFF?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          }
+        ],
+        "partial_platform_items": {
+          "bilibili": [
+            {
+              "resource": {
+                "resource_id": "res_0299dc3686f2271b9fd39b21",
+                "title": "利用pandas读取csv格式文件",
+                "url": "https://www.bilibili.com/video/BV1dK411M7oM/?uid=425631644B3431314D376F4D",
+                "canonical_url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "resolved_url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "page_verified",
+                "author": "Satan小袁",
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "evidence_ids": [
+                    "ev_4c1354b9-4b17-49ee-bed0-2a8fe1b98171"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "-",
+                "video_topic_summary": null,
+                "thumbnail_url": "http://i1.hdslb.com/bfs/archive/c67822b99b0edd9b51029620573f7b3714116ace.jpg",
+                "language": "zh-Hans",
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:29:03.667971+00:00",
+                "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                "fetch_status": "fetched",
+                "metadata_evidence_level": "catalog",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [
+                  {
+                    "title": "利用pandas读取csv格式文件",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/?p=1",
+                    "start_seconds": null,
+                    "end_seconds": null,
+                    "source_url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                    "duration_seconds": 119,
+                    "page_number": 1,
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                    "evidence_id": "ev_f16e847f-7089-403d-b5c4-e9ea2a263068"
+                  }
+                ],
+                "catalog_kind": "video_parts",
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                    "source": "html.bilibili.video_title",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                    "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                  },
+                  "url": {
+                    "evidence_id": "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/?uid=425631644B3431314D376F4D"
+                  },
+                  "description": {
+                    "evidence_id": "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.desc",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                    "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_92a87c17-2dad-44ab-a172-262d77e4ea39",
+                    "source": "meta.og:type",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                    "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_4c1354b9-4b17-49ee-bed0-2a8fe1b98171",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                    "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_e7479d6f-70e5-4cf1-871e-44b24caa8aad",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                    "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                  },
+                  "author": {
+                    "evidence_id": "ev_bca898f2-ca09-4310-847a-1d3e0e404441",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                    "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                  },
+                  "language": {
+                    "evidence_id": "ev_af95fc4f-9435-4356-82e3-1524a6bf06fa",
+                    "source": "html.lang",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                    "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                  },
+                  "chapters": {
+                    "evidence_id": "ev_cc6caa9f-4d1c-4474-9119-ca3cdfe61ff9",
+                    "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                    "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                    "fetched_at": "2026-10-18T17:50:37.021155+00:00"
+                  }
+                },
+                "cache": {
+                  "hit": true,
+                  "stale": false,
+                  "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "resource_id": "res_0299dc3686f2271b9fd39b21",
+                "ranking_score": 49.67,
+                "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 来源页面语言：中文（zh-Hans）；视频/授课语言仍需确认。",
+                "matched_evidence_ids": [
+                  "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                  "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                  "ev_f16e847f-7089-403d-b5c4-e9ea2a263068",
+                  "ev_cc6caa9f-4d1c-4474-9119-ca3cdfe61ff9",
+                  "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a"
+                ],
+                "coverage_basis": [
+                  "title",
+                  "catalog"
+                ],
+                "topic_match_rules": [],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                      "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                      "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                      "ev_f16e847f-7089-403d-b5c4-e9ea2a263068"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                  "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                  "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                  "ev_f16e847f-7089-403d-b5c4-e9ea2a263068"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "operation_core",
+                    "text": "pandas 读取 CSV",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                      "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                      "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                      "ev_f16e847f-7089-403d-b5c4-e9ea2a263068"
+                    ],
+                    "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                  },
+                  {
+                    "id": "operation_qualification",
+                    "text": "骑行 与列结构检查",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "pd.read_csv 参数",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "DataFrame.shape 与 dtypes",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "head() 预览",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_4",
+                    "text": "原始行数基线",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                  "candidate_id": "198036911ffd48c4ea8a311a",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                  "query": "pandas pd.read_csv 参数 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/?uid=425631644B3431314D376F4D",
+                  "title": "利用pandas读取csv格式文件",
+                  "snippet": "",
+                  "observed_at": "2026-10-18T18:29:03.667971+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.NhP6nmBvcGdBzBFoWAp5LwIIEk?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                },
+                {
+                  "id": "ev_88fa426d2d2106efdb54",
+                  "evidence_id": "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "field": "title",
+                  "source": "html.bilibili.video_title",
+                  "text": "利用pandas读取csv格式文件",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                  "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                  }
+                },
+                {
+                  "id": "ev_987d7f43b12de7bfc448",
+                  "evidence_id": "ev_e7479d6f-70e5-4cf1-871e-44b24caa8aad",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "field": "thumbnail_url",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                  "text": "http://i1.hdslb.com/bfs/archive/c67822b99b0edd9b51029620573f7b3714116ace.jpg",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                  "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                  }
+                },
+                {
+                  "id": "ev_8d07b35f8209ccd26a44",
+                  "evidence_id": "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "field": "description",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.desc",
+                  "text": "-",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                  "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                  }
+                },
+                {
+                  "id": "ev_af7e41b418052e365d6a",
+                  "evidence_id": "ev_bca898f2-ca09-4310-847a-1d3e0e404441",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "field": "author",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+                  "text": "Satan小袁",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                  "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                  }
+                },
+                {
+                  "id": "ev_8209a2cd7b332471ffe9",
+                  "evidence_id": "ev_af95fc4f-9435-4356-82e3-1524a6bf06fa",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "field": "language",
+                  "source": "html.lang",
+                  "text": "zh-Hans",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                  "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                  }
+                },
+                {
+                  "id": "ev_10f1c3e7510429bc78d5",
+                  "evidence_id": "ev_92a87c17-2dad-44ab-a172-262d77e4ea39",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "field": "resource_type",
+                  "source": "meta.og:type",
+                  "text": "video",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                  "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                  }
+                },
+                {
+                  "id": "ev_7ac96372872674e1ba55",
+                  "evidence_id": "ev_4c1354b9-4b17-49ee-bed0-2a8fe1b98171",
+                  "kind": "page",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "field": "video_evidence_status",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+                  "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                  "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                  }
+                },
+                {
+                  "id": "ev_f1aa3aadd79d59374f8c",
+                  "evidence_id": "ev_f16e847f-7089-403d-b5c4-e9ea2a263068",
+                  "kind": "catalog",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "field": "chapters.0",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "text": "{\"duration_seconds\": 119, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1dK411M7oM/\", \"start_seconds\": null, \"title\": \"利用pandas读取csv格式文件\", \"url\": \"https://www.bilibili.com/video/BV1dK411M7oM/?p=1\"}",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                  "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                  }
+                },
+                {
+                  "id": "ev_f72a2f656dbe8d1f2574",
+                  "evidence_id": "ev_cc6caa9f-4d1c-4474-9119-ca3cdfe61ff9",
+                  "kind": "catalog",
+                  "url": "https://www.bilibili.com/video/BV1dK411M7oM/",
+                  "field": "chapters",
+                  "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+                  "text": "[{'title': '利用pandas读取csv格式文件', 'url': 'https://www.bilibili.com/video/BV1dK411M7oM/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV1dK411M7oM/', 'duration_seconds': 119, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_f1aa3aadd79d59374f8c'}]",
+                  "fetched_at": "2026-10-18T17:50:37.021155+00:00",
+                  "observed_at": "2026-10-18T17:50:37.021155+00:00",
+                  "cache": {
+                    "hit": true,
+                    "stale": false,
+                    "cached_at": "2026-10-18T17:50:37.043687+00:00"
+                  }
+                }
+              ]
+            },
+            {
+              "resource": {
+                "resource_id": "res_2d62908f87d8f06e9048d0d6",
+                "title": "【python数据分析】pandas读取csv文件 python一对一视频讲解 经典实战 朝天吼数据",
+                "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                "canonical_url": "https://www.bilibili.com/video/BV1qi4y157hc/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1qi4y157hc/",
+                  "evidence_ids": [
+                    "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": null,
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.JqWuUoIqPVyJXQ5NukEs3AIIEk?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:28:50.492161+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863"
+                  },
+                  "url": {
+                    "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863"
+                  },
+                  "description": {
+                    "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                    "observed_at": "2026-10-18T18:28:50.492161+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "resource_id": "res_2d62908f87d8f06e9048d0d6",
+                "ranking_score": 40.67,
+                "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "ev_c2a163c7-5175-47dc-be58-e8616c14f901"
+                ],
+                "coverage_basis": [
+                  "title"
+                ],
+                "topic_match_rules": [],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                      "ev_c2a163c7-5175-47dc-be58-e8616c14f901"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "ev_c2a163c7-5175-47dc-be58-e8616c14f901"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "operation_core",
+                    "text": "pandas 读取 CSV",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                      "ev_c2a163c7-5175-47dc-be58-e8616c14f901"
+                    ],
+                    "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                  },
+                  {
+                    "id": "operation_qualification",
+                    "text": "骑行 与列结构检查",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "pd.read_csv 参数",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "DataFrame.shape 与 dtypes",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "head() 预览",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_4",
+                    "text": "原始行数基线",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "candidate_id": "f21910ed36e36d8336fc7903",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                  "query": "site:bilibili.com/video pandas 读取骑行 CSV 与列结构检查 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                  "title": "【python数据分析】pandas读取csv文件 python一对一视频讲解 经典实战 朝天吼数据",
+                  "snippet": "",
+                  "observed_at": "2026-10-18T18:28:50.492161+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.JqWuUoIqPVyJXQ5NukEs3AIIEk?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                },
+                {
+                  "evidence_id": "ev_c2a163c7-5175-47dc-be58-e8616c14f901",
+                  "candidate_id": "98130e3059e257330a748cb8",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                  "query": "pandas pd.read_csv 参数 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1qi4y157hc/?uid=425631716934793135376863",
+                  "title": "【python数据分析】pandas读取csv文件 python一对一视频讲解 经典实战 朝天吼数据",
+                  "snippet": "",
+                  "observed_at": "2026-10-18T18:29:03.667778+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.JqWuUoIqPVyJXQ5NukEs3AIIEk?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            },
+            {
+              "resource": {
+                "resource_id": "res_2fb809d99a9ee70cd2f14d51",
+                "title": "使用pandas库读取csv文件并筛选行和列数据",
+                "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+                "canonical_url": "https://www.bilibili.com/video/BV1gZ421i7Fy/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1gZ421i7Fy/",
+                  "evidence_ids": [
+                    "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "使用pandas库读取csv文件并筛选行和列数据, 视频播放量 8107、弹幕量 0、点赞数 111、投硬币枚数 29、收藏人数 188、转发人数 29, 视频作者 北外田园-DS社, 作者简介 我们透过数据，观察这个世界!，相关视频：",
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.GOAZfHZBi-8aZc-viF3fEAEsCo?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:28:50.491529+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679"
+                  },
+                  "url": {
+                    "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679"
+                  },
+                  "description": {
+                    "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+                    "observed_at": "2026-10-18T18:28:50.491529+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "resource_id": "res_2fb809d99a9ee70cd2f14d51",
+                "ranking_score": 40.67,
+                "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+                ],
+                "coverage_basis": [
+                  "title",
+                  "snippet"
+                ],
+                "topic_match_rules": [
+                  "search_related_recommendations_excluded"
+                ],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "operation_core",
+                    "text": "pandas 读取 CSV",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6"
+                    ],
+                    "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                  },
+                  {
+                    "id": "operation_qualification",
+                    "text": "骑行 与列结构检查",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "pd.read_csv 参数",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "DataFrame.shape 与 dtypes",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "head() 预览",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_4",
+                    "text": "原始行数基线",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                  "candidate_id": "324513dbd137adb1aea0856b",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                  "query": "site:bilibili.com/video pandas 读取骑行 CSV 与列结构检查 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1gZ421i7Fy/?uid=425631675A34323169374679",
+                  "title": "使用pandas库读取csv文件并筛选行和列数据",
+                  "snippet": "使用pandas库读取csv文件并筛选行和列数据, 视频播放量 8107、弹幕量 0、点赞数 111、投硬币枚数 29、收藏人数 188、转发人数 29, 视频作者 北外田园-DS社, 作者简介 我们透过数据，观察这个世界!，相关视频：",
+                  "observed_at": "2026-10-18T18:28:50.491529+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse4.mm.bing.net/th/id/OVP.GOAZfHZBi-8aZc-viF3fEAEsCo?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            },
+            {
+              "resource": {
+                "resource_id": "res_d7e319f7ade620e49018665f",
+                "title": "完整的Python Pandas数据科学教程! （读取CSV / Excel文件，排序，过滤，分组依据）",
+                "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+                "canonical_url": "https://www.bilibili.com/video/BV1o54y1L7em/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1o54y1L7em/",
+                  "evidence_ids": [
+                    "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "介绍了许多Python Pandas数据科学库的基本概念。 同学们喜欢的话记得三连哦~",
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse3.mm.bing.net/th/id/OVP.hnLS__mDlGO6pcUTxOjprgIIFE?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:28:50.492043+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D"
+                  },
+                  "url": {
+                    "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D"
+                  },
+                  "description": {
+                    "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+                    "observed_at": "2026-10-18T18:28:50.492043+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "resource_id": "res_d7e319f7ade620e49018665f",
+                "ranking_score": 40.67,
+                "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+                ],
+                "coverage_basis": [
+                  "title"
+                ],
+                "topic_match_rules": [],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "operation_core",
+                    "text": "pandas 读取 CSV",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_a4d61767-6c67-4653-b07c-881a943fe060"
+                    ],
+                    "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                  },
+                  {
+                    "id": "operation_qualification",
+                    "text": "骑行 与列结构检查",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "pd.read_csv 参数",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "DataFrame.shape 与 dtypes",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "head() 预览",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_4",
+                    "text": "原始行数基线",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                  "candidate_id": "0c57094ff46e27d748886e44",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                  "query": "site:bilibili.com/video pandas 读取骑行 CSV 与列结构检查 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1o54y1L7em/?uid=4256316F353479314C37656D",
+                  "title": "完整的Python Pandas数据科学教程! （读取CSV / Excel文件，排序，过滤，分组依据）",
+                  "snippet": "介绍了许多Python Pandas数据科学库的基本概念。 同学们喜欢的话记得三连哦~",
+                  "observed_at": "2026-10-18T18:28:50.492043+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse3.mm.bing.net/th/id/OVP.hnLS__mDlGO6pcUTxOjprgIIFE?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            },
+            {
+              "resource": {
+                "resource_id": "res_eca7196aadb2a0115bc8d0d6",
+                "title": "Python pandas 读取csv/txt数据文件 csv文件数据批处理",
+                "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                "canonical_url": "https://www.bilibili.com/video/BV1n8411e79h/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1n8411e79h/",
+                  "evidence_ids": [
+                    "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "Python pandas 读取csv/txt数据文件 csv文件数据批处理, 视频播放量 24812、弹幕量 7、点赞数 271、投硬币枚数 141、收藏人数 533、转发人数 54, 视频作者 喜马高, 作者简介 量化Python从业人员\\n分享一些工作中遇到的Python\\n尽可能简洁用通俗易懂的方式呈现给大家 ...",
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.dBI9iIyXn_Q8xR_cm7rNKwIIFF?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:28:50.492313+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968"
+                  },
+                  "url": {
+                    "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968"
+                  },
+                  "description": {
+                    "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                    "observed_at": "2026-10-18T18:28:50.492313+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                "resource_id": "res_eca7196aadb2a0115bc8d0d6",
+                "ranking_score": 40.67,
+                "recommendation_reason": "与“pandas 读取骑行 CSV 与列结构检查”相关：已有来源证据：pandas 读取 CSV。尚未确认：骑行 与列结构检查、pd.read_csv 参数、DataFrame.shape 与 dtypes、head() 预览。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+                ],
+                "coverage_basis": [
+                  "title",
+                  "snippet"
+                ],
+                "topic_match_rules": [],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                      "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "operation_core",
+                    "text": "pandas 读取 CSV",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                      "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+                    ],
+                    "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                  },
+                  {
+                    "id": "operation_qualification",
+                    "text": "骑行 与列结构检查",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "操作证据不能证明“骑行 与列结构检查”这一原始限定。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "pd.read_csv 参数",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "DataFrame.shape 与 dtypes",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "head() 预览",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_4",
+                    "text": "原始行数基线",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "candidate_id": "bb5d298f37903aa4c769054a",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                  "query": "site:bilibili.com/video pandas 读取骑行 CSV 与列结构检查 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                  "title": "Python pandas 读取csv/txt数据文件 csv文件数据批处理",
+                  "snippet": "Python pandas 读取csv/txt数据文件 csv文件数据批处理, 视频播放量 24812、弹幕量 7、点赞数 271、投硬币枚数 141、收藏人数 533、转发人数 54, 视频作者 喜马高, 作者简介 量化Python从业人员\\n分享一些工作中遇到的Python\\n尽可能简洁用通俗易懂的方式呈现给大家 ...",
+                  "observed_at": "2026-10-18T18:28:50.492313+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.dBI9iIyXn_Q8xR_cm7rNKwIIFF?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                },
+                {
+                  "evidence_id": "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233",
+                  "candidate_id": "d80986d13af52668d95922ab",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "65737abb-c3cd-43e7-8358-f232a62f487d",
+                  "query": "pandas pd.read_csv 参数 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1n8411e79h/?uid=4256316E3834313165373968",
+                  "title": "Python pandas 读取csv/txt数据文件 csv文件数据批处理",
+                  "snippet": "Python pandas 读取csv/txt数据文件 csv文件数据批处理, 视频播放量 24812、弹幕量 7、点赞数 271、投硬币枚数 141、收藏人数 533、转发人数 54, 视频作者 喜马高, 作者简介 量化Python从业人员\\n分享一些工作中遇到的Python\\n尽可能简洁用通俗易懂的方式呈现给大家 ...",
+                  "observed_at": "2026-10-18T18:29:03.668043+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.dBI9iIyXn_Q8xR_cm7rNKwIIFF?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            }
+          ]
+        },
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "pandas"
+          ],
+          "subtopics": [
+            {
+              "id": "operation_core",
+              "text": "pandas 读取 CSV",
+              "status": "supported",
+              "resource_ids": [
+                "res_0299dc3686f2271b9fd39b21",
+                "res_2d62908f87d8f06e9048d0d6",
+                "res_2fb809d99a9ee70cd2f14d51",
+                "res_d7e319f7ade620e49018665f",
+                "res_eca7196aadb2a0115bc8d0d6"
+              ],
+              "evidence_ids": [
+                "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                "ev_f16e847f-7089-403d-b5c4-e9ea2a263068",
+                "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                "ev_c2a163c7-5175-47dc-be58-e8616c14f901",
+                "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+              ]
+            },
+            {
+              "id": "operation_qualification",
+              "text": "骑行 与列结构检查",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "pd.read_csv 参数",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "DataFrame.shape 与 dtypes",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "head() 预览",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "原始行数基线",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "some_subtopics_supported",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {
+          "bilibili": {
+            "decomposition_status": "applied",
+            "shared_context": [
+              "pandas"
+            ],
+            "subtopics": [
+              {
+                "id": "operation_core",
+                "text": "pandas 读取 CSV",
+                "status": "supported",
+                "resource_ids": [
+                  "res_0299dc3686f2271b9fd39b21",
+                  "res_2d62908f87d8f06e9048d0d6",
+                  "res_2fb809d99a9ee70cd2f14d51",
+                  "res_d7e319f7ade620e49018665f",
+                  "res_eca7196aadb2a0115bc8d0d6"
+                ],
+                "evidence_ids": [
+                  "ev_869b86ca-0d35-47d9-92e1-225d673f2b37",
+                  "ev_95a29404-1e90-406b-8dfd-3992ad8e2a6b",
+                  "ev_28f6e487-4ad8-4fde-a8a6-10b7c5d6299a",
+                  "ev_f16e847f-7089-403d-b5c4-e9ea2a263068",
+                  "ev_8bab619c-f41a-42c7-9ec7-4a977e07ac38",
+                  "ev_c2a163c7-5175-47dc-be58-e8616c14f901",
+                  "ev_11f4454a-4d2f-4ebf-af1d-941da7e9afa6",
+                  "ev_a4d61767-6c67-4653-b07c-881a943fe060",
+                  "ev_fcd03a3f-1e71-47fd-9676-938d7f0c7d17",
+                  "ev_a0a0037b-2064-4d2d-bca9-270bcaf83233"
+                ]
+              },
+              {
+                "id": "operation_qualification",
+                "text": "骑行 与列结构检查",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_1",
+                "text": "pd.read_csv 参数",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_2",
+                "text": "DataFrame.shape 与 dtypes",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_3",
+                "text": "head() 预览",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_4",
+                "text": "原始行数基线",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              }
+            ],
+            "status": "some_subtopics_supported",
+            "single_resource_full_coverage": false,
+            "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+          }
+        }
+      }
+    },
+    {
+      "project_knowledge_point_id": "k2",
+      "name": "pandas trip_id 去重与删除行数统计",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "424bd3d9-7626-4498-bc90-703aab564b01-v4-b1",
+      "job_id": "6e2e9205-d862-4834-982f-8cf09202ecff",
+      "knowledge_point_id": "3dc1e910-6489-4a61-b0e4-dbe9633f7648",
+      "result": {
+        "knowledge_point_id": "3dc1e910-6489-4a61-b0e4-dbe9633f7648",
+        "text": "pandas trip_id 去重与删除行数统计",
+        "learning_targets": [
+          "drop_duplicates(subset, keep)",
+          "nunique 与重复计数",
+          "去重前后行数差",
+          "顺序一致性"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 1,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [
+          {
+            "resource": {
+              "resource_id": "res_08c045a5f6f4700f81a61027",
+              "title": "【pandas】3.7python基础 | 数据去重、分列、替换",
+              "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+              "canonical_url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/",
+                "evidence_ids": [
+                  "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "完整视频及课件代码链接: https://edu.csdn.net/course/detail/31518",
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse3.mm.bing.net/th/id/OVP.t_0-GaUHyHoJO92wL4JdLAEsC7?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:28:54.330284+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231"
+                },
+                "url": {
+                  "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231"
+                },
+                "description": {
+                  "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+                  "observed_at": "2026-10-18T18:28:54.330284+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "3dc1e910-6489-4a61-b0e4-dbe9633f7648",
+              "resource_id": "res_08c045a5f6f4700f81a61027",
+              "ranking_score": 39.0,
+              "recommendation_reason": "与“pandas trip_id 去重与删除行数统计”相关：已有来源证据：pandas 数据去重。尚未确认：trip_id 与删除行数统计、drop_duplicates(subset, keep)、nunique 与重复计数、去重前后行数差。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+              ],
+              "coverage_basis": [
+                "title"
+              ],
+              "topic_match_rules": [],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "operation_core",
+                  "text": "pandas 数据去重",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+                  ],
+                  "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                },
+                {
+                  "id": "operation_qualification",
+                  "text": "trip_id 与删除行数统计",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "操作证据不能证明“trip_id 与删除行数统计”这一原始限定。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "drop_duplicates(subset, keep)",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "nunique 与重复计数",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "去重前后行数差",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_4",
+                  "text": "顺序一致性",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                "candidate_id": "7702f2fdea1dc817b2a800e0",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "3dc1e910-6489-4a61-b0e4-dbe9633f7648",
+                "query": "site:bilibili.com/video pandas trip_id 去重与删除行数统计 视频教程",
+                "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+                "title": "【pandas】3.7python基础 | 数据去重、分列、替换",
+                "snippet": "完整视频及课件代码链接: https://edu.csdn.net/course/detail/31518",
+                "observed_at": "2026-10-18T18:28:54.330284+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse3.mm.bing.net/th/id/OVP.t_0-GaUHyHoJO92wL4JdLAEsC7?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          }
+        ],
+        "partial_platform_items": {
+          "bilibili": [
+            {
+              "resource": {
+                "resource_id": "res_08c045a5f6f4700f81a61027",
+                "title": "【pandas】3.7python基础 | 数据去重、分列、替换",
+                "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+                "canonical_url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/",
+                  "evidence_ids": [
+                    "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "完整视频及课件代码链接: https://edu.csdn.net/course/detail/31518",
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse3.mm.bing.net/th/id/OVP.t_0-GaUHyHoJO92wL4JdLAEsC7?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:28:54.330284+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231"
+                  },
+                  "url": {
+                    "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231"
+                  },
+                  "description": {
+                    "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+                    "observed_at": "2026-10-18T18:28:54.330284+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "3dc1e910-6489-4a61-b0e4-dbe9633f7648",
+                "resource_id": "res_08c045a5f6f4700f81a61027",
+                "ranking_score": 39.0,
+                "recommendation_reason": "与“pandas trip_id 去重与删除行数统计”相关：已有来源证据：pandas 数据去重。尚未确认：trip_id 与删除行数统计、drop_duplicates(subset, keep)、nunique 与重复计数、去重前后行数差。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+                ],
+                "coverage_basis": [
+                  "title"
+                ],
+                "topic_match_rules": [],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "operation_core",
+                    "text": "pandas 数据去重",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+                    ],
+                    "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                  },
+                  {
+                    "id": "operation_qualification",
+                    "text": "trip_id 与删除行数统计",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "操作证据不能证明“trip_id 与删除行数统计”这一原始限定。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "drop_duplicates(subset, keep)",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "nunique 与重复计数",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "去重前后行数差",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_4",
+                    "text": "顺序一致性",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0",
+                  "candidate_id": "7702f2fdea1dc817b2a800e0",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "3dc1e910-6489-4a61-b0e4-dbe9633f7648",
+                  "query": "site:bilibili.com/video pandas trip_id 去重与删除行数统计 视频教程",
+                  "url": "https://www.bilibili.com/video/BV1Ez4y1C7b1/?uid=425631457A34793143376231",
+                  "title": "【pandas】3.7python基础 | 数据去重、分列、替换",
+                  "snippet": "完整视频及课件代码链接: https://edu.csdn.net/course/detail/31518",
+                  "observed_at": "2026-10-18T18:28:54.330284+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse3.mm.bing.net/th/id/OVP.t_0-GaUHyHoJO92wL4JdLAEsC7?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            }
+          ]
+        },
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "pandas"
+          ],
+          "subtopics": [
+            {
+              "id": "operation_core",
+              "text": "pandas 数据去重",
+              "status": "supported",
+              "resource_ids": [
+                "res_08c045a5f6f4700f81a61027"
+              ],
+              "evidence_ids": [
+                "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+              ]
+            },
+            {
+              "id": "operation_qualification",
+              "text": "trip_id 与删除行数统计",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "drop_duplicates(subset, keep)",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "nunique 与重复计数",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "去重前后行数差",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "顺序一致性",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "some_subtopics_supported",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {
+          "bilibili": {
+            "decomposition_status": "applied",
+            "shared_context": [
+              "pandas"
+            ],
+            "subtopics": [
+              {
+                "id": "operation_core",
+                "text": "pandas 数据去重",
+                "status": "supported",
+                "resource_ids": [
+                  "res_08c045a5f6f4700f81a61027"
+                ],
+                "evidence_ids": [
+                  "ev_cd83fe1e-4687-4e1b-97b3-4d377bc0cce0"
+                ]
+              },
+              {
+                "id": "operation_qualification",
+                "text": "trip_id 与删除行数统计",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_1",
+                "text": "drop_duplicates(subset, keep)",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_2",
+                "text": "nunique 与重复计数",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_3",
+                "text": "去重前后行数差",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_4",
+                "text": "顺序一致性",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              }
+            ],
+            "status": "some_subtopics_supported",
+            "single_resource_full_coverage": false,
+            "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+          }
+        }
+      }
+    },
+    {
+      "project_knowledge_point_id": "k3",
+      "name": "pandas 时间列解析与无效行分离",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "424bd3d9-7626-4498-bc90-703aab564b01-v4-b1",
+      "job_id": "6e2e9205-d862-4834-982f-8cf09202ecff",
+      "knowledge_point_id": "5fc9a399-eecb-4d92-9c74-5e298869bcf6",
+      "result": {
+        "knowledge_point_id": "5fc9a399-eecb-4d92-9c74-5e298869bcf6",
+        "text": "pandas 时间列解析与无效行分离",
+        "learning_targets": [
+          "pd.to_datetime(errors)",
+          "isna 与缺失筛选",
+          "布尔条件 end < start",
+          "相等时间的边界判断"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "pandas"
+          ],
+          "subtopics": [
+            {
+              "id": "subtopic_1",
+              "text": "时间列解析",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "subtopic_2",
+              "text": "无效行分离",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "operation_core",
+              "text": "pandas 日期时间转换",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "operation_qualification",
+              "text": "时间列与无效行分离",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "pd.to_datetime(errors)",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "isna 与缺失筛选",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "布尔条件 end < start",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "相等时间的边界判断",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k4",
+      "name": "pandas 时间差计算骑行分钟时长",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "424bd3d9-7626-4498-bc90-703aab564b01-v4-b1",
+      "job_id": "6e2e9205-d862-4834-982f-8cf09202ecff",
+      "knowledge_point_id": "62120c6d-a98c-41e1-9665-9a13caf79d37",
+      "result": {
+        "knowledge_point_id": "62120c6d-a98c-41e1-9665-9a13caf79d37",
+        "text": "pandas 时间差计算骑行分钟时长",
+        "learning_targets": [
+          "日期时间相减得 Timedelta",
+          "dt.total_seconds 换算分钟",
+          "新增列赋值",
+          "min 值校验"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 0,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [],
+        "partial_platform_items": {},
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "not_applicable",
+          "shared_context": [],
+          "subtopics": [
+            {
+              "id": "whole_topic",
+              "text": "pandas 时间差计算骑行分钟时长",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "日期时间相减得 Timedelta",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "dt.total_seconds 换算分钟",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "新增列赋值",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "min 值校验",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "unknown",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {}
+      }
+    },
+    {
+      "project_knowledge_point_id": "k5",
+      "name": "pandas 按出发小时分组计数",
+      "selection": "learn",
+      "status": "submitted",
+      "batch_id": "424bd3d9-7626-4498-bc90-703aab564b01-v4-b1",
+      "job_id": "6e2e9205-d862-4834-982f-8cf09202ecff",
+      "knowledge_point_id": "7eecac3a-8b32-4ba0-8df4-f06417189fa7",
+      "result": {
+        "knowledge_point_id": "7eecac3a-8b32-4ba0-8df4-f06417189fa7",
+        "text": "pandas 按出发小时分组计数",
+        "learning_targets": [
+          "dt.hour 提取",
+          "groupby/size 与 value_counts",
+          "汇总表排序",
+          "合计一致性校验"
+        ],
+        "total_matches": 0,
+        "total_partial_matches": 1,
+        "total_review_matches": 0,
+        "section_limit": 5,
+        "items": [],
+        "platform_items": {},
+        "partial_items": [
+          {
+            "resource": {
+              "resource_id": "res_6ec07083e2ac87afc2231abf",
+              "title": "Pandas简单统计_筛选后分组计数",
+              "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+              "canonical_url": "https://www.bilibili.com/video/BV18Ro7YEEhN/",
+              "resolved_url": null,
+              "platform": "bilibili",
+              "resource_type": "video",
+              "video_evidence_status": "search_discovered",
+              "author": null,
+              "author_role": null,
+              "parent_course_url": null,
+              "course_identity": {
+                "status": "partial",
+                "family_id": null,
+                "offering_id": null,
+                "lesson_id": null,
+                "family_url": null,
+                "offering_url": null,
+                "role": "video",
+                "basis": "unknown",
+                "source_url": "https://www.bilibili.com/video/BV18Ro7YEEhN/",
+                "evidence_ids": [
+                  "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+                ],
+                "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+              },
+              "description": "Pandas简单统计_筛选后分组计数, 视频播放量 2307、弹幕量 0、点赞数 44、投硬币枚数 12、收藏人数 127、转发人数 4, 视频作者 老猫总掉毛, 作者简介 数学>英语>创客>RPA>数据分析>AI，相关视频：新能源发电数据分析【6】发电量预测，Pandas借辅助列筛选百万数据 ...",
+              "video_topic_summary": null,
+              "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.e7aD0wOu0fq8-PJWeXvtNQIIEk?pid=Api",
+              "language": null,
+              "duration_seconds": null,
+              "published_at": null,
+              "discovered_at": "2026-10-18T18:29:01.458759+00:00",
+              "fetched_at": null,
+              "fetch_status": "not_fetched",
+              "metadata_evidence_level": "search",
+              "requires_login": null,
+              "requires_payment": null,
+              "requires_enrollment": null,
+              "access_notice": null,
+              "chapters": [],
+              "catalog_kind": null,
+              "catalog_fetch_status": null,
+              "render_diagnostics": null,
+              "field_provenance": {
+                "title": {
+                  "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E"
+                },
+                "url": {
+                  "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E"
+                },
+                "description": {
+                  "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                  "source": "search",
+                  "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E"
+                },
+                "resource_type": {
+                  "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+                  "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                },
+                "video_evidence_status": {
+                  "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                  "source": "url_pattern",
+                  "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+                  "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                },
+                "thumbnail_url": {
+                  "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                  "source": "search.thumbnail",
+                  "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+                  "observed_at": "2026-10-18T18:29:01.458759+00:00",
+                  "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                }
+              },
+              "cache": {
+                "hit": false,
+                "cached_at": null,
+                "stale": false
+              },
+              "playback_verified": false
+            },
+            "match": {
+              "knowledge_point_id": "7eecac3a-8b32-4ba0-8df4-f06417189fa7",
+              "resource_id": "res_6ec07083e2ac87afc2231abf",
+              "ranking_score": 42.33,
+              "recommendation_reason": "与“pandas 按出发小时分组计数”相关：已有来源证据：pandas 分组计数。尚未确认：按出发小时、dt.hour 提取、groupby/size 与 value_counts、汇总表排序。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+              "matched_evidence_ids": [
+                "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+              ],
+              "coverage_basis": [
+                "title",
+                "snippet"
+              ],
+              "topic_match_rules": [
+                "search_related_recommendations_excluded"
+              ],
+              "topic_evidence_status": "partial",
+              "topic_evidence_reasons": [
+                {
+                  "code": "confirmed_learning_targets",
+                  "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                  "evidence_ids": [
+                    "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+                  ]
+                }
+              ],
+              "supporting_evidence_ids": [
+                "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+              ],
+              "subtopic_coverage": [
+                {
+                  "id": "operation_core",
+                  "text": "pandas 分组计数",
+                  "status": "supported",
+                  "evidence_ids": [
+                    "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+                  ],
+                  "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                },
+                {
+                  "id": "operation_qualification",
+                  "text": "按出发小时",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "操作证据不能证明“按出发小时”这一原始限定。"
+                },
+                {
+                  "id": "learning_target_1",
+                  "text": "dt.hour 提取",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_2",
+                  "text": "groupby/size 与 value_counts",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_3",
+                  "text": "汇总表排序",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                },
+                {
+                  "id": "learning_target_4",
+                  "text": "合计一致性校验",
+                  "status": "unknown",
+                  "evidence_ids": [],
+                  "reason": "该项已确认技能仍需补充来源证据。"
+                }
+              ]
+            },
+            "evidence": [
+              {
+                "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                "candidate_id": "fcbbcba1a53180cf61af8d32",
+                "kind": "search",
+                "source": "searxng",
+                "source_engines": [
+                  "duckduckgo videos"
+                ],
+                "type_source": "search_template",
+                "resource_type_hint": "video",
+                "knowledge_point_id": "7eecac3a-8b32-4ba0-8df4-f06417189fa7",
+                "query": "site:bilibili.com/video pandas 按出发小时分组计数 视频教程",
+                "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+                "title": "Pandas简单统计_筛选后分组计数",
+                "snippet": "Pandas简单统计_筛选后分组计数, 视频播放量 2307、弹幕量 0、点赞数 44、投硬币枚数 12、收藏人数 127、转发人数 4, 视频作者 老猫总掉毛, 作者简介 数学>英语>创客>RPA>数据分析>AI，相关视频：新能源发电数据分析【6】发电量预测，Pandas借辅助列筛选百万数据 ...",
+                "observed_at": "2026-10-18T18:29:01.458759+00:00",
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.e7aD0wOu0fq8-PJWeXvtNQIIEk?pid=Api",
+                "thumbnail_source": "search.thumbnail"
+              }
+            ]
+          }
+        ],
+        "partial_platform_items": {
+          "bilibili": [
+            {
+              "resource": {
+                "resource_id": "res_6ec07083e2ac87afc2231abf",
+                "title": "Pandas简单统计_筛选后分组计数",
+                "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+                "canonical_url": "https://www.bilibili.com/video/BV18Ro7YEEhN/",
+                "resolved_url": null,
+                "platform": "bilibili",
+                "resource_type": "video",
+                "video_evidence_status": "search_discovered",
+                "author": null,
+                "author_role": null,
+                "parent_course_url": null,
+                "course_identity": {
+                  "status": "partial",
+                  "family_id": null,
+                  "offering_id": null,
+                  "lesson_id": null,
+                  "family_url": null,
+                  "offering_url": null,
+                  "role": "video",
+                  "basis": "unknown",
+                  "source_url": "https://www.bilibili.com/video/BV18Ro7YEEhN/",
+                  "evidence_ids": [
+                    "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+                  ],
+                  "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+                },
+                "description": "Pandas简单统计_筛选后分组计数, 视频播放量 2307、弹幕量 0、点赞数 44、投硬币枚数 12、收藏人数 127、转发人数 4, 视频作者 老猫总掉毛, 作者简介 数学>英语>创客>RPA>数据分析>AI，相关视频：新能源发电数据分析【6】发电量预测，Pandas借辅助列筛选百万数据 ...",
+                "video_topic_summary": null,
+                "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.e7aD0wOu0fq8-PJWeXvtNQIIEk?pid=Api",
+                "language": null,
+                "duration_seconds": null,
+                "published_at": null,
+                "discovered_at": "2026-10-18T18:29:01.458759+00:00",
+                "fetched_at": null,
+                "fetch_status": "not_fetched",
+                "metadata_evidence_level": "search",
+                "requires_login": null,
+                "requires_payment": null,
+                "requires_enrollment": null,
+                "access_notice": null,
+                "chapters": [],
+                "catalog_kind": null,
+                "catalog_fetch_status": null,
+                "render_diagnostics": null,
+                "field_provenance": {
+                  "title": {
+                    "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E"
+                  },
+                  "url": {
+                    "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E"
+                  },
+                  "description": {
+                    "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                    "source": "search",
+                    "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E"
+                  },
+                  "resource_type": {
+                    "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+                    "note": "公开平台课程或视频入口格式推断；页面详情与可播放性尚未核验"
+                  },
+                  "video_evidence_status": {
+                    "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                    "source": "url_pattern",
+                    "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+                    "note": "仅搜索发现视频入口或视频类结果；页面视频内容及可播放性尚未核验"
+                  },
+                  "thumbnail_url": {
+                    "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                    "source": "search.thumbnail",
+                    "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+                    "observed_at": "2026-10-18T18:29:01.458759+00:00",
+                    "note": "搜索结果提供的缩略图；未另行采集图片或核验播放"
+                  }
+                },
+                "cache": {
+                  "hit": false,
+                  "cached_at": null,
+                  "stale": false
+                },
+                "playback_verified": false
+              },
+              "match": {
+                "knowledge_point_id": "7eecac3a-8b32-4ba0-8df4-f06417189fa7",
+                "resource_id": "res_6ec07083e2ac87afc2231abf",
+                "ranking_score": 42.33,
+                "recommendation_reason": "与“pandas 按出发小时分组计数”相关：已有来源证据：pandas 分组计数。尚未确认：按出发小时、dt.hour 提取、groupby/size 与 value_counts、汇总表排序。逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。 学习门槛未由来源明确确认，请先看课程简介。 视频/授课语言尚未由来源元数据确认。",
+                "matched_evidence_ids": [
+                  "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+                ],
+                "coverage_basis": [
+                  "title",
+                  "snippet"
+                ],
+                "topic_match_rules": [
+                  "search_related_recommendations_excluded"
+                ],
+                "topic_evidence_status": "partial",
+                "topic_evidence_reasons": [
+                  {
+                    "code": "confirmed_learning_targets",
+                    "message": "逐项核对已确认概念；项目中的具体应用及未覆盖技能仍需补充。",
+                    "evidence_ids": [
+                      "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+                    ]
+                  }
+                ],
+                "supporting_evidence_ids": [
+                  "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+                ],
+                "subtopic_coverage": [
+                  {
+                    "id": "operation_core",
+                    "text": "pandas 分组计数",
+                    "status": "supported",
+                    "evidence_ids": [
+                      "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+                    ],
+                    "reason": "同一条真实观察明确包含技术上下文、操作与作用对象。"
+                  },
+                  {
+                    "id": "operation_qualification",
+                    "text": "按出发小时",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "操作证据不能证明“按出发小时”这一原始限定。"
+                  },
+                  {
+                    "id": "learning_target_1",
+                    "text": "dt.hour 提取",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_2",
+                    "text": "groupby/size 与 value_counts",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_3",
+                    "text": "汇总表排序",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  },
+                  {
+                    "id": "learning_target_4",
+                    "text": "合计一致性校验",
+                    "status": "unknown",
+                    "evidence_ids": [],
+                    "reason": "该项已确认技能仍需补充来源证据。"
+                  }
+                ]
+              },
+              "evidence": [
+                {
+                  "evidence_id": "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d",
+                  "candidate_id": "fcbbcba1a53180cf61af8d32",
+                  "kind": "search",
+                  "source": "searxng",
+                  "source_engines": [
+                    "duckduckgo videos"
+                  ],
+                  "type_source": "search_template",
+                  "resource_type_hint": "video",
+                  "knowledge_point_id": "7eecac3a-8b32-4ba0-8df4-f06417189fa7",
+                  "query": "site:bilibili.com/video pandas 按出发小时分组计数 视频教程",
+                  "url": "https://www.bilibili.com/video/BV18Ro7YEEhN/?uid=42563138526F37594545684E",
+                  "title": "Pandas简单统计_筛选后分组计数",
+                  "snippet": "Pandas简单统计_筛选后分组计数, 视频播放量 2307、弹幕量 0、点赞数 44、投硬币枚数 12、收藏人数 127、转发人数 4, 视频作者 老猫总掉毛, 作者简介 数学>英语>创客>RPA>数据分析>AI，相关视频：新能源发电数据分析【6】发电量预测，Pandas借辅助列筛选百万数据 ...",
+                  "observed_at": "2026-10-18T18:29:01.458759+00:00",
+                  "cache": {
+                    "hit": false,
+                    "cached_at": null,
+                    "stale": false
+                  },
+                  "thumbnail_url": "https://tse1.mm.bing.net/th/id/OVP.e7aD0wOu0fq8-PJWeXvtNQIIEk?pid=Api",
+                  "thumbnail_source": "search.thumbnail"
+                }
+              ]
+            }
+          ]
+        },
+        "review_items": [],
+        "review_platform_items": {},
+        "collection_coverage": {
+          "decomposition_status": "applied",
+          "shared_context": [
+            "pandas"
+          ],
+          "subtopics": [
+            {
+              "id": "operation_core",
+              "text": "pandas 分组计数",
+              "status": "supported",
+              "resource_ids": [
+                "res_6ec07083e2ac87afc2231abf"
+              ],
+              "evidence_ids": [
+                "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+              ]
+            },
+            {
+              "id": "operation_qualification",
+              "text": "按出发小时",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_1",
+              "text": "dt.hour 提取",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_2",
+              "text": "groupby/size 与 value_counts",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_3",
+              "text": "汇总表排序",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            },
+            {
+              "id": "learning_target_4",
+              "text": "合计一致性校验",
+              "status": "unknown",
+              "resource_ids": [],
+              "evidence_ids": []
+            }
+          ],
+          "status": "some_subtopics_supported",
+          "single_resource_full_coverage": false,
+          "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+        },
+        "platform_collection_coverage": {
+          "bilibili": {
+            "decomposition_status": "applied",
+            "shared_context": [
+              "pandas"
+            ],
+            "subtopics": [
+              {
+                "id": "operation_core",
+                "text": "pandas 分组计数",
+                "status": "supported",
+                "resource_ids": [
+                  "res_6ec07083e2ac87afc2231abf"
+                ],
+                "evidence_ids": [
+                  "ev_5e4d209f-7c3c-47ce-b5e6-aab2d0905f2d"
+                ]
+              },
+              {
+                "id": "operation_qualification",
+                "text": "按出发小时",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_1",
+                "text": "dt.hour 提取",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_2",
+                "text": "groupby/size 与 value_counts",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_3",
+                "text": "汇总表排序",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              },
+              {
+                "id": "learning_target_4",
+                "text": "合计一致性校验",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              }
+            ],
+            "status": "some_subtopics_supported",
+            "single_resource_full_coverage": false,
+            "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+          }
+        }
+      }
+    },
+    {
+      "project_knowledge_point_id": "k6",
+      "name": "Matplotlib 出发站 Top10 条形图",
+      "selection": "learn",
+      "status": "pending",
+      "batch_id": "424bd3d9-7626-4498-bc90-703aab564b01-v4-b2",
+      "job_id": null,
+      "knowledge_point_id": null,
+      "result": null
+    },
+    {
+      "project_knowledge_point_id": "k7",
+      "name": "pandas 清洗结果与汇总 CSV 导出及复核日志",
+      "selection": "learn",
+      "status": "pending",
+      "batch_id": "424bd3d9-7626-4498-bc90-703aab564b01-v4-b2",
+      "job_id": null,
+      "knowledge_point_id": null,
+      "result": null
+    }
+  ],
+  "functions": [
+    {
+      "id": "f1",
+      "name": "读取 CSV 并按 trip_id 去重",
+      "original_requirement": "按trip_id去重并记录删行数",
+      "acceptance_criteria": "读入后保留每个 trip_id 的首条记录，打印并返回删除行数，使去重前后行数之差等于该数。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f2",
+      "name": "解析时间并区分无效行",
+      "original_requirement": "解析时间，单独记录缺失或结束早于开始的无效行",
+      "acceptance_criteria": "两列时间被解析为日期时间；缺失/解析失败行单独计数，严格 end<start 行单独计数并保留明细；end==start 不计入无效。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f3",
+      "name": "计算有效行分钟时长",
+      "original_requirement": "对有效行计算分钟时长",
+      "acceptance_criteria": "每行时长为 (end_time-start_time) 的分钟数，数据集中不含无效行，时长均 >=0 且 end==start 行时长为 0。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f4",
+      "name": "按出发小时汇总骑行次数",
+      "original_requirement": "按出发小时汇总骑行次数",
+      "acceptance_criteria": "输出 0–23 中实际出现的出发小时及各小时有效骑行次数，合计等于有效行数。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f5",
+      "name": "绘制出发站 Top10 条形图",
+      "original_requirement": "绘制出发站次数Top10条形图；图要有标题、轴标签",
+      "acceptance_criteria": "条形图展示次数最多的前 10 个出发站，降序排列，含非空标题与两轴标签，并可保存为 PNG。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f6",
+      "name": "导出清洗后 CSV、按小时 CSV 与 PNG",
+      "original_requirement": "导出清洗后含时长的CSV、按小时汇总CSV和PNG图",
+      "acceptance_criteria": "三个文件成功写出：清洗数据含时长列，按小时 CSV 含小时与次数，PNG 可正常打开且图形与统计一致。",
+      "no_new_learning_reason": null
+    }
+  ]
+}

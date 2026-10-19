@@ -20,5 +20,5 @@ try {
         } finally { Pop-Location }
     }
     Write-Host 'Application: http://127.0.0.1:8000 (single worker; Ctrl+C to stop)'
-    uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1
+    uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
 } finally { Pop-Location }

@@ -1,0 +1,178 @@
+import { test, expect, type Page } from '@playwright/test';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import type { Capabilities, ResourceItem, ResultGroup } from '../src/types';
+import type { ProjectAnalysis, ProjectInput, ProjectView } from '../src/projectTypes';
+
+// New contract UI with isolated transport only; no live retrieval/model/backend.
+const out = resolve(process.cwd(), 'tests/evidence/phase3');
+const time = '2026-10-18T22:00:00Z';
+const input: ProjectInput = { name: '骑行数据清洗', requirements: '解析日期，剔除无效行并保留相等时间边界。', student_level: 'beginner', language: 'zh', project_context: '', technical_version: 'Python / pandas', preferred_platforms: ['bilibili'] };
+const caps: Capabilities = { mode: 'live', search: { status: 'configured', message: '隔离测试', selected_provider: 'fixture', providers: [] }, llm: { status: 'configured', message: '隔离测试' }, fetch: { status: 'available', message: '隔离测试', browser_fallback: false }, platforms: [], limits: { max_knowledge_points: 5, max_results_per_point: 5, max_search_requests: 30, max_detail_pages: 40 } };
+const skills = ['解析日期时间', '识别缺失值'];
+function document(): ProjectAnalysis { return { scope: '本地CSV清洗', technical_plan: 'Python / pandas', assumptions: [],
+  functions: [{ id: 'f1', name: '清洗骑行记录', original_requirement: input.requirements, acceptance_criteria: '得到有效与无效记录', no_new_learning_reason: null }],
+  knowledge_points: [{ id: 'k1', name: 'pandas 时间解析与筛选', description: '解析时间并保留无效行明细', project_task: '清洗自己的骑行CSV并生成无效行明细', learning_goal: '能够解析时间并使用布尔条件筛选', why_needed: '支持骑行时长计算', function_ids: ['f1'], learning_order: 1, prerequisite_ids: [], necessity: 'required', selection: 'learn', learning_skills: [...skills], technology: 'pandas',
+    concepts: ['pd.to_datetime(errors)', 'end < start', 'end==start仍有效'], practice_check: '构造一条相等时间记录，确认它仍保留。' }] }; }
+function item(index: number, basis: 'title' | 'description'): ResourceItem {
+  const id = `r${index}`, url = `https://example.org/lesson/${id}`, skill = skills[index - 1];
+  const title = `${skill}的方法`, description = `本课讲解${skill}，用小表格演示这一方法。`;
+  const text = basis === 'title' ? title : description, eid = `${id}-source`, titleId = basis === 'title' ? eid : `${id}-title`;
+  return { resource: { resource_id: id, title, url, canonical_url: url, platform: index === 1 ? 'bilibili' : 'other', resource_type: 'video', video_evidence_status: 'page_verified', author: null, description, language: null, duration_seconds: null, published_at: null, discovered_at: time, fetched_at: time, fetch_status: 'fetched', metadata_evidence_level: 'page', requires_login: null, requires_payment: null, requires_enrollment: null, chapters: [], playback_verified: false,
+    field_provenance: { title: { evidence_id: titleId, source: basis === 'title' ? 'fixture.title' : 'fixture.own.title', url }, description: { evidence_id: eid, source: 'fixture.description', url }, video_evidence_status: { evidence_id: `${id}-video`, source: 'fixture.video', url } } },
+    match: { knowledge_point_id: 'job-point', resource_id: id, ranking_score: 1, recommendation_reason: '隔离材料，仅当前技能有依据；参数与项目行为待自己核对。视频授课语言未确认。', matched_evidence_ids: [eid], supporting_evidence_ids: [eid], coverage_basis: [], topic_evidence_status: 'partial', teaching_support: [{ skill_id: `skill_${index}`, skill, evidence_id: eid, quote: skill, basis, source_text_sha256: createHash('sha256').update(text).digest('hex') }] },
+    evidence: [{ evidence_id: eid, kind: 'page', field: basis, source: `fixture.${basis}`, url, text },
+      { evidence_id: `${id}-video`, kind: 'page', field: 'video_evidence_status', source: 'fixture.video', url, text: 'Observed own-page video; playback unverified' },
+      ...(basis === 'title' ? [] : [{ evidence_id: titleId, kind: 'page', field: 'title', source: 'fixture.own.title', url, text: title }])] };
+}
+function group(): ResultGroup {
+  const body = item(1, 'description'), title = item(2, 'title');
+  return { knowledge_point_id: 'job-point', text: 'pandas 时间解析与筛选', total_matches: 0, items: [], partial_items: [body, title], partial_platform_items: { bilibili: [body], other: [title] }, review_items: [],
+    learning_coverage: { mode: 'transferable_skills', skills: skills.map((text, index) => ({ id: `skill_${index + 1}`, text, content_resource_ids: index ? [] : ['r1'], title_resource_ids: index ? ['r2'] : [], evidence_ids: [`r${index + 1}-source`] })), disclaimer: '隔离课程依据只说明技能范围，项目练习仍待自己完成。' },
+    collection_coverage: { decomposition_status: 'applied', shared_context: ['pandas'], status: 'unknown', subtopics: [{ id: 'learning_target_1', text: 'pd.to_datetime(errors)', status: 'unknown', resource_ids: [], evidence_ids: [] }], single_resource_full_coverage: false, disclaimer: '旧项目要求保留' } };
+}
+type Fixture = { analysis: ProjectAnalysis; result: ResultGroup | null; current: number; selected: number };
+const diagnostics = new WeakMap<Page, { writes: { path: string; body: unknown }[]; unexpected: string[]; runtime: string[]; console: string[] }>();
+test.afterEach(async ({ page }, info) => { const log = diagnostics.get(page)!; await info.attach('isolated-ui-diagnostics', { body: JSON.stringify(log, null, 2), contentType: 'application/json' }); expect(log.unexpected).toEqual([]); expect(log.runtime).toEqual([]); expect(log.console).toEqual([]); });
+async function setup(page: Page, fixture: Fixture = { analysis: document(), result: group(), current: 1, selected: 1 }) {
+  const log = { writes: [] as { path: string; body: unknown }[], unexpected: [] as string[], runtime: [] as string[], console: [] as string[] }; diagnostics.set(page, log);
+  page.on('pageerror', error => log.runtime.push(error.message)); page.on('console', msg => { if (['error', 'warning'].includes(msg.type())) log.console.push(msg.text()); });
+  let edited: ProjectAnalysis | null = null;
+  const view = (): ProjectView => { const analysis = edited || fixture.analysis, version = edited ? 2 : fixture.selected, result = edited ? null : fixture.result, point = analysis.knowledge_points[0];
+    return { project_id: 'skills-project', input, current_version: edited ? 2 : fixture.current,
+      versions: Array.from({ length: edited ? 2 : fixture.current }, (_, i) => ({ version: i + 1, status: 'partial', created_at: time })),
+      version: { version, status: edited ? 'analyzed' : 'partial', input, analysis, confirmation: edited ? null : { confirmed_at: time }, batches: edited ? [] : [{ batch_id: 'batch-1', job_id: 'job-1', status: 'completed', project_knowledge_point_ids: [point.id] }], error: null, created_at: time },
+      points: edited ? [] : [{ project_knowledge_point_id: point.id, name: point.name, selection: 'learn', status: 'partial', batch_id: 'batch-1', job_id: 'job-1', knowledge_point_id: result?.knowledge_point_id || null, result }] };
+  };
+  await page.route('**/*', async route => {
+    const request = route.request(), url = new URL(request.url()), origin = new URL(process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5177').origin;
+    if (url.origin === origin && !url.pathname.startsWith('/api/')) return route.continue();
+    if (request.method() === 'GET' && url.pathname === '/api/capabilities') return route.fulfill({ json: caps });
+    if (request.method() === 'GET' && url.pathname === '/api/projects') return route.fulfill({ json: { projects: [{ project_id: 'skills-project', name: input.name, current_version: view().current_version, created_at: time, updated_at: time }] } });
+    if (request.method() === 'GET' && url.pathname === '/api/projects/skills-project/results') return route.fulfill({ json: view() });
+    if (request.method() === 'POST' && url.pathname === '/api/projects/skills-project/edit') { const body = request.postDataJSON() as { analysis: ProjectAnalysis }; log.writes.push({ path: url.pathname, body }); edited = body.analysis; return route.fulfill({ json: view() }); }
+    if (request.resourceType() === 'image' && /^https:\/\/i\d+\.hdslb\.com\//.test(url.href)) return route.fulfill({ contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jrZkAAAAASUVORK5CYII=', 'base64') });
+    log.unexpected.push(`${request.method()} ${url.href}`); return route.abort('blockedbyclient');
+  });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(`/?project=skills-project&version=${fixture.selected}`);
+  await expect(page).toHaveTitle('项目制知识引导小精灵 · 课程与视频发现');
+  await expect(page.getByRole('heading', { name: `项目课程结果 · v${fixture.selected}` })).toBeVisible();
+  await expect(page.locator('vite-error-overlay')).toHaveCount(0);
+  return { fixture, log };
+}
+const route = (page: Page) => page.getByRole('complementary', { name: 'pandas 时间解析与筛选的学习路线', exact: true });
+
+test('phase3 两轴：内容、标题线索和项目实践分别表达，项目参数不进入技能行', async ({ page }) => {
+  const { log } = await setup(page), panel = route(page), learning = panel.getByRole('region', { name: '先学这些技能' });
+  await expect(panel.locator('[data-skill-id="skill_1"]')).toHaveAttribute('data-skill-state', 'content');
+  await expect(panel.locator('[data-skill-id="skill_2"]')).toHaveAttribute('data-skill-state', 'title');
+  await expect(panel.locator('.transferable-skills>li')).toHaveCount(2);
+  await expect(learning).not.toContainText('end < start');
+  const practice = panel.getByRole('region', { name: '带回项目练习' });
+  await expect(practice).toContainText('待自己实践'); await expect(practice).toContainText('end < start'); await expect(practice).toContainText('end==start仍有效');
+  await expect(practice).toContainText('构造一条相等时间记录');
+  const legacy = panel.locator('.legacy-requirements'); await expect(legacy).not.toHaveAttribute('open', '');
+  await panel.locator('[data-skill-id="skill_2"] summary').click();
+  await expect(panel.locator('[data-skill-id="skill_2"]')).toContainText('尚未确认具体教学、参数和项目应用');
+  await expect(panel.locator('[data-skill-id="skill_2"] .basis-title')).toHaveText('本课标题明确');
+  await expect(panel.locator('.learning-route-next')).toContainText('再按项目要求试做');
+  await mkdir(out, { recursive: true });
+  await panel.screenshot({ path: resolve(out, 'source-title-expanded.png'), animations: 'disabled' });
+  expect(log.writes).toEqual([]);
+});
+test('phase3 平台筛选只统计可见来源；同一项目练习不被隐去或自动完成', async ({ page }) => {
+  await setup(page); const panel = route(page);
+  await expect(panel.locator('[data-skill-id="skill_1"]')).toHaveAttribute('data-skill-state', 'content');
+  await page.getByLabel('项目课程来源').selectOption('other');
+  await expect(panel.locator('[data-skill-id="skill_1"]')).toHaveAttribute('data-skill-state', 'unknown');
+  await expect(panel.locator('[data-skill-id="skill_2"]')).toHaveAttribute('data-skill-state', 'title');
+  await expect(panel.locator('.project-practice-axis')).toContainText('待自己实践');
+  await page.getByLabel('项目课程来源').selectOption('bilibili');
+  await expect(panel.locator('[data-skill-id="skill_2"]')).toHaveAttribute('data-skill-state', 'unknown');
+});
+test('phase3 损坏哈希或跨技能借用引文不能展示为内容依据', async ({ page }) => {
+  const fixture = { analysis: document(), result: group(), current: 1, selected: 1 };
+  fixture.result.partial_items![0].match.teaching_support![0].source_text_sha256 = '0'.repeat(64);
+  await setup(page, fixture);
+  await expect(route(page).locator('[data-skill-id="skill_1"]')).toHaveAttribute('data-skill-state', 'unknown');
+  fixture.result.partial_items![0].match.teaching_support![0].skill = '识别缺失值';
+  await page.reload(); await expect(route(page).locator('[data-skill-id="skill_1"]')).toHaveAttribute('data-skill-state', 'unknown');
+  await expect(route(page).locator('.project-practice-axis')).toContainText('end==start仍有效');
+});
+test('phase3 历史实际APIcore只显示局部标题线索，不造新技能；旧明细折叠且不可编辑', async ({ page }) => {
+  const old = JSON.parse(readFileSync(resolve(process.cwd(), 'tests/fixtures/api-operation-core-coverage.json'), 'utf8')) as { planned: ProjectAnalysis['knowledge_points'][number]; result_group: ResultGroup };
+  const analysis = document(); analysis.knowledge_points = [old.planned]; analysis.functions[0].id = old.planned.function_ids[0];
+  await setup(page, { analysis, result: old.result_group, current: 2, selected: 1 });
+  const panel = page.getByRole('complementary', { name: `${old.planned.name}的学习路线`, exact: true });
+  await expect(panel.locator('.transferable-skills')).toHaveCount(0);
+  await expect(panel.locator('.legacy-learning-clues')).toContainText('pandas.to_datetime API 使用核心（参数未确认）');
+  await expect(panel.locator('.legacy-requirements')).not.toHaveAttribute('open', '');
+  await mkdir(out, { recursive: true });
+  await panel.screenshot({ path: resolve(out, 'historical-api-core-clue.png'), animations: 'disabled' });
+  await panel.locator('.legacy-requirements>summary').click(); await expect(panel.locator('.unit-coverage')).toContainText('0 / 8 项有内容依据');
+  await page.locator('.stage-navigation').getByRole('button', { name: /02.*选择知识点/ }).click();
+  await page.locator('.point-details>summary').click();
+  await expect(page.getByLabel('准备学习的可迁移技能')).toBeDisabled();
+  await expect(page.getByRole('button', { name: '保存修改，稍后确认' })).toHaveCount(0);
+});
+test('phase3 新技能可编辑保存，原concepts/任务/检查原样保留；6条上限明确失败可恢复', async ({ page }) => {
+  const { log, fixture } = await setup(page);
+  await page.locator('.stage-navigation').getByRole('button', { name: /02.*选择知识点/ }).click();
+  await page.locator('.point-details>summary').click();
+  const field = page.getByLabel('准备学习的可迁移技能'); await expect(field).toHaveValue(skills.join('\n'));
+  await mkdir(out, { recursive: true });
+  await page.screenshot({ path: resolve(out, 'editable-learning-skills.png'), fullPage: true, animations: 'disabled' });
+  await field.fill(Array.from({ length: 7 }, (_, index) => `技能${index + 1}`).join('\n'));
+  await page.getByRole('button', { name: '保存修改，稍后确认' }).click();
+  await expect(page.getByRole('alert')).toContainText('最多填写 6 条'); expect(log.writes).toHaveLength(0);
+  await field.fill('  日期解析方法  \n缺失识别\n');
+  await page.getByRole('button', { name: '保存修改，稍后确认' }).click();
+  await expect(page.getByRole('heading', { name: '确认知识点 · v2' })).toBeVisible();
+  expect(log.writes).toHaveLength(1);
+  const saved = (log.writes[0].body as { analysis: ProjectAnalysis }).analysis.knowledge_points[0];
+  expect(saved.learning_skills).toEqual(['日期解析方法', '缺失识别']);
+  expect(saved.concepts).toEqual(fixture.analysis.knowledge_points[0].concepts);
+  expect(saved.project_task).toEqual(fixture.analysis.knowledge_points[0].project_task);
+  expect(saved.practice_check).toEqual(fixture.analysis.knowledge_points[0].practice_check);
+});
+test('phase3 空材料仍保留技能、练习和明确重试方向，不凭重分类变成功', async ({ page }) => {
+  await setup(page, { analysis: document(), result: null, current: 1, selected: 1 });
+  const panel = route(page);
+  await expect(panel.locator('.transferable-skills>li')).toHaveCount(2);
+  await expect(panel.locator('.learning-route-next')).toContainText('尚无已确认技能教学范围的主要推荐');
+  await expect(panel.locator('.project-practice-axis')).toContainText('待自己实践');
+  await expect(panel.locator('.learning-route-next')).not.toContainText('等待材料');
+  await expect(page.locator('.resource-card')).toHaveCount(0);
+  await mkdir(out, { recursive: true });
+  await panel.screenshot({ path: resolve(out, 'empty-materials-practice-retained.png'), animations: 'disabled' });
+});
+test('phase3 三尺寸、键盘与减少动态：技能依据可展开、练习不被标成已完成', async ({ page }) => {
+  await setup(page); const panel = route(page);
+  await expect(panel.locator('[data-skill-id="skill_1"]')).toHaveAttribute('data-skill-state', 'content');
+  await mkdir(out, { recursive: true }); const observations = [];
+  for (const viewport of [{ name: 'desktop', width: 1440, height: 1000 }, { name: 'tablet', width: 768, height: 1024 }, { name: 'mobile', width: 390, height: 844 }]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
+    const motion = await panel.evaluate(node => ({ animation: getComputedStyle(node).animationName, scroll: getComputedStyle(globalThis.document.documentElement).scrollBehavior }));
+    expect(motion.animation).toBe('none'); expect(motion.scroll).not.toBe('smooth');
+    expect(await page.evaluate(() => globalThis.document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    const colors = await panel.evaluate(node => {
+      const channels = (value: string) => value.match(/[\d.]+/g)!.map(Number);
+      const lum = (rgb: number[]) => rgb.slice(0, 3).map(n => n / 255 <= .04045 ? n / 255 / 12.92 : ((n / 255 + .055) / 1.055) ** 2.4).reduce((sum, n, i) => sum + n * [.2126, .7152, .0722][i], 0);
+      const bg = (e: Element): number[] => { const color = channels(getComputedStyle(e).backgroundColor); return color.length < 4 || color[3] > 0 ? color : bg(e.parentElement!); };
+      return [...node.querySelectorAll('h5,h6,p,strong,.skill-support-state,.practice-state')].filter(e => e.checkVisibility()).map(e => { const a = lum(channels(getComputedStyle(e).color)), b = lum(bg(e)); return { text: e.textContent?.trim(), ratio: (Math.max(a, b) + .05) / (Math.min(a, b) + .05) }; });
+    });
+    expect(colors.every(row => row.ratio >= 4.5), JSON.stringify(colors)).toBe(true);
+    await page.screenshot({ path: resolve(out, `two-axes-${viewport.name}.png`), fullPage: true, animations: 'disabled' });
+    observations.push({ viewport, overflow: false, reducedMotion: motion, colors });
+  }
+  const summary = panel.locator('[data-skill-id="skill_1"] summary'); await summary.focus(); await page.keyboard.press('Enter');
+  await expect(panel.locator('[data-skill-id="skill_1"] details')).toHaveAttribute('open', '');
+  await expect(panel.locator('[data-skill-id="skill_1"] blockquote')).toContainText('解析日期时间');
+  await page.keyboard.press('Tab'); await expect(panel.locator('[data-skill-id="skill_1"] a')).toBeFocused();
+  await expect(panel.locator('.practice-state')).toHaveText('待自己实践');
+  await writeFile(resolve(out, 'responsive-observations.json'), JSON.stringify({ mock: true, viewports: observations, keyboardEvidenceDetailsOpened: true, sourcePlaybackOrTeachingQualityAccepted: false }, null, 2));
+});

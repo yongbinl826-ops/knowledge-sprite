@@ -1,0 +1,711 @@
+{
+  "reviewed_at": "2026-10-18T16:40:28.592009+00:00",
+  "mode": "independent_static_manual_review",
+  "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+  "network_requests": 0,
+  "provider_requests": 0,
+  "production_code_changed": false,
+  "case_reviews": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "version": 1,
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+      "analysis_sha256": "993aa9011dcf46ae7db887249bf5ead3f1050eb8a22b85ea5c5db525c983677f",
+      "review_type": "independent_static_semantic_review",
+      "requirements": [
+        {
+          "id": "w1",
+          "requirement": "Show phase, 25/5 duration, formatted remaining time and count",
+          "unit_ids": [
+            "k1",
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "Concrete HTML elements, mm:ss formatting and phase duration constants."
+        },
+        {
+          "id": "w2",
+          "requirement": "Start, pause and resume",
+          "unit_ids": [
+            "k2",
+            "k3"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "State-aware button controls and a separate timestamp countdown unit support the interaction."
+        },
+        {
+          "id": "w3",
+          "requirement": "On expiry switch phase and wait paused",
+          "unit_ids": [
+            "k5"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "Next-stage duration and paused state are explicit in function acceptance and the unit task."
+        },
+        {
+          "id": "w4",
+          "requirement": "Increment count only for completed focus phases",
+          "unit_ids": [
+            "k5"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "The practice distinguishes focus +1 from no increment at rest completion."
+        },
+        {
+          "id": "w5",
+          "requirement": "Background-tab return retains accurate remaining time",
+          "unit_ids": [
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "A deadline minus Date.now replaces callback-count decrementing."
+        },
+        {
+          "id": "w6",
+          "requirement": "Mobile layout and full keyboard access",
+          "unit_ids": [
+            "k7",
+            "k8"
+          ],
+          "function_ids": [
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "Responsive CSS, native button activation, disabled behavior, focus and keyboard practice are direct tasks."
+        },
+        {
+          "id": "w7",
+          "requirement": "Reset clears active work and restores a usable initial state",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "clearInterval, data restoration and a subsequent restart are explicit."
+        }
+      ],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "HTML 语义结构搭建番茄钟界面",
+          "technology": "HTML",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "A real page skeleton and element references are a coherent buildable result."
+        },
+        {
+          "id": "k2",
+          "name": "JavaScript 按钮事件与状态切换",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Start/pause/resume state and button enablement form one control subtask."
+        },
+        {
+          "id": "k3",
+          "name": "基于时间戳的准确倒计时",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Timestamp countdown is a concrete mechanism with a tab-switch check."
+        },
+        {
+          "id": "k4",
+          "name": "mm:ss 时间格式化显示",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "A mm:ss formatting function is smaller than adjacent units but combines several numeric/text skills into one visible component, not isolated syntax."
+        },
+        {
+          "id": "k5",
+          "name": "阶段切换与完成计数逻辑",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Phase timing and completion conditions are grouped into a single behavior."
+        },
+        {
+          "id": "k6",
+          "name": "重置按钮与状态复原",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Whole-state reset and timer cleanup are one useful subtask."
+        },
+        {
+          "id": "k7",
+          "name": "CSS 窄屏布局与焦点可见样式",
+          "technology": "CSS",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Responsive layout and visible focus form a visual usability task."
+        },
+        {
+          "id": "k8",
+          "name": "键盘操作按钮验证",
+          "technology": "JavaScript",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Native-button keyboard verification is a distinct test task; it could be combined with the preceding usability unit."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Preserves beginner plus the stated HTML/CSS and basic JS experience; teaches events and timing as project skills."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "HTML before button state, then clock/formatting/phase/reset; CSS branches from HTML and keyboard verification depends on actual controls and focus styles. This is coherent, if more serial than strictly necessary."
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "The clock-versus-refresh distinction, paused stage transition and cleanup are consistent. The control goal states pause freezes time and continue resumes it; a concrete implementation must maintain the remaining duration and rebase the deadline on resume."
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "Eight units are at the upper soft limit for this small beginner project; formatting can join countdown and keyboard verification can join responsive controls.",
+        "The timestamp lesson should explicitly show saving remaining time on pause and setting a new deadline on resume; do not let paused wall time reduce the resumed countdown.",
+        "Full reset additionally clears the count and restores the focus phase; the original input leaves reset semantics open, so show that as an adjustable choice."
+      ],
+      "verdict": "static_pass",
+      "not_executed": true
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "version": 1,
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+      "analysis_sha256": "b552fddb859665bd082a8cf4b687c2332ff7cb629087aa66407a04e9465df516",
+      "review_type": "independent_static_semantic_review",
+      "requirements": [
+        {
+          "id": "d1",
+          "requirement": "Read CSV and audit trip_id deduplication",
+          "unit_ids": [
+            "k1",
+            "k2"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Row baseline and deletion accounting are concrete and reconcilable."
+        },
+        {
+          "id": "d2",
+          "requirement": "Parse timestamps and separate invalid reasons",
+          "unit_ids": [
+            "k3",
+            "k4"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "NaT/errors=coerce precedes a distinct end-before-start mask, avoiding duplicate reason counts."
+        },
+        {
+          "id": "d3",
+          "requirement": "Compute duration for all rows valid under the requested boundary",
+          "unit_ids": [
+            "k5"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": false,
+          "reason": "The formula supports zero, but strict-positive acceptance excludes a boundary case not declared invalid."
+        },
+        {
+          "id": "d4",
+          "requirement": "Aggregate by departure hour and export counts",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "dt.hour, groupby size, 0-23 range and total-count reconciliation are concrete."
+        },
+        {
+          "id": "d5",
+          "requirement": "Departure-station Top10 chart with labels",
+          "unit_ids": [
+            "k7",
+            "k8"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "Count/sort/top10 followed by labeled horizontal bars and PNG export; fewer than ten stations are explicitly allowed."
+        },
+        {
+          "id": "d6",
+          "requirement": "Export cleaned CSV, hourly CSV and PNG",
+          "unit_ids": [
+            "k5",
+            "k6",
+            "k8"
+          ],
+          "function_ids": [
+            "f3",
+            "f4",
+            "f5"
+          ],
+          "passed": true,
+          "reason": "All output artifacts have explicit tasks and checks; the duration acceptance boundary still needs fixing."
+        }
+      ],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "pandas 读取 CSV 与行数口径记录",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Read and audit a concrete input table; small, but provides the DataFrame baseline."
+        },
+        {
+          "id": "k2",
+          "name": "pandas 去重与删除行数统计",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Deduplication with deletion reconciliation is one meaningful cleaning result."
+        },
+        {
+          "id": "k3",
+          "name": "pandas 时间列解析与缺失识别",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Parse both timestamps and identify failed/missing values together."
+        },
+        {
+          "id": "k4",
+          "name": "时间先后校验与无效行单独记录",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Separate invalid chronology with an auditable mask and row partition."
+        },
+        {
+          "id": "k5",
+          "name": "pandas 时长计算与清洗结果导出",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Compute a result column and export it as a single artifact."
+        },
+        {
+          "id": "k6",
+          "name": "pandas 按出发小时分组汇总",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Produce an hour-count summary and verify its total."
+        },
+        {
+          "id": "k7",
+          "name": "出发站计数与 Top10 排序",
+          "technology": "pandas",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Rank station counts for the requested chart; this small unit can be merged with plotting."
+        },
+        {
+          "id": "k8",
+          "name": "Matplotlib 条形图绘制与标签导出",
+          "technology": "Matplotlib",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Render and export the actual labeled Top10 figure."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Retains advanced and actual Python/statistics background; the units remain pandas/Matplotlib-specific rather than a generic Python course. The API unfamiliarity was explicitly given and should not be treated as a reason to demote the learner."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "Read/dedup precedes timestamp parsing and validity masks, then duration, hourly counts, station ranking and chart export. The fully serial path is safe but overconstrains independent plotting/hourly branches."
+      },
+      "technical_correctness": {
+        "passed": false,
+        "reason": "Correct total_seconds conversion and reason masks coexist with an inconsistent strictly positive duration criterion. That boundary contradiction prevents a technical pass."
+      },
+      "known_high_or_medium_issues": [
+        {
+          "id": "zero_duration_boundary_narrowed_to_strict_positive",
+          "priority": "medium",
+          "source_locations": [
+            "analysis.functions[2].acceptance_criteria",
+            "analysis.knowledge_points[4].practice_check",
+            "analysis.technical_plan"
+          ],
+          "verbatim_acceptance": "有效行含 duration_min 列且数值为正值，导出的 CSV 行数与记录的有效行数一致。",
+          "verbatim_practice": "导出的 CSV 含正数时长列，行数等于有效行数。",
+          "reason": "The requested invalid-row rule excludes end_time earlier than start_time, not equal timestamps. k4 preserves that strict earlier-than rule and the plan computes total_seconds()/60, which yields zero for equal timestamps; f3 and k5 instead require a strictly positive duration. These cannot all be satisfied for an otherwise valid zero-duration row.",
+          "counterexample": {
+            "trip_id": "synthetic-zero",
+            "start_time": "2026-01-01 09:00:00",
+            "end_time": "2026-01-01 09:00:00",
+            "start_station": "Synthetic A",
+            "expected_by_stated_rule_minutes": 0,
+            "violates_generated_strict_positive_acceptance": true
+          },
+          "required_fix": "Preserve zero as a nonnegative valid duration under the stated rule, or explicitly ask the student to change the invalid-row rule; do not silently change < into <=."
+        }
+      ],
+      "low_priority_notes": [
+        "Eight units are usable for a learner new to these libraries, but an advanced Python learner could combine read/dedup and station-ranking/chart tasks.",
+        "The adjustment note conditionally treats unfamiliar pandas/Matplotlib as unknown despite that background being explicitly supplied. The actual unit tasks do teach those APIs, so this wording is a low-priority stage-clarity issue.",
+        "User-chosen pandas/Matplotlib should be described as selected tools, while file layout and optional extra libraries are adjustable implementation assumptions."
+      ],
+      "verdict": "static_fail_requires_fix",
+      "not_executed": true
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "version": 1,
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+      "analysis_sha256": "0d312eba53404f97c129f639b935d00ea35818add6a09e0ecdd39f4f554f72df",
+      "review_type": "independent_static_semantic_review",
+      "requirements": [
+        {
+          "id": "h1",
+          "requirement": "Low-voltage safe LED/button wiring",
+          "unit_ids": [
+            "k1",
+            "k2"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Current limiting, polarity, common ground, unpowered wiring and USB/low voltage are explicit."
+        },
+        {
+          "id": "h2",
+          "requirement": "INPUT_PULLUP active-low button",
+          "unit_ids": [
+            "k2"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "Pressed LOW and released HIGH are both stated and observed in the practice."
+        },
+        {
+          "id": "h3",
+          "requirement": "Actual debounce plus one event per held press",
+          "unit_ids": [
+            "k3"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "A stable 20-30ms window precedes the edge/latch; a release is required before another event. The old raw-comparison alternative is gone."
+        },
+        {
+          "id": "h4",
+          "requirement": "Responsive random wait and early-press false start",
+          "unit_ids": [
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f4",
+            "f5"
+          ],
+          "passed": true,
+          "reason": "millis unsigned differences and repeated button sampling replace delay; WAIT distinguishes a false start."
+        },
+        {
+          "id": "h5",
+          "requirement": "Reaction milliseconds and readable serial output",
+          "unit_ids": [
+            "k5",
+            "k6"
+          ],
+          "function_ids": [
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "LIGHT records the LED-on time in the plan; result timing and state-transition serial prompts are explicit."
+        },
+        {
+          "id": "h6",
+          "requirement": "A fresh press can start another round without long-hold repetition",
+          "unit_ids": [
+            "k3",
+            "k5"
+          ],
+          "function_ids": [
+            "f5"
+          ],
+          "passed": true,
+          "reason": "Release/latch handling and continued per-loop state handling support repeatable rounds."
+        }
+      ],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "Arduino 断电接线与 LED 限流电阻极性",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Safety/output wiring is directly required, not an unrelated electrical course."
+        },
+        {
+          "id": "k2",
+          "name": "INPUT_PULLUP 按钮接法与串口读取",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Button connection, pull-up polarity and observation are a coherent input task."
+        },
+        {
+          "id": "k3",
+          "name": "按钮去抖与长按只触发一次",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Stable debounce plus release-before-retrigger implements the requested reliable press event."
+        },
+        {
+          "id": "k4",
+          "name": "millis 非阻塞计时与随机等待",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Random nonblocking waiting and elapsed timing form one subtask."
+        },
+        {
+          "id": "k5",
+          "name": "游戏状态机与抢按判定",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "State-dependent button meaning groups waiting, false starts and reaction results."
+        },
+        {
+          "id": "k6",
+          "name": "串口格式化输出游戏提示",
+          "technology": "Arduino",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "State-change serial feedback is one observable output task."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Matches beginner with one LED/upload experience; teaches button polarity, stable input events, timing and state integration as new skills."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "Wiring precedes button observation, stable press events, nonblocking wait and full game states. Serial feedback can be learned after button observation and integrated across later states."
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "The previously observed mechanical-debounce contradiction is resolved by an actual stability condition before edge detection. Random waiting stays responsive, active-low logic is correct, and reaction timing starts at the LED-on state."
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "k5 says a post-result press returns to idle, whereas the function criterion says it can start a new round. Make the final implementation/practice verify that one fresh post-result press starts the next round, rather than accidentally requiring an extra press.",
+        "Debounce adds a detection delay; actual reaction-time accuracy and wiring were not measured on hardware."
+      ],
+      "verdict": "static_pass",
+      "not_executed": true,
+      "resolved_previous_issue": {
+        "source": "evidence/phase2-learning/manual-review-before-arduino-fix.json",
+        "issue_id": "edge_comparison_is_not_independent_mechanical_debounce",
+        "resolved_in_this_output": true
+      }
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "version": 1,
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce",
+      "analysis_sha256": "1a89a53539e23cbdad56e5f6e99c43c1c9361864c3251896543519c68ce38db5",
+      "review_type": "independent_static_semantic_review",
+      "requirements": [
+        {
+          "id": "m1",
+          "requirement": "Fixed 8x8 wall/path/exit grid",
+          "unit_ids": [
+            "k1"
+          ],
+          "function_ids": [
+            "f1"
+          ],
+          "passed": true,
+          "reason": "Nested-list grid-to-pixel mapping and a complete-map check are explicit."
+        },
+        {
+          "id": "m2",
+          "requirement": "One step per key, no walls/boundary crossing",
+          "unit_ids": [
+            "k2",
+            "k3"
+          ],
+          "function_ids": [
+            "f2"
+          ],
+          "passed": true,
+          "reason": "KEYDOWN step updates plus candidate-cell validation before position writes."
+        },
+        {
+          "id": "m3",
+          "requirement": "Freeze real elapsed time on victory",
+          "unit_ids": [
+            "k4",
+            "k5"
+          ],
+          "function_ids": [
+            "f3"
+          ],
+          "passed": true,
+          "reason": "get_ticks is separate from frame rate, won freezes the measured duration and drawing continues."
+        },
+        {
+          "id": "m4",
+          "requirement": "R resets player, clock and game state",
+          "unit_ids": [
+            "k6"
+          ],
+          "function_ids": [
+            "f4"
+          ],
+          "passed": true,
+          "reason": "A centralized reset function resets all relevant state and verifies repeat play."
+        },
+        {
+          "id": "m5",
+          "requirement": "Ready/won still handle R/Esc/QUIT; frame rate bounded",
+          "unit_ids": [
+            "k5",
+            "k6",
+            "k7"
+          ],
+          "function_ids": [
+            "f5",
+            "f6"
+          ],
+          "passed": true,
+          "reason": "The three-state plan preserves event/render processing; QUIT/Esc and clock.tick are explicit tasks."
+        }
+      ],
+      "unit_reviews": [
+        {
+          "id": "k1",
+          "name": "pygame 二维列表网格绘制",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Represent and draw the actual grid map."
+        },
+        {
+          "id": "k2",
+          "name": "网格坐标与方向键单步移动",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Implement event-driven grid movement."
+        },
+        {
+          "id": "k3",
+          "name": "网格越界与墙体阻挡判定",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Validate target cells and prevent illegal updates."
+        },
+        {
+          "id": "k4",
+          "name": "pygame.time 真实耗时计时",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Measure a real elapsed result rather than counting frames."
+        },
+        {
+          "id": "k5",
+          "name": "游戏状态机 ready/playing/won 与主循环",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Combine persistent event loop and state-specific game behavior."
+        },
+        {
+          "id": "k6",
+          "name": "R 重置位置与计时的状态复位",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Restore coordinates, timer and state as one reset result."
+        },
+        {
+          "id": "k7",
+          "name": "pygame 退出事件与帧率上限",
+          "technology": "pygame",
+          "project_relevant": true,
+          "appropriate_granularity": true,
+          "reason": "Keep exit and frame-rate control functioning across game states."
+        }
+      ],
+      "background": {
+        "passed": true,
+        "reason": "Retains intermediate with prior Python lists/functions and pygame drawing, focusing on the unfamiliar grid and whole-game states."
+      },
+      "prerequisites": {
+        "passed": true,
+        "reason": "Map representation precedes step input and blocking; elapsed timing and state transitions precede reset. Quit/tick extends known event-loop skills as an independent branch."
+      },
+      "technical_correctness": {
+        "passed": true,
+        "reason": "Ready/playing/won are explicit; only gameplay updates stop on won, while event/render processing continues. Grid bounds precede map use, movement is KEYDOWN-driven, and elapsed timing does not count frames."
+      },
+      "known_high_or_medium_issues": [],
+      "low_priority_notes": [
+        "f5 says the program does not directly exit while also mentioning close-window events; clarify that only automatic exit on entering won is forbidden. f6, the plan and the quit unit correctly require user-requested QUIT/Esc to exit."
+      ],
+      "verdict": "static_pass",
+      "not_executed": true
+    }
+  ],
+  "cohort_relation": "Same synthetic cases and requested stages as v2.4; four new snapshots after the explicitly authorized production fix. Prior failures/recovery remain separate.",
+  "limits": [
+    "Static review is not execution of the student projects or hardware.",
+    "No video relevance or URL validation is included.",
+    "Successful API generation is separate from semantic acceptance."
+  ]
+}

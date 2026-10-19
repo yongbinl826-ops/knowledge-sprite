@@ -1,0 +1,1520 @@
+{
+  "mode": "offline_synthetic_fixtures",
+  "started_at": "2026-10-18T14:24:36.896402+00:00",
+  "prompt_version": "project-analysis-v2.2-learning-units",
+  "limits": {
+    "max_live_analyses": 4,
+    "max_provider_requests": 6,
+    "max_output_tokens_per_request": null
+  },
+  "network_used": false,
+  "run_complete": true,
+  "records": [
+    {
+      "case": "python_game",
+      "level": "beginner",
+      "input": {
+        "name": "Python 接金币小游戏",
+        "requirements": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "没有做过完整项目，希望每次学完一个小任务就能动手验证。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "角色控制和循环",
+            "passed": true
+          },
+          {
+            "criterion": "碰撞和计分",
+            "passed": true
+          },
+          {
+            "criterion": "开始结束重开",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 4,
+        "function_count": 4,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "Each unit is a coherent project subtask with stage-appropriate skills and an observable practice check.",
+          "Prerequisites include the genuinely necessary skills, not only a structurally valid graph.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "The actual techniques satisfy behavioral constraints and do not promise unsupported technical results."
+        ]
+      },
+      "analysis": {
+        "scope": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+        "technical_plan": "采用需求中明确指定的本地技术方案。",
+        "assumptions": [
+          "所有任务均限定在给出的项目范围；练习使用本地样例。"
+        ],
+        "learner_profile": {
+          "student_level": "beginner",
+          "assumed_knowledge": [
+            "默认初学者，无完整项目经验。"
+          ],
+          "adjustment_note": "可以修改阶段和已有经验后重新分析，也可以将已掌握单元标为已掌握。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "搭建能持续刷新和正确退出的游戏窗口",
+            "original_requirement": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+            "acceptance_criteria": "窗口稳定刷新，关闭按钮能退出，帧率不依赖无限快速循环。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "用左右键移动角色并限制在窗口范围内",
+            "original_requirement": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+            "acceptance_criteria": "持续按键可平滑移动，松开停止，角色不会越过屏幕边界。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "生成下落金币并处理接到和漏接",
+            "original_requirement": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+            "acceptance_criteria": "接到一枚金币只加一次分，漏接会累计且物体被移除。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "让开始、游戏中、结束和重新开始各自正确运行",
+            "original_requirement": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+            "acceptance_criteria": "漏接三次进入结束状态，重开后分数和物体恢复初始值。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "pygame 窗口与游戏循环",
+            "description": "搭建能持续刷新和正确退出的游戏窗口",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "该任务用于完成Python 接金币小游戏的对应功能。",
+            "learning_goal": "理解窗口初始化与事件队列如何协作，并完成这个子任务。",
+            "project_task": "搭建能持续刷新和正确退出的游戏窗口",
+            "concepts": [
+              "窗口初始化",
+              "事件队列",
+              "帧率与刷新"
+            ],
+            "practice_check": "窗口稳定刷新，关闭按钮能退出，帧率不依赖无限快速循环。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "pygame 键盘移动与屏幕坐标",
+            "description": "用左右键移动角色并限制在窗口范围内",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "该任务用于完成Python 接金币小游戏的对应功能。",
+            "learning_goal": "理解按键状态与坐标与矩形如何协作，并完成这个子任务。",
+            "project_task": "用左右键移动角色并限制在窗口范围内",
+            "concepts": [
+              "按键状态",
+              "坐标与矩形",
+              "速度和边界"
+            ],
+            "practice_check": "持续按键可平滑移动，松开停止，角色不会越过屏幕边界。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "pygame 下落物体碰撞与计分",
+            "description": "生成下落金币并处理接到和漏接",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "该任务用于完成Python 接金币小游戏的对应功能。",
+            "learning_goal": "理解物体集合更新与矩形碰撞如何协作，并完成这个子任务。",
+            "project_task": "生成下落金币并处理接到和漏接",
+            "concepts": [
+              "物体集合更新",
+              "矩形碰撞",
+              "分数与漏接次数"
+            ],
+            "practice_check": "接到一枚金币只加一次分，漏接会累计且物体被移除。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "pygame 开始结束与重开状态",
+            "description": "让开始、游戏中、结束和重新开始各自正确运行",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "该任务用于完成Python 接金币小游戏的对应功能。",
+            "learning_goal": "理解游戏状态转换与条件更新如何协作，并完成这个子任务。",
+            "project_task": "让开始、游戏中、结束和重新开始各自正确运行",
+            "concepts": [
+              "游戏状态转换",
+              "条件更新",
+              "重置游戏数据"
+            ],
+            "practice_check": "漏接三次进入结束状态，重开后分数和物体恢复初始值。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.003,
+      "provider_requests": 0
+    },
+    {
+      "case": "python_game",
+      "level": "intermediate",
+      "input": {
+        "name": "Python 接金币小游戏",
+        "requirements": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已有所选语言基础和简单项目经验，希望聚焦本项目的实现和调试。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "角色控制和循环",
+            "passed": true
+          },
+          {
+            "criterion": "碰撞和计分",
+            "passed": true
+          },
+          {
+            "criterion": "开始结束重开",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 4,
+        "function_count": 4,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "Each unit is a coherent project subtask with stage-appropriate skills and an observable practice check.",
+          "Prerequisites include the genuinely necessary skills, not only a structurally valid graph.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "The actual techniques satisfy behavioral constraints and do not promise unsupported technical results."
+        ]
+      },
+      "analysis": {
+        "scope": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+        "technical_plan": "采用需求中明确指定的本地技术方案。",
+        "assumptions": [
+          "所有任务均限定在给出的项目范围；练习使用本地样例。"
+        ],
+        "learner_profile": {
+          "student_level": "intermediate",
+          "assumed_knowledge": [
+            "已有语言基础和简单项目经验。"
+          ],
+          "adjustment_note": "可以修改阶段和已有经验后重新分析，也可以将已掌握单元标为已掌握。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "搭建能持续刷新和正确退出的游戏窗口",
+            "original_requirement": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+            "acceptance_criteria": "窗口稳定刷新，关闭按钮能退出，帧率不依赖无限快速循环。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "用左右键移动角色并限制在窗口范围内",
+            "original_requirement": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+            "acceptance_criteria": "持续按键可平滑移动，松开停止，角色不会越过屏幕边界。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "生成下落金币并处理接到和漏接",
+            "original_requirement": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+            "acceptance_criteria": "接到一枚金币只加一次分，漏接会累计且物体被移除。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "让开始、游戏中、结束和重新开始各自正确运行",
+            "original_requirement": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+            "acceptance_criteria": "漏接三次进入结束状态，重开后分数和物体恢复初始值。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "pygame 窗口与游戏循环",
+            "description": "搭建能持续刷新和正确退出的游戏窗口",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "该任务用于完成Python 接金币小游戏的对应功能。",
+            "learning_goal": "能实现并调试窗口初始化与事件队列的边界情况。",
+            "project_task": "搭建能持续刷新和正确退出的游戏窗口",
+            "concepts": [
+              "窗口初始化",
+              "事件队列",
+              "帧率与刷新"
+            ],
+            "practice_check": "窗口稳定刷新，关闭按钮能退出，帧率不依赖无限快速循环。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "pygame 键盘移动与屏幕坐标",
+            "description": "用左右键移动角色并限制在窗口范围内",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "该任务用于完成Python 接金币小游戏的对应功能。",
+            "learning_goal": "能实现并调试按键状态与坐标与矩形的边界情况。",
+            "project_task": "用左右键移动角色并限制在窗口范围内",
+            "concepts": [
+              "按键状态",
+              "坐标与矩形",
+              "速度和边界"
+            ],
+            "practice_check": "持续按键可平滑移动，松开停止，角色不会越过屏幕边界。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "pygame 下落物体碰撞与计分",
+            "description": "生成下落金币并处理接到和漏接",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "该任务用于完成Python 接金币小游戏的对应功能。",
+            "learning_goal": "能实现并调试物体集合更新与矩形碰撞的边界情况。",
+            "project_task": "生成下落金币并处理接到和漏接",
+            "concepts": [
+              "物体集合更新",
+              "矩形碰撞",
+              "分数与漏接次数"
+            ],
+            "practice_check": "接到一枚金币只加一次分，漏接会累计且物体被移除。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "pygame 开始结束与重开状态",
+            "description": "让开始、游戏中、结束和重新开始各自正确运行",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "该任务用于完成Python 接金币小游戏的对应功能。",
+            "learning_goal": "能实现并调试游戏状态转换与条件更新的边界情况。",
+            "project_task": "让开始、游戏中、结束和重新开始各自正确运行",
+            "concepts": [
+              "游戏状态转换",
+              "条件更新",
+              "重置游戏数据"
+            ],
+            "practice_check": "漏接三次进入结束状态，重开后分数和物体恢复初始值。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.0,
+      "provider_requests": 0
+    },
+    {
+      "case": "data_dashboard",
+      "level": "beginner",
+      "input": {
+        "name": "销售数据分析看板",
+        "requirements": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "没有做过完整项目，希望每次学完一个小任务就能动手验证。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "读入和清洗",
+            "passed": true
+          },
+          {
+            "criterion": "筛选和聚合",
+            "passed": true
+          },
+          {
+            "criterion": "图表",
+            "passed": true
+          },
+          {
+            "criterion": "导出",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 4,
+        "function_count": 4,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "Each unit is a coherent project subtask with stage-appropriate skills and an observable practice check.",
+          "Prerequisites include the genuinely necessary skills, not only a structurally valid graph.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "The actual techniques satisfy behavioral constraints and do not promise unsupported technical results."
+        ]
+      },
+      "analysis": {
+        "scope": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+        "technical_plan": "采用需求中明确指定的本地技术方案。",
+        "assumptions": [
+          "所有任务均限定在给出的项目范围；练习使用本地样例。"
+        ],
+        "learner_profile": {
+          "student_level": "beginner",
+          "assumed_knowledge": [
+            "默认初学者，无完整项目经验。"
+          ],
+          "adjustment_note": "可以修改阶段和已有经验后重新分析，也可以将已掌握单元标为已掌握。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "将上传的销售 CSV 转为可信的分析数据",
+            "original_requirement": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+            "acceptance_criteria": "包含非法金额或缺列的文件获得明确提示，清洗后行数可核对。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "根据日期和产品生成当前范围的销售汇总",
+            "original_requirement": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+            "acceptance_criteria": "切换产品和月份后，汇总金额与小样例手算一致。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "把筛选结果绘成趋势和产品比较图",
+            "original_requirement": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+            "acceptance_criteria": "控件改变时两张图同步更新，空范围显示解释而不是报错。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "让用户下载正在查看的数据",
+            "original_requirement": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+            "acceptance_criteria": "下载文件仅含当前筛选行，中文产品名可正确读取。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "pandas CSV 读取与数据校验",
+            "description": "将上传的销售 CSV 转为可信的分析数据",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "该任务用于完成销售数据分析看板的对应功能。",
+            "learning_goal": "理解CSV 编码与列名与日期和数值转换如何协作，并完成这个子任务。",
+            "project_task": "将上传的销售 CSV 转为可信的分析数据",
+            "concepts": [
+              "CSV 编码与列名",
+              "日期和数值转换",
+              "缺失与非法值"
+            ],
+            "practice_check": "包含非法金额或缺列的文件获得明确提示，清洗后行数可核对。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "pandas 日期筛选与月度聚合",
+            "description": "根据日期和产品生成当前范围的销售汇总",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "该任务用于完成销售数据分析看板的对应功能。",
+            "learning_goal": "理解布尔筛选与日期分组如何协作，并完成这个子任务。",
+            "project_task": "根据日期和产品生成当前范围的销售汇总",
+            "concepts": [
+              "布尔筛选",
+              "日期分组",
+              "groupby 汇总"
+            ],
+            "practice_check": "切换产品和月份后，汇总金额与小样例手算一致。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "Streamlit 筛选控件与销售图表",
+            "description": "把筛选结果绘成趋势和产品比较图",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "该任务用于完成销售数据分析看板的对应功能。",
+            "learning_goal": "理解筛选控件与图表数据绑定如何协作，并完成这个子任务。",
+            "project_task": "把筛选结果绘成趋势和产品比较图",
+            "concepts": [
+              "筛选控件",
+              "图表数据绑定",
+              "空数据提示"
+            ],
+            "practice_check": "控件改变时两张图同步更新，空范围显示解释而不是报错。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "Streamlit 筛选数据 CSV 导出",
+            "description": "让用户下载正在查看的数据",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "该任务用于完成销售数据分析看板的对应功能。",
+            "learning_goal": "理解DataFrame 序列化与CSV 编码如何协作，并完成这个子任务。",
+            "project_task": "让用户下载正在查看的数据",
+            "concepts": [
+              "DataFrame 序列化",
+              "CSV 编码",
+              "下载按钮"
+            ],
+            "practice_check": "下载文件仅含当前筛选行，中文产品名可正确读取。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.001,
+      "provider_requests": 0
+    },
+    {
+      "case": "data_dashboard",
+      "level": "intermediate",
+      "input": {
+        "name": "销售数据分析看板",
+        "requirements": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已有所选语言基础和简单项目经验，希望聚焦本项目的实现和调试。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "读入和清洗",
+            "passed": true
+          },
+          {
+            "criterion": "筛选和聚合",
+            "passed": true
+          },
+          {
+            "criterion": "图表",
+            "passed": true
+          },
+          {
+            "criterion": "导出",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 4,
+        "function_count": 4,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "Each unit is a coherent project subtask with stage-appropriate skills and an observable practice check.",
+          "Prerequisites include the genuinely necessary skills, not only a structurally valid graph.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "The actual techniques satisfy behavioral constraints and do not promise unsupported technical results."
+        ]
+      },
+      "analysis": {
+        "scope": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+        "technical_plan": "采用需求中明确指定的本地技术方案。",
+        "assumptions": [
+          "所有任务均限定在给出的项目范围；练习使用本地样例。"
+        ],
+        "learner_profile": {
+          "student_level": "intermediate",
+          "assumed_knowledge": [
+            "已有语言基础和简单项目经验。"
+          ],
+          "adjustment_note": "可以修改阶段和已有经验后重新分析，也可以将已掌握单元标为已掌握。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "将上传的销售 CSV 转为可信的分析数据",
+            "original_requirement": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+            "acceptance_criteria": "包含非法金额或缺列的文件获得明确提示，清洗后行数可核对。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "根据日期和产品生成当前范围的销售汇总",
+            "original_requirement": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+            "acceptance_criteria": "切换产品和月份后，汇总金额与小样例手算一致。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "把筛选结果绘成趋势和产品比较图",
+            "original_requirement": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+            "acceptance_criteria": "控件改变时两张图同步更新，空范围显示解释而不是报错。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "让用户下载正在查看的数据",
+            "original_requirement": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+            "acceptance_criteria": "下载文件仅含当前筛选行，中文产品名可正确读取。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "pandas CSV 读取与数据校验",
+            "description": "将上传的销售 CSV 转为可信的分析数据",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "该任务用于完成销售数据分析看板的对应功能。",
+            "learning_goal": "能实现并调试CSV 编码与列名与日期和数值转换的边界情况。",
+            "project_task": "将上传的销售 CSV 转为可信的分析数据",
+            "concepts": [
+              "CSV 编码与列名",
+              "日期和数值转换",
+              "缺失与非法值"
+            ],
+            "practice_check": "包含非法金额或缺列的文件获得明确提示，清洗后行数可核对。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "pandas 日期筛选与月度聚合",
+            "description": "根据日期和产品生成当前范围的销售汇总",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "该任务用于完成销售数据分析看板的对应功能。",
+            "learning_goal": "能实现并调试布尔筛选与日期分组的边界情况。",
+            "project_task": "根据日期和产品生成当前范围的销售汇总",
+            "concepts": [
+              "布尔筛选",
+              "日期分组",
+              "groupby 汇总"
+            ],
+            "practice_check": "切换产品和月份后，汇总金额与小样例手算一致。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "Streamlit 筛选控件与销售图表",
+            "description": "把筛选结果绘成趋势和产品比较图",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "该任务用于完成销售数据分析看板的对应功能。",
+            "learning_goal": "能实现并调试筛选控件与图表数据绑定的边界情况。",
+            "project_task": "把筛选结果绘成趋势和产品比较图",
+            "concepts": [
+              "筛选控件",
+              "图表数据绑定",
+              "空数据提示"
+            ],
+            "practice_check": "控件改变时两张图同步更新，空范围显示解释而不是报错。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "Streamlit 筛选数据 CSV 导出",
+            "description": "让用户下载正在查看的数据",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "该任务用于完成销售数据分析看板的对应功能。",
+            "learning_goal": "能实现并调试DataFrame 序列化与CSV 编码的边界情况。",
+            "project_task": "让用户下载正在查看的数据",
+            "concepts": [
+              "DataFrame 序列化",
+              "CSV 编码",
+              "下载按钮"
+            ],
+            "practice_check": "下载文件仅含当前筛选行，中文产品名可正确读取。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.0,
+      "provider_requests": 0
+    },
+    {
+      "case": "web_app",
+      "level": "beginner",
+      "input": {
+        "name": "本地学习待办网站 APP",
+        "requirements": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "没有做过完整项目，希望每次学完一个小任务就能动手验证。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "表单和交互",
+            "passed": true
+          },
+          {
+            "criterion": "任务状态和筛选",
+            "passed": true
+          },
+          {
+            "criterion": "持久化",
+            "passed": true
+          },
+          {
+            "criterion": "移动端和键盘",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 4,
+        "function_count": 4,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "Each unit is a coherent project subtask with stage-appropriate skills and an observable practice check.",
+          "Prerequisites include the genuinely necessary skills, not only a structurally valid graph.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "The actual techniques satisfy behavioral constraints and do not promise unsupported technical results."
+        ]
+      },
+      "analysis": {
+        "scope": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+        "technical_plan": "采用需求中明确指定的本地技术方案。",
+        "assumptions": [
+          "所有任务均限定在给出的项目范围；练习使用本地样例。"
+        ],
+        "learner_profile": {
+          "student_level": "beginner",
+          "assumed_knowledge": [
+            "默认初学者，无完整项目经验。"
+          ],
+          "adjustment_note": "可以修改阶段和已有经验后重新分析，也可以将已掌握单元标为已掌握。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "构建手机和键盘均可操作的待办界面",
+            "original_requirement": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+            "acceptance_criteria": "窄屏无横向溢出，Tab 可依次到达添加与各任务操作。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "从表单新增任务并渲染到列表",
+            "original_requirement": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+            "acceptance_criteria": "空白任务无法添加，输入尖括号文本仍按文字显示。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "完成、删除任务并切换完成状态筛选",
+            "original_requirement": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+            "acceptance_criteria": "完成和删除仅影响目标任务，切换筛选后统计与列表一致。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "刷新后恢复任务并处理损坏的本地数据",
+            "original_requirement": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+            "acceptance_criteria": "刷新能恢复任务，损坏数据不会使页面无法使用。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "HTML 语义表单与响应式布局",
+            "description": "构建手机和键盘均可操作的待办界面",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "该任务用于完成本地学习待办网站 APP的对应功能。",
+            "learning_goal": "理解语义标签与表单标签与焦点和键盘如何协作，并完成这个子任务。",
+            "project_task": "构建手机和键盘均可操作的待办界面",
+            "concepts": [
+              "语义标签与表单标签",
+              "焦点和键盘",
+              "响应式 CSS"
+            ],
+            "practice_check": "窄屏无横向溢出，Tab 可依次到达添加与各任务操作。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "JavaScript 表单事件与安全 DOM 更新",
+            "description": "从表单新增任务并渲染到列表",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "该任务用于完成本地学习待办网站 APP的对应功能。",
+            "learning_goal": "理解提交事件与输入校验如何协作，并完成这个子任务。",
+            "project_task": "从表单新增任务并渲染到列表",
+            "concepts": [
+              "提交事件",
+              "输入校验",
+              "textContent 安全渲染"
+            ],
+            "practice_check": "空白任务无法添加，输入尖括号文本仍按文字显示。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "JavaScript 任务状态与筛选渲染",
+            "description": "完成、删除任务并切换完成状态筛选",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "该任务用于完成本地学习待办网站 APP的对应功能。",
+            "learning_goal": "理解任务数组与标识与状态更新如何协作，并完成这个子任务。",
+            "project_task": "完成、删除任务并切换完成状态筛选",
+            "concepts": [
+              "任务数组与标识",
+              "状态更新",
+              "筛选视图"
+            ],
+            "practice_check": "完成和删除仅影响目标任务，切换筛选后统计与列表一致。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "JavaScript localStorage 持久化与恢复",
+            "description": "刷新后恢复任务并处理损坏的本地数据",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "该任务用于完成本地学习待办网站 APP的对应功能。",
+            "learning_goal": "理解JSON 序列化与localStorage 读写如何协作，并完成这个子任务。",
+            "project_task": "刷新后恢复任务并处理损坏的本地数据",
+            "concepts": [
+              "JSON 序列化",
+              "localStorage 读写",
+              "恢复与错误处理"
+            ],
+            "practice_check": "刷新能恢复任务，损坏数据不会使页面无法使用。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.0,
+      "provider_requests": 0
+    },
+    {
+      "case": "web_app",
+      "level": "intermediate",
+      "input": {
+        "name": "本地学习待办网站 APP",
+        "requirements": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已有所选语言基础和简单项目经验，希望聚焦本项目的实现和调试。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "表单和交互",
+            "passed": true
+          },
+          {
+            "criterion": "任务状态和筛选",
+            "passed": true
+          },
+          {
+            "criterion": "持久化",
+            "passed": true
+          },
+          {
+            "criterion": "移动端和键盘",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 4,
+        "function_count": 4,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "Each unit is a coherent project subtask with stage-appropriate skills and an observable practice check.",
+          "Prerequisites include the genuinely necessary skills, not only a structurally valid graph.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "The actual techniques satisfy behavioral constraints and do not promise unsupported technical results."
+        ]
+      },
+      "analysis": {
+        "scope": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+        "technical_plan": "采用需求中明确指定的本地技术方案。",
+        "assumptions": [
+          "所有任务均限定在给出的项目范围；练习使用本地样例。"
+        ],
+        "learner_profile": {
+          "student_level": "intermediate",
+          "assumed_knowledge": [
+            "已有语言基础和简单项目经验。"
+          ],
+          "adjustment_note": "可以修改阶段和已有经验后重新分析，也可以将已掌握单元标为已掌握。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "构建手机和键盘均可操作的待办界面",
+            "original_requirement": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+            "acceptance_criteria": "窄屏无横向溢出，Tab 可依次到达添加与各任务操作。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "从表单新增任务并渲染到列表",
+            "original_requirement": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+            "acceptance_criteria": "空白任务无法添加，输入尖括号文本仍按文字显示。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "完成、删除任务并切换完成状态筛选",
+            "original_requirement": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+            "acceptance_criteria": "完成和删除仅影响目标任务，切换筛选后统计与列表一致。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "刷新后恢复任务并处理损坏的本地数据",
+            "original_requirement": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+            "acceptance_criteria": "刷新能恢复任务，损坏数据不会使页面无法使用。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "HTML 语义表单与响应式布局",
+            "description": "构建手机和键盘均可操作的待办界面",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "该任务用于完成本地学习待办网站 APP的对应功能。",
+            "learning_goal": "能实现并调试语义标签与表单标签与焦点和键盘的边界情况。",
+            "project_task": "构建手机和键盘均可操作的待办界面",
+            "concepts": [
+              "语义标签与表单标签",
+              "焦点和键盘",
+              "响应式 CSS"
+            ],
+            "practice_check": "窄屏无横向溢出，Tab 可依次到达添加与各任务操作。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "JavaScript 表单事件与安全 DOM 更新",
+            "description": "从表单新增任务并渲染到列表",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "该任务用于完成本地学习待办网站 APP的对应功能。",
+            "learning_goal": "能实现并调试提交事件与输入校验的边界情况。",
+            "project_task": "从表单新增任务并渲染到列表",
+            "concepts": [
+              "提交事件",
+              "输入校验",
+              "textContent 安全渲染"
+            ],
+            "practice_check": "空白任务无法添加，输入尖括号文本仍按文字显示。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "JavaScript 任务状态与筛选渲染",
+            "description": "完成、删除任务并切换完成状态筛选",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "该任务用于完成本地学习待办网站 APP的对应功能。",
+            "learning_goal": "能实现并调试任务数组与标识与状态更新的边界情况。",
+            "project_task": "完成、删除任务并切换完成状态筛选",
+            "concepts": [
+              "任务数组与标识",
+              "状态更新",
+              "筛选视图"
+            ],
+            "practice_check": "完成和删除仅影响目标任务，切换筛选后统计与列表一致。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "JavaScript localStorage 持久化与恢复",
+            "description": "刷新后恢复任务并处理损坏的本地数据",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "该任务用于完成本地学习待办网站 APP的对应功能。",
+            "learning_goal": "能实现并调试JSON 序列化与localStorage 读写的边界情况。",
+            "project_task": "刷新后恢复任务并处理损坏的本地数据",
+            "concepts": [
+              "JSON 序列化",
+              "localStorage 读写",
+              "恢复与错误处理"
+            ],
+            "practice_check": "刷新能恢复任务，损坏数据不会使页面无法使用。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.0,
+      "provider_requests": 0
+    },
+    {
+      "case": "arduino",
+      "level": "beginner",
+      "input": {
+        "name": "Arduino 土壤湿度提醒器",
+        "requirements": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "没有做过完整项目，希望每次学完一个小任务就能动手验证。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "安全接线",
+            "passed": true
+          },
+          {
+            "criterion": "采样和校准",
+            "passed": true
+          },
+          {
+            "criterion": "阈值和输出",
+            "passed": true
+          },
+          {
+            "criterion": "非阻塞定时",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 4,
+        "function_count": 4,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "Each unit is a coherent project subtask with stage-appropriate skills and an observable practice check.",
+          "Prerequisites include the genuinely necessary skills, not only a structurally valid graph.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "The actual techniques satisfy behavioral constraints and do not promise unsupported technical results."
+        ]
+      },
+      "analysis": {
+        "scope": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+        "technical_plan": "采用需求中明确指定的本地技术方案。",
+        "assumptions": [
+          "所有任务均限定在给出的项目范围；练习使用本地样例。"
+        ],
+        "learner_profile": {
+          "student_level": "beginner",
+          "assumed_knowledge": [
+            "默认初学者，无完整项目经验。"
+          ],
+          "adjustment_note": "可以修改阶段和已有经验后重新分析，也可以将已掌握单元标为已掌握。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "连接模拟传感器和带限流电阻的提示 LED",
+            "original_requirement": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+            "acceptance_criteria": "断电核对接线后上电，无短路，传感器与 LED 各自可单独测试。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "观察传感器干湿读数并建立阈值参考",
+            "original_requirement": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+            "acceptance_criteria": "分别记录干湿条件的读数范围，能解释阈值适用范围。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "低于可调阈值时提示并避免边界频繁闪烁",
+            "original_requirement": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+            "acceptance_criteria": "模拟干湿变化时 LED 按规则切换，边界轻微波动不持续闪烁。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "定时采样同时接收阈值调整命令",
+            "original_requirement": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+            "acceptance_criteria": "等待下一次采样时仍可修改阈值，输入非法值会被拒绝。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "Arduino 低压传感器接线与 LED 限流",
+            "description": "连接模拟传感器和带限流电阻的提示 LED",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "该任务用于完成Arduino 土壤湿度提醒器的对应功能。",
+            "learning_goal": "理解Uno 电源与共地与模拟输入引脚如何协作，并完成这个子任务。",
+            "project_task": "连接模拟传感器和带限流电阻的提示 LED",
+            "concepts": [
+              "Uno 电源与共地",
+              "模拟输入引脚",
+              "LED 极性和限流电阻"
+            ],
+            "practice_check": "断电核对接线后上电，无短路，传感器与 LED 各自可单独测试。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "Arduino 模拟采样与串口校准",
+            "description": "观察传感器干湿读数并建立阈值参考",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "该任务用于完成Arduino 土壤湿度提醒器的对应功能。",
+            "learning_goal": "理解analogRead与串口输出如何协作，并完成这个子任务。",
+            "project_task": "观察传感器干湿读数并建立阈值参考",
+            "concepts": [
+              "analogRead",
+              "串口输出",
+              "干湿端点与读数波动"
+            ],
+            "practice_check": "分别记录干湿条件的读数范围，能解释阈值适用范围。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "Arduino 湿度阈值与 LED 输出控制",
+            "description": "低于可调阈值时提示并避免边界频繁闪烁",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "该任务用于完成Arduino 土壤湿度提醒器的对应功能。",
+            "learning_goal": "理解阈值比较与数字输出如何协作，并完成这个子任务。",
+            "project_task": "低于可调阈值时提示并避免边界频繁闪烁",
+            "concepts": [
+              "阈值比较",
+              "数字输出",
+              "滞回区间"
+            ],
+            "practice_check": "模拟干湿变化时 LED 按规则切换，边界轻微波动不持续闪烁。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "Arduino millis 非阻塞采样与串口输入",
+            "description": "定时采样同时接收阈值调整命令",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "该任务用于完成Arduino 土壤湿度提醒器的对应功能。",
+            "learning_goal": "理解millis 时间差与非阻塞循环如何协作，并完成这个子任务。",
+            "project_task": "定时采样同时接收阈值调整命令",
+            "concepts": [
+              "millis 时间差",
+              "非阻塞循环",
+              "串口命令解析"
+            ],
+            "practice_check": "等待下一次采样时仍可修改阈值，输入非法值会被拒绝。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.001,
+      "provider_requests": 0
+    },
+    {
+      "case": "arduino",
+      "level": "intermediate",
+      "input": {
+        "name": "Arduino 土壤湿度提醒器",
+        "requirements": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已有所选语言基础和简单项目经验，希望聚焦本项目的实现和调试。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "安全接线",
+            "passed": true
+          },
+          {
+            "criterion": "采样和校准",
+            "passed": true
+          },
+          {
+            "criterion": "阈值和输出",
+            "passed": true
+          },
+          {
+            "criterion": "非阻塞定时",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 4,
+        "function_count": 4,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "Each unit is a coherent project subtask with stage-appropriate skills and an observable practice check.",
+          "Prerequisites include the genuinely necessary skills, not only a structurally valid graph.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "The actual techniques satisfy behavioral constraints and do not promise unsupported technical results."
+        ]
+      },
+      "analysis": {
+        "scope": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+        "technical_plan": "采用需求中明确指定的本地技术方案。",
+        "assumptions": [
+          "所有任务均限定在给出的项目范围；练习使用本地样例。"
+        ],
+        "learner_profile": {
+          "student_level": "intermediate",
+          "assumed_knowledge": [
+            "已有语言基础和简单项目经验。"
+          ],
+          "adjustment_note": "可以修改阶段和已有经验后重新分析，也可以将已掌握单元标为已掌握。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "连接模拟传感器和带限流电阻的提示 LED",
+            "original_requirement": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+            "acceptance_criteria": "断电核对接线后上电，无短路，传感器与 LED 各自可单独测试。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "观察传感器干湿读数并建立阈值参考",
+            "original_requirement": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+            "acceptance_criteria": "分别记录干湿条件的读数范围，能解释阈值适用范围。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "低于可调阈值时提示并避免边界频繁闪烁",
+            "original_requirement": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+            "acceptance_criteria": "模拟干湿变化时 LED 按规则切换，边界轻微波动不持续闪烁。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "定时采样同时接收阈值调整命令",
+            "original_requirement": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+            "acceptance_criteria": "等待下一次采样时仍可修改阈值，输入非法值会被拒绝。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "Arduino 低压传感器接线与 LED 限流",
+            "description": "连接模拟传感器和带限流电阻的提示 LED",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "该任务用于完成Arduino 土壤湿度提醒器的对应功能。",
+            "learning_goal": "能实现并调试Uno 电源与共地与模拟输入引脚的边界情况。",
+            "project_task": "连接模拟传感器和带限流电阻的提示 LED",
+            "concepts": [
+              "Uno 电源与共地",
+              "模拟输入引脚",
+              "LED 极性和限流电阻"
+            ],
+            "practice_check": "断电核对接线后上电，无短路，传感器与 LED 各自可单独测试。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "Arduino 模拟采样与串口校准",
+            "description": "观察传感器干湿读数并建立阈值参考",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "该任务用于完成Arduino 土壤湿度提醒器的对应功能。",
+            "learning_goal": "能实现并调试analogRead与串口输出的边界情况。",
+            "project_task": "观察传感器干湿读数并建立阈值参考",
+            "concepts": [
+              "analogRead",
+              "串口输出",
+              "干湿端点与读数波动"
+            ],
+            "practice_check": "分别记录干湿条件的读数范围，能解释阈值适用范围。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "Arduino 湿度阈值与 LED 输出控制",
+            "description": "低于可调阈值时提示并避免边界频繁闪烁",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "该任务用于完成Arduino 土壤湿度提醒器的对应功能。",
+            "learning_goal": "能实现并调试阈值比较与数字输出的边界情况。",
+            "project_task": "低于可调阈值时提示并避免边界频繁闪烁",
+            "concepts": [
+              "阈值比较",
+              "数字输出",
+              "滞回区间"
+            ],
+            "practice_check": "模拟干湿变化时 LED 按规则切换，边界轻微波动不持续闪烁。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "Arduino millis 非阻塞采样与串口输入",
+            "description": "定时采样同时接收阈值调整命令",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "该任务用于完成Arduino 土壤湿度提醒器的对应功能。",
+            "learning_goal": "能实现并调试millis 时间差与非阻塞循环的边界情况。",
+            "project_task": "定时采样同时接收阈值调整命令",
+            "concepts": [
+              "millis 时间差",
+              "非阻塞循环",
+              "串口命令解析"
+            ],
+            "practice_check": "等待下一次采样时仍可修改阈值，输入非法值会被拒绝。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.0,
+      "provider_requests": 0
+    }
+  ],
+  "provider_requests": 0,
+  "automated_passed": true
+}

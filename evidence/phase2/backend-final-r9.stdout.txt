@@ -1,0 +1,373 @@
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+...................F.................................................... [ 19%]
+........................................................................ [ 21%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+........................................................................ [ 28%]
+........................................................................ [ 31%]
+........................................................................ [ 33%]
+........................................................................ [ 35%]
+........................................................................ [ 38%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 45%]
+........................................................................ [ 47%]
+........................................................................ [ 50%]
+........................................................................ [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+.........................................FFF...............F.FFF......F. [ 62%]
+....FFFFFFFF............................................................ [ 64%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+........................................................................ [ 76%]
+........................................................................ [ 78%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 95%]
+...................................................................................................................... [ 99%]
+.................                                                        [100%]
+================================== FAILURES ===================================
+_____ test_unknown_promoted_only_after_page_type_and_catalog_ids_resolve ______
+
+tmp_path = WindowsPath('C:/Users/xiaoer/Documents/Codex/2026-10-18/task-2/tmp/backend-final-r9/pytest/test_unknown_promoted_only_aft0')
+
+    @pytest.mark.asyncio
+    async def test_unknown_promoted_only_after_page_type_and_catalog_ids_resolve(tmp_path):
+        class CourseFetcher:
+            async def enrich(self, candidate):
+                return {"fetch_status": "fetched", "metadata_evidence_level": "catalog", "resource_type": "course",
+                        "video_evidence_status": "page_verified", "catalog_kind": "video_playlist", "field_provenance": {
+                            "resource_type": {"evidence_id": "type-original", "source": "jsonld.@type"},
+                            "video_evidence_status": {"evidence_id": "video-original", "source": "dom.video_catalog"},
+                            "chapters": {"evidence_id": "chapter-original", "source": "jsonld.hasPart"}},
+                        "chapters": [{"title": "Python 列表与字典", "url": candidate["url"] + "#chapter-1",
+                                      "start_seconds": None, "end_seconds": None, "source": "jsonld.hasPart", "evidence_id": "chapter-original"}],
+                        "evidence": [{"evidence_id": "type-original", "kind": "page", "field": "resource_type", "source": "jsonld.@type", "text": "Course", "url": candidate["url"]},
+                                     {"evidence_id": "video-original", "kind": "page", "field": "video_evidence_status", "source": "dom.video_catalog", "text": "page_verified", "url": candidate["url"]},
+                                     {"evidence_id": "chapter-original", "kind": "catalog", "field": "chapters.0", "source": "jsonld.hasPart", "text": "Python 列表与字典", "url": candidate["url"]}]}
+        svc = service(tmp_path, provider=UntypedSearch())
+        svc.fetcher = CourseFetcher()
+        request = SearchRequest(knowledge_points=["Python 列表与字典", "HTML 表单校验"])
+        for _ in range(2):  # Repeat through page cache to ensure IDs are remapped per job.
+            jid = svc.create(request)["job_id"]
+            await svc.run(jid)
+            for group in svc.results(jid)["groups"]:
+>               item = group["items"][0]
+                       ^^^^^^^^^^^^^^^^^
+E               IndexError: list index out of range
+
+tests\test_core.py:456: IndexError
+_ test_chapter_inherits_only_evidenced_page_technical_context_with_joint_provenance _
+
+    def test_chapter_inherits_only_evidenced_page_technical_context_with_joint_provenance():
+        resource, evidence = catalog_fixture(["列表与字典操作"])
+        result = match("Python 列表与字典", resource, evidence)
+>       assert result["topic_evidence_status"] == "supported"
+E       AssertionError: assert 'needs_review' == 'supported'
+E         
+E         - supported
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:57: AssertionError
+_ test_separate_chapter_teaching_stays_partial_even_with_shared_parent_context _
+
+    def test_separate_chapter_teaching_stays_partial_even_with_shared_parent_context():
+        resource, evidence = catalog_fixture(["列表操作", "字典操作"])
+        result = match("Python 列表与字典", resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:68: AssertionError
+________ test_parent_actions_are_not_inserted_into_a_different_chapter ________
+
+    def test_parent_actions_are_not_inserted_into_a_different_chapter():
+        resource, evidence = catalog_fixture(["字典操作"], title="Python 列表课程")
+        result = match("Python 列表与字典", resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:78: AssertionError
+___ test_evidenced_description_can_supply_context_without_teaching_actions ____
+
+    def test_evidenced_description_can_supply_context_without_teaching_actions():
+        resource, evidence = catalog_fixture(["列表与字典操作"], title="编程入门课程", description="本课程使用 Python 讲授编程。")
+        result = match("Python 列表与字典", resource, evidence)
+>       assert result["topic_evidence_status"] == "supported"
+E       AssertionError: assert 'needs_review' == 'supported'
+E         
+E         - supported
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:126: AssertionError
+_ test_operation_core_integrates_as_partial_without_modifying_requested_point[Python \u672c\u5730\u6587\u4ef6\u8def\u5f84\u5904\u7406-Python \u6587\u4ef6\u8def\u5f84\u5904\u7406\u6559\u7a0b-\u672c\u5730] _
+
+topic = 'Python 本地文件路径处理', title = 'Python 文件路径处理教程', qualification = '本地'
+
+    @pytest.mark.parametrize("topic,title,qualification", [
+        ("Python 本地文件路径处理", "Python 文件路径处理教程", "本地"),
+        ("matplotlib 图表保存为图片", "Matplotlib 保存图片教程", "图表"),
+        ("pandas 统计结果导出 Excel", "Pandas 导出数据到EXCEL教程", "统计结果"),
+    ])
+    def test_operation_core_integrates_as_partial_without_modifying_requested_point(topic, title, qualification):
+        resource, evidence = catalog_fixture([], title=title)
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:145: AssertionError
+_ test_operation_core_integrates_as_partial_without_modifying_requested_point[matplotlib \u56fe\u8868\u4fdd\u5b58\u4e3a\u56fe\u7247-Matplotlib \u4fdd\u5b58\u56fe\u7247\u6559\u7a0b-\u56fe\u8868] _
+
+topic = 'matplotlib 图表保存为图片', title = 'Matplotlib 保存图片教程', qualification = '图表'
+
+    @pytest.mark.parametrize("topic,title,qualification", [
+        ("Python 本地文件路径处理", "Python 文件路径处理教程", "本地"),
+        ("matplotlib 图表保存为图片", "Matplotlib 保存图片教程", "图表"),
+        ("pandas 统计结果导出 Excel", "Pandas 导出数据到EXCEL教程", "统计结果"),
+    ])
+    def test_operation_core_integrates_as_partial_without_modifying_requested_point(topic, title, qualification):
+        resource, evidence = catalog_fixture([], title=title)
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:145: AssertionError
+_ test_operation_core_integrates_as_partial_without_modifying_requested_point[pandas \u7edf\u8ba1\u7ed3\u679c\u5bfc\u51fa Excel-Pandas \u5bfc\u51fa\u6570\u636e\u5230EXCEL\u6559\u7a0b-\u7edf\u8ba1\u7ed3\u679c] _
+
+topic = 'pandas 统计结果导出 Excel', title = 'Pandas 导出数据到EXCEL教程'
+qualification = '统计结果'
+
+    @pytest.mark.parametrize("topic,title,qualification", [
+        ("Python 本地文件路径处理", "Python 文件路径处理教程", "本地"),
+        ("matplotlib 图表保存为图片", "Matplotlib 保存图片教程", "图表"),
+        ("pandas 统计结果导出 Excel", "Pandas 导出数据到EXCEL教程", "统计结果"),
+    ])
+    def test_operation_core_integrates_as_partial_without_modifying_requested_point(topic, title, qualification):
+        resource, evidence = catalog_fixture([], title=title)
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:145: AssertionError
+___________ test_exact_operation_point_keeps_normal_supported_path ____________
+
+    def test_exact_operation_point_keeps_normal_supported_path():
+        topic = "pandas 统计结果导出 Excel"
+        resource, evidence = catalog_fixture([], title=topic + "教程")
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "supported"
+E       AssertionError: assert 'needs_review' == 'supported'
+E         
+E         - supported
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:178: AssertionError
+_ test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u811a\u672c\u57fa\u7840\u8bed\u6cd5\u4e0e\u8fd0\u884c-\u811a\u672c\u8fd0\u884c\u6559\u7a0b] _
+
+topic = 'Python 脚本基础语法与运行', chapter = '脚本运行教程'
+
+    @pytest.mark.parametrize("topic,chapter", [
+        ("Python 脚本基础语法与运行", "脚本运行教程"),
+        ("Python 脚本基础语法与运行", "运行脚本"),
+        ("Python 脚本基础语法与运行", "脚本的运行"),
+        ("Python 程序编写与执行", "程序执行"),
+        ("Python 程序编写与执行", "执行该程序"),
+        ("Python 函数定义与调用", "函数调用"),
+    ])
+    def test_bare_action_retains_explicit_request_object_in_same_chapter(topic, chapter):
+        resource, evidence = catalog_fixture([chapter])
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:203: AssertionError
+_ test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u811a\u672c\u57fa\u7840\u8bed\u6cd5\u4e0e\u8fd0\u884c-\u8fd0\u884c\u811a\u672c] _
+
+topic = 'Python 脚本基础语法与运行', chapter = '运行脚本'
+
+    @pytest.mark.parametrize("topic,chapter", [
+        ("Python 脚本基础语法与运行", "脚本运行教程"),
+        ("Python 脚本基础语法与运行", "运行脚本"),
+        ("Python 脚本基础语法与运行", "脚本的运行"),
+        ("Python 程序编写与执行", "程序执行"),
+        ("Python 程序编写与执行", "执行该程序"),
+        ("Python 函数定义与调用", "函数调用"),
+    ])
+    def test_bare_action_retains_explicit_request_object_in_same_chapter(topic, chapter):
+        resource, evidence = catalog_fixture([chapter])
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:203: AssertionError
+_ test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u811a\u672c\u57fa\u7840\u8bed\u6cd5\u4e0e\u8fd0\u884c-\u811a\u672c\u7684\u8fd0\u884c] _
+
+topic = 'Python 脚本基础语法与运行', chapter = '脚本的运行'
+
+    @pytest.mark.parametrize("topic,chapter", [
+        ("Python 脚本基础语法与运行", "脚本运行教程"),
+        ("Python 脚本基础语法与运行", "运行脚本"),
+        ("Python 脚本基础语法与运行", "脚本的运行"),
+        ("Python 程序编写与执行", "程序执行"),
+        ("Python 程序编写与执行", "执行该程序"),
+        ("Python 函数定义与调用", "函数调用"),
+    ])
+    def test_bare_action_retains_explicit_request_object_in_same_chapter(topic, chapter):
+        resource, evidence = catalog_fixture([chapter])
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:203: AssertionError
+_ test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u7a0b\u5e8f\u7f16\u5199\u4e0e\u6267\u884c-\u7a0b\u5e8f\u6267\u884c] _
+
+topic = 'Python 程序编写与执行', chapter = '程序执行'
+
+    @pytest.mark.parametrize("topic,chapter", [
+        ("Python 脚本基础语法与运行", "脚本运行教程"),
+        ("Python 脚本基础语法与运行", "运行脚本"),
+        ("Python 脚本基础语法与运行", "脚本的运行"),
+        ("Python 程序编写与执行", "程序执行"),
+        ("Python 程序编写与执行", "执行该程序"),
+        ("Python 函数定义与调用", "函数调用"),
+    ])
+    def test_bare_action_retains_explicit_request_object_in_same_chapter(topic, chapter):
+        resource, evidence = catalog_fixture([chapter])
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:203: AssertionError
+_ test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u7a0b\u5e8f\u7f16\u5199\u4e0e\u6267\u884c-\u6267\u884c\u8be5\u7a0b\u5e8f] _
+
+topic = 'Python 程序编写与执行', chapter = '执行该程序'
+
+    @pytest.mark.parametrize("topic,chapter", [
+        ("Python 脚本基础语法与运行", "脚本运行教程"),
+        ("Python 脚本基础语法与运行", "运行脚本"),
+        ("Python 脚本基础语法与运行", "脚本的运行"),
+        ("Python 程序编写与执行", "程序执行"),
+        ("Python 程序编写与执行", "执行该程序"),
+        ("Python 函数定义与调用", "函数调用"),
+    ])
+    def test_bare_action_retains_explicit_request_object_in_same_chapter(topic, chapter):
+        resource, evidence = catalog_fixture([chapter])
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:203: AssertionError
+_ test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u51fd\u6570\u5b9a\u4e49\u4e0e\u8c03\u7528-\u51fd\u6570\u8c03\u7528] _
+
+topic = 'Python 函数定义与调用', chapter = '函数调用'
+
+    @pytest.mark.parametrize("topic,chapter", [
+        ("Python 脚本基础语法与运行", "脚本运行教程"),
+        ("Python 脚本基础语法与运行", "运行脚本"),
+        ("Python 脚本基础语法与运行", "脚本的运行"),
+        ("Python 程序编写与执行", "程序执行"),
+        ("Python 程序编写与执行", "执行该程序"),
+        ("Python 函数定义与调用", "函数调用"),
+    ])
+    def test_bare_action_retains_explicit_request_object_in_same_chapter(topic, chapter):
+        resource, evidence = catalog_fixture([chapter])
+        result = match(topic, resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:203: AssertionError
+__ test_action_object_cannot_be_supplied_by_a_sibling_or_parent_instruction ___
+
+    def test_action_object_cannot_be_supplied_by_a_sibling_or_parent_instruction():
+        resource, evidence = catalog_fixture(["脚本基础语法", "爬虫创建与运行"])
+        result = match("Python 脚本基础语法与运行", resource, evidence)
+>       assert result["topic_evidence_status"] == "partial"
+E       AssertionError: assert 'needs_review' == 'partial'
+E         
+E         - partial
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:211: AssertionError
+_________ test_direct_whole_topic_with_bare_action_remains_supported __________
+
+    def test_direct_whole_topic_with_bare_action_remains_supported():
+        topic = "Python 脚本基础语法与运行"
+        resource, evidence = catalog_fixture([], title=topic + "教程")
+>       assert match(topic, resource, evidence)["topic_evidence_status"] == "supported"
+E       AssertionError: assert 'needs_review' == 'supported'
+E         
+E         - supported
+E         + needs_review
+
+tests\test_project_matching_diagnosis.py:219: AssertionError
+============================== warnings summary ===============================
+D:\项目制知识引导小精灵\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\项目制知识引导小精灵\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_core.py::test_unknown_promoted_only_after_page_type_and_catalog_ids_resolve
+FAILED tests/test_project_matching_diagnosis.py::test_chapter_inherits_only_evidenced_page_technical_context_with_joint_provenance
+FAILED tests/test_project_matching_diagnosis.py::test_separate_chapter_teaching_stays_partial_even_with_shared_parent_context
+FAILED tests/test_project_matching_diagnosis.py::test_parent_actions_are_not_inserted_into_a_different_chapter
+FAILED tests/test_project_matching_diagnosis.py::test_evidenced_description_can_supply_context_without_teaching_actions
+FAILED tests/test_project_matching_diagnosis.py::test_operation_core_integrates_as_partial_without_modifying_requested_point[Python \u672c\u5730\u6587\u4ef6\u8def\u5f84\u5904\u7406-Python \u6587\u4ef6\u8def\u5f84\u5904\u7406\u6559\u7a0b-\u672c\u5730]
+FAILED tests/test_project_matching_diagnosis.py::test_operation_core_integrates_as_partial_without_modifying_requested_point[matplotlib \u56fe\u8868\u4fdd\u5b58\u4e3a\u56fe\u7247-Matplotlib \u4fdd\u5b58\u56fe\u7247\u6559\u7a0b-\u56fe\u8868]
+FAILED tests/test_project_matching_diagnosis.py::test_operation_core_integrates_as_partial_without_modifying_requested_point[pandas \u7edf\u8ba1\u7ed3\u679c\u5bfc\u51fa Excel-Pandas \u5bfc\u51fa\u6570\u636e\u5230EXCEL\u6559\u7a0b-\u7edf\u8ba1\u7ed3\u679c]
+FAILED tests/test_project_matching_diagnosis.py::test_exact_operation_point_keeps_normal_supported_path
+FAILED tests/test_project_matching_diagnosis.py::test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u811a\u672c\u57fa\u7840\u8bed\u6cd5\u4e0e\u8fd0\u884c-\u811a\u672c\u8fd0\u884c\u6559\u7a0b]
+FAILED tests/test_project_matching_diagnosis.py::test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u811a\u672c\u57fa\u7840\u8bed\u6cd5\u4e0e\u8fd0\u884c-\u8fd0\u884c\u811a\u672c]
+FAILED tests/test_project_matching_diagnosis.py::test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u811a\u672c\u57fa\u7840\u8bed\u6cd5\u4e0e\u8fd0\u884c-\u811a\u672c\u7684\u8fd0\u884c]
+FAILED tests/test_project_matching_diagnosis.py::test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u7a0b\u5e8f\u7f16\u5199\u4e0e\u6267\u884c-\u7a0b\u5e8f\u6267\u884c]
+FAILED tests/test_project_matching_diagnosis.py::test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u7a0b\u5e8f\u7f16\u5199\u4e0e\u6267\u884c-\u6267\u884c\u8be5\u7a0b\u5e8f]
+FAILED tests/test_project_matching_diagnosis.py::test_bare_action_retains_explicit_request_object_in_same_chapter[Python \u51fd\u6570\u5b9a\u4e49\u4e0e\u8c03\u7528-\u51fd\u6570\u8c03\u7528]
+FAILED tests/test_project_matching_diagnosis.py::test_action_object_cannot_be_supplied_by_a_sibling_or_parent_instruction
+FAILED tests/test_project_matching_diagnosis.py::test_direct_whole_topic_with_bare_action_remains_supported
+17 failed, 2998 passed, 1 warning, 26 subtests passed in 73.58s (0:01:13)

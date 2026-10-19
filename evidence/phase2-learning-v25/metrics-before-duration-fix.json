@@ -1,0 +1,206 @@
+{
+  "generated_at": "2026-10-18T16:40:28.744707+00:00",
+  "mode": "saved_evidence_metrics",
+  "network_requests": 0,
+  "new_provider_requests": 0,
+  "cases": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "version": 1,
+      "student_level": "beginner",
+      "api_status": "analyzed",
+      "manual_review_complete": true,
+      "review_hash_matches": true,
+      "reviewed_all_units": true,
+      "invalid_requirement_mappings": [],
+      "manual_requirement_coverage": {
+        "passed": 7,
+        "total": 7,
+        "ratio": 1.0
+      },
+      "manual_unit_relevance": {
+        "passed": 8,
+        "total": 8,
+        "ratio": 1.0
+      },
+      "manual_unit_granularity": {
+        "passed": 8,
+        "total": 8,
+        "ratio": 1.0
+      },
+      "background_pass": true,
+      "prerequisite_pass": true,
+      "technical_pass": true,
+      "semantic_pass": true,
+      "client_analysis_seconds": 15.36529,
+      "guard_issues": [],
+      "latency_goal_met": true,
+      "latency_hard_limit_met": true,
+      "known_high_or_medium_issues": []
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "version": 1,
+      "student_level": "advanced",
+      "api_status": "analyzed",
+      "manual_review_complete": true,
+      "review_hash_matches": true,
+      "reviewed_all_units": true,
+      "invalid_requirement_mappings": [],
+      "manual_requirement_coverage": {
+        "passed": 5,
+        "total": 6,
+        "ratio": 0.8333333333333334
+      },
+      "manual_unit_relevance": {
+        "passed": 8,
+        "total": 8,
+        "ratio": 1.0
+      },
+      "manual_unit_granularity": {
+        "passed": 8,
+        "total": 8,
+        "ratio": 1.0
+      },
+      "background_pass": true,
+      "prerequisite_pass": true,
+      "technical_pass": false,
+      "semantic_pass": false,
+      "client_analysis_seconds": 12.416862,
+      "guard_issues": [],
+      "latency_goal_met": true,
+      "latency_hard_limit_met": true,
+      "known_high_or_medium_issues": [
+        {
+          "id": "zero_duration_boundary_narrowed_to_strict_positive",
+          "priority": "medium",
+          "source_locations": [
+            "analysis.functions[2].acceptance_criteria",
+            "analysis.knowledge_points[4].practice_check",
+            "analysis.technical_plan"
+          ],
+          "verbatim_acceptance": "有效行含 duration_min 列且数值为正值，导出的 CSV 行数与记录的有效行数一致。",
+          "verbatim_practice": "导出的 CSV 含正数时长列，行数等于有效行数。",
+          "reason": "The requested invalid-row rule excludes end_time earlier than start_time, not equal timestamps. k4 preserves that strict earlier-than rule and the plan computes total_seconds()/60, which yields zero for equal timestamps; f3 and k5 instead require a strictly positive duration. These cannot all be satisfied for an otherwise valid zero-duration row.",
+          "counterexample": {
+            "trip_id": "synthetic-zero",
+            "start_time": "2026-01-01 09:00:00",
+            "end_time": "2026-01-01 09:00:00",
+            "start_station": "Synthetic A",
+            "expected_by_stated_rule_minutes": 0,
+            "violates_generated_strict_positive_acceptance": true
+          },
+          "required_fix": "Preserve zero as a nonnegative valid duration under the stated rule, or explicitly ask the student to change the invalid-row rule; do not silently change < into <=."
+        }
+      ]
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "version": 1,
+      "student_level": "beginner",
+      "api_status": "analyzed",
+      "manual_review_complete": true,
+      "review_hash_matches": true,
+      "reviewed_all_units": true,
+      "invalid_requirement_mappings": [],
+      "manual_requirement_coverage": {
+        "passed": 6,
+        "total": 6,
+        "ratio": 1.0
+      },
+      "manual_unit_relevance": {
+        "passed": 6,
+        "total": 6,
+        "ratio": 1.0
+      },
+      "manual_unit_granularity": {
+        "passed": 6,
+        "total": 6,
+        "ratio": 1.0
+      },
+      "background_pass": true,
+      "prerequisite_pass": true,
+      "technical_pass": true,
+      "semantic_pass": true,
+      "client_analysis_seconds": 16.307379,
+      "guard_issues": [],
+      "latency_goal_met": true,
+      "latency_hard_limit_met": true,
+      "known_high_or_medium_issues": []
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "version": 1,
+      "student_level": "intermediate",
+      "api_status": "analyzed",
+      "manual_review_complete": true,
+      "review_hash_matches": true,
+      "reviewed_all_units": true,
+      "invalid_requirement_mappings": [],
+      "manual_requirement_coverage": {
+        "passed": 5,
+        "total": 5,
+        "ratio": 1.0
+      },
+      "manual_unit_relevance": {
+        "passed": 7,
+        "total": 7,
+        "ratio": 1.0
+      },
+      "manual_unit_granularity": {
+        "passed": 7,
+        "total": 7,
+        "ratio": 1.0
+      },
+      "background_pass": true,
+      "prerequisite_pass": true,
+      "technical_pass": true,
+      "semantic_pass": true,
+      "client_analysis_seconds": 13.303683,
+      "guard_issues": [],
+      "latency_goal_met": true,
+      "latency_hard_limit_met": true,
+      "known_high_or_medium_issues": []
+    }
+  ],
+  "summary": {
+    "expected_cases": 4,
+    "observed_cases": 4,
+    "analyzed_cases": 4,
+    "first_round_analyzed": 4,
+    "first_round_failed": 0,
+    "explicit_recovery_submissions": 0,
+    "analysis_api_submissions_including_recovery": 4,
+    "student_stages": [
+      "advanced",
+      "beginner",
+      "intermediate"
+    ],
+    "manual_review_complete": true,
+    "semantic_acceptance_pass": false,
+    "latency_acceptance_pass": true,
+    "client_median_seconds": 14.3344865,
+    "client_p95_nearest_rank_seconds": 16.307379,
+    "client_goal_60s_misses": 0,
+    "model_finished_calls": 4,
+    "model_completion_tokens": 9234,
+    "model_total_tokens": 21456,
+    "model_calls_with_reported_usage": 4,
+    "model_calls_without_reported_usage": 0,
+    "model_wall_seconds": 55.297151,
+    "search_api_submissions_by_this_runner": 0
+  },
+  "limitations": [
+    "Manual static judgments are not execution of the student projects or hardware.",
+    "Tool targets and keyword observations do not prove video relevance or coverage.",
+    "Four examples do not estimate production-wide success rates or statistically stable latency percentiles."
+  ],
+  "source_sha256": {
+    "run.json": "45aef961e907415531a9b452b0792c3ac3977f713130990950d1ef2518bbff7f",
+    "manual-review.json": "e6cd76b61756e82c5dbae8540ee1f5374cd5c4edc33058ebd6292488af5fa372"
+  }
+}

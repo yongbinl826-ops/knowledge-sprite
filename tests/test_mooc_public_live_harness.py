@@ -134,7 +134,7 @@ def test_offline_routes_preserve_configuration_and_no_jobs_or_network(tmp_path, 
     original_service = harness.main_module.JobService
     try:
         app = harness.app_for(output, offline_check=True)
-        with TestClient(app) as client:
+        with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
             assert client.get("/health").json()["job_counts"] == {}
             assert client.get("/api/capabilities").status_code == 200
             assert app.state.service.settings == replace(configured, database_path=str(output / "live.sqlite3"))
@@ -180,7 +180,7 @@ def test_revision_creates_fresh_database_and_preserves_parent_evidence(tmp_path,
     original_service = harness.main_module.JobService
     try:
         app = harness.app_for(output, revision="outline-length-repair")
-        with TestClient(app) as client:
+        with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
             assert client.get("/health").json()["job_counts"] == {}
             assert app.state.service.settings.database_path == str(output / "live.sqlite3")
             assert app.state.store.connection.execute("SELECT COUNT(*) FROM cache").fetchone()[0] == 0

@@ -1,0 +1,131 @@
+{
+  "mode": "static_contract_and_adapter_review",
+  "created_at": "2026-10-18T17:43:22.901862+00:00",
+  "network_requests": 0,
+  "model_requests": 0,
+  "observed_prior_information_loss": "Project adapter formerly sent only technology+name; explicit technology returned before concepts were read. SearchRequest lacked per-unit concepts, so expansion/decomposition/coverage only had the text and shared project context. This is a proven information-flow loss, not proof that it alone caused prior zero-card searches.",
+  "implemented_contract": {
+    "field": "SearchRequest.learning_targets",
+    "shape": "dict[exact knowledge_points string,list[original confirmed concept string]]",
+    "default": {},
+    "max_keys": 5,
+    "max_targets_per_unit": 8,
+    "max_chars_per_target": 120,
+    "max_total_utf8_json_bytes": 20000,
+    "unknown_keys_rejected": true,
+    "empty_control_duplicate_targets_rejected": true,
+    "content_rewritten": false,
+    "no_sql_column_migration_needed": true
+  },
+  "examples": [
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "analysis_version": 2,
+      "analysis_evidence": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v26\\bicycle_csv_advanced.json",
+      "analysis_evidence_sha256": "1577c9b15a122585ceeb7080cce3a275cd6b6cb22dc38c111848a3cec6c89608",
+      "analysis_sha256": "0a16fe3591e43e43ec4d5c992aa98866999ba96dabcd90bdfaae2eb6329164ca",
+      "unit_id": "k3",
+      "name": "pandas 时间列解析与无效行分离",
+      "technology": "pandas",
+      "learning_goal": "理解 errors 处理与布尔筛选，能严格区分缺失、end<start 与 end==start 三种情况。",
+      "confirmed_concepts": [
+        "pd.to_datetime(errors)",
+        "isna 与缺失筛选",
+        "布尔条件 end < start",
+        "相等时间的边界判断"
+      ],
+      "search_text": "pandas 时间列解析与无效行分离",
+      "new_learning_targets": {
+        "pandas 时间列解析与无效行分离": [
+          "pd.to_datetime(errors)",
+          "isna 与缺失筛选",
+          "布尔条件 end < start",
+          "相等时间的边界判断"
+        ]
+      },
+      "all_target_coverage_initially_unknown": true,
+      "external_teaching_evidence_supplied_by_target": false
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "analysis_version": 2,
+      "analysis_evidence": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v26\\pygame_maze_intermediate.json",
+      "analysis_evidence_sha256": "94a32a0a636f6e1296c7b0fe2919bc1c91339624b634b38a137678e5665db69f",
+      "analysis_sha256": "88631330503dbb9cc96177354725ede8de0ef7bd1ff98634d5650e74535b8f2a",
+      "unit_id": "k6",
+      "name": "真实时间计时与限帧",
+      "technology": "pygame",
+      "learning_goal": "理解真实时钟差值与帧计数的区别。",
+      "confirmed_concepts": [
+        "pygame.time.get_ticks 毫秒",
+        "结束时间减开始时间",
+        "clock.tick 限帧",
+        "重置时更新时间基准"
+      ],
+      "search_text": "pygame 真实时间计时与限帧",
+      "new_learning_targets": {
+        "pygame 真实时间计时与限帧": [
+          "pygame.time.get_ticks 毫秒",
+          "结束时间减开始时间",
+          "clock.tick 限帧",
+          "重置时更新时间基准"
+        ]
+      },
+      "all_target_coverage_initially_unknown": true,
+      "external_teaching_evidence_supplied_by_target": false
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "analysis_version": 3,
+      "analysis_evidence": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v261\\arduino_reaction_beginner.json",
+      "analysis_evidence_sha256": "208ab30b154f6acdddb7215bf122964536296051da2f1109ef50397c55d83a18",
+      "analysis_sha256": "8b60141a6527ce27b2cef7cf983f1d718bfcaa7e12d6b1f185659de86fff703b",
+      "unit_id": "k3",
+      "name": "按钮去抖的稳定时间窗口实现",
+      "technology": "Arduino",
+      "learning_goal": "理解去抖需要稳定时间窗口而非仅比较上次电平，并能实现单次按下检测。",
+      "confirmed_concepts": [
+        "millis()非阻塞定时采样",
+        "稳定时间窗口去抖",
+        "下降沿单次触发",
+        "长按不重复触发"
+      ],
+      "search_text": "Arduino 按钮去抖的稳定时间窗口实现",
+      "new_learning_targets": {
+        "Arduino 按钮去抖的稳定时间窗口实现": [
+          "millis()非阻塞定时采样",
+          "稳定时间窗口去抖",
+          "下降沿单次触发",
+          "长按不重复触发"
+        ]
+      },
+      "all_target_coverage_initially_unknown": true,
+      "external_teaching_evidence_supplied_by_target": false
+    }
+  ],
+  "tests": {
+    "command": "python -X utf8 -m pytest tests/test_project_learning_targets.py tests/test_project_search_context.py tests/test_projects.py -q",
+    "passed": 80,
+    "failed": 0,
+    "elapsed_seconds": 7.07,
+    "external_requests": 0
+  },
+  "files_sha256": {
+    "backend\\app\\models.py": "e07b45a464ba5205e3e3408fc4e10a76e508f08a5b9fb0a14ca85f0b3fa30518",
+    "backend\\app\\project_search.py": "d6b10a97363ac8279469afc9b033735e160e533043ce7fa1c3aa801d47b17c6a",
+    "backend\\app\\project_service.py": "cdb1dc263e1aa6409be94368521afbe216e24353203597ed2542f6924d3e98b7",
+    "tests\\test_project_learning_targets.py": "dab6561492d42fc31c881e4d60e339186e746e4ce9788f0e06423c2259b1de8d"
+  },
+  "integration_owned_by_root": [
+    "Persist and cache-bind nonempty learning_targets while preserving legacy empty-request identities",
+    "Consume exact targets in evidence-backed coverage and bounded gap queries",
+    "Keep original complete unit text/requirements and unproven project practice separate from target coverage",
+    "Verify unknown stays unknown across original text, target ID/text, platform filtering, pending candidates and historical snapshots"
+  ],
+  "frontend_route_connection": "LearningCoverage must show confirmed concept targets even when a title-only or whole_topic result exists. Missing targets remain unknown; an API-name match or collection of supported subskills cannot assert complete teaching or completed project practice.",
+  "additional_nonblocking_observation": "The advanced bicycle learner has Python/statistics experience but is new to pandas. The existing flat student_level=advanced still enters query wording. Future per-unit familiarity can improve recall without assuming advanced means familiarity with every library.",
+  "limits": "Static adapter contract and offline tests only. Root is integrating downstream service/ranking and frontend. No new real API/search/model request or production acceptance is claimed."
+}

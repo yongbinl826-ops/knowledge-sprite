@@ -1,0 +1,411 @@
+{
+  "schema_version": "phase3-independent-analysis-review-v1",
+  "reviewed_at_utc": "2026-10-18T22:39:01.917471+00:00",
+  "mode": {
+    "http_requests": 0,
+    "model_calls": 0,
+    "database_writes": 0,
+    "production_code_changes": 0,
+    "student_project_execution": false
+  },
+  "rubric": {
+    "path": "evidence/phase3-audit/unseen-review-plan.json",
+    "sha256": "4813022d3ea711c5c5b392468fe254d98be8e4ca3496fe636dcf02de017baa34"
+  },
+  "records": [
+    {
+      "case_id": "phase3_review_cards_browser_beginner",
+      "project_id": "e7da3936-e5ad-4211-84e7-3be271fc7613",
+      "version": 1,
+      "origin": "analysis",
+      "source": {
+        "path": "tmp/phase3-work/evidence/phase3-live/phase3_review_cards_browser_beginner/first-generated-view-v1.json",
+        "sha256": "ae80744bd71dbb836d3dd81b901eebcaf7b15dff22fc9a8f8ceb5d480b805a7f",
+        "retained_snapshot": {
+          "path": "evidence/phase3-audit/observed-analysis-snapshots/phase3_review_cards_browser_beginner-v1.json",
+          "sha256": "ae80744bd71dbb836d3dd81b901eebcaf7b15dff22fc9a8f8ceb5d480b805a7f",
+          "same_raw_as_initial_read": true
+        }
+      },
+      "prompt_version": "project-analysis-v3-transferable-learning-skills",
+      "analysis_sha256": "f4fbfa95a9d02e422f3239ce92ee736ebccd88563d258934583d1630044d261b",
+      "disposition": "changes_required_before_confirmation",
+      "ready_for_search": false,
+      "high_issues": 0,
+      "medium_issues": 1,
+      "unit_count": 7,
+      "requirement_coverage": {
+        "fixed_12_cards": "f1/k2 project_task retains 12; 5-item practice is legitimate transfer",
+        "bounded_navigation": "f2/k3 first/last disabled and one-step navigation",
+        "mastered_toggle_count": "f3/k4 Set and derived size",
+        "persistent_restore": "f4/k5 JSON and localStorage try/catch",
+        "invalid_or_empty_hint_default": "f5/k6; recovery consistency separately reviewed",
+        "mobile_and_keyboard": "f6/k7 native button keyboard plus CSS responsive",
+        "excluded_scope": "No accounts/network/backend/cloud/recommendation introduced"
+      },
+      "skills": {
+        "count": 14,
+        "grain": "7 units are a little finer than the soft 4–5 planning guide, but each has a concrete subtask; DOM safe text writes, state render, events, Set, persistence, validation and responsive/native controls form a coherent beginner route. Not generic JS syntax fragments.",
+        "critical_methods": "State-driven render; boundary-derived disabled; Set uniqueness/count; JSON type/whitelist validation and storage exception recovery; native keyboard controls.",
+        "transfer": "Different practice array length and tag toggles are allowed; a course need not reproduce the twelve cards, IDs or exact layout."
+      },
+      "student_fit": "Background explicitly knows JS variables/arrays/functions but first DOM integration: concrete DOM and state introduction is appropriate, not a redundant whole-language basics course.",
+      "prerequisites": {
+        "dag": "No cycles or forward prerequisite IDs; listed order follows dependencies.",
+        "low_observations": [
+          "k4 uses a click callback learned in k3 yet lists only k2. Linear order k3→k4 makes this nonblocking; a future route may explicitly link k3."
+        ]
+      },
+      "other_low_observations": [
+        "k7 combines native HTML button behavior and CSS disabled style under CSS technology; skill wording can state its own HTML/CSS owner, but current natural-control instructions are correct.",
+        "technical_plan still uses filtering language; the explicit f5 and edited k6 task/description specify whole-default for invalid data, so filtering may only participate in checking admissible IDs, not silently preserve partial invalid state. Clarify in a future prompt."
+      ],
+      "issues": [
+        {
+          "id": "web-recovery-policy-inconsistent",
+          "severity": "medium",
+          "pointer": "/version/analysis/knowledge_points/5/description",
+          "quote": "启动时检查存储值：为空、JSON 解析失败、非数组或含非法卡片 id 时，显示提示信息，过滤为合法数据或回落为默认空标记。",
+          "conflicting_pointers": [
+            "/version/analysis/functions/4/acceptance_criteria",
+            "/version/analysis/knowledge_points/5/project_task",
+            "/version/analysis/knowledge_points/5/learning_skills/1"
+          ],
+          "reason": "同一含非法卡片id的损坏条件，在描述中允许过滤保留部分数据或整份默认二择；功能验收和任务却要求校验失败整份默认。学生无法据此确定唯一验收行为。",
+          "repair": "Explicitly choose one policy for the same condition across proposal fields; parent chose whole-default and preserved v1."
+        }
+      ],
+      "input_fidelity": {
+        "frozen_plan_exact_match": true,
+        "original_and_version_inputs_equal": true,
+        "input_sha256": "3fdd806c708554e33f7b7f979da8bcd5e711dcd5d5d6c27281c1e3868273e622"
+      }
+    },
+    {
+      "case_id": "phase3_review_cards_browser_beginner",
+      "project_id": "e7da3936-e5ad-4211-84e7-3be271fc7613",
+      "version": 2,
+      "origin": "student_edit",
+      "parent_version": 1,
+      "source": {
+        "path": "tmp/phase3-work/evidence/phase3-live/phase3_review_cards_browser_beginner/project-view.json",
+        "sha256": "7adb553d56e80efdbdaf1687988ae7e4b29bd4fd55e7c7fed897981ce4437339",
+        "retained_snapshot": {
+          "path": "evidence/phase3-audit/observed-analysis-snapshots/phase3_review_cards_browser_beginner-v2-later-view.json",
+          "sha256": "79831dac5058f935255c7a88941c9d69c2d7f9787b29eb9db3526ee484cc3d34",
+          "same_raw_as_initial_read": false
+        },
+        "later_read_note": "The mutable project-view advanced from running to partial after root search. Current analysis hash and exact input are independently equal to the reviewed student-edit v2; initial raw response bytes were not retained before that metadata update. This later raw snapshot does not change the analysis-only decision or review recommendations."
+      },
+      "prompt_version": "project-analysis-v3-transferable-learning-skills",
+      "analysis_sha256": "f98fc25df324ad7fbcb4ffd9a328cc51b58b142fc67079508d1f87c47c70ae94",
+      "disposition": "accepted_analysis_after_explicit_student_edit",
+      "ready_for_search": true,
+      "high_issues": 0,
+      "medium_issues": 0,
+      "unit_count": 7,
+      "requirement_coverage": {
+        "fixed_12_cards": "f1/k2 project_task retains 12; 5-item practice is legitimate transfer",
+        "bounded_navigation": "f2/k3 first/last disabled and one-step navigation",
+        "mastered_toggle_count": "f3/k4 Set and derived size",
+        "persistent_restore": "f4/k5 JSON and localStorage try/catch",
+        "invalid_or_empty_hint_default": "f5/k6; recovery consistency separately reviewed",
+        "mobile_and_keyboard": "f6/k7 native button keyboard plus CSS responsive",
+        "excluded_scope": "No accounts/network/backend/cloud/recommendation introduced"
+      },
+      "skills": {
+        "count": 14,
+        "grain": "7 units are a little finer than the soft 4–5 planning guide, but each has a concrete subtask; DOM safe text writes, state render, events, Set, persistence, validation and responsive/native controls form a coherent beginner route. Not generic JS syntax fragments.",
+        "critical_methods": "State-driven render; boundary-derived disabled; Set uniqueness/count; JSON type/whitelist validation and storage exception recovery; native keyboard controls.",
+        "transfer": "Different practice array length and tag toggles are allowed; a course need not reproduce the twelve cards, IDs or exact layout."
+      },
+      "student_fit": "Background explicitly knows JS variables/arrays/functions but first DOM integration: concrete DOM and state introduction is appropriate, not a redundant whole-language basics course.",
+      "prerequisites": {
+        "dag": "No cycles or forward prerequisite IDs; listed order follows dependencies.",
+        "low_observations": [
+          "k4 uses a click callback learned in k3 yet lists only k2. Linear order k3→k4 makes this nonblocking; a future route may explicitly link k3."
+        ]
+      },
+      "other_low_observations": [
+        "k7 combines native HTML button behavior and CSS disabled style under CSS technology; skill wording can state its own HTML/CSS owner, but current natural-control instructions are correct.",
+        "technical_plan still uses filtering language; the explicit f5 and edited k6 task/description specify whole-default for invalid data, so filtering may only participate in checking admissible IDs, not silently preserve partial invalid state. Clarify in a future prompt."
+      ],
+      "edit_verification": {
+        "changed_fields": [
+          {
+            "pointer": "/knowledge_points/5/description",
+            "before": "启动时检查存储值：为空、JSON 解析失败、非数组或含非法卡片 id 时，显示提示信息，过滤为合法数据或回落为默认空标记。",
+            "after": "检查解析结果的数组类型和卡片 id 白名单；JSON、类型或白名单校验失败时给出提示，并整体回退到默认空标记状态。"
+          }
+        ],
+        "other_analysis_fields_unchanged": true,
+        "input_unchanged": true,
+        "manual_record": "tmp/phase3-work/evidence/phase3-live/phase3_review_cards_browser_beginner/manual-review-edit.json",
+        "closure": "k6.description now consistently requires hint plus whole empty default on JSON/type/whitelist failure; f5 and project_task already require this.",
+        "not_first_generation_pass": true,
+        "new_model_calls_for_edit": 0
+      },
+      "runtime_note": "Search had already been submitted by root when this independent read occurred. This review scores analysis only, not recommendations.",
+      "input_fidelity": {
+        "frozen_plan_exact_match": true,
+        "original_and_version_inputs_equal": true,
+        "input_sha256": "3fdd806c708554e33f7b7f979da8bcd5e711dcd5d5d6c27281c1e3868273e622"
+      }
+    },
+    {
+      "case_id": "phase3_pygame_pong_intermediate",
+      "project_id": "3c339e7c-7f22-4aa5-aebc-3ac2f412d65c",
+      "version": 1,
+      "origin": "analysis",
+      "source": {
+        "path": "tmp/phase3-work/evidence/phase3-live/phase3_pygame_pong_intermediate/project-view.json",
+        "sha256": "31c64ff15d86b4449c4de8ee0dc737ec03a0b7507287350508fdc2cbef93ff4f",
+        "retained_snapshot": {
+          "path": "evidence/phase3-audit/observed-analysis-snapshots/phase3_pygame_pong_intermediate-v1.json",
+          "sha256": "31c64ff15d86b4449c4de8ee0dc737ec03a0b7507287350508fdc2cbef93ff4f",
+          "same_raw_as_initial_read": true
+        }
+      },
+      "prompt_version": "project-analysis-v3-transferable-learning-skills",
+      "disposition": "unreviewable_generation_failed",
+      "ready_for_search": false,
+      "unit_count": 0,
+      "observed_status": "analysis_failed",
+      "observed_error": {
+        "code": "invalid_json",
+        "message": "项目分析结构校验失败，有限修正仍未通过。原始输入已保留，请调整需求后重试。",
+        "diagnostics": [
+          {
+            "type": "invalid_json",
+            "message": "Return exactly a valid JSON object without Markdown fences."
+          }
+        ]
+      },
+      "semantic_quality": "No accepted analysis exists; do not manufacture skill coverage or grade missing model output as a semantic pass.",
+      "diagnostic_gap": "Only final invalid_json feedback is retained. Earlier attempt category/JSON location and actual attempt count are not exposed in this artifact; do not assume both attempts failed identically.",
+      "model_calls_and_usage": "unknown from this artifact; configured bounded attempts are not observed actual counts.",
+      "input_fidelity": {
+        "frozen_plan_exact_match": true,
+        "original_and_version_inputs_equal": true,
+        "input_sha256": "a7936fc1add6c23c8bd09aeb336ad7869b638fea6041c15adb8155134a9669df"
+      }
+    },
+    {
+      "case_id": "phase3_arduino_pot_led_beginner",
+      "project_id": "38b3bbef-ae25-4564-a3e2-22403de9cd81",
+      "version": 1,
+      "origin": "analysis",
+      "source": {
+        "path": "tmp/phase3-work/evidence/phase3-live/phase3_arduino_pot_led_beginner/project-view.json",
+        "sha256": "c02eeb81dbe8759dcd8bf1b3183480dddfcca1706af25ba6ef4d53554e96138e",
+        "retained_snapshot": {
+          "path": "evidence/phase3-audit/observed-analysis-snapshots/phase3_arduino_pot_led_beginner-v1.json",
+          "sha256": "c02eeb81dbe8759dcd8bf1b3183480dddfcca1706af25ba6ef4d53554e96138e",
+          "same_raw_as_initial_read": true
+        },
+        "immutable_equivalent_path": "tmp/phase3-work/evidence/phase3-live/phase3_arduino_pot_led_beginner/first-generated-view-v1.json"
+      },
+      "prompt_version": "project-analysis-v3-transferable-learning-skills",
+      "analysis_sha256": "da5a18b9f43c8136dac0e605f5aa4eded8a03303e91955506627c9fd028c6b71",
+      "disposition": "changes_required_before_confirmation",
+      "ready_for_search": false,
+      "high_issues": 0,
+      "medium_issues": 1,
+      "unit_count": 6,
+      "skill_count": 13,
+      "requirement_coverage": {
+        "low_voltage_wiring": "f1/k1 retains disconnected wiring, shared ground, LED polarity/current-limiting resistor and board reference checks; no unsafe mains/motor/relay scope added",
+        "analog_range": "k2 explicitly analogRead 0–1023 for Uno context; endpoint/midpoint observation",
+        "nonblocking_cadence": "k3 millis timestamp subtraction >=50; delay explicitly avoided",
+        "mapping_and_clamp": "k4 map integer handling followed by constrain/min-max; out-of-range synthetic input remains clamped, not bare uint8 wrapping",
+        "pwm_output": "k5 analogWrite 0–255 on verified PWM pin",
+        "serial_raw_and_output": "f5/k6 both raw and mapped values and baud initialization"
+      },
+      "skills_and_grain": "6 coherent blocks, 13 specific skills; no collapse to generic Arduino/Python basics. Wiring, ADC, nonblocking timing, map+clamp, PWM and serial are transferable; example A0/pin9/9600/50ms remain project practice choices.",
+      "student_fit": "First analog/PWM learner must be able to verify early steps without using yet-untaught ADC/PWM/serial integration.",
+      "issues": [
+        {
+          "id": "arduino-first-steps-require-later-integration",
+          "severity": "medium",
+          "pointer": "/version/analysis/knowledge_points/0/practice_check",
+          "quote": "上电后串口读数随旋钮变化，LED 有亮度且无异常发烫。",
+          "additional_evidence": [
+            {
+              "pointer": "/version/analysis/knowledge_points/1/project_task",
+              "quote": "用 analogRead 读取电位器并打印原始读数，观察旋转两端与中间的数值变化。"
+            },
+            {
+              "pointer": "/version/analysis/knowledge_points/1/learning_skills/0",
+              "quote": "Arduino analogRead 读取并打印模拟量"
+            },
+            {
+              "pointer": "/version/analysis/knowledge_points/5/description",
+              "quote": "用 Serial.begin、print/println 周期性打印原始读数与输出值。"
+            },
+            {
+              "pointer": "/version/analysis/knowledge_points/5/prerequisite_ids",
+              "value": [
+                "k3",
+                "k4"
+              ]
+            }
+          ],
+          "reason": "k1 safety-wiring practice requires live changing serial readings and LED brightness before k2 ADC, k5 PWM, k6 Serial.begin/print. k2 also requires printing but dedicated serial setup is k6, after k3/k4. For the explicit beginner this is an actionable learning-order problem, not merely an optional extra dependency.",
+          "repair_options": [
+            "Use an unpowered wiring/polarity/ground/board-reference checklist for k1; do not require ADC/PWM integration there.",
+            "Teach a minimal explained Serial.begin/print observation scaffold with k2, retaining k6 for formatted two-value periodic integration; alternatively put a basic serial observation block before ADC and keep the later integration test distinct."
+          ],
+          "avoid": "Do not add k6 as k1 prerequisite: k6 already depends on k3/k4 which depend on k2/k1; that would create a cycle."
+        }
+      ],
+      "limitations": "Static instructional review only; no circuit built, board voltage/pin references not newly fetched and no hardware execution. Do not equate declared official checks with completed hardware verification.",
+      "input_fidelity": {
+        "frozen_plan_exact_match": true,
+        "original_and_version_inputs_equal": true,
+        "input_sha256": "9886dc9ef4af8a56ea56eab5cf537e1845787417c51a305d19585971ecb60481"
+      }
+    },
+    {
+      "case_id": "phase3_arduino_pot_led_beginner",
+      "project_id": "38b3bbef-ae25-4564-a3e2-22403de9cd81",
+      "version": 2,
+      "origin": "student_edit",
+      "parent_version": 1,
+      "prompt_version": "project-analysis-v3-transferable-learning-skills",
+      "source": {
+        "path": "tmp/phase3-work/evidence/phase3-live/phase3_arduino_pot_led_beginner/project-view.json",
+        "sha256": "e89b0f62d107f7b71fd8fc71594200f0c7cc1bb679615c9324fe4c967094b636",
+        "retained_snapshot": {
+          "path": "evidence/phase3-audit/observed-analysis-snapshots/phase3_arduino_pot_led_beginner-v2.json",
+          "sha256": "e89b0f62d107f7b71fd8fc71594200f0c7cc1bb679615c9324fe4c967094b636",
+          "same_raw_as_initial_read": true
+        }
+      },
+      "analysis_sha256": "ab33c4feb880f3b3062073ab472d412e8ade425cc049509149356ce343fcdc4b",
+      "input_fidelity": {
+        "frozen_plan_exact_match": true,
+        "original_and_version_inputs_equal": true,
+        "input_sha256": "9886dc9ef4af8a56ea56eab5cf537e1845787417c51a305d19585971ecb60481"
+      },
+      "disposition": "accepted_analysis_after_explicit_student_edit",
+      "ready_for_search": true,
+      "high_issues": 0,
+      "medium_issues": 0,
+      "unit_count": 6,
+      "skill_count": 13,
+      "edit_verification": {
+        "proposal": {
+          "path": "evidence/phase3-audit/arduino-pot-led-student-edit-proposal.json",
+          "sha256": "ad7b1c11996f5879fa552c1fe49356130a9c246baf677249f7e20e4572dab361"
+        },
+        "changed_field_count": 9,
+        "changed_fields": [
+          {
+            "pointer": "/knowledge_points/0/practice_check",
+            "before": "上电后串口读数随旋钮变化，LED 有亮度且无异常发烫。",
+            "after": "保持断电，按官方 Uno 引脚说明逐项核对电位器两端与抽头、共地、LED 极性及串联限流电阻；确认模拟输入电压范围和所选 PWM 引脚，接线检查通过后再进入读数练习。"
+          },
+          {
+            "pointer": "/knowledge_points/1/description",
+            "before": "用 analogRead 读取电位器抽头电压并得到 0-1023 读数。",
+            "after": "用 analogRead 读取电位器抽头电压并得到 0-1023 读数；为观察读数，先解释并在 setup 中加入 Serial.begin(9600)，在 loop 中用 Serial.println 打印一次原始值，串口监视器选择相同波特率。后续再用非阻塞节拍控制打印频率。"
+          },
+          {
+            "pointer": "/knowledge_points/1/project_task",
+            "before": "用 analogRead 读取电位器并打印原始读数，观察旋转两端与中间的数值变化。",
+            "after": "先在 setup 中用 Serial.begin(9600) 初始化串口并匹配监视器波特率，再用 analogRead 读取电位器、用 Serial.println 打印原始读数，观察旋转两端与中间的数值变化；理解这段最小监测代码的每一步。"
+          },
+          {
+            "pointer": "/knowledge_points/1/concepts",
+            "before": [
+              "analogRead 返回 0-1023 整数",
+              "10 位 ADC 量化与参考电压",
+              "串口预览读数以验证接线"
+            ],
+            "after": [
+              "analogRead 返回 0-1023 整数",
+              "10 位 ADC 量化与参考电压",
+              "Serial.begin 初始化与串口监视器波特率一致",
+              "Serial.println 打印单个原始读数以验证接线"
+            ]
+          },
+          {
+            "pointer": "/knowledge_points/1/learning_skills",
+            "before": [
+              "Arduino analogRead 读取并打印模拟量",
+              "通过旋转两端与中间判断读数范围是否合理"
+            ],
+            "after": [
+              "Arduino analogRead 读取模拟量，并初始化串口打印原始读数",
+              "通过旋转两端与中间判断读数范围是否合理"
+            ]
+          },
+          {
+            "pointer": "/knowledge_points/5/description",
+            "before": "用 Serial.begin、print/println 周期性打印原始读数与输出值。",
+            "after": "复用模拟输入单元已解释的串口初始化与单值打印基础，在约 50ms 的非阻塞采样节拍内，用 Serial.print/println 带标签打印原始读数与输出值。"
+          },
+          {
+            "pointer": "/knowledge_points/5/learning_goal",
+            "before": "理解串口初始化、波特率与打印格式的作用。",
+            "after": "能把已会的单值串口监测迁移为有标签的多值输出，读懂每行原始值与映射后输出的对应关系，并将其集成到非阻塞采样周期。"
+          },
+          {
+            "pointer": "/knowledge_points/5/concepts",
+            "before": [
+              "Serial.begin 设置波特率与监视器一致",
+              "Serial.print 与 println 组合输出多值",
+              "在非阻塞节拍内打印以保持实时"
+            ],
+            "after": [
+              "复用已学的 Serial.begin 与相同波特率设置",
+              "Serial.print 与 println 组合有标签的多值输出",
+              "在非阻塞节拍内打印以保持实时"
+            ]
+          },
+          {
+            "pointer": "/knowledge_points/5/learning_skills",
+            "before": [
+              "Arduino 串口初始化与波特率匹配",
+              "在周期节拍内格式化打印多个变量"
+            ],
+            "after": [
+              "Arduino 串口多值输出的标签与行格式设计",
+              "在非阻塞周期节拍内打印多个变量"
+            ]
+          }
+        ],
+        "other_analysis_fields_unchanged": true,
+        "input_unchanged": true,
+        "not_first_generation_pass": true,
+        "new_model_calls_for_edit": 0,
+        "execution_provenance": "The actual persisted project-view has version=2 and origin=student_edit. manual-review-edit.json is the unchanged proposal copy (its not_posted kind describes proposal creation, not this later execution)."
+      },
+      "closure": {
+        "k1": "Unpowered wiring/polarity/shared-ground/current-limit and official board-reference checklist is now achievable before ADC/PWM/serial.",
+        "k2": "The current unit explicitly teaches setup Serial.begin(9600), matching serial-monitor baud, analogRead and single-value Serial.println before its endpoint/midpoint check. No assumed serial knowledge is needed.",
+        "k6": "Later unit explicitly reuses the earlier serial foundation for labelled multi-value formatting within the nonblocking sampling cadence. It no longer first introduces a skill required by earlier practice.",
+        "prerequisites": "IDs, references and order are unchanged; all dependencies point earlier and no cycle is added."
+      },
+      "retained_project_methods": {
+        "low_voltage_wiring": "f1/k1 retains disconnected wiring, shared ground, LED polarity/current-limiting resistor and board reference checks; no unsafe mains/motor/relay scope added",
+        "analog_range": "k2 explicitly analogRead 0–1023 for Uno context; endpoint/midpoint observation",
+        "nonblocking_cadence": "k3 millis timestamp subtraction >=50; delay explicitly avoided",
+        "mapping_and_clamp": "k4 map integer handling followed by constrain/min-max; out-of-range synthetic input remains clamped, not bare uint8 wrapping",
+        "pwm_output": "k5 analogWrite 0–255 on verified PWM pin",
+        "serial_raw_and_output": "f5/k6 both raw and mapped values and baud initialization"
+      },
+      "transfer_and_fit": "13 concrete skills in 6 coherent blocks suit a first analog/PWM learner. A lesson may use a different pin, sampling period or analogue source while teaching ADC observation, timestamp scheduling, linear map+clamp or PWM. Mandatory project wiring/ranges/cadence remain in practice.",
+      "limitations": "Static instructional review only, zero HTTP/model/DB writes. No circuit or student project executed; no official pin/voltage checks newly fetched or claimed completed. Recommendation source identity, teaching and utility remain unreviewed until actual results."
+    }
+  ],
+  "summary": {
+    "fresh_unseen_projects": 3,
+    "fresh_accepted_without_edits": 0,
+    "fresh_semantic_changes_required": 2,
+    "fresh_generation_failed_unreviewable": 1,
+    "student_edit_accepted": 2,
+    "recommendation_utility": "not yet reviewed; analysis-only judgments do not imply source teaching/real-video coverage",
+    "cost": "Actual provider events not read for this review; no latency or calls inferred from project timestamps."
+  }
+}

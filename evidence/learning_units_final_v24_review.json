@@ -1,0 +1,140 @@
+{
+  "review_type": "independent_static_semantic_review",
+  "reviewer": "learning_quality delegated agent",
+  "source": "evidence/browser/real-project-final-v24/report.json",
+  "source_model_events": "evidence/browser/real-project-final-v24/model-events.jsonl",
+  "source_project_id": "ab770d92-ddc7-495e-b17b-db218718139d",
+  "source_analysis_version": 8,
+  "source_prompt_version": "project-analysis-v2.4-explicit-technology",
+  "analysis_canonical_sha256": "81fb3d1b1abe9900187d9bfe82f0d9aba7a40fdbba0ea21e598112b53e92c3bf",
+  "source_is_mock": false,
+  "input_classification": "Synthetic educational Python game request; the model response is a real provider result.",
+  "input_unchanged_checks": {
+    "analysis_input_equals_original_input": true,
+    "analysis_input_equals_original_boundary_exact_input": true,
+    "boundary_evidence": "evidence/live-e2e-data-boundary.json"
+  },
+  "review_network_requests": 0,
+  "review_provider_requests": 0,
+  "production_code_changed": false,
+  "source_analysis_calls": [
+    {
+      "call_id": "b5e75e36071e4c0ba92ef57cb5fbcf4d",
+      "http_status": 200,
+      "outcome": "json_returned",
+      "elapsed_seconds": 10.873103,
+      "finish_reason": "stop",
+      "response_read_complete": true,
+      "prompt_tokens": 2777,
+      "completion_tokens": 1990,
+      "total_tokens": 4767
+    }
+  ],
+  "automated_local_revalidation": {
+    "fresh_generation_context": true,
+    "schema_passed": true,
+    "learning_quality_issues": [],
+    "unit_count": 6,
+    "function_count": 5,
+    "all_raw_units_explicitly_include_technology": true
+  },
+  "verdict": "static_pass_with_low_priority_teaching_note",
+  "known_high_or_medium_semantic_defects": [],
+  "rubric": [
+    {
+      "criterion": "Per-unit technology and selected-versus-assumed tools",
+      "passed": true,
+      "evidence": "k1 explicitly targets Python; k2-k6 explicitly target pygame. The technical plan correctly says Python was requested and only the graphics library was unspecified; pygame is clearly a modifiable assumption. No unit copies a whole project stack. This verifies proposed retrieval targets, not any video's actual coverage."
+    },
+    {
+      "criterion": "Requested behavior and feature mapping",
+      "passed": true,
+      "evidence": "f1/k2 covers the local window, rendering and quit handling; f2/k3 covers held left/right keys and bounds; f3/k4-k5 covers falling, collision, score and respawn; f4/k6 covers a missed ball and the final score; f5/k6 covers in-game Space restart. Scope retains no login or network requirement."
+    },
+    {
+      "criterion": "Coherent, stage-appropriate granularity",
+      "passed": true,
+      "evidence": "Six units form buildable steps. k1 combines variables, numeric types, updates and printed inspection in a concrete script holding paddle/ball coordinates and score; this is a limited prerequisite practice, not an isolated variable name or one-line syntax lesson. The remaining units teach event/render loop, visible movement, collision, score/respawn and end/restart state behavior."
+    },
+    {
+      "criterion": "Necessary prerequisites and order",
+      "passed": true,
+      "evidence": "k1 numerical state precedes k2 window/event loop; k3 movement follows the loop; k4 falling/collision follows drawing and movement; k5 score/respawn follows collision; k6 final state/reset follows those data paths. The serial order is conservative but coherent for a beginner. while/if and running scripts are explicit adjustable assumptions rather than established learner facts."
+    },
+    {
+      "criterion": "No unrelated features or broad-subject substitutes",
+      "passed": true,
+      "evidence": "The proposal adds no account, leaderboard, network, database, cloud deployment or unrelated course. Constant falling speed, plus-one scoring and local scripts are scoped assumptions. Python fundamentals do not replace the five actual pygame project units."
+    },
+    {
+      "criterion": "Technical consistency of game-over and restart",
+      "passed": true,
+      "evidence": "The technical plan says to pause only physics/scoring while events and the game-over screen continue. f4 stops falling/scoring, not the main loop; f5 explicitly says the main loop never exited. k6 consistently uses a state flag and Space KEYDOWN to reset score/positions and restore play. The observed v5 stop-the-game-loop contradiction is absent."
+    },
+    {
+      "criterion": "Observable practice and default assumptions",
+      "passed": true,
+      "evidence": "Checks are practical: inspect changed numbers, open/close a window, hold a direction at an edge, trigger a catch, see plus-one score/respawn, then miss and restart. beginner is retained; adjustment_note explicitly says zero project experience and invites changing stage or selections. The path assumes basic while/if and script execution, so it does not claim a fully zero-code introductory course."
+    }
+  ],
+  "unit_review": [
+    {
+      "id": "k1",
+      "technology": "Python",
+      "verdict": "pass",
+      "task": "A numeric game-state script updates coordinates and score and prints the before/after values."
+    },
+    {
+      "id": "k2",
+      "technology": "pygame",
+      "verdict": "pass",
+      "task": "Build a refreshed blank window with a running event loop and working QUIT handling."
+    },
+    {
+      "id": "k3",
+      "technology": "pygame",
+      "verdict": "pass",
+      "task": "Draw a paddle, move it with held keys and clamp it to the screen."
+    },
+    {
+      "id": "k4",
+      "technology": "pygame",
+      "verdict": "pass",
+      "task": "Animate the ball and detect its Rect overlapping the paddle; a simple collision approximation is appropriate to this beginner scope."
+    },
+    {
+      "id": "k5",
+      "technology": "pygame",
+      "verdict": "pass",
+      "task": "Add one point per catch, render the score and move the caught ball back to the top."
+    },
+    {
+      "id": "k6",
+      "technology": "pygame",
+      "verdict": "pass",
+      "task": "Pause playing updates on a miss while preserving the live event/render loop, then reset the data on Space."
+    }
+  ],
+  "low_priority_teaching_notes": [
+    {
+      "id": "frame_timing_guidance",
+      "priority": "low",
+      "observation": "The chosen simplification uses a fixed displacement per frame, but the loop unit does not explicitly include a frame-rate cap or elapsed-time scaling.",
+      "recommended_follow_up": "When building or reviewing the student's executable game, include a Clock.tick frame cap or elapsed-time movement and test behavior on the actual machine.",
+      "why_not_blocking_this_analysis": "The artifact is a learning-needs proposal with no executable game or cross-machine timing promise; all requested behaviors have coherent units. This note must not be treated as execution verification."
+    }
+  ],
+  "preserved_history": [
+    "evidence/learning_units_browser_v5_review.json retains the earlier failed main-loop contradiction.",
+    "evidence/learning_units_final_browser_review.json retains the v6 / v2.3 static pass.",
+    "Earlier provider timeouts and truncated responses remain in their original reports."
+  ],
+  "limits": [
+    "This is local static review of one real model output, not execution of the student's game.",
+    "It does not validate recommendation relevance, video coverage, playback, paid access or platform availability.",
+    "It does not prove performance for other project types or student stages.",
+    "The source browser report may continue to change while its independent search finishes; this review pins the analysis object by its canonical hash."
+  ],
+  "reviewed_at": "2026-10-18T15:53:26.216462+00:00",
+  "frozen_analyzer_and_model_hashes_match_runtime_manifest": true
+}

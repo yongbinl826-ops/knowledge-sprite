@@ -223,7 +223,7 @@ async def test_queue_capacity_idempotency_cancel_and_wait_expiry():
 
 
 def test_http_admission_retry_after_and_live_health(tmp_path):
-    with TestClient(create_app(Settings(database_path=str(tmp_path/'trial.sqlite'), submission_limit_per_minute=1,fetch_enabled=False),provider=EmptyProvider())) as c:
+    with TestClient(create_app(Settings(database_path=str(tmp_path/'trial.sqlite'), submission_limit_per_minute=1,fetch_enabled=False),provider=EmptyProvider()), base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as c:
         assert c.get('/health').json()['worker_alive']
         assert c.post('/api/search-jobs',json={'knowledge_points':['point A']}).status_code==202
         rejected=c.post('/api/search-jobs',json={'knowledge_points':['point B']})

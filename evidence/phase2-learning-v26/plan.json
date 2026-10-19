@@ -1,0 +1,244 @@
+{
+  "mode": "offline_plan",
+  "created_at": "2026-10-18T16:51:11.494683+00:00",
+  "source_run": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v25\\run.json",
+  "source_run_sha256": "45aef961e907415531a9b452b0792c3ac3977f713130990950d1ef2518bbff7f",
+  "expected_prompt": "project-analysis-v2.6-bounded-semantic-review",
+  "classification": "same_synthetic_non_sensitive_inputs",
+  "limits": {
+    "max_analysis_api_submissions": 4,
+    "per_analysis_max_model_calls": 4,
+    "max_generation_calls": 2,
+    "max_semantic_review_calls": 2,
+    "review_completion_token_cap": 1500,
+    "server_total_budget_seconds": 120,
+    "client_observation_deadline_seconds": 150,
+    "search_submissions": 0
+  },
+  "semantic_acceptance": "Independent manual review of all 24 requirements; preserve source numeric/equality boundaries, concrete tasks, prerequisites, tool relevance, debounce and persistent post-win events. Model review success alone is insufficient.",
+  "rubric_source": "C:\\Users\\xiaoer\\Documents\\Codex\\2026-10-18\\task-2\\evidence\\phase2-learning-v25\\manual-review-before-duration-fix.json",
+  "rubric_source_sha256": "e6cd76b61756e82c5dbae8540ee1f5374cd5c4edc33058ebd6292488af5fa372",
+  "independent_requirement_rubric": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "requirements": [
+        {
+          "id": "w1",
+          "requirement": "Show phase, 25/5 duration, formatted remaining time and count"
+        },
+        {
+          "id": "w2",
+          "requirement": "Start, pause and resume"
+        },
+        {
+          "id": "w3",
+          "requirement": "On expiry switch phase and wait paused"
+        },
+        {
+          "id": "w4",
+          "requirement": "Increment count only for completed focus phases"
+        },
+        {
+          "id": "w5",
+          "requirement": "Background-tab return retains accurate remaining time"
+        },
+        {
+          "id": "w6",
+          "requirement": "Mobile layout and full keyboard access"
+        },
+        {
+          "id": "w7",
+          "requirement": "Reset clears active work and restores a usable initial state"
+        }
+      ]
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "requirements": [
+        {
+          "id": "d1",
+          "requirement": "Read CSV and audit trip_id deduplication"
+        },
+        {
+          "id": "d2",
+          "requirement": "Parse timestamps and separate invalid reasons"
+        },
+        {
+          "id": "d3",
+          "requirement": "Compute duration for all rows valid under the requested boundary"
+        },
+        {
+          "id": "d4",
+          "requirement": "Aggregate by departure hour and export counts"
+        },
+        {
+          "id": "d5",
+          "requirement": "Departure-station Top10 chart with labels"
+        },
+        {
+          "id": "d6",
+          "requirement": "Export cleaned CSV, hourly CSV and PNG"
+        }
+      ]
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "requirements": [
+        {
+          "id": "h1",
+          "requirement": "Low-voltage safe LED/button wiring"
+        },
+        {
+          "id": "h2",
+          "requirement": "INPUT_PULLUP active-low button"
+        },
+        {
+          "id": "h3",
+          "requirement": "Actual debounce plus one event per held press"
+        },
+        {
+          "id": "h4",
+          "requirement": "Responsive random wait and early-press false start"
+        },
+        {
+          "id": "h5",
+          "requirement": "Reaction milliseconds and readable serial output"
+        },
+        {
+          "id": "h6",
+          "requirement": "A fresh press can start another round without long-hold repetition"
+        }
+      ]
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "requirements": [
+        {
+          "id": "m1",
+          "requirement": "Fixed 8x8 wall/path/exit grid"
+        },
+        {
+          "id": "m2",
+          "requirement": "One step per key, no walls/boundary crossing"
+        },
+        {
+          "id": "m3",
+          "requirement": "Freeze real elapsed time on victory"
+        },
+        {
+          "id": "m4",
+          "requirement": "R resets player, clock and game state"
+        },
+        {
+          "id": "m5",
+          "requirement": "Ready/won still handle R/Esc/QUIT; frame rate bounded"
+        }
+      ]
+    }
+  ],
+  "numeric_boundary_probes": [
+    {
+      "case_id": "bicycle_csv_advanced",
+      "probe": "Equal nonmissing start/end timestamps",
+      "expected": "Valid under the stated end<start invalidity rule; duration_min=0 is retained, not required to be strictly positive."
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "probe": "End before start, missing or unparseable timestamp",
+      "expected": "Excluded from valid aggregates and recorded under the stated invalid reason."
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "probe": "Remaining time reaches exactly zero",
+      "expected": "Transition once, pause the next fixed 25/5-minute stage, and increment only completed focus."
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "probe": "Active-low input, random 2-5-second window and repeated raw bounce",
+      "expected": "LOW means pressed; a real stable-input condition precedes press edges, timing remains responsive and within the requested range."
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "probe": "Candidate row/column is -1 or 8 in an 8x8 map",
+      "expected": "Reject before list access; valid indices remain 0-7, and won state still processes reset/quit."
+    }
+  ],
+  "records": [
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "source_version": 1,
+      "input": {
+        "name": "离线番茄钟学习网页",
+        "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "not_submitted"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "source_version": 1,
+      "input": {
+        "name": "共享单车出行 CSV 分析报告",
+        "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+        "student_level": "advanced",
+        "language": "zh",
+        "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "not_submitted"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "source_version": 1,
+      "input": {
+        "name": "Arduino LED 按钮反应时间小游戏",
+        "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "not_submitted"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "source_version": 1,
+      "input": {
+        "name": "pygame 单屏迷宫寻出口",
+        "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "not_submitted"
+    }
+  ]
+}

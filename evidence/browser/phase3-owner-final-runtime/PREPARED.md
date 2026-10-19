@@ -1,0 +1,3 @@
+# Prepared only — no runtime access yet
+
+Await root-announced new main8000 PID/manifestSHA. This isolated evidence reader cannot run without both, rejects oldPID35292, and preserves all pre-owner evidence. Expected Ar4:0cards/7pointers;Web5:0cards/4pointers;Pong4:1get_pressed card/1Sysblock topic-only pointer, other15skills unknown. Root clarified before any capture: explicit FPGA-chip/Gowin/hardware evidence is foreign and removed, while Sysblock's type is not established and it remains an unverified catalog topic, with0skill/teaching contribution. No brand blacklist is inferred. Same three-case×three-step×three-width GET-only27screenshots/keyboard/reduced-motion policy. No offline tests, model/search calls, source or dist edits.

@@ -1,0 +1,1793 @@
+{
+  "job_id": "8eefa50c-5640-4e9f-bf41-80bb1019110f",
+  "status": "partial",
+  "phase": "done",
+  "created_at": "2026-10-18T19:31:43.465636+00:00",
+  "updated_at": "2026-10-18T19:33:09.144152+00:00",
+  "request": {
+    "knowledge_points": [
+      "pygame 二维列表网格地图绘制",
+      "pygame 网格坐标的合法移动与阻挡判定",
+      "pygame 键盘输入边沿处理",
+      "pygame 游戏状态机与胜利判定",
+      "pygame 持续主循环与 R/Esc 键处理"
+    ],
+    "student_level": "intermediate",
+    "language": "zh",
+    "project_context": "pygame 单屏迷宫寻出口 语言 Python，图形库 pygame（按上下文假定，可改）。核心结构：二维列表常量地图；玩家用 (col,row) 网格坐标；移动前先判断目标格是否合法（在 8×8 内且非墙）。主循环分状态：READY（开始前）、PLAYING、WIN，三态都执行 pygame.event 处理与绘制。移动用 KEYDOWN 事件边沿，不读持续按键状态。计时用 pygame.time.get_ticks() 或 time.monotonic()，按毫秒差值算真实耗时；clock.tick(60) 限帧。到达出口切 WIN 并记录结束时间；R 键在 READY/WIN 重置玩家与起点时间。循环不因胜利而终止，仅在 QUIT/Esc 时退出。 会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。 用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ],
+    "learning_targets": {
+      "pygame 二维列表网格地图绘制": [
+        "二维列表行列索引",
+        "行*格子尺寸求 y",
+        "pygame.Rect 与 draw.rect",
+        "墙/路/出口区分配色"
+      ],
+      "pygame 网格坐标的合法移动与阻挡判定": [
+        "(col,row) 坐标增量",
+        "0..7 边界检查",
+        "按地图格取值判断墙",
+        "移动前校验 target"
+      ],
+      "pygame 键盘输入边沿处理": [
+        "pygame.event 事件队列",
+        "KEYDOWN 仅触发一次",
+        "K_LEFT/K_RIGHT/K_UP/K_DOWN 映射",
+        "与 get_pressed 持续状态的区别"
+      ],
+      "pygame 游戏状态机与胜利判定": [
+        "状态变量 READY/PLAYING/WIN",
+        "到达出口切状态",
+        "按状态绘制提示文本",
+        "pygame.font 渲染文字"
+      ],
+      "pygame 持续主循环与 R/Esc 键处理": [
+        "主循环不因胜利而中断",
+        "pygame.QUIT 与 K_ESCAPE 退出",
+        "K_r 触发重置",
+        "按状态限制哪些键生效"
+      ]
+    }
+  },
+  "knowledge_points": [
+    {
+      "knowledge_point_id": "e730e129-6d57-4d1f-825c-bd3a3e44fbfb",
+      "text": "pygame 二维列表网格地图绘制",
+      "learning_targets": [
+        "二维列表行列索引",
+        "行*格子尺寸求 y",
+        "pygame.Rect 与 draw.rect",
+        "墙/路/出口区分配色"
+      ]
+    },
+    {
+      "knowledge_point_id": "e28f77d3-6b47-4d6c-8d02-4ad897a5382d",
+      "text": "pygame 网格坐标的合法移动与阻挡判定",
+      "learning_targets": [
+        "(col,row) 坐标增量",
+        "0..7 边界检查",
+        "按地图格取值判断墙",
+        "移动前校验 target"
+      ]
+    },
+    {
+      "knowledge_point_id": "1837ab3f-08d1-41d1-9f62-6a02671def70",
+      "text": "pygame 键盘输入边沿处理",
+      "learning_targets": [
+        "pygame.event 事件队列",
+        "KEYDOWN 仅触发一次",
+        "K_LEFT/K_RIGHT/K_UP/K_DOWN 映射",
+        "与 get_pressed 持续状态的区别"
+      ]
+    },
+    {
+      "knowledge_point_id": "a18c92d1-c8b1-468d-a40e-f3b87939c224",
+      "text": "pygame 游戏状态机与胜利判定",
+      "learning_targets": [
+        "状态变量 READY/PLAYING/WIN",
+        "到达出口切状态",
+        "按状态绘制提示文本",
+        "pygame.font 渲染文字"
+      ]
+    },
+    {
+      "knowledge_point_id": "bd6ad368-fce3-43a2-ae05-343450ee7a7e",
+      "text": "pygame 持续主循环与 R/Esc 键处理",
+      "learning_targets": [
+        "主循环不因胜利而中断",
+        "pygame.QUIT 与 K_ESCAPE 退出",
+        "K_r 触发重置",
+        "按状态限制哪些键生效"
+      ]
+    }
+  ],
+  "progress": {
+    "queries_planned": 30,
+    "queries_completed": 20,
+    "search_requests": 30,
+    "search_successes": 20,
+    "search_failures": 0,
+    "candidates_discovered": 114,
+    "resources_discovered": 54,
+    "details_attempted": 9,
+    "details_completed": 9,
+    "details_cached": 20,
+    "cache_hits": 20,
+    "catalog_pages_attempted": 0,
+    "catalog_pages_completed": 0
+  },
+  "budgets": {
+    "max_search_requests": 30,
+    "max_detail_pages": 40,
+    "deadline_seconds": 240
+  },
+  "warnings": [
+    "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+    "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+    "25 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+    "2 个候选缺少课程或视频类型依据，未作为学习资源展示"
+  ],
+  "errors": [],
+  "queue_wait_seconds": 0.002,
+  "fetch_diagnostics": {
+    "available": true,
+    "started_at": "2026-10-18T19:31:43.467922+00:00",
+    "finished_at": "2026-10-18T19:33:09.144146+00:00",
+    "counts_delta": {
+      "dns_started": 10,
+      "dns_completed": 10,
+      "http_started": 10,
+      "http_transport": 10,
+      "http_completed": 10
+    },
+    "events": [
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:32:21.259803+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/robots.txt",
+        "url_sha256": "141991d3dd3e899f58e5087d6d5c99bfb29b270fd06aa9ddeb5bdf23b8df68f6",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:32:22.860442+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/robots.txt",
+        "url_sha256": "141991d3dd3e899f58e5087d6d5c99bfb29b270fd06aa9ddeb5bdf23b8df68f6",
+        "kind": "robots",
+        "attempt": 0,
+        "address_count": 4
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:32:22.860466+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/robots.txt",
+        "url_sha256": "141991d3dd3e899f58e5087d6d5c99bfb29b270fd06aa9ddeb5bdf23b8df68f6",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:32:22.860626+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/robots.txt",
+        "url_sha256": "141991d3dd3e899f58e5087d6d5c99bfb29b270fd06aa9ddeb5bdf23b8df68f6",
+        "kind": "robots",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:32:22.860621+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:32:23.020786+00:00",
+              "elapsed_seconds": 0.160178
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:32:23.024358+00:00",
+              "elapsed_seconds": 0.163746
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:32:23.024389+00:00",
+              "elapsed_seconds": 0.163771
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:32:23.608207+00:00",
+              "elapsed_seconds": 0.747601
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:23.609343+00:00",
+              "elapsed_seconds": 0.748727
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:23.609518+00:00",
+              "elapsed_seconds": 0.748901
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:23.609526+00:00",
+              "elapsed_seconds": 0.748907
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:23.609568+00:00",
+              "elapsed_seconds": 0.748949
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:23.609573+00:00",
+              "elapsed_seconds": 0.748953
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:24.001304+00:00",
+              "elapsed_seconds": 1.140705
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:24.001692+00:00",
+              "elapsed_seconds": 1.141073
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:24.001809+00:00",
+              "elapsed_seconds": 1.14119
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:32:24.002861+00:00",
+              "elapsed_seconds": 1.142245
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:32:24.002925+00:00",
+              "elapsed_seconds": 1.142306
+            }
+          ],
+          "bytes_read": 1248,
+          "body_complete": true,
+          "body_sha256": "8fa3036c68bfcbd32365f6225d24333264093b7cd38d306e106b4dbdc934fd5b",
+          "max_bytes": 256000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 1248,
+          "decoded_bytes_read": 1248,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "8fa3036c68bfcbd32365f6225d24333264093b7cd38d306e106b4dbdc934fd5b",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:32:24.001627+00:00",
+          "headers_elapsed_seconds": 1.141009,
+          "body_total_budget_seconds": 5.076171875,
+          "body_idle_budget_seconds": 5,
+          "content_length": 1248,
+          "body_size_basis_bytes": 1248,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:32:24.003686+00:00",
+          "finished_at": "2026-10-18T19:32:24.004397+00:00",
+          "elapsed_seconds": 1.143782,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:32:24.004431+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/robots.txt",
+        "url_sha256": "141991d3dd3e899f58e5087d6d5c99bfb29b270fd06aa9ddeb5bdf23b8df68f6",
+        "kind": "robots",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 1248
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:32:24.004596+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+        "url_sha256": "1a1913de936f5fb2b2947c29cdf83c93092861a4f7730c55f550a40c4a85d5b5",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:32:25.472822+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+        "url_sha256": "1a1913de936f5fb2b2947c29cdf83c93092861a4f7730c55f550a40c4a85d5b5",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 4
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:32:25.472850+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+        "url_sha256": "1a1913de936f5fb2b2947c29cdf83c93092861a4f7730c55f550a40c4a85d5b5",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:32:25.473054+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+        "url_sha256": "1a1913de936f5fb2b2947c29cdf83c93092861a4f7730c55f550a40c4a85d5b5",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:32:25.473048+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:32:25.646017+00:00",
+              "elapsed_seconds": 0.172984
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:32:25.649020+00:00",
+              "elapsed_seconds": 0.175977
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:32:25.649044+00:00",
+              "elapsed_seconds": 0.175999
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:32:26.396352+00:00",
+              "elapsed_seconds": 0.92332
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:26.397589+00:00",
+              "elapsed_seconds": 0.924546
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:26.397764+00:00",
+              "elapsed_seconds": 0.924724
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:26.397782+00:00",
+              "elapsed_seconds": 0.924737
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:26.397838+00:00",
+              "elapsed_seconds": 0.924796
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:26.397853+00:00",
+              "elapsed_seconds": 0.924808
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:27.277789+00:00",
+              "elapsed_seconds": 1.804756
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:27.278083+00:00",
+              "elapsed_seconds": 1.805038
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:27.569509+00:00",
+              "elapsed_seconds": 2.096476
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:32:27.570472+00:00",
+              "elapsed_seconds": 2.09743
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:32:27.570516+00:00",
+              "elapsed_seconds": 2.097471
+            }
+          ],
+          "bytes_read": 74926,
+          "body_complete": true,
+          "body_sha256": "d724526f8b40a2f18cf691234ab52828e3ebccf8a92d489efda5499b1fa6c388",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 74926,
+          "decoded_bytes_read": 74926,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "d724526f8b40a2f18cf691234ab52828e3ebccf8a92d489efda5499b1fa6c388",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:32:27.278014+00:00",
+          "headers_elapsed_seconds": 1.80497,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:32:27.571279+00:00",
+          "finished_at": "2026-10-18T19:32:27.571932+00:00",
+          "elapsed_seconds": 2.09889,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:32:27.571964+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+        "url_sha256": "1a1913de936f5fb2b2947c29cdf83c93092861a4f7730c55f550a40c4a85d5b5",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 74926
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:32:30.941822+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-3",
+        "url_sha256": "340fd83987b0ab7e9d211eb9e2e709378538d0321d528767e427d66340d70315",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:32:32.449928+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-3",
+        "url_sha256": "340fd83987b0ab7e9d211eb9e2e709378538d0321d528767e427d66340d70315",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 4
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:32:32.449952+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-3",
+        "url_sha256": "340fd83987b0ab7e9d211eb9e2e709378538d0321d528767e427d66340d70315",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:32:32.450118+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-3",
+        "url_sha256": "340fd83987b0ab7e9d211eb9e2e709378538d0321d528767e427d66340d70315",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:32:32.450113+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:32:32.620177+00:00",
+              "elapsed_seconds": 0.170077
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:32:32.622451+00:00",
+              "elapsed_seconds": 0.172347
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:32:32.622483+00:00",
+              "elapsed_seconds": 0.172372
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:32:33.265237+00:00",
+              "elapsed_seconds": 0.81514
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:33.266346+00:00",
+              "elapsed_seconds": 0.816238
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:33.266513+00:00",
+              "elapsed_seconds": 0.816403
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:33.266521+00:00",
+              "elapsed_seconds": 0.81641
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:33.266565+00:00",
+              "elapsed_seconds": 0.816454
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:33.266570+00:00",
+              "elapsed_seconds": 0.816459
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:34.095471+00:00",
+              "elapsed_seconds": 1.645368
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:34.095758+00:00",
+              "elapsed_seconds": 1.645647
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:34.280629+00:00",
+              "elapsed_seconds": 1.830527
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:32:34.281698+00:00",
+              "elapsed_seconds": 1.83159
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:32:34.281736+00:00",
+              "elapsed_seconds": 1.831625
+            }
+          ],
+          "bytes_read": 66912,
+          "body_complete": true,
+          "body_sha256": "ab9121eeb1ce834541756d1d7a104173fde3674f1b18900ad0b81ad044a9a236",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 66912,
+          "decoded_bytes_read": 66912,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "ab9121eeb1ce834541756d1d7a104173fde3674f1b18900ad0b81ad044a9a236",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:32:34.095698+00:00",
+          "headers_elapsed_seconds": 1.645588,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:32:34.282547+00:00",
+          "finished_at": "2026-10-18T19:32:34.283199+00:00",
+          "elapsed_seconds": 1.833091,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:32:34.283234+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-3",
+        "url_sha256": "340fd83987b0ab7e9d211eb9e2e709378538d0321d528767e427d66340d70315",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 66912
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:32:36.594839+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-2",
+        "url_sha256": "593270e3645b338542d7ad5f3fd4a83566b77e0b0973919bfd67112936f13d1c",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:32:37.892188+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-2",
+        "url_sha256": "593270e3645b338542d7ad5f3fd4a83566b77e0b0973919bfd67112936f13d1c",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 4
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:32:37.892212+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-2",
+        "url_sha256": "593270e3645b338542d7ad5f3fd4a83566b77e0b0973919bfd67112936f13d1c",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:32:37.892376+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-2",
+        "url_sha256": "593270e3645b338542d7ad5f3fd4a83566b77e0b0973919bfd67112936f13d1c",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:32:37.892371+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:32:38.058009+00:00",
+              "elapsed_seconds": 0.165651
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:32:38.304719+00:00",
+              "elapsed_seconds": 0.412354
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:32:38.304749+00:00",
+              "elapsed_seconds": 0.412381
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:32:38.638099+00:00",
+              "elapsed_seconds": 0.745743
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:38.639279+00:00",
+              "elapsed_seconds": 0.746913
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:38.639451+00:00",
+              "elapsed_seconds": 0.747086
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:38.639464+00:00",
+              "elapsed_seconds": 0.747095
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:38.639512+00:00",
+              "elapsed_seconds": 0.747143
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:38.639517+00:00",
+              "elapsed_seconds": 0.747148
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:39.177493+00:00",
+              "elapsed_seconds": 1.285135
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:39.177783+00:00",
+              "elapsed_seconds": 1.285415
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:39.275044+00:00",
+              "elapsed_seconds": 1.382682
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:32:39.276388+00:00",
+              "elapsed_seconds": 1.384025
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:32:39.276445+00:00",
+              "elapsed_seconds": 1.384077
+            }
+          ],
+          "bytes_read": 88886,
+          "body_complete": true,
+          "body_sha256": "bb823fda6885b7fb4b0f688ba54a80770194f1068d471ff8d24bea02eda0e7db",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 88886,
+          "decoded_bytes_read": 88886,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "bb823fda6885b7fb4b0f688ba54a80770194f1068d471ff8d24bea02eda0e7db",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:32:39.177722+00:00",
+          "headers_elapsed_seconds": 1.285354,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:32:39.277640+00:00",
+          "finished_at": "2026-10-18T19:32:39.279019+00:00",
+          "elapsed_seconds": 1.386654,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:32:39.279060+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-2",
+        "url_sha256": "593270e3645b338542d7ad5f3fd4a83566b77e0b0973919bfd67112936f13d1c",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 88886
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:32:42.462620+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-collision",
+        "url_sha256": "00cb98a9ce8bc991fdf4af949c79d2d7442f056c40bcc00c33e8349ff393cfec",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:32:44.318571+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-collision",
+        "url_sha256": "00cb98a9ce8bc991fdf4af949c79d2d7442f056c40bcc00c33e8349ff393cfec",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 4
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:32:44.318629+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-collision",
+        "url_sha256": "00cb98a9ce8bc991fdf4af949c79d2d7442f056c40bcc00c33e8349ff393cfec",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:32:44.318890+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-collision",
+        "url_sha256": "00cb98a9ce8bc991fdf4af949c79d2d7442f056c40bcc00c33e8349ff393cfec",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:32:44.318886+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:32:44.484566+00:00",
+              "elapsed_seconds": 0.165694
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:32:44.486598+00:00",
+              "elapsed_seconds": 0.167726
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:32:44.486647+00:00",
+              "elapsed_seconds": 0.167766
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:32:45.141802+00:00",
+              "elapsed_seconds": 0.822931
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:45.142874+00:00",
+              "elapsed_seconds": 0.823994
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:45.143048+00:00",
+              "elapsed_seconds": 0.824166
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:45.143056+00:00",
+              "elapsed_seconds": 0.824173
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:45.143094+00:00",
+              "elapsed_seconds": 0.82421
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:45.143099+00:00",
+              "elapsed_seconds": 0.824214
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:46.035511+00:00",
+              "elapsed_seconds": 1.716642
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:46.035826+00:00",
+              "elapsed_seconds": 1.716942
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:47.105682+00:00",
+              "elapsed_seconds": 2.786808
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:32:47.107276+00:00",
+              "elapsed_seconds": 2.7884
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:32:47.107344+00:00",
+              "elapsed_seconds": 2.788462
+            }
+          ],
+          "bytes_read": 203193,
+          "body_complete": true,
+          "body_sha256": "95d79fc7c5676f33f7eea1f49f08e44a2cdf27106292c1746c5e1963d76423b9",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 203193,
+          "decoded_bytes_read": 203193,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "95d79fc7c5676f33f7eea1f49f08e44a2cdf27106292c1746c5e1963d76423b9",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:32:46.035763+00:00",
+          "headers_elapsed_seconds": 1.71688,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:32:47.108721+00:00",
+          "finished_at": "2026-10-18T19:32:47.109927+00:00",
+          "elapsed_seconds": 2.791048,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:32:47.109974+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-collision",
+        "url_sha256": "00cb98a9ce8bc991fdf4af949c79d2d7442f056c40bcc00c33e8349ff393cfec",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 203193
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:32:51.235355+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-4",
+        "url_sha256": "e34dc185dbf7141ec12fa24609d4442e3f43c0d2f155e0fa76a3329c3a89b117",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:32:52.917054+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-4",
+        "url_sha256": "e34dc185dbf7141ec12fa24609d4442e3f43c0d2f155e0fa76a3329c3a89b117",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 4
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:32:52.917077+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-4",
+        "url_sha256": "e34dc185dbf7141ec12fa24609d4442e3f43c0d2f155e0fa76a3329c3a89b117",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:32:52.917312+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-4",
+        "url_sha256": "e34dc185dbf7141ec12fa24609d4442e3f43c0d2f155e0fa76a3329c3a89b117",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:32:52.917303+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:32:53.077725+00:00",
+              "elapsed_seconds": 0.160436
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:32:53.080026+00:00",
+              "elapsed_seconds": 0.16274
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:32:53.080084+00:00",
+              "elapsed_seconds": 0.162788
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:32:53.736253+00:00",
+              "elapsed_seconds": 0.818966
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:53.737432+00:00",
+              "elapsed_seconds": 0.820135
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:53.737635+00:00",
+              "elapsed_seconds": 0.820339
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:53.737649+00:00",
+              "elapsed_seconds": 0.820349
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:53.737699+00:00",
+              "elapsed_seconds": 0.820399
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:53.737705+00:00",
+              "elapsed_seconds": 0.820405
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:54.628037+00:00",
+              "elapsed_seconds": 1.710753
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:54.628361+00:00",
+              "elapsed_seconds": 1.711061
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:55.368837+00:00",
+              "elapsed_seconds": 2.451546
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:32:55.369900+00:00",
+              "elapsed_seconds": 2.452604
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:32:55.369942+00:00",
+              "elapsed_seconds": 2.452641
+            }
+          ],
+          "bytes_read": 152511,
+          "body_complete": true,
+          "body_sha256": "3cb5d7b6fa298c569df6592d56b09f0233c269a4db40beabd1887c679d30f989",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 152511,
+          "decoded_bytes_read": 152511,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "3cb5d7b6fa298c569df6592d56b09f0233c269a4db40beabd1887c679d30f989",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:32:54.628288+00:00",
+          "headers_elapsed_seconds": 1.710992,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:32:55.370743+00:00",
+          "finished_at": "2026-10-18T19:32:55.371422+00:00",
+          "elapsed_seconds": 2.454124,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:32:55.371456+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-4",
+        "url_sha256": "e34dc185dbf7141ec12fa24609d4442e3f43c0d2f155e0fa76a3329c3a89b117",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 152511
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:32:55.621916+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/projectiles",
+        "url_sha256": "3e78b034d347fd5cc3b4fc4a4ba507311218e8a4b6696ae79482aee2c2cbc2ae",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:32:57.045651+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/projectiles",
+        "url_sha256": "3e78b034d347fd5cc3b4fc4a4ba507311218e8a4b6696ae79482aee2c2cbc2ae",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 4
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:32:57.045678+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/projectiles",
+        "url_sha256": "3e78b034d347fd5cc3b4fc4a4ba507311218e8a4b6696ae79482aee2c2cbc2ae",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:32:57.045839+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/projectiles",
+        "url_sha256": "3e78b034d347fd5cc3b4fc4a4ba507311218e8a4b6696ae79482aee2c2cbc2ae",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:32:57.045833+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:32:57.214404+00:00",
+              "elapsed_seconds": 0.168583
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:32:57.216571+00:00",
+              "elapsed_seconds": 0.170744
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:32:57.216595+00:00",
+              "elapsed_seconds": 0.170765
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:32:57.784352+00:00",
+              "elapsed_seconds": 0.738534
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:57.786166+00:00",
+              "elapsed_seconds": 0.740339
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:57.786353+00:00",
+              "elapsed_seconds": 0.740524
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:57.786362+00:00",
+              "elapsed_seconds": 0.740531
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:57.786409+00:00",
+              "elapsed_seconds": 0.740578
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:32:57.786414+00:00",
+              "elapsed_seconds": 0.740583
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:32:58.540566+00:00",
+              "elapsed_seconds": 1.494759
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:32:58.540953+00:00",
+              "elapsed_seconds": 1.495123
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:32:58.942243+00:00",
+              "elapsed_seconds": 1.896419
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:32:58.943263+00:00",
+              "elapsed_seconds": 1.897436
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:32:58.943301+00:00",
+              "elapsed_seconds": 1.897471
+            }
+          ],
+          "bytes_read": 149586,
+          "body_complete": true,
+          "body_sha256": "3c277c47b933d3de1281505b12c3edff801fe6cc3b75ce9a60de6321abc84466",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 149586,
+          "decoded_bytes_read": 149586,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "3c277c47b933d3de1281505b12c3edff801fe6cc3b75ce9a60de6321abc84466",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:32:58.540887+00:00",
+          "headers_elapsed_seconds": 1.495057,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:32:58.944075+00:00",
+          "finished_at": "2026-10-18T19:32:58.944766+00:00",
+          "elapsed_seconds": 1.898938,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:32:58.944800+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/projectiles",
+        "url_sha256": "3e78b034d347fd5cc3b4fc4a4ba507311218e8a4b6696ae79482aee2c2cbc2ae",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 149586
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:32:59.183670+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1HXYk6CEFW/",
+        "url_sha256": "2f3d4808f9deec6d929fc61ae91de79002317e2563d07125e8b0388e565bcd6f",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:33:00.563837+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1HXYk6CEFW/",
+        "url_sha256": "2f3d4808f9deec6d929fc61ae91de79002317e2563d07125e8b0388e565bcd6f",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:33:00.563860+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1HXYk6CEFW/",
+        "url_sha256": "2f3d4808f9deec6d929fc61ae91de79002317e2563d07125e8b0388e565bcd6f",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:33:00.564027+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1HXYk6CEFW/",
+        "url_sha256": "2f3d4808f9deec6d929fc61ae91de79002317e2563d07125e8b0388e565bcd6f",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:33:00.564021+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:33:00.721869+00:00",
+              "elapsed_seconds": 0.15786
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:33:00.723850+00:00",
+              "elapsed_seconds": 0.159896
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:33:00.723944+00:00",
+              "elapsed_seconds": 0.159929
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:33:01.417678+00:00",
+              "elapsed_seconds": 0.853672
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:33:01.418804+00:00",
+              "elapsed_seconds": 0.854788
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:33:01.418981+00:00",
+              "elapsed_seconds": 0.854963
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:33:01.419007+00:00",
+              "elapsed_seconds": 0.854988
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:33:01.419046+00:00",
+              "elapsed_seconds": 0.855027
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:33:01.419051+00:00",
+              "elapsed_seconds": 0.855032
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:33:02.142965+00:00",
+              "elapsed_seconds": 1.578964
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:33:02.143441+00:00",
+              "elapsed_seconds": 1.579422
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:33:02.206771+00:00",
+              "elapsed_seconds": 1.64276
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:33:02.207784+00:00",
+              "elapsed_seconds": 1.643769
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:33:02.207834+00:00",
+              "elapsed_seconds": 1.643815
+            }
+          ],
+          "bytes_read": 47667,
+          "body_complete": true,
+          "body_sha256": "d63d0ea647deeadc8a7c5b4a1926fd1fcdddbabc5c98e63e9e23fbbdbc54a070",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 47667,
+          "decoded_bytes_read": 173999,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "f94b4f38b687abefd13e02619065a7b70186e085b341001f5f4dfd73e36ec49d",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:33:02.143363+00:00",
+          "headers_elapsed_seconds": 1.579347,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:33:02.208709+00:00",
+          "finished_at": "2026-10-18T19:33:02.209363+00:00",
+          "elapsed_seconds": 1.645347,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:33:02.209396+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1HXYk6CEFW/",
+        "url_sha256": "2f3d4808f9deec6d929fc61ae91de79002317e2563d07125e8b0388e565bcd6f",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 173999
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:33:02.308314+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "url_sha256": "75865a884af31279cf83e9dbca465abea3110f29a0a8a2ecd6cd78fe2f563fbf",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:33:03.670182+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "url_sha256": "75865a884af31279cf83e9dbca465abea3110f29a0a8a2ecd6cd78fe2f563fbf",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 4
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:33:03.670206+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "url_sha256": "75865a884af31279cf83e9dbca465abea3110f29a0a8a2ecd6cd78fe2f563fbf",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:33:03.670375+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "url_sha256": "75865a884af31279cf83e9dbca465abea3110f29a0a8a2ecd6cd78fe2f563fbf",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:33:03.670370+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:33:03.842214+00:00",
+              "elapsed_seconds": 0.171858
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:33:03.845559+00:00",
+              "elapsed_seconds": 0.175195
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:33:03.845585+00:00",
+              "elapsed_seconds": 0.175217
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:33:04.405234+00:00",
+              "elapsed_seconds": 0.734882
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:33:04.406572+00:00",
+              "elapsed_seconds": 0.73621
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:33:04.406799+00:00",
+              "elapsed_seconds": 0.736435
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:33:04.406811+00:00",
+              "elapsed_seconds": 0.736444
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:33:04.406863+00:00",
+              "elapsed_seconds": 0.736496
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:33:04.406870+00:00",
+              "elapsed_seconds": 0.736503
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:33:05.052176+00:00",
+              "elapsed_seconds": 1.381823
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:33:05.052494+00:00",
+              "elapsed_seconds": 1.382126
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:33:05.610248+00:00",
+              "elapsed_seconds": 1.939891
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:33:05.611328+00:00",
+              "elapsed_seconds": 1.940965
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:33:05.611372+00:00",
+              "elapsed_seconds": 1.941005
+            }
+          ],
+          "bytes_read": 110460,
+          "body_complete": true,
+          "body_sha256": "0dc6a52351dd3886ee5769696cc8cd32a68807bb23a1d3486b60ff70aee3003c",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 110460,
+          "decoded_bytes_read": 110460,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "0dc6a52351dd3886ee5769696cc8cd32a68807bb23a1d3486b60ff70aee3003c",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:33:05.052430+00:00",
+          "headers_elapsed_seconds": 1.382064,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:33:05.612115+00:00",
+          "finished_at": "2026-10-18T19:33:05.612825+00:00",
+          "elapsed_seconds": 1.942461,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:33:05.612866+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+        "url_sha256": "75865a884af31279cf83e9dbca465abea3110f29a0a8a2ecd6cd78fe2f563fbf",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 110460
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T19:33:05.904552+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-enemies",
+        "url_sha256": "a425dc0cd31816c5e53c353b4fa8ce6b99268a75920c06bef5bc05ba5246be9f",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T19:33:07.237385+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-enemies",
+        "url_sha256": "a425dc0cd31816c5e53c353b4fa8ce6b99268a75920c06bef5bc05ba5246be9f",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 4
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T19:33:07.237407+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-enemies",
+        "url_sha256": "a425dc0cd31816c5e53c353b4fa8ce6b99268a75920c06bef5bc05ba5246be9f",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T19:33:07.237559+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-enemies",
+        "url_sha256": "a425dc0cd31816c5e53c353b4fa8ce6b99268a75920c06bef5bc05ba5246be9f",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T19:33:07.237554+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T19:33:07.425772+00:00",
+              "elapsed_seconds": 0.188241
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T19:33:07.430879+00:00",
+              "elapsed_seconds": 0.193334
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T19:33:07.430929+00:00",
+              "elapsed_seconds": 0.193379
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T19:33:08.131870+00:00",
+              "elapsed_seconds": 0.894322
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T19:33:08.133120+00:00",
+              "elapsed_seconds": 0.895572
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:33:08.133333+00:00",
+              "elapsed_seconds": 0.895783
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T19:33:08.133342+00:00",
+              "elapsed_seconds": 0.89579
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T19:33:08.133387+00:00",
+              "elapsed_seconds": 0.895835
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T19:33:08.133392+00:00",
+              "elapsed_seconds": 0.89584
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T19:33:08.796483+00:00",
+              "elapsed_seconds": 1.558943
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T19:33:08.796796+00:00",
+              "elapsed_seconds": 1.559245
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T19:33:08.885449+00:00",
+              "elapsed_seconds": 1.647907
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T19:33:08.886601+00:00",
+              "elapsed_seconds": 1.649053
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T19:33:08.886642+00:00",
+              "elapsed_seconds": 1.64909
+            }
+          ],
+          "bytes_read": 175182,
+          "body_complete": true,
+          "body_sha256": "e28462d804b5a5a9b6d77521498c8f6f8e62f73c415d23a64c1dda18facbf7c8",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 175182,
+          "decoded_bytes_read": 175182,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "e28462d804b5a5a9b6d77521498c8f6f8e62f73c415d23a64c1dda18facbf7c8",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T19:33:08.796732+00:00",
+          "headers_elapsed_seconds": 1.559181,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T19:33:08.887427+00:00",
+          "finished_at": "2026-10-18T19:33:08.888089+00:00",
+          "elapsed_seconds": 1.650539,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T19:33:08.888131+00:00",
+        "host": "www.techwithtim.net",
+        "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-enemies",
+        "url_sha256": "a425dc0cd31816c5e53c353b4fa8ce6b99268a75920c06bef5bc05ba5246be9f",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 175182
+      }
+    ],
+    "truncated": false,
+    "scope": "target HTML/XML+robots only; DoH HTTP separately traced for official discovery"
+  }
+}

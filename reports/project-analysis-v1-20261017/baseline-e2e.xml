@@ -1,0 +1,105 @@
+<testsuites id="" name="" tests="29" failures="0" skipped="0" errors="1" time="57.874652000000005">
+<testsuite name="search.spec.ts" timestamp="2026-10-17T08:09:59.109Z" hostname="chromium" tests="29" failures="0" skipped="0" time="54.347" errors="1">
+<testcase name="平台筛选能显示全平台前五名之外的课程" classname="search.spec.ts" time="0.759">
+</testcase>
+<testcase name="未配置状态、必填和知识点预算校验；无假结果" classname="search.spec.ts" time="0.601">
+</testcase>
+<testcase name="多知识点提交、分组筛选、简洁占位封面与安全原平台外链" classname="search.spec.ts" time="2.694">
+</testcase>
+<testcase name="正常无结果区别于服务失败" classname="search.spec.ts" time="0.405">
+</testcase>
+<testcase name="全部服务失败不会降级为预设课程" classname="search.spec.ts" time="0.494">
+</testcase>
+<testcase name="部分失败保留结果、任务中断如实显示" classname="search.spec.ts" time="0.707">
+</testcase>
+<testcase name="移动端无横向溢出，表单可用" classname="search.spec.ts" time="0.545">
+</testcase>
+<testcase name="请求出错明确显示错误" classname="search.spec.ts" time="0.562">
+</testcase>
+<testcase name="封面按来源图片展示，加载失败回退；点击入口保留原平台地址" classname="search.spec.ts" time="0.611">
+</testcase>
+<testcase name="目录仅用于最多两条知识点匹配章节，标题转义且不展示播放器或完整目录" classname="search.spec.ts" time="0.694">
+</testcase>
+<testcase name="同课程在不同知识点分组只能展示当前组匹配章节" classname="search.spec.ts" time="0.536">
+</testcase>
+<testcase name="目录逐行身份和数值校验拒绝交叉引用、篡改与非法时长" classname="search.spec.ts" time="0.552">
+</testcase>
+<testcase name="缺少目录证据保持章节待定位，未知资源不进入课程视频推荐" classname="search.spec.ts" time="0.635">
+</testcase>
+<testcase name="推荐区只列课程视频，平台筛选不会把文字资料与未知类型当成课程" classname="search.spec.ts" time="0.568">
+</testcase>
+<testcase name="采集失败不伪造章节，异常说明折叠保留且搜索候选仍可去原平台" classname="search.spec.ts" time="0.651">
+</testcase>
+<testcase name="取消执行中的任务只发一次请求，保留结果并停止轮询" classname="search.spec.ts" time="2.507">
+</testcase>
+<testcase name="重复提交锁与后端复用原任务提示" classname="search.spec.ts" time="0.516">
+</testcase>
+<testcase name="创建超时重试沿用幂等key，明确重新检索使用新key" classname="search.spec.ts" time="0.642">
+</testcase>
+<testcase name="取消后新任务不会被迟到的旧轮询覆盖" classname="search.spec.ts" time="30.11">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|baseline-e2e-artifacts\search-取消后新任务不会被迟到的旧轮询覆盖-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|baseline-e2e-artifacts\search-取消后新任务不会被迟到的旧轮询覆盖-chromium\error-context.md]]
+
+[[ATTACHMENT|baseline-e2e-artifacts\search-取消后新任务不会被迟到的旧轮询覆盖-chromium\trace.zip]]
+]]>
+</system-out>
+<error message="Test timeout of 30000ms exceeded." type="Error">
+<![CDATA[  [chromium] › search.spec.ts:433:1 › 取消后新任务不会被迟到的旧轮询覆盖 ────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '取消', exact: true })
+
+
+      449 |   await page.goto('/?job=test-job');
+      450 |   await expect.poll(() => resultCalls).toBeGreaterThanOrEqual(1);
+    > 451 |   await page.getByRole('button', { name: '取消', exact: true }).click();
+          |                                                               ^
+      452 |   await expect(page.locator('.job-status')).toHaveText('任务已取消');
+      453 |   await page.getByLabel('知识点', { exact: true }).fill('新任务');
+      454 |   await page.getByRole('button', { name: '开始查找' }).click();
+        at D:\项目制知识引导小精灵\frontend\tests\search.spec.ts:451:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\reports\project-analysis-v1-20261017\baseline-e2e-artifacts\search-取消后新任务不会被迟到的旧轮询覆盖-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\reports\project-analysis-v1-20261017\baseline-e2e-artifacts\search-取消后新任务不会被迟到的旧轮询覆盖-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\reports\project-analysis-v1-20261017\baseline-e2e-artifacts\search-取消后新任务不会被迟到的旧轮询覆盖-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\reports\project-analysis-v1-20261017\baseline-e2e-artifacts\search-取消后新任务不会被迟到的旧轮询覆盖-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</error>
+</testcase>
+<testcase name="轮询任一请求失败会及时取消同轮兄弟请求" classname="search.spec.ts" time="2.555">
+</testcase>
+<testcase name="取消请求失败保持未确认状态，不假装取消成功" classname="search.spec.ts" time="0.57">
+</testcase>
+<testcase name="任务已自然结束时取消返回原终态，不覆盖为cancelled" classname="search.spec.ts" time="0.621">
+</testcase>
+<testcase name="来源说明折叠保留平台条款，不展示内部采集配置或宣称播放已验证" classname="search.spec.ts" time="0.797">
+</testcase>
+<testcase name="取得的目录证据可参与章节定位，内部渲染诊断不进入课程卡片" classname="search.spec.ts" time="0.529">
+</testcase>
+<testcase name="创建响应丢失后刷新可按原幂等key恢复已结束任务，确认后清除tab存储" classname="search.spec.ts" time="1.419">
+</testcase>
+<testcase name="刷新后的不同需求不会使用旧幂等key，清除入口不会请求取消" classname="search.spec.ts" time="0.914">
+</testcase>
+<testcase name="弱证据保留待核标记，平台切换不能把预约或相邻概念提升为推荐" classname="search.spec.ts" time="0.726">
+</testcase>
+<testcase name="复合点候选保留部分匹配，筛选去重限额有效且不展示内部覆盖报表" classname="search.spec.ts" time="0.878">
+</testcase>
+<testcase name="不借其他资源的证据补足子项，缺少支持记录保持待核且隐藏内部理由" classname="search.spec.ts" time="0.549">
+</testcase>
+</testsuite>
+</testsuites>

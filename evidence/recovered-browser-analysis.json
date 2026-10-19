@@ -1,0 +1,193 @@
+{
+  "checked_at": "2026-10-18",
+  "source": "persisted real browser request before interruption",
+  "project_id": "ab770d92-ddc7-495e-b17b-db218718139d",
+  "version": 2,
+  "status": "analyzed",
+  "analysis": {
+    "scope": "本项目是在本机运行的 Python 图形接球小游戏：方向键控制挡板，小球持续下落，接住加分，漏接结束，按空格重新开始；不包含登录、联网、数据库或部署。",
+    "technical_plan": "建议只使用 pygame 作为图形与输入方案（这是可修改假设）：创建固定窗口和 60 FPS 主循环；用 Rect 表示挡板、球与边界，pygame.key.get_pressed 处理持续移动，colliderect 判定接球，score 整数记录分数，game_over 布尔量控制结束，空格键触发 reset。字体渲染显示分数与结束提示。所有代码在本机脚本中运行，不引入账号、网络或云服务。",
+    "assumptions": [
+      "图形库默认采用 pygame，可改为 tkinter；更换技术栈后应重新生成学习点。",
+      "窗口大小 800×600、60 FPS、挡板与球速作为可调常量，不影响需求范围。",
+      "当前按零项目经验的初学者设计，只假定基础 Python 语法。",
+      "仅在本机运行，不增加账号、排行榜、数据库、联网或部署功能。"
+    ],
+    "learner_profile": {
+      "student_level": "beginner",
+      "assumed_knowledge": [
+        "能运行简单的 Python 脚本",
+        "知道变量、if 条件、while 循环和函数的基本写法",
+        "没有完整的图形小游戏项目经验"
+      ],
+      "adjustment_note": "当前按零项目经验的初学者设计，并假定只具备基础 Python 语法；你可以修改 student_level、项目上下文或技术方案后重新生成。"
+    },
+    "functions": [
+      {
+        "id": "f1",
+        "name": "本地游戏窗口与实时画面循环",
+        "original_requirement": "用 Python 在本机做一个图形小游戏。",
+        "acceptance_criteria": "运行脚本后出现游戏窗口，窗口按固定帧率刷新，点击关闭按钮能正常退出。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "f2",
+        "name": "方向键控制挡板左右移动",
+        "original_requirement": "方向键移动挡板",
+        "acceptance_criteria": "按住左/右方向键时挡板连续移动，松开后停止；挡板不能移出窗口左右边界。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "f3",
+        "name": "小球下落、接住判定与加分",
+        "original_requirement": "接住下落的小球，接到后加分",
+        "acceptance_criteria": "小球从顶部持续下落；挡板接住球时分数加 1 并更新显示，小球从顶部重新下落；未接触挡板的球不计分。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "f4",
+        "name": "漏接结束与空格重新开始",
+        "original_requirement": "漏接则游戏结束，按空格可以重新开始。",
+        "acceptance_criteria": "球越过窗口底部且未被接住时显示游戏结束并停止下落；按空格后分数清零、挡板和球复位并重新开始。",
+        "no_new_learning_reason": null
+      }
+    ],
+    "knowledge_points": [
+      {
+        "id": "k1",
+        "name": "pygame 窗口、绘制与游戏主循环",
+        "description": "学习用 pygame 初始化窗口、建立固定帧率循环，并在每帧清屏、绘制挡板和小球。",
+        "function_ids": [
+          "f1"
+        ],
+        "why_needed": "没有窗口与主循环，方向键、下落和碰撞都无处发生。",
+        "learning_goal": "理解游戏循环按“处理事件→更新状态→绘制”重复运行。",
+        "project_task": "创建 800×600 窗口，画出挡板矩形和小球圆形，加入关闭事件并稳定刷新。",
+        "concepts": [
+          "pygame 初始化与窗口",
+          "Rect 坐标与尺寸",
+          "while 主循环与 clock.tick",
+          "清屏、绘制与退出事件"
+        ],
+        "practice_check": "运行脚本能看到静态挡板和小球，窗口不闪退，点击关闭按钮可退出。",
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 1,
+        "selection": "learn"
+      },
+      {
+        "id": "k2",
+        "name": "pygame 键盘状态与挡板边界移动",
+        "description": "用按键状态控制挡板每帧左右移动，并用边界钳制避免挡板移出窗口。",
+        "function_ids": [
+          "f2"
+        ],
+        "why_needed": "方向键控制需要持续响应按住状态，而不是只响应一次按下事件。",
+        "learning_goal": "学会把键盘输入转换为每帧位置更新与边界约束。",
+        "project_task": "读取左右方向键状态，按固定速度移动挡板，限制其 x 坐标在窗口内。",
+        "concepts": [
+          "pygame.key.get_pressed",
+          "每帧位移",
+          "x 坐标更新",
+          "边界钳制"
+        ],
+        "practice_check": "按住右键挡板平滑右移，到右边缘停止；松键停止，左移同理。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "learning_order": 2,
+        "selection": "learn"
+      },
+      {
+        "id": "k3",
+        "name": "Rect 碰撞检测与接球判定",
+        "description": "用矩形碰撞检测判断小球是否碰到挡板，并在接住后重置球的下落位置。",
+        "function_ids": [
+          "f3"
+        ],
+        "why_needed": "接球与漏接的区分依赖每帧碰撞和越界判断。",
+        "learning_goal": "理解碰撞检测的时机与小球接住后的状态变化。",
+        "project_task": "为球和挡板建立 Rect，更新球的下落坐标，检测与挡板的重叠并在接住时让球回到顶部。",
+        "concepts": [
+          "pygame.Rect",
+          "colliderect 碰撞检测",
+          "每帧坐标更新",
+          "接球后重置球"
+        ],
+        "practice_check": "让球落到挡板上能看到接住效果并重新从顶部下落；球从挡板旁落下时不会误判。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "learning_order": 3,
+        "selection": "learn"
+      },
+      {
+        "id": "k4",
+        "name": "分数状态与文字渲染",
+        "description": "用分数状态变量记录接球次数，并把分数渲染到窗口上。",
+        "function_ids": [
+          "f3"
+        ],
+        "why_needed": "需求要求接到球后加分，玩家需要看到分数变化。",
+        "learning_goal": "学会区分“碰撞事件”与“累计分数”，并用字体显示状态。",
+        "project_task": "每次接住球将 score 加 1，只加一次，并用 pygame.font 在左上角绘制分数。",
+        "concepts": [
+          "score 状态变量",
+          "pygame.font 字体渲染",
+          "blit 绘制文字",
+          "接球计分一次"
+        ],
+        "practice_check": "初始显示 0 分，接住一个球后显示 1 分且不重复累加。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k3"
+        ],
+        "learning_order": 4,
+        "selection": "learn"
+      },
+      {
+        "id": "k5",
+        "name": "游戏结束状态与空格重置",
+        "description": "用 game_over 状态处理漏接结束，显示结束提示，并让空格键执行完整重置。",
+        "function_ids": [
+          "f4"
+        ],
+        "why_needed": "漏接结束和重新开始是需求规定的完整游戏流程。",
+        "learning_goal": "理解游戏状态切换以及初始化和重置函数的作用。",
+        "project_task": "检测球越过底部未被接住，停止游戏并显示结束提示；按空格重置分数、挡板位置、球位置和状态。",
+        "concepts": [
+          "game_over 布尔状态",
+          "漏接与越界判定",
+          "空格键事件处理",
+          "reset 初始化函数"
+        ],
+        "practice_check": "故意漏接后看到结束提示且游戏停止；按空格后分数归零、挡板居中、球重新下落。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k1",
+          "k2",
+          "k3",
+          "k4"
+        ],
+        "learning_order": 5,
+        "selection": "learn"
+      }
+    ]
+  },
+  "input": {
+    "name": "Python 接球小游戏",
+    "requirements": "用 Python 在本机做一个图形小游戏。方向键移动挡板，接住下落的小球，接到后加分，漏接则游戏结束，按空格可以重新开始。不需要登录或联网。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "error": null
+}

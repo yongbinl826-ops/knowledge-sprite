@@ -1,0 +1,210 @@
+{
+  "classification": "synthetic_non_sensitive_inputs",
+  "standards": {
+    "scope": "Four synthetic, previously unseen projects and three learner stages; no video-search submission by this script.",
+    "coverage": "Every stated behavior needs a concrete implementing unit or useful prerequisite. Keyword observations only flag areas for manual review.",
+    "granularity": "One coherent buildable subtask per unit, not a full language course or isolated syntax. Four to eight units is a soft observation range; fewer is acceptable when prior knowledge justifies it.",
+    "prerequisites": "No cycles or missing references, prerequisites earlier, and manual verification of genuinely necessary skills.",
+    "relevance": "Per-unit tool matches the chosen approach; no unrelated mandatory features or generic tutorials substituting for project skills. A tool field is not video-coverage evidence.",
+    "technical_accuracy": "No unresolved high/medium behavioral contradiction in manual review. Hardware review is static, not execution validation.",
+    "background": "Honor exact requested stage and actual stated experience; do not equate advanced with knowledge of an unfamiliar library.",
+    "latency": {
+      "client_goal_seconds": 60,
+      "client_failure_threshold_seconds": 90,
+      "p95_limit_seconds": 90,
+      "observation_deadline_seconds": 150
+    },
+    "bounds": {
+      "max_analysis_api_submissions": 4,
+      "max_program_provider_attempts_per_analysis": 2,
+      "external_search_submissions": 0
+    },
+    "pass_policy": "All four complete with manual rubric passed and no known high/medium issue. Report latency goal misses and failures separately; never convert a keyword hit into a semantic pass."
+  },
+  "cases": [
+    {
+      "id": "web_pomodoro_beginner",
+      "input": {
+        "name": "离线番茄钟学习网页",
+        "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "coverage": [
+        [
+          "页面状态与可访问按钮",
+          "按钮|语义|键盘|button|accessib"
+        ],
+        [
+          "倒计时与后台时间准确性",
+          "时间戳|截止|deadline|date\\.now|performance\\.now|实际.{0,8}时间|目标.{0,5}时间"
+        ],
+        [
+          "暂停继续重置",
+          "暂停|继续|重置|pause|resume|reset"
+        ],
+        [
+          "阶段切换与完成次数",
+          "阶段|专注|休息|phase|session"
+        ],
+        [
+          "手机与键盘",
+          "响应式|窄屏|手机|键盘|responsive|keyboard"
+        ]
+      ],
+      "manual_checks": [
+        "暂停后剩余时长不再下降，继续后应基于新的截止时间恢复。",
+        "后台标签页计时用实际时钟而不是定时回调次数；允许回前台后重算。",
+        "阶段完成只累计一次，进入下一阶段后暂停，不自动连续启动。",
+        "不把尚未学过的事件/时间 API 误当已有经验，不添加通知权限或后端。"
+      ]
+    },
+    {
+      "id": "bicycle_csv_advanced",
+      "input": {
+        "name": "共享单车出行 CSV 分析报告",
+        "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+        "student_level": "advanced",
+        "language": "zh",
+        "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "coverage": [
+        [
+          "载入与去重审计",
+          "read_csv|去重|duplicat"
+        ],
+        [
+          "时间解析与无效行",
+          "to_datetime|时间.{0,5}解析|无效|invalid"
+        ],
+        [
+          "分钟时长",
+          "分钟|total_seconds|duration|时长"
+        ],
+        [
+          "出发小时计数",
+          "小时|\\.dt\\.hour|hour|分组|groupby"
+        ],
+        [
+          "出发站Top10与图标签",
+          "top.?10|前.?10|前十|条形|bar|nlargest"
+        ],
+        [
+          "CSV及PNG导出",
+          "to_csv|savefig|导出|png"
+        ]
+      ],
+      "manual_checks": [
+        "缺失/无法解析时间及结束早于开始的行有可审计处理，不混入有效行时长。",
+        "分钟时长采用时间差总秒数/60，避免使用忽略天数的 seconds 属性。",
+        "小时口径为出发小时；站点Top10按次数排序，CSV与图来自相同有效数据。",
+        "尊重已有 Python/统计基础，同时教授首次使用 pandas/Matplotlib 必需API。"
+      ]
+    },
+    {
+      "id": "arduino_reaction_beginner",
+      "input": {
+        "name": "Arduino LED 按钮反应时间小游戏",
+        "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "coverage": [
+        [
+          "安全低压LED按钮接线",
+          "限流|电阻|极性|共地|断电|resistor|wiring"
+        ],
+        [
+          "INPUT_PULLUP低电平输入",
+          "INPUT_PULLUP|低电平|上拉|pull.up"
+        ],
+        [
+          "去抖与单次按下",
+          "去抖|边沿|按下沿|debounc|edge"
+        ],
+        [
+          "随机等待与非阻塞计时",
+          "millis|非阻塞|时间差|non.block"
+        ],
+        [
+          "抢按与状态转换",
+          "抢按|状态|false.start|state"
+        ],
+        [
+          "反应毫秒与串口结果",
+          "反应|毫秒|串口|serial|reaction"
+        ]
+      ],
+      "manual_checks": [
+        "按钮接地且INPUT_PULLUP按下为LOW；LED串联限流电阻，共地、断电接线。",
+        "随机等待用millis/状态机，不用阻塞delay；等待时也持续检测抢按。",
+        "去抖后检测一次按下边沿，长按不被用作结束旧轮并重复开始新轮。",
+        "反应时间从实际亮灯时刻起算；每轮清理计时和判定状态。"
+      ]
+    },
+    {
+      "id": "pygame_maze_intermediate",
+      "input": {
+        "name": "pygame 单屏迷宫寻出口",
+        "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "coverage": [
+        [
+          "二维地图与网格映射",
+          "二维|网格|行列|tile|grid"
+        ],
+        [
+          "逐格输入与墙边界阻挡",
+          "KEYDOWN|逐格|墙|越界|碰撞|wall"
+        ],
+        [
+          "出口胜利状态",
+          "出口|胜利|状态|win|state"
+        ],
+        [
+          "真实耗时与帧率",
+          "get_ticks|tick|真实时间|时间差|帧率|elapsed"
+        ],
+        [
+          "R重置与退出事件",
+          "重置|复位|reset|退出|quit"
+        ]
+      ],
+      "manual_checks": [
+        "先校验目标行列边界再访问二维列表，并检查墙；不把像素坐标与格坐标混淆。",
+        "单次KEYDOWN移动一格，避免每帧连续按键造成一按跨多格。",
+        "耗时按真实时钟差计算，与帧率限制分开；胜利后冻结最终耗时。",
+        "胜利/开始前保持事件和绘制，R重置位置/计时/胜利状态，退出始终可用。"
+      ]
+    }
+  ]
+}

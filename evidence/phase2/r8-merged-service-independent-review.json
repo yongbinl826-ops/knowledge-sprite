@@ -1,0 +1,145 @@
+{
+  "created_at": "2026-10-18T20:12:35.086987+00:00",
+  "mode": "independent_static_merged_service_and_query_review",
+  "network_requests": 0,
+  "model_requests": 0,
+  "database_reads": 0,
+  "database_writes": 0,
+  "source_or_test_changes": false,
+  "only_evidence_file_written": "evidence/phase2/r8-merged-service-independent-review.json",
+  "production_acceptance_pass": null,
+  "live_search_acceptance_pass": null,
+  "not_a_test_run": true,
+  "integration_manifest": "evidence\\phase2\\r8-integration.json",
+  "integration_manifest_sha256": "e9eecd80cbf1efbd80cab69aecfde167a80959d32a258cc113491fa385d8fc99",
+  "frozen_api_priority_manifest": "tmp\\phase2-probe-priority-patch\\manifest.json",
+  "frozen_api_priority_manifest_sha256": "41322efe6c826d5a009980ea428fa164c2bb2b4aa0c2586c7c620bd062e96bd4",
+  "files": {
+    "backend/app/service.py": {
+      "actual_sha256": "e71fc13d86e78f89c51607422cbf0292282adfec719a944ec4af129c24c6c782",
+      "integration_expected_sha256": "e71fc13d86e78f89c51607422cbf0292282adfec719a944ec4af129c24c6c782",
+      "matches_integration": true
+    },
+    "backend/app/probe_priority.py": {
+      "actual_sha256": "55098e385ff54f1a1a63660123d4f2731e3e62536e1c4b193df51e34303a05a1",
+      "integration_expected_sha256": "55098e385ff54f1a1a63660123d4f2731e3e62536e1c4b193df51e34303a05a1",
+      "matches_integration": true
+    },
+    "backend/app/queries.py": {
+      "actual_sha256": "54382ed29b30599791b84a91c58eabdc7970b4172d474547b9e1754dc0080d53",
+      "integration_expected_sha256": "54382ed29b30599791b84a91c58eabdc7970b4172d474547b9e1754dc0080d53",
+      "matches_integration": true
+    }
+  },
+  "methods_ast_comparison": [
+    {
+      "method": "_targeted_catalog_probe",
+      "baseline_ast_sha256": "f8a585730c6c1af87602e104dd9640a22d993e5d823b505d3433c578866e02ac",
+      "merged_ast_sha256": "f8a585730c6c1af87602e104dd9640a22d993e5d823b505d3433c578866e02ac",
+      "unchanged": true
+    },
+    {
+      "method": "_gap_catalog_probe",
+      "baseline_ast_sha256": "a8fa2bf9d846d33809dc9888c82ed040966bbd2bc1fb728703137b4b3b8683a0",
+      "merged_ast_sha256": "a8fa2bf9d846d33809dc9888c82ed040966bbd2bc1fb728703137b4b3b8683a0",
+      "unchanged": true
+    },
+    {
+      "method": "_probe_owner_in_title",
+      "baseline_ast_sha256": "99f732263583e477dbd643d551a05abeb686b721234bd0d04ce6b8963e7556a2",
+      "merged_ast_sha256": "99f732263583e477dbd643d551a05abeb686b721234bd0d04ce6b8963e7556a2",
+      "unchanged": true
+    },
+    {
+      "method": "_public_catalog_probe",
+      "baseline_ast_sha256": "4abfb823cd857a5162f6a37b2becabb86fe7965f3ab042980aaf27127c1f4152",
+      "merged_ast_sha256": "4abfb823cd857a5162f6a37b2becabb86fe7965f3ab042980aaf27127c1f4152",
+      "unchanged": true
+    },
+    {
+      "method": "_run_details",
+      "baseline_ast_sha256": "fa4215cd245d9217389b1d493efac29c56389c361ddd4860a637f20a3cfb9379",
+      "merged_ast_sha256": "fa4215cd245d9217389b1d493efac29c56389c361ddd4860a637f20a3cfb9379",
+      "unchanged": true
+    },
+    {
+      "method": "_enrich_one",
+      "baseline_ast_sha256": "3ae04fd2745d48606b6adaae2d538b055b0b1069db7ebd9193a5838c149a9e6b",
+      "merged_ast_sha256": "3ae04fd2745d48606b6adaae2d538b055b0b1069db7ebd9193a5838c149a9e6b",
+      "unchanged": true
+    }
+  ],
+  "merged_detail_queue_ast_sha256": "4b4c7c163860b5545e116f86aad7a8833bcad7591e78075273217a080db9e093",
+  "entry_tuple_shapes": [
+    {
+      "element_count": 5,
+      "expression": "(False, evidenced_topic, has_learning_evidence(resource, evidence), provisional['ranking_score'], rid)"
+    },
+    {
+      "element_count": 5,
+      "expression": "(True, False, True, relevance(point['text'], resource.get('title') or ''), rid)"
+    },
+    {
+      "element_count": 5,
+      "expression": "(True, False, True, relevance(point['text'], resource.get('title') or ''), rid)"
+    },
+    {
+      "element_count": 5,
+      "expression": "(True, False, False, 1, rid)"
+    },
+    {
+      "element_count": 5,
+      "expression": "(False, False, False, 1, rid)"
+    }
+  ],
+  "manual_static_findings": [
+    {
+      "area": "admission_order",
+      "status": "pass",
+      "evidence": "service._detail_queues original first3 Boolean sort terms remain first: -item[0],-item[1],-item[2]. API title priority then public directory priority then original lexical relevance/rid tie. No new priority precedes admission classes.",
+      "limits": "This preserves existing category precedence, not a claim that every probe outranks or under-ranks every proved lesson under a new policy."
+    },
+    {
+      "area": "owner_and_type_gates",
+      "status": "pass",
+      "evidence": "API helper is called only inside admitted gap/targeted branches. Exact owner/type/video admission methods unchanged. Helper excludes other-point and public-directory observations, ignores query/snippet/body, and does not let foreign qualified namespaces borrow owner."
+    },
+    {
+      "area": "finite_probe_and_detail_budget",
+      "status": "pass",
+      "evidence": "targeted cap2; confirmed-target gap total cap4 using shared gap_probes_started (legacy cap2); public probe cap2 separate as before. _run_details and _enrich_one AST unchanged: reservation before dispatch, existing max_detail_pages and scheduling/accounting retained. No added/reserved slots."
+    },
+    {
+      "area": "query_before_sanitization_priority",
+      "status": "pass",
+      "evidence": "gap_query_candidates stably prioritizes missing values exactly equal to a confirmed target when concrete dotted/call/underscore/camel/kebab spelling is present, before safe_part. Original8raw/4parts/6query limits and URL/operator/unknown-expansion filters retained; queries bytes equal the frozen92-offline-tested proposal."
+    },
+    {
+      "area": "admitted_candidate_priority",
+      "status": "pass",
+      "evidence": "Within admitted non-public gap/targeted probe tier, literal candidate-title API/identifier priority is applied before original business-title relevance. Other entries use default numeric priorities. All entry tuples remain5 elements; ints/floats compare in the same key positions."
+    },
+    {
+      "area": "TWT_public_priority_merge",
+      "status": "pass",
+      "evidence": "Separate public branch stores bounded public_priority only. Helper requires same point, normalized same URL, public discovery kind and independent_detail_required=true; admission_result_index must be exact int0..5, otherwise bounded retained heading-match counts. No URL-word/query-derived teaching claim or new admission gate."
+    }
+  ],
+  "checks": {
+    "six_admission_and_accounting_methods_unchanged": true,
+    "all_five_entry_categories_keep_five_tuple_shape": true,
+    "merged_files_match_integration_sha": true,
+    "probe_helper_identical_to_frozen_stage": true,
+    "queries_identical_to_frozen_stage": true,
+    "frozen_revision2_package_files_unchanged": true
+  },
+  "static_review_pass": true,
+  "known_merge_blockers": [],
+  "limitations": [
+    "This file records static source/AST/SHA review only; no pytest, generated student project, browser, video playback, hardware or real-provider request was run.",
+    "Prior stage tests and root full regressions are separate evidence; this review does not reclassify their outcomes.",
+    "Actual Data/Web/other five-case source-and-target results must be independently reviewed after new terminal files are saved.",
+    "Original r6/r7 terminal runs and frozen revision2 package/manifest are unchanged.",
+    "No production readiness or real recommendation acceptance is established by matching code hashes."
+  ]
+}

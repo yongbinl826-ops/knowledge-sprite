@@ -1,0 +1,317 @@
+{
+  "kind": "independent_student_review_proposal_not_posted",
+  "case_id": "web_pomodoro_beginner",
+  "source": {
+    "path": "tmp/phase3-work/evidence/phase3-live/web_pomodoro_beginner/project-view.json",
+    "retained_snapshot_path": "evidence/phase3-audit/observed-analysis-snapshots/final-r3-web_pomodoro_beginner-v7.json",
+    "sha256": "f01d47b68b80b38853d1b058eb296fdd9fba70ca981bec9e2cef52a5aee6d847",
+    "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+    "version": 7,
+    "prompt_version": "project-analysis-v3.2-scoped-loop-diagnostics"
+  },
+  "input": {
+    "name": "离线番茄钟学习网页",
+    "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "reason": "Restore essential transferable state modelling and centralized DOM rendering teaching goals for a beginner who only knows variables/if. They are currently required by the unit task/goal but missing from every learning_skills list, so formatting alone cannot cover the required learning.",
+  "changes": [
+    {
+      "pointer": "/knowledge_points/1/learning_skills",
+      "before": [
+        "用 Math.floor 和取模把总秒数格式化为分钟:秒",
+        "用补零方法统一两位数字显示"
+      ],
+      "after": [
+        "用 Math.floor 和取模把总秒数格式化为分钟:秒",
+        "用补零方法统一两位数字显示",
+        "JavaScript 用对象集中组织界面状态并读写属性",
+        "JavaScript 编写渲染函数，用 textContent 集中更新多处界面文本"
+      ]
+    }
+  ],
+  "skill_design": "Keep the original floor/modulo and padding goals. Add two independently teachable, complementary methods: object-based UI state organization, and render-function text updates. These form one coherent state-to-display subtask; neither is an isolated variable or syntax fragment, and separate source lessons may cover them. No source must reproduce the timer, project field names or durations.",
+  "analysis": {
+    "scope": "用 HTML、CSS、JavaScript 构建一个纯本地、离线运行的番茄钟网页：专注固定 25 分钟、休息固定 5 分钟，支持开始、暂停、继续、重置；倒计时结束自动切换到下一阶段并保持暂停，等待用户手动开始；每完成一个专注阶段，完成次数加 1；切换浏览器标签页后再回来，剩余时间必须基于真实时间戳重新计算，不能只依赖 setInterval 每次减 1；页面显示当前阶段、剩余时间和已完成次数；窄屏手机可用，所有按钮可通过键盘操作。不含账号、联网、通知、音效或后端。",
+    "technical_plan": "单页 HTML + 外部 CSS + 外部 JS 三个文件本地打开即可运行，不使用任何框架或构建工具（如需可换成单文件）。状态用一个对象保存：stage（focus/break）、remainingMs（暂停时的剩余毫秒数）、endTime（运行中目标结束时间戳）、running（是否运行中）、completedFocus（已完成专注次数）。开始/继续时用 endTime = Date.now() + remainingMs，setInterval 仅作为约 200ms 的刷新触发器，每次回调都用 endTime - Date.now() 重算剩余量，因此切后台再回来仍准确。剩余 <= 0 时结算：专注阶段则次数 +1，切换到另一阶段并按固定时长设 remainingMs、running=false，暂停等待用户开始；休息结束则切回专注并暂停。按钮用原生 <button>，保证 Tab 聚焦与 Enter/Space 触发，焦点样式可见；用 aria-live 输出阶段与剩余时间变化。布局用 CSS 媒体查询适配窄屏，按钮尺寸适合触摸。",
+    "assumptions": [
+      "计时精度与刷新粒度由 Date.now() 时间戳决定，setInterval 只是刷新触发器，约 200ms 刷新一次用于显示。",
+      "阶段结束时采用“自动切换阶段 + 暂停等待用户点击开始”的策略，不自动开始下一阶段。",
+      "完成次数只统计专注阶段，每完成一次专注（25 分钟自然走完）加 1；重置是否清零次数可由学生决定，默认重置会清零并把状态回到专注阶段初始暂停。",
+      "25 分钟与 5 分钟以常量写在 JS 中（如 25*60*1000），修改只需改这两处。",
+      "页面设计为可离线打开，不引入 CDN 依赖；如需可把三个文件合并为一个 HTML。"
+    ],
+    "learner_profile": {
+      "student_level": "beginner",
+      "assumed_knowledge": [
+        "基础 HTML 标签与结构（div、button、标题）",
+        "基础 CSS 选择器与简单样式",
+        "JavaScript 变量声明与 if 条件判断"
+      ],
+      "adjustment_note": "当前按零完整交互项目经验的初学者设计，单元从最小可验证小成果逐步推进到完整番茄钟；你可以修改学习阶段、项目背景或技术选择后重新生成，单元数量与难度会随之调整。"
+    },
+    "functions": [
+      {
+        "id": "f1",
+        "name": "阶段与剩余时间显示",
+        "original_requirement": "显示当前阶段、剩余时间和已完成次数",
+        "acceptance_criteria": "页面同时显示阶段名（专注/休息）、mm:ss 格式剩余时间和已完成次数，值随计时变化更新。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "f2",
+        "name": "固定阶段时长与时间格式化",
+        "original_requirement": "专注固定25分钟、休息固定5分钟",
+        "acceptance_criteria": "专注阶段剩余从 25:00 递减，休息阶段从 05:00 递减；剩余时间始终以 mm:ss 两位显示。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "f3",
+        "name": "开始/暂停/继续/重置",
+        "original_requirement": "能开始、暂停、继续和重置",
+        "acceptance_criteria": "点击开始后倒计时递减；暂停后数值停止变化；继续从暂停处接着走；重置回到专注阶段 25:00 且处于暂停。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "f4",
+        "name": "基于时间戳的准确倒计时",
+        "original_requirement": "切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1",
+        "acceptance_criteria": "运行时切到别的标签页等待一段时间再回来，剩余时间按真实经过时间减少，而不是只少了一个刷新周期。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "f5",
+        "name": "阶段结束切换并暂停等待开始",
+        "original_requirement": "倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1",
+        "acceptance_criteria": "专注倒计时到 0 后切到休息 05:00 并暂停、完成次数 +1；休息到 0 后切回专注 25:00 并暂停，完成次数不变。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "f6",
+        "name": "窄屏适配与键盘可操作",
+        "original_requirement": "手机窄屏可用，键盘能操作所有按钮",
+        "acceptance_criteria": "在手机宽度下按钮和文字不溢出、可点击；所有按钮可用 Tab 聚焦、用 Enter 或 Space 触发，并有可见焦点样式。",
+        "no_new_learning_reason": null
+      }
+    ],
+    "knowledge_points": [
+      {
+        "id": "k1",
+        "name": "HTML 结构搭建与 DOM 元素选择",
+        "description": "用 HTML 搭出阶段、剩余时间、次数和四个按钮的结构，并用 querySelector 取到这些元素。",
+        "function_ids": [
+          "f1",
+          "f3"
+        ],
+        "why_needed": "后续所有脚本都要读写这些元素才能显示和交互。",
+        "learning_goal": "理解页面结构、元素 id/class 与脚本选中元素之间的关系。",
+        "technology": "HTML",
+        "project_task": "搭建番茄钟页面骨架：阶段显示区、mm:ss 时间显示区、次数显示区、开始/暂停/继续/重置按钮，并给脚本预留选择点。",
+        "concepts": [
+          "HTML 语义标签与 id 属性",
+          "document.querySelector 选择元素",
+          "按钮 <button> 而非 div 作为可操作控件"
+        ],
+        "learning_skills": [
+          "用 querySelector 与 querySelectorAll 选取 DOM 元素",
+          "为交互控件设置可读的 HTML 语义结构"
+        ],
+        "practice_check": "在页面加载后通过控制台能打印出取到的阶段、时间和四个按钮元素，说明选择器正确。",
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 1,
+        "selection": "learn"
+      },
+      {
+        "id": "k2",
+        "name": "JavaScript 状态对象与 mm:ss 格式化",
+        "description": "用变量保存阶段、剩余毫秒和完成次数，并把毫秒格式化成 mm:ss 显示。",
+        "function_ids": [
+          "f1",
+          "f2"
+        ],
+        "why_needed": "倒计时需要统一的状态来源和可读的时间显示。",
+        "learning_goal": "理解用状态变量驱动界面更新，以及整数除法和取模做时间格式化。",
+        "technology": "JavaScript",
+        "project_task": "定义阶段、剩余毫秒、完成次数变量，写一个渲染函数把当前状态写成阶段文字、mm:ss 与次数并更新到页面。",
+        "concepts": [
+          "状态变量：stage、remainingMs、completedFocus",
+          "Math.floor 与 % 计算分钟秒",
+          "补零显示 padStart(2,'0')",
+          "25*60*1000 与 5*60*1000 常量"
+        ],
+        "learning_skills": [
+          "用 Math.floor 和取模把总秒数格式化为分钟:秒",
+          "用补零方法统一两位数字显示",
+          "JavaScript 用对象集中组织界面状态并读写属性",
+          "JavaScript 编写渲染函数，用 textContent 集中更新多处界面文本"
+        ],
+        "practice_check": "把剩余毫秒设为任意值，调用渲染函数后页面显示正确的 mm:ss 与阶段文字。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "learning_order": 2,
+        "selection": "learn"
+      },
+      {
+        "id": "k3",
+        "name": "开始/暂停/继续/重置的按钮事件",
+        "description": "给四个按钮绑定点击事件，切换运行状态并更新显示，暂停时记录剩余量。",
+        "function_ids": [
+          "f3"
+        ],
+        "why_needed": "项目需要真正常用的控制逻辑，这是核心交互。",
+        "learning_goal": "理解事件监听与状态切换，弄清各按钮对状态的影响。",
+        "technology": "JavaScript",
+        "project_task": "实现 start/pause/resume/reset 四个处理函数：开始时进入运行，暂停时保存剩余毫秒并停止刷新，继续时从保存处接着走，重置回到专注 25:00 暂停。",
+        "concepts": [
+          "addEventListener('click', 处理函数)",
+          "布尔变量 running 表示是否在计时",
+          "暂停时把 remainingMs 存为当前剩余",
+          "重置：clearInterval 并恢复初值"
+        ],
+        "learning_skills": [
+          "用 addEventListener 绑定按钮点击事件并读取状态",
+          "用标志位控制计时器启停的流程"
+        ],
+        "practice_check": "依次点击开始、暂停、继续、重置，控制台打印的状态变量与页面显示一致，暂停期间内容不再变化。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k2"
+        ],
+        "learning_order": 3,
+        "selection": "learn"
+      },
+      {
+        "id": "k4",
+        "name": "Date.now 时间戳驱动倒计时",
+        "description": "用目标结束时间戳与当前时间差计算剩余毫秒，setInterval 只负责刷新显示，不承担计数。",
+        "function_ids": [
+          "f4",
+          "f2"
+        ],
+        "why_needed": "只有基于真实时间差，后台标签页回来后剩余时间才准确。",
+        "learning_goal": "理解为什么用时间戳差代替每次减 1，以及 setInterval 回调只是刷新触发器。",
+        "technology": "JavaScript",
+        "project_task": "把开始与继续改为计算 endTime = Date.now() + remainingMs，在 setInterval 回调中用 endTime - Date.now() 更新 remainingMs 并重新渲染。",
+        "concepts": [
+          "Date.now() 毫秒时间戳",
+          "endTime = Date.now() + remainingMs",
+          "setInterval(回调, 200) 只做刷新",
+          "剩余 = endTime - now，可能为负"
+        ],
+        "learning_skills": [
+          "用目标时间戳与当前时间差实现倒计时",
+          "把 setInterval 当作刷新触发器而不是计数器"
+        ],
+        "practice_check": "开始计时后切到其他标签页约 10 秒再回来，剩余时间比离开时少约 10 秒，而不是少一个刷新周期。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k3"
+        ],
+        "learning_order": 4,
+        "selection": "learn"
+      },
+      {
+        "id": "k5",
+        "name": "阶段结束判定与切换、次数累加",
+        "description": "在刷新回调里判断剩余是否 <= 0，专注结束则次数加 1 并切到休息，休息结束则切回专注，切换后都暂停。",
+        "function_ids": [
+          "f5",
+          "f4"
+        ],
+        "why_needed": "项目要求阶段结束自动切换并暂停等待开始，且专注完成次数加 1。",
+        "learning_goal": "理解边界判定、阶段切换顺序与暂停等待用户开始的状态设计。",
+        "technology": "JavaScript",
+        "project_task": "在每次刷新中判断剩余 <= 0：专注阶段时 completedFocus + 1 并切到休息 5 分钟，否则切回专注 25 分钟，然后 clearInterval、running=false 并渲染。",
+        "concepts": [
+          "remaining <= 0 作为结束边界",
+          "阶段切换：focus 与 break 互切",
+          "每次结算后清空计时器并置 running=false",
+          "切换后等待用户点击开始"
+        ],
+        "learning_skills": [
+          "用边界条件判断触发状态切换",
+          "在状态切换中统一延长或清空计时器避免重复结算"
+        ],
+        "practice_check": "把时长临时设为几秒，专心阶段走完后页面切到休息 05:00 并暂停、次数为 1；休息继续走完后切回专注 25:00、次数不变。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k4"
+        ],
+        "learning_order": 5,
+        "selection": "learn"
+      },
+      {
+        "id": "k6",
+        "name": "键盘可操作与 aria-live 状态播报",
+        "description": "保证所有按钮可用 Tab 聚焦、Enter/Space 触发，并用 aria-live 区域播报阶段与剩余时间变化。",
+        "function_ids": [
+          "f6",
+          "f1"
+        ],
+        "why_needed": "项目要求键盘能操作所有按钮，并让状态变化能被辅助技术感知。",
+        "learning_goal": "理解原生按钮与焦点管理对键盘可操作性的作用，以及 aria-live 如何播报更新。",
+        "technology": "HTML",
+        "project_task": "原生 <button> 承载全部操作，显示区加 aria-live=\"polite\"，补充 :focus-visible 焦点样式，并用 Tab 逐个验证。",
+        "concepts": [
+          "原生 button 自动支持 Tab 与 Enter/Space",
+          "CSS :focus-visible 可见焦点",
+          "aria-live=\"polite\" 播报文字变化"
+        ],
+        "learning_skills": [
+          "用原生按钮和焦点样式保证键盘可操作性",
+          "用 aria-live 让动态文字被读屏感知"
+        ],
+        "practice_check": "只用键盘依次 Tab 到四个按钮并用 Enter 或 Space 触发，页面正常响应且焦点始终可见。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "learning_order": 6,
+        "selection": "learn"
+      },
+      {
+        "id": "k7",
+        "name": "CSS 布局与窄屏媒体查询适配",
+        "description": "用 CSS 让阶段、时间、次数和按钮在手机窄屏下整齐排列、不溢出且可点按。",
+        "function_ids": [
+          "f6"
+        ],
+        "why_needed": "项目要求手机窄屏可用。",
+        "learning_goal": "理解视口宽度媒体查询和触摸友好的按钮尺寸。",
+        "technology": "CSS",
+        "project_task": "写基础布局样式，配合 @media (max-width: 480px) 调整字号与按钮排列，使窄屏下按钮换行或整行展示且不溢出。",
+        "concepts": [
+          "@media (max-width: 480px) 媒体查询",
+          "flex 布局与换行 flex-wrap",
+          "最小触摸尺寸与 max-width: 100%"
+        ],
+        "learning_skills": [
+          "用媒体查询调整窄屏下的布局与字号",
+          "用 flex 布局和换行避免内容横向溢出"
+        ],
+        "practice_check": "把浏览器宽度拖到约 375px 或使用手机模拟，按钮与文字完整显示、无横向滚动，各按钮均可点击。",
+        "necessity": "required",
+        "prerequisite_ids": [
+          "k1"
+        ],
+        "learning_order": 7,
+        "selection": "learn"
+      }
+    ]
+  },
+  "new_model_calls": 0,
+  "http_requests": 0,
+  "not_first_generation_pass": true,
+  "preserved": "Exact original input and every other analysis field, algorithm, scope, numerical boundary, unit ID/order/prerequisite and project practice check remain unchanged."
+}

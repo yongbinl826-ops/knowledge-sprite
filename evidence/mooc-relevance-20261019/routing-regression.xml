@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="63" time="10.085" timestamp="2026-10-19T17:57:26.969388+08:00" hostname="LAPTOP-UT2FMDJK"><testcase classname="tests.test_discovery_display" name="test_all_discovered_videos_are_visible_without_five_item_or_teaching_gate" time="0.009" /><testcase classname="tests.test_discovery_display" name="test_no_invented_type_cross_point_or_unavailable_candidates[unknown_type]" time="0.001" /><testcase classname="tests.test_discovery_display" name="test_no_invented_type_cross_point_or_unavailable_candidates[wrong_url]" time="0.001" /><testcase classname="tests.test_discovery_display" name="test_no_invented_type_cross_point_or_unavailable_candidates[wrong_point]" time="0.001" /><testcase classname="tests.test_discovery_display" name="test_no_invented_type_cross_point_or_unavailable_candidates[not_found]" time="0.001" /><testcase classname="tests.test_discovery_display" name="test_search_only_courses_are_kept_without_inventing_video_or_playback" time="0.004"><failure message="IndexError: list index out of range">def test_search_only_courses_are_kept_without_inventing_video_or_playback():
+        service, job = setup(1)
+        resource = service.store.resources(job["job_id"])["r0"]
+        resource.update(resource_type="course", fetch_status="not_fetched", metadata_evidence_level="search",
+                        video_evidence_status="none", url="https://www.icourse163.org/course/COURSE-123",
+                        canonical_url="https://www.icourse163.org/course/COURSE-123")
+        resource["field_provenance"]["resource_type"] = {"evidence_id": "course-search", "source": "url_pattern"}
+        service.store.save_resource(job["job_id"], resource)
+        point = job["knowledge_points"][0]
+        service.store.add_evidence(job["job_id"], "r0", point["knowledge_point_id"], {
+            "evidence_id": "course-search", "kind": "search", "source": "offline", "url": resource["url"],
+            "title": "QuillFlow course", "knowledge_point_id": point["knowledge_point_id"]})
+&gt;       row = service.results(job["job_id"])["groups"][0]["discovery_items"][0]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests\test_discovery_display.py:89: IndexError</failure></testcase><testcase classname="tests.test_discovery_display" name="test_future_search_skips_teaching_calls_and_reserves_no_teaching_budget" time="0.004" /><testcase classname="tests.test_discovery_display" name="test_default_and_restored_mode_remain_teaching_matching" time="0.011" /><testcase classname="tests.test_platform_provider_selection" name="test_exact_platform_queries_use_separate_sources_in_both_schedulers[False]" time="0.052"><failure message="AssertionError: assert {'bilibili'} == {'bilibili', 'icourse163'}&#10;  &#10;  Extra items in the right set:&#10;  'icourse163'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Users/xiaoer/AppData/Local/Temp/pytest-of-xiaoer/pytest-6268/test_exact_platform_queries_us0')
+parallel = False
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("parallel", [False, True])
+    async def test_exact_platform_queries_use_separate_sources_in_both_schedulers(tmp_path, parallel):
+        calls = []
+        def transport(request):
+            calls.append(request)
+            return respond(request)
+        settings = config(tmp_path, parallel_platform_search=parallel)
+        with closing(Store(settings.database_path)) as store:
+            async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
+                base, mooc = SearXNGProvider(settings, client), TavilyProvider(settings, client)
+                service = JobService(settings, store, provider=base, fetcher=NoFetch(),
+                                     provider_overrides={"tavily": mooc})
+                jid = service.create(search_request())["job_id"]
+                await service.run(jid)
+                attempts = store.attempts(jid)
+                assert any(r.url.host == "api.tavily.com" for r in calls)
+                assert any(r.url.host == "search.test" for r in calls)
+                assert all(a["provider"] == "tavily" for a in attempts if a["domain_filters"] == ["icourse163.org"])
+                assert all(a["provider"] == "searxng" for a in attempts if a["domain_filters"] == ["bilibili.com"])
+                assert all(r.url.params["engines"] == "video" for r in calls
+                           if r.url.host == "search.test" and "bilibili.com" in r.url.params["q"])
+                assert store.get_job(jid)["progress"]["search_requests"] == len(calls)
+                assert sum(len(a["provider_requests"]) for a in attempts) == len(calls)
+                platforms = {row["resource"]["platform"] for group in service.results(jid)["groups"]
+                             for row in group["discovery_items"]}
+&gt;               assert platforms == {"bilibili", "icourse163"}
+E               AssertionError: assert {'bilibili'} == {'bilibili', 'icourse163'}
+E                 
+E                 Extra items in the right set:
+E                 'icourse163'
+E                 Use -v to get more diff
+
+tests\test_platform_provider_selection.py:73: AssertionError</failure></testcase><testcase classname="tests.test_platform_provider_selection" name="test_exact_platform_queries_use_separate_sources_in_both_schedulers[True]" time="0.042"><failure message="AssertionError: assert {'bilibili'} == {'bilibili', 'icourse163'}&#10;  &#10;  Extra items in the right set:&#10;  'icourse163'&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Users/xiaoer/AppData/Local/Temp/pytest-of-xiaoer/pytest-6268/test_exact_platform_queries_us1')
+parallel = True
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("parallel", [False, True])
+    async def test_exact_platform_queries_use_separate_sources_in_both_schedulers(tmp_path, parallel):
+        calls = []
+        def transport(request):
+            calls.append(request)
+            return respond(request)
+        settings = config(tmp_path, parallel_platform_search=parallel)
+        with closing(Store(settings.database_path)) as store:
+            async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
+                base, mooc = SearXNGProvider(settings, client), TavilyProvider(settings, client)
+                service = JobService(settings, store, provider=base, fetcher=NoFetch(),
+                                     provider_overrides={"tavily": mooc})
+                jid = service.create(search_request())["job_id"]
+                await service.run(jid)
+                attempts = store.attempts(jid)
+                assert any(r.url.host == "api.tavily.com" for r in calls)
+                assert any(r.url.host == "search.test" for r in calls)
+                assert all(a["provider"] == "tavily" for a in attempts if a["domain_filters"] == ["icourse163.org"])
+                assert all(a["provider"] == "searxng" for a in attempts if a["domain_filters"] == ["bilibili.com"])
+                assert all(r.url.params["engines"] == "video" for r in calls
+                           if r.url.host == "search.test" and "bilibili.com" in r.url.params["q"])
+                assert store.get_job(jid)["progress"]["search_requests"] == len(calls)
+                assert sum(len(a["provider_requests"]) for a in attempts) == len(calls)
+                platforms = {row["resource"]["platform"] for group in service.results(jid)["groups"]
+                             for row in group["discovery_items"]}
+&gt;               assert platforms == {"bilibili", "icourse163"}
+E               AssertionError: assert {'bilibili'} == {'bilibili', 'icourse163'}
+E                 
+E                 Extra items in the right set:
+E                 'icourse163'
+E                 Use -v to get more diff
+
+tests\test_platform_provider_selection.py:73: AssertionError</failure></testcase><testcase classname="tests.test_platform_provider_selection" name="test_missing_mooc_configuration_preserves_bilibili_without_fallback[False]" time="0.035" /><testcase classname="tests.test_platform_provider_selection" name="test_missing_mooc_configuration_preserves_bilibili_without_fallback[True]" time="0.031" /><testcase classname="tests.test_platform_provider_selection" name="test_mooc_stop_is_scoped_and_never_falls_back_to_bilibili_source[403-False]" time="0.036" /><testcase classname="tests.test_platform_provider_selection" name="test_mooc_stop_is_scoped_and_never_falls_back_to_bilibili_source[403-True]" time="0.030" /><testcase classname="tests.test_platform_provider_selection" name="test_mooc_stop_is_scoped_and_never_falls_back_to_bilibili_source[429-False]" time="0.034" /><testcase classname="tests.test_platform_provider_selection" name="test_mooc_stop_is_scoped_and_never_falls_back_to_bilibili_source[429-True]" time="0.030" /><testcase classname="tests.test_platform_provider_selection" name="test_mooc_stop_is_scoped_and_never_falls_back_to_bilibili_source[432-False]" time="0.036" /><testcase classname="tests.test_platform_provider_selection" name="test_mooc_stop_is_scoped_and_never_falls_back_to_bilibili_source[432-True]" time="0.031" /><testcase classname="tests.test_platform_provider_selection" name="test_bilibili_source_denial_does_not_stop_independent_mooc_source[False]" time="0.024" /><testcase classname="tests.test_platform_provider_selection" name="test_bilibili_source_denial_does_not_stop_independent_mooc_source[True]" time="0.031" /><testcase classname="tests.test_platform_provider_selection" name="test_default_injection_and_exact_single_domain_boundaries" time="0.010" /><testcase classname="tests.test_platform_provider_selection" name="test_tavily_cache_does_not_depend_on_searxng_endpoint_or_engines" time="0.037" /><testcase classname="tests.test_platform_provider_selection" name="test_capabilities_report_explicit_keyless_trial_and_independent_sources" time="0.012" /><testcase classname="tests.test_tavily_access_modes" name="test_keyless_is_explicit_basic_domain_restricted_and_never_sends_credentials" time="0.002" /><testcase classname="tests.test_tavily_access_modes" name="test_absent_key_does_not_enable_keyless_implicitly" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_configured_key_uses_only_bearer_auth_and_never_leaks_it" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_restrictions_stop_later_queries_without_mode_switch[401-access_denied]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_restrictions_stop_later_queries_without_mode_switch[403-access_denied]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_restrictions_stop_later_queries_without_mode_switch[429-rate_limited]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_restrictions_stop_later_queries_without_mode_switch[402-quota_exhausted]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_restrictions_stop_later_queries_without_mode_switch[432-quota_exhausted]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_restrictions_stop_later_queries_without_mode_switch[433-quota_exhausted]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_usage_is_observed_only_when_numeric[None]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_usage_is_observed_only_when_numeric[usage1]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_usage_is_observed_only_when_numeric[usage2]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_usage_is_observed_only_when_numeric[usage3]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_usage_is_observed_only_when_numeric[usage4]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_usage_is_observed_only_when_numeric[usage5]" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_keyless_limit_body_extends_cooldown_without_echoing_instructions" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_queued_request_checks_quota_again_before_network" time="0.001" /><testcase classname="tests.test_tavily_access_modes" name="test_platform_settings_default_to_existing_provider_and_factory_accepts_override" time="0.000" /><testcase classname="tests.test_tavily_access_modes" name="test_bad_platform_configuration_fails_closed[kwargs0]" time="0.000" /><testcase classname="tests.test_tavily_access_modes" name="test_bad_platform_configuration_fails_closed[kwargs1]" time="0.000" /><testcase classname="tests.test_tavily_access_modes" name="test_bad_platform_configuration_fails_closed[kwargs2]" time="0.000" /><testcase classname="tests.test_tavily_access_modes" name="test_bad_platform_configuration_fails_closed[kwargs3]" time="0.000" /><testcase classname="tests.test_tavily_access_modes" name="test_platform_environment_loading" time="0.004" /><testcase classname="tests.test_split_provider_live_harness" name="test_dry_run_never_loads_environment_or_constructs_service" time="0.004" /><testcase classname="tests.test_split_provider_live_harness" name="test_real_jobservice_split_routing_empty_mock_transport_and_isolated_database" time="1.331" /><testcase classname="tests.test_split_provider_live_harness" name="test_production_source_access_stop_does_not_disable_other_platform" time="0.829" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_dry_run_does_not_load_environment_construct_runtime_or_touch_network" time="0.005" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_live_settings_remove_keys_bound_costs_and_preserve_source_transport_rules" time="0.001" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_missing_searxng_blocks_before_runtime_or_network" time="0.005" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_real_jobservice_mock_transport_is_free_bounded_isolated_and_preplanned" time="2.576" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_mooc_denial_or_quota_stops_without_stopping_bilibili[403]" time="1.467" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_mooc_denial_or_quota_stops_without_stopping_bilibili[429]" time="1.473" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_mooc_denial_or_quota_stops_without_stopping_bilibili[432]" time="1.454" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_type_only_baseline_preserves_original_evidence_gate[different_point]" time="0.001" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_type_only_baseline_preserves_original_evidence_gate[different_url]" time="0.000" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_type_only_baseline_preserves_original_evidence_gate[missing_id]" time="0.000" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_type_only_baseline_preserves_original_evidence_gate[missing_title]" time="0.000" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_type_only_baseline_preserves_original_evidence_gate[not_found]" time="0.000" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_type_only_baseline_preserves_original_evidence_gate[unknown_type]" time="0.000" /><testcase classname="tests.test_mooc_relevance_live_harness" name="test_quality_compares_same_observations_and_never_borrows_cross_point_evidence" time="0.001" /></testsuite></testsuites>

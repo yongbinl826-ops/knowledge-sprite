@@ -146,17 +146,16 @@ def public_mooc_metadata_url(url: str) -> bool:
     is admitted. A numeric tid retains a public course offering's identity.
     Robots is allowed solely as the independent protocol preflight resource.
     """
-    parts = urlsplit(url)
-    if parts.scheme != "https" or parts.hostname not in {"www.icourse163.org", "icourse163.org"}:
+    from .mooc_urls import public_course_url
+    if public_course_url(url) is not None:
+        return True
+    try:
+        parts = urlsplit(url)
+        return (parts.scheme == "https" and parts.hostname in {"www.icourse163.org", "icourse163.org"}
+                and parts.port in {None, 443} and parts.username is None and parts.password is None
+                and parts.path == "/robots.txt" and not parts.query and not parts.fragment)
+    except ValueError:
         return False
-    if parts.port not in {None, 443} or parts.fragment or parts.username is not None or parts.password is not None:
-        return False
-    if parts.path == "/robots.txt":
-        return not parts.query
-    if not re.fullmatch(r"/course/(?:[A-Za-z0-9_]+)?-[0-9]+/?", parts.path):
-        return False
-    query = parse_qsl(parts.query, keep_blank_values=True)
-    return not query or (len(query) == 1 and query[0][0] == "tid" and re.fullmatch(r"[0-9]+", query[0][1]) is not None)
 
 
 async def public_addresses(url: str, timeout: float = 8) -> list[str]:

@@ -1,0 +1,49 @@
+{
+  "mode": "independent read-only recheck; no HTTP/model/Store/source writes",
+  "recorded_at": "2026-10-18T22:17:30.697109+00:00",
+  "teaching_match_bytes_sha256": "dbae8a17a33d66369eacc3d89a75bde59ebd3aa0d7ee9a4951b80716840d5c85",
+  "closed_prior_findings": {
+    "operand_prefix_end_starter": "rejected",
+    "ordered_25_5_vs_5_25": "rejected",
+    "unpunctuated_prerequisite_and_next_lesson": "rejected",
+    "title_overrides_own_exclusion_prerequisite_future": "title and literal both rejected",
+    "verified_video_requires_login_payment_enrollment": "retained with original access flags unchanged",
+    "saved_valid_empty_read_cache": "no literal resurrection"
+  },
+  "remaining_findings": [
+    {
+      "severity": "medium",
+      "kind": "ordered_expression_prefix_still_accepted",
+      "fact": "end < start + 1 and 25/5+1 still accepted for shorter end < start and 25/5 targets.",
+      "action": "Reported to owner; require full expression boundaries."
+    },
+    {
+      "severity": "medium",
+      "kind": "exact_expression_false_negative",
+      "fact": "A correct end < start followed by sentence terminal period is rejected. Identical 20-30ms range also rejected.",
+      "action": "Reported to owner; distinguish terminal dot/range dash from identifier continuation/negative sign."
+    },
+    {
+      "severity": "medium",
+      "kind": "unicode_range_order_missing",
+      "fact": "20–30ms target accepts reversed 30–20ms source.",
+      "action": "Reported to owner; preserve ordered range while normalizing documented range punctuation only."
+    },
+    {
+      "severity": "conservative limitation",
+      "kind": "no_colon_peer_heading",
+      "fact": "After Prerequisites followed by Lesson content without colon, explicit current teaching remains rejected.",
+      "action": "No retained-production hit shown. Avoid guessing heading resets; use source scope/hierarchy where available."
+    }
+  ],
+  "evidence": [
+    "evidence/phase3-audit/semantic-boundary-recheck-r2.json",
+    "evidence/phase3-audit/semantic-boundary-numeric-extension-r2.json",
+    "evidence/phase3-audit/semantic-empty-read-closure-r2.json"
+  ],
+  "source_edits": 0,
+  "http_requests": 0,
+  "model_requests": 0,
+  "database_writes": 0,
+  "live_source_acceptance": "pending parent 8010 evidence; no endpoint or upstream request issued"
+}

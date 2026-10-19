@@ -1,0 +1,42 @@
+{
+  "mode": "pure necessary-gate controls, not actual live cards/model judgments",
+  "candidate_sha256": "3ee0346cc4988d1746fe53c3705333179b17b78f225a11a0c4e710777ebdaa26",
+  "rows": [
+    {
+      "label": "generic disk/file title",
+      "skill": "pandas 从内存对象读取 CSV",
+      "context": "pandas读取CSV文件",
+      "expected_gate": false,
+      "observed_gate": false
+    },
+    {
+      "label": "buffer write only",
+      "skill": "pandas 从内存对象读取 CSV",
+      "context": "pandas 将CSV写入StringIO缓冲区",
+      "expected_gate": false,
+      "observed_gate": false
+    },
+    {
+      "label": "explicit memory read",
+      "skill": "pandas 从内存对象读取 CSV",
+      "context": "pandas 从StringIO内存对象读取CSV",
+      "expected_gate": true,
+      "observed_gate": true
+    },
+    {
+      "label": "disk-to-memory direction",
+      "skill": "pandas 从内存对象读取 CSV",
+      "context": "pandas 读取磁盘CSV到内存对象",
+      "expected_gate": false,
+      "observed_gate": true
+    },
+    {
+      "label": "mixed IO operations",
+      "skill": "pandas 从内存对象读取 CSV",
+      "context": "pandas 将数据写入StringIO，同时读取本地CSV文件",
+      "expected_gate": false,
+      "observed_gate": false
+    }
+  ],
+  "note": "Passing this necessary gate is not final semantic proof; review/model must still reject wrong direction. Existing known generic-file false cards are closed by this gate. Cross-operation binding remains a conservative boundary risk."
+}

@@ -1,0 +1,689 @@
+{
+  "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+  "original_input": {
+    "name": "pygame 单屏迷宫寻出口",
+    "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+    "student_level": "intermediate",
+    "language": "zh",
+    "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "input": {
+    "name": "pygame 单屏迷宫寻出口",
+    "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+    "student_level": "intermediate",
+    "language": "zh",
+    "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ]
+  },
+  "current_version": 6,
+  "created_at": "2026-10-18T16:37:09.350544+00:00",
+  "updated_at": "2026-10-18T20:16:47.457904+00:00",
+  "versions": [
+    {
+      "version": 6,
+      "status": "partial",
+      "created_at": "2026-10-18T20:13:01.577222+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 5,
+      "status": "partial",
+      "created_at": "2026-10-18T19:29:20.774884+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 4,
+      "status": "partial",
+      "created_at": "2026-10-18T18:28:23.521438+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 3,
+      "status": "partial",
+      "created_at": "2026-10-18T17:35:32.598189+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 2,
+      "status": "partial",
+      "created_at": "2026-10-18T16:52:45.929361+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.6-bounded-semantic-review"
+    },
+    {
+      "version": 1,
+      "status": "analyzed",
+      "created_at": "2026-10-18T16:37:09.357735+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v2.5-canonical-tools-debounce"
+    }
+  ],
+  "version": {
+    "version": 6,
+    "input": {
+      "name": "pygame 单屏迷宫寻出口",
+      "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+      "student_level": "intermediate",
+      "language": "zh",
+      "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163",
+        "xuetangx"
+      ]
+    },
+    "status": "partial",
+    "analysis": {
+      "scope": "用 Python + pygame 实现单屏 8×8 固定迷宫寻出口小游戏。地图用二维列表存墙/路/出口；方向键每次按下移动一格，不可穿墙或越界；到达出口显示胜利与本轮耗时；R 键重置玩家位置与计时；Esc 或关窗退出；开始前与胜利后都要持续处理按键和关窗；限帧，耗时按真实时间。不做自动生成迷宫、寻路提示、敌人、联网或排行。",
+      "technical_plan": "语言 Python，图形库 pygame（按上下文假定，可改）。核心结构：二维列表常量地图；玩家用 (col,row) 网格坐标；移动前先判断目标格是否合法（在 8×8 内且非墙）。主循环分状态：READY（开始前）、PLAYING、WIN，三态都执行 pygame.event 处理与绘制。移动用 KEYDOWN 事件边沿，不读持续按键状态。计时用 pygame.time.get_ticks() 或 time.monotonic()，按毫秒差值算真实耗时；clock.tick(60) 限帧。到达出口切 WIN 并记录结束时间；R 键在 READY/WIN 重置玩家与起点时间。循环不因胜利而终止，仅在 QUIT/Esc 时退出。",
+      "assumptions": [
+        "图形库选用 pygame，基于项目上下文，属于可修改假设。",
+        "地图为固定 8×8，玩家起点与出口位置在代码中写定。",
+        "网格坐标为 (列, 行)，左上角为 (0,0)，墙用 1、路用 0、出口用 2 表示（表示方式可改）。",
+        "耗时单位用秒并保留一位小数；显示为近似值也接受。",
+        "开始前按方向键不移动，仅 R/Esc 生效。"
+      ],
+      "learner_profile": {
+        "student_level": "intermediate",
+        "assumed_knowledge": [
+          "Python 列表、循环、函数",
+          "pygame 窗口创建与基本绘图",
+          "键盘事件的基本概念"
+        ],
+        "adjustment_note": "当前按中级阶段安排：语法基础从简，重点放在网格坐标、阻挡判定、输入边沿与时间/状态处理。你可修改学习阶段、项目上下文或技术选择后重新生成。"
+      },
+      "functions": [
+        {
+          "id": "f1",
+          "name": "8×8 二维列表地图与绘制",
+          "original_requirement": "地图用二维列表表示墙、路和出口",
+          "acceptance_criteria": "屏幕按 8×8 绘制出固定迷宫，墙/路/出口三格区分可见，地图数据来自一个二维列表。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2",
+          "name": "方向键单格移动与穿墙/越界阻挡",
+          "original_requirement": "方向键每次按下移动一格，不能穿墙或越出地图",
+          "acceptance_criteria": "每次按键沿对应方向只移动一格；目标是墙或超出 0..7 范围时位置不变。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3",
+          "name": "到达出口显示胜利与本轮耗时",
+          "original_requirement": "到达出口后显示胜利和本轮耗时",
+          "acceptance_criteria": "玩家进入出口格时画面显示胜利文字与本轮秒数。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4",
+          "name": "R 键重置玩家位置与计时",
+          "original_requirement": "按R可重置玩家位置与计时",
+          "acceptance_criteria": "按 R 后玩家回到起点、计时归零并重新开始计时，游戏回到可玩状态。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5",
+          "name": "Esc/关窗退出与开始前后持续响应",
+          "original_requirement": "Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗",
+          "acceptance_criteria": "在开始前、游戏中、胜利后按 Esc 或关闭窗口都能退出；胜利后仍能按 R 重置。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f6",
+          "name": "限帧与真实时间计时",
+          "original_requirement": "使用帧率上限，耗时依据真实时间而非帧数",
+          "acceptance_criteria": "主循环 tick 限帧；耗时由真实时钟差值计算，帧率变化不影响显示秒数。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1",
+          "name": "pygame 二维列表网格地图绘制",
+          "description": "用二维列表存墙/路/出口，按行列计算像素矩形并绘制成 8×8 迷宫。",
+          "function_ids": [
+            "f1"
+          ],
+          "why_needed": "地图数据与绘制是所有移动和判定基础。",
+          "learning_goal": "理解行列索引如何映射到屏幕像素坐标并绘制格子。",
+          "technology": "pygame",
+          "project_task": "写出 8×8 二维列表地图并把每格画成方块。",
+          "concepts": [
+            "二维列表行列索引",
+            "行*格子尺寸求 y",
+            "pygame.Rect 与 draw.rect",
+            "墙/路/出口区分配色"
+          ],
+          "practice_check": "运行后能看到口径一致的 8×8 迷宫，墙、路、出口颜色可区分。",
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2",
+          "name": "网格坐标的合法移动与阻挡判定",
+          "description": "玩家用 (列,行) 表示，移动前检查目标格在 0..7 内且非墙。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "防止穿墙和越界是核心规则。",
+          "learning_goal": "掌握在移动前用边界与非墙条件校验目标格。",
+          "technology": "pygame",
+          "project_task": "实现一次按方向键移动一格，并加边界与墙阻挡。",
+          "concepts": [
+            "(col,row) 坐标增量",
+            "0..7 边界检查",
+            "按地图格取值判断墙",
+            "移动前校验 target"
+          ],
+          "practice_check": "朝墙或地图边界按方向键时玩家不动，朝路移动一格。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3",
+          "name": "pygame 键盘输入边沿处理",
+          "description": "用 KEYDOWN 事件处理单次移动，避免持续按键导致每帧连走。",
+          "function_ids": [
+            "f2"
+          ],
+          "why_needed": "需求是“每次按下移动一格”，需事件边沿而非持续状态。",
+          "learning_goal": "区分 KEYDOWN 边沿与 pygame.key.get_pressed 的持续状态。",
+          "technology": "pygame",
+          "project_task": "在事件循环中把方向键 KEYDOWN 映射为一次移动。",
+          "concepts": [
+            "pygame.event 事件队列",
+            "KEYDOWN 仅触发一次",
+            "K_LEFT/K_RIGHT/K_UP/K_DOWN 映射",
+            "与 get_pressed 持续状态的区别"
+          ],
+          "practice_check": "按住方向键不连发，每次重新按下只移动一格。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k2"
+          ],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4",
+          "name": "pygame 游戏状态机与胜利判定",
+          "description": "用 READY/PLAYING/WIN 状态控制行为，玩家进入出口格切换到 WIN 并显示胜利文本。",
+          "function_ids": [
+            "f3",
+            "f5"
+          ],
+          "why_needed": "开始前、游戏中、胜利后行为不同且都要响应事件。",
+          "learning_goal": "理解状态变量如何决定移动是否生效和画面显示内容。",
+          "technology": "pygame",
+          "project_task": "加入状态变量，到达出口切 WIN 并绘制胜利文字。",
+          "concepts": [
+            "状态变量 READY/PLAYING/WIN",
+            "到达出口切状态",
+            "按状态绘制提示文本",
+            "pygame.font 渲染文字"
+          ],
+          "practice_check": "踩到出口格后画面出现“胜利”，且此前开始前不响应移动。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5",
+          "name": "pygame 持续主循环与 R/Esc 键处理",
+          "description": "主循环在所有状态都处理事件：ESC/QUIT 退出，R 重置玩家与计时；胜利后循环不终止。",
+          "function_ids": [
+            "f4",
+            "f5"
+          ],
+          "why_needed": "胜利后仍要能重置、关窗，不能结束整个循环。",
+          "learning_goal": "理解事件处理与游戏状态解耦，循环只由退出条件结束。",
+          "technology": "pygame",
+          "project_task": "把 R 与 ESC/QUIT 事件统一放到主循环事件处理中。",
+          "concepts": [
+            "主循环不因胜利而中断",
+            "pygame.QUIT 与 K_ESCAPE 退出",
+            "K_r 触发重置",
+            "按状态限制哪些键生效"
+          ],
+          "practice_check": "胜利后按 R 能回到可玩状态，按 Esc 或关窗可退出。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k4"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "k6",
+          "name": "真实时间计时与限帧",
+          "description": "用 pygame.time.get_ticks() 差值计算耗时，clock.tick(60) 限帧。",
+          "function_ids": [
+            "f3",
+            "f4",
+            "f6"
+          ],
+          "why_needed": "耗时必须按真实时间，不受帧数影响。",
+          "learning_goal": "理解真实时钟差值与帧计数的区别。",
+          "technology": "pygame",
+          "project_task": "记录起点 ticks，显示本轮秒数，并在 R 时重置起点。",
+          "concepts": [
+            "pygame.time.get_ticks 毫秒",
+            "结束时间减开始时间",
+            "clock.tick 限帧",
+            "重置时更新时间基准"
+          ],
+          "practice_check": "胜利界面秒数与实际游玩时间大致相符，改变帧率不影响读数。",
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k4"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": {
+      "confirmation_version": 6,
+      "confirmed_at": "2026-10-18T20:15:01.420382+00:00",
+      "selected_ids": [
+        "k1",
+        "k2",
+        "k3",
+        "k4",
+        "k5",
+        "k6"
+      ],
+      "selections": {
+        "k1": "learn",
+        "k2": "learn",
+        "k3": "learn",
+        "k4": "learn",
+        "k5": "learn",
+        "k6": "learn"
+      },
+      "acknowledged_skipped_prerequisites": [],
+      "analysis": {
+        "scope": "用 Python + pygame 实现单屏 8×8 固定迷宫寻出口小游戏。地图用二维列表存墙/路/出口；方向键每次按下移动一格，不可穿墙或越界；到达出口显示胜利与本轮耗时；R 键重置玩家位置与计时；Esc 或关窗退出；开始前与胜利后都要持续处理按键和关窗；限帧，耗时按真实时间。不做自动生成迷宫、寻路提示、敌人、联网或排行。",
+        "technical_plan": "语言 Python，图形库 pygame（按上下文假定，可改）。核心结构：二维列表常量地图；玩家用 (col,row) 网格坐标；移动前先判断目标格是否合法（在 8×8 内且非墙）。主循环分状态：READY（开始前）、PLAYING、WIN，三态都执行 pygame.event 处理与绘制。移动用 KEYDOWN 事件边沿，不读持续按键状态。计时用 pygame.time.get_ticks() 或 time.monotonic()，按毫秒差值算真实耗时；clock.tick(60) 限帧。到达出口切 WIN 并记录结束时间；R 键在 READY/WIN 重置玩家与起点时间。循环不因胜利而终止，仅在 QUIT/Esc 时退出。",
+        "assumptions": [
+          "图形库选用 pygame，基于项目上下文，属于可修改假设。",
+          "地图为固定 8×8，玩家起点与出口位置在代码中写定。",
+          "网格坐标为 (列, 行)，左上角为 (0,0)，墙用 1、路用 0、出口用 2 表示（表示方式可改）。",
+          "耗时单位用秒并保留一位小数；显示为近似值也接受。",
+          "开始前按方向键不移动，仅 R/Esc 生效。"
+        ],
+        "learner_profile": {
+          "student_level": "intermediate",
+          "assumed_knowledge": [
+            "Python 列表、循环、函数",
+            "pygame 窗口创建与基本绘图",
+            "键盘事件的基本概念"
+          ],
+          "adjustment_note": "当前按中级阶段安排：语法基础从简，重点放在网格坐标、阻挡判定、输入边沿与时间/状态处理。你可修改学习阶段、项目上下文或技术选择后重新生成。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "8×8 二维列表地图与绘制",
+            "original_requirement": "地图用二维列表表示墙、路和出口",
+            "acceptance_criteria": "屏幕按 8×8 绘制出固定迷宫，墙/路/出口三格区分可见，地图数据来自一个二维列表。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "方向键单格移动与穿墙/越界阻挡",
+            "original_requirement": "方向键每次按下移动一格，不能穿墙或越出地图",
+            "acceptance_criteria": "每次按键沿对应方向只移动一格；目标是墙或超出 0..7 范围时位置不变。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "到达出口显示胜利与本轮耗时",
+            "original_requirement": "到达出口后显示胜利和本轮耗时",
+            "acceptance_criteria": "玩家进入出口格时画面显示胜利文字与本轮秒数。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "R 键重置玩家位置与计时",
+            "original_requirement": "按R可重置玩家位置与计时",
+            "acceptance_criteria": "按 R 后玩家回到起点、计时归零并重新开始计时，游戏回到可玩状态。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "Esc/关窗退出与开始前后持续响应",
+            "original_requirement": "Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗",
+            "acceptance_criteria": "在开始前、游戏中、胜利后按 Esc 或关闭窗口都能退出；胜利后仍能按 R 重置。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f6",
+            "name": "限帧与真实时间计时",
+            "original_requirement": "使用帧率上限，耗时依据真实时间而非帧数",
+            "acceptance_criteria": "主循环 tick 限帧；耗时由真实时钟差值计算，帧率变化不影响显示秒数。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "pygame 二维列表网格地图绘制",
+            "description": "用二维列表存墙/路/出口，按行列计算像素矩形并绘制成 8×8 迷宫。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "地图数据与绘制是所有移动和判定基础。",
+            "learning_goal": "理解行列索引如何映射到屏幕像素坐标并绘制格子。",
+            "technology": "pygame",
+            "project_task": "写出 8×8 二维列表地图并把每格画成方块。",
+            "concepts": [
+              "二维列表行列索引",
+              "行*格子尺寸求 y",
+              "pygame.Rect 与 draw.rect",
+              "墙/路/出口区分配色"
+            ],
+            "practice_check": "运行后能看到口径一致的 8×8 迷宫，墙、路、出口颜色可区分。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "网格坐标的合法移动与阻挡判定",
+            "description": "玩家用 (列,行) 表示，移动前检查目标格在 0..7 内且非墙。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "防止穿墙和越界是核心规则。",
+            "learning_goal": "掌握在移动前用边界与非墙条件校验目标格。",
+            "technology": "pygame",
+            "project_task": "实现一次按方向键移动一格，并加边界与墙阻挡。",
+            "concepts": [
+              "(col,row) 坐标增量",
+              "0..7 边界检查",
+              "按地图格取值判断墙",
+              "移动前校验 target"
+            ],
+            "practice_check": "朝墙或地图边界按方向键时玩家不动，朝路移动一格。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "pygame 键盘输入边沿处理",
+            "description": "用 KEYDOWN 事件处理单次移动，避免持续按键导致每帧连走。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "需求是“每次按下移动一格”，需事件边沿而非持续状态。",
+            "learning_goal": "区分 KEYDOWN 边沿与 pygame.key.get_pressed 的持续状态。",
+            "technology": "pygame",
+            "project_task": "在事件循环中把方向键 KEYDOWN 映射为一次移动。",
+            "concepts": [
+              "pygame.event 事件队列",
+              "KEYDOWN 仅触发一次",
+              "K_LEFT/K_RIGHT/K_UP/K_DOWN 映射",
+              "与 get_pressed 持续状态的区别"
+            ],
+            "practice_check": "按住方向键不连发，每次重新按下只移动一格。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "pygame 游戏状态机与胜利判定",
+            "description": "用 READY/PLAYING/WIN 状态控制行为，玩家进入出口格切换到 WIN 并显示胜利文本。",
+            "function_ids": [
+              "f3",
+              "f5"
+            ],
+            "why_needed": "开始前、游戏中、胜利后行为不同且都要响应事件。",
+            "learning_goal": "理解状态变量如何决定移动是否生效和画面显示内容。",
+            "technology": "pygame",
+            "project_task": "加入状态变量，到达出口切 WIN 并绘制胜利文字。",
+            "concepts": [
+              "状态变量 READY/PLAYING/WIN",
+              "到达出口切状态",
+              "按状态绘制提示文本",
+              "pygame.font 渲染文字"
+            ],
+            "practice_check": "踩到出口格后画面出现“胜利”，且此前开始前不响应移动。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "pygame 持续主循环与 R/Esc 键处理",
+            "description": "主循环在所有状态都处理事件：ESC/QUIT 退出，R 重置玩家与计时；胜利后循环不终止。",
+            "function_ids": [
+              "f4",
+              "f5"
+            ],
+            "why_needed": "胜利后仍要能重置、关窗，不能结束整个循环。",
+            "learning_goal": "理解事件处理与游戏状态解耦，循环只由退出条件结束。",
+            "technology": "pygame",
+            "project_task": "把 R 与 ESC/QUIT 事件统一放到主循环事件处理中。",
+            "concepts": [
+              "主循环不因胜利而中断",
+              "pygame.QUIT 与 K_ESCAPE 退出",
+              "K_r 触发重置",
+              "按状态限制哪些键生效"
+            ],
+            "practice_check": "胜利后按 R 能回到可玩状态，按 Esc 或关窗可退出。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "k6",
+            "name": "真实时间计时与限帧",
+            "description": "用 pygame.time.get_ticks() 差值计算耗时，clock.tick(60) 限帧。",
+            "function_ids": [
+              "f3",
+              "f4",
+              "f6"
+            ],
+            "why_needed": "耗时必须按真实时间，不受帧数影响。",
+            "learning_goal": "理解真实时钟差值与帧计数的区别。",
+            "technology": "pygame",
+            "project_task": "记录起点 ticks，显示本轮秒数，并在 R 时重置起点。",
+            "concepts": [
+              "pygame.time.get_ticks 毫秒",
+              "结束时间减开始时间",
+              "clock.tick 限帧",
+              "重置时更新时间基准"
+            ],
+            "practice_check": "胜利界面秒数与实际游玩时间大致相符，改变帧率不影响读数。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4"
+            ],
+            "learning_order": 6,
+            "selection": "learn"
+          }
+        ]
+      },
+      "input": {
+        "name": "pygame 单屏迷宫寻出口",
+        "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      }
+    },
+    "batches": [
+      {
+        "batch_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3-v6-b1",
+        "ordinal": 1,
+        "project_knowledge_point_ids": [
+          "k1",
+          "k2",
+          "k3",
+          "k4",
+          "k5"
+        ],
+        "status": "partial",
+        "job_id": "49a8531d-e0b0-4e22-b791-bf331fb68e69",
+        "mappings": [
+          {
+            "project_knowledge_point_id": "k1",
+            "knowledge_point_id": "0a0cf370-0ab9-46df-a475-d3b15c49a2a6"
+          },
+          {
+            "project_knowledge_point_id": "k2",
+            "knowledge_point_id": "019e10ba-9720-4583-bb96-b8fe0947a6a3"
+          },
+          {
+            "project_knowledge_point_id": "k3",
+            "knowledge_point_id": "1b572cb8-e877-484d-815c-2a5f87ac8dd2"
+          },
+          {
+            "project_knowledge_point_id": "k4",
+            "knowledge_point_id": "3d540645-77d0-4fc8-ba97-3386a237a960"
+          },
+          {
+            "project_knowledge_point_id": "k5",
+            "knowledge_point_id": "5240f07e-8e26-479f-a039-fa2605bf14c9"
+          }
+        ],
+        "error": null,
+        "reused": false,
+        "job_status": "partial",
+        "progress": {
+          "queries_planned": 30,
+          "queries_completed": 20,
+          "search_requests": 30,
+          "search_successes": 20,
+          "search_failures": 0,
+          "candidates_discovered": 120,
+          "resources_discovered": 67,
+          "details_attempted": 7,
+          "details_completed": 7,
+          "details_cached": 26,
+          "cache_hits": 26,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0
+        },
+        "warnings": [
+          "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+          "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+          "35 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "1 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "errors": []
+      },
+      {
+        "batch_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3-v6-b2",
+        "ordinal": 2,
+        "project_knowledge_point_ids": [
+          "k6"
+        ],
+        "status": "partial",
+        "job_id": "31050156-6233-4985-9e3d-71b22232708c",
+        "mappings": [
+          {
+            "project_knowledge_point_id": "k6",
+            "knowledge_point_id": "3d4f7cda-2100-417f-baa1-f167522538ee"
+          }
+        ],
+        "error": null,
+        "reused": false,
+        "job_status": "partial",
+        "progress": {
+          "queries_planned": 6,
+          "queries_completed": 6,
+          "search_requests": 10,
+          "search_successes": 6,
+          "search_failures": 0,
+          "candidates_discovered": 36,
+          "resources_discovered": 34,
+          "details_attempted": 0,
+          "details_completed": 0,
+          "details_cached": 6,
+          "cache_hits": 6,
+          "catalog_pages_attempted": 0,
+          "catalog_pages_completed": 0
+        },
+        "warnings": [
+          "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+          "28 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+          "4 个候选缺少课程或视频类型依据，未作为学习资源展示"
+        ],
+        "errors": []
+      }
+    ],
+    "budgets": {
+      "batch_size": 5,
+      "batch_count": 2,
+      "selected_count": 6,
+      "reserved_search_requests": 60,
+      "reserved_detail_pages": 80,
+      "reserved_task_seconds": 480,
+      "max_batches": 6,
+      "max_search_requests": 180,
+      "max_detail_pages": 240,
+      "deadline_seconds": 1800,
+      "per_batch_search_requests": 30,
+      "per_batch_deadline_seconds": 240,
+      "per_batch_detail_pages": 40
+    },
+    "error": null,
+    "warnings": [],
+    "created_at": "2026-10-18T20:13:01.577222+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v2.6-bounded-semantic-review",
+    "origin": "student_edit",
+    "search_started_at": "2026-10-18T20:15:01.444444+00:00",
+    "cancel_requested": false,
+    "parent_version": 5,
+    "updated_at": "2026-10-18T20:16:47.457706+00:00"
+  }
+}

@@ -1,0 +1,637 @@
+{
+  "provenance": {
+    "path": "evidence\\phase3-audit\\r4-live-pong-v4\\project-results.json",
+    "sha256": "02bd2fee56d3364fd1899104fecaa9feaf2984638c4463d89d6a2c2ad74da335"
+  },
+  "point": {
+    "knowledge_point_id": "afa102e8-0550-41f6-8927-d008b5b6a131",
+    "text": "pygame 先到3分判胜、R重开与全程退出",
+    "learning_targets": [
+      "状态机：进行/等待发球/获胜",
+      "KEYDOWN K_r 重置分数与对象位置",
+      "QUIT 事件与 K_ESCAPE 位于事件处理最前"
+    ],
+    "learning_skills": [
+      "游戏状态机设计与转移",
+      "重置函数恢复全部相关数据",
+      "退出事件优先级处理"
+    ]
+  },
+  "student_level": "intermediate",
+  "entries": [
+    {
+      "resource": {
+        "resource_id": "res_54932f10add441a71a529c69",
+        "title": "基于Sysblock的状态机模型构建（一）：创建状态与转移条件！",
+        "url": "https://www.bilibili.com/video/BV16BB5BTE3A/?uid=425631364242354254453341",
+        "canonical_url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+        "resolved_url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+        "platform": "bilibili",
+        "resource_type": "video",
+        "video_evidence_status": "page_verified",
+        "author": "同元软控",
+        "author_role": null,
+        "parent_course_url": null,
+        "course_identity": {
+          "status": "partial",
+          "family_id": null,
+          "offering_id": null,
+          "lesson_id": null,
+          "family_url": null,
+          "offering_url": null,
+          "role": "video",
+          "basis": "unknown",
+          "source_url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "evidence_ids": [
+            "ev_bf1f7aa3-84d0-48fe-9cd6-dbf57bb6bd88"
+          ],
+          "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+        },
+        "description": "手把手教你创建状态机！从新建模型、拖入状态组件，到设置状态逻辑、连接转移线，一步步搭建出完整的状态流程图。",
+        "video_topic_summary": null,
+        "thumbnail_url": "http://i0.hdslb.com/bfs/archive/d1043a81e4b91efe0de3d9d3753be3b94bc088ce.jpg",
+        "language": "zh-Hans",
+        "duration_seconds": null,
+        "published_at": null,
+        "discovered_at": "2026-10-19T00:18:09.272232+00:00",
+        "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+        "fetch_status": "fetched",
+        "metadata_evidence_level": "catalog",
+        "requires_login": null,
+        "requires_payment": null,
+        "requires_enrollment": null,
+        "access_notice": null,
+        "chapters": [
+          {
+            "title": "基于Sysblock的状态机模型构建（一）：创建状态与转移条件！",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/?p=1",
+            "start_seconds": null,
+            "end_seconds": null,
+            "source_url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+            "duration_seconds": 58,
+            "page_number": 1,
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+            "evidence_id": "ev_397b5a6e-52ef-4407-902b-d394fa9a784d"
+          }
+        ],
+        "catalog_kind": "video_parts",
+        "catalog_fetch_status": null,
+        "render_diagnostics": null,
+        "field_provenance": {
+          "title": {
+            "evidence_id": "ev_9df64c90-0852-4991-9654-d401153bd793",
+            "source": "html.bilibili.video_title",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+            "fetched_at": "2026-10-18T23:46:04.412347+00:00"
+          },
+          "url": {
+            "evidence_id": "ev_4cb6544a-ee36-433a-b973-88cc544038a5",
+            "source": "search",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/?uid=425631364242354254453341"
+          },
+          "description": {
+            "evidence_id": "ev_37248100-5cf3-444e-bcc0-c24e4afe9bcc",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.desc",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+            "fetched_at": "2026-10-18T23:46:04.412347+00:00"
+          },
+          "resource_type": {
+            "evidence_id": "ev_8f90bd78-8e29-4cc2-96a4-923cf59d2d9f",
+            "source": "meta.og:type",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+            "fetched_at": "2026-10-18T23:46:04.412347+00:00"
+          },
+          "video_evidence_status": {
+            "evidence_id": "ev_bf1f7aa3-84d0-48fe-9cd6-dbf57bb6bd88",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+            "fetched_at": "2026-10-18T23:46:04.412347+00:00"
+          },
+          "thumbnail_url": {
+            "evidence_id": "ev_48d8de84-73dd-4dc6-918c-7aba73f62b96",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+            "fetched_at": "2026-10-18T23:46:04.412347+00:00"
+          },
+          "author": {
+            "evidence_id": "ev_a278de05-53f7-495f-a44f-a5f622001fe0",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+            "fetched_at": "2026-10-18T23:46:04.412347+00:00"
+          },
+          "language": {
+            "evidence_id": "ev_0202b51b-c606-414a-9c25-8a46ac3fa107",
+            "source": "html.lang",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+            "fetched_at": "2026-10-18T23:46:04.412347+00:00"
+          },
+          "chapters": {
+            "evidence_id": "ev_13f41490-b34f-44bb-a4ba-43fa95cb60c0",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+            "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+            "fetched_at": "2026-10-18T23:46:04.412347+00:00"
+          }
+        },
+        "cache": {
+          "hit": true,
+          "stale": false,
+          "cached_at": "2026-10-18T23:46:04.459881+00:00"
+        },
+        "playback_verified": false
+      },
+      "evidence": [
+        {
+          "evidence_id": "ev_4cb6544a-ee36-433a-b973-88cc544038a5",
+          "candidate_id": "82ea2ea06c2829809f8e0b0c",
+          "kind": "search",
+          "source": "searxng",
+          "source_engines": [
+            "duckduckgo videos"
+          ],
+          "type_source": "search_template",
+          "resource_type_hint": "video",
+          "knowledge_point_id": "afa102e8-0550-41f6-8927-d008b5b6a131",
+          "query": "site:bilibili.com/video 游戏状态机设计与转移 视频教程",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/?uid=425631364242354254453341",
+          "title": "基于Sysblock的状态机模型构建（一）：创建状态与转移条件!",
+          "snippet": "手把手教你创建状态机!从新建模型、拖入状态组件，到设置状态逻辑、连接转移线，一步步搭建出完整的状态流程图。",
+          "observed_at": "2026-10-19T00:18:09.272232+00:00",
+          "cache": {
+            "hit": false,
+            "cached_at": null,
+            "stale": false
+          },
+          "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.se0beltslLG1juizK290MQIIEk?pid=Api",
+          "thumbnail_source": "search.thumbnail"
+        },
+        {
+          "id": "ev_532bbd193db810b69ac9",
+          "evidence_id": "ev_9df64c90-0852-4991-9654-d401153bd793",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "field": "title",
+          "source": "html.bilibili.video_title",
+          "text": "基于Sysblock的状态机模型构建（一）：创建状态与转移条件！",
+          "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+          "observed_at": "2026-10-18T23:46:04.412347+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:04.459881+00:00"
+          }
+        },
+        {
+          "id": "ev_967417b5b7d2a553f0d6",
+          "evidence_id": "ev_48d8de84-73dd-4dc6-918c-7aba73f62b96",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "field": "thumbnail_url",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+          "text": "http://i0.hdslb.com/bfs/archive/d1043a81e4b91efe0de3d9d3753be3b94bc088ce.jpg",
+          "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+          "observed_at": "2026-10-18T23:46:04.412347+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:04.459881+00:00"
+          }
+        },
+        {
+          "id": "ev_6d3eed3302914fd3b012",
+          "evidence_id": "ev_37248100-5cf3-444e-bcc0-c24e4afe9bcc",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "field": "description",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.desc",
+          "text": "手把手教你创建状态机！从新建模型、拖入状态组件，到设置状态逻辑、连接转移线，一步步搭建出完整的状态流程图。",
+          "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+          "observed_at": "2026-10-18T23:46:04.412347+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:04.459881+00:00"
+          }
+        },
+        {
+          "id": "ev_1ea1024b2621a10534d5",
+          "evidence_id": "ev_a278de05-53f7-495f-a44f-a5f622001fe0",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "field": "author",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+          "text": "同元软控",
+          "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+          "observed_at": "2026-10-18T23:46:04.412347+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:04.459881+00:00"
+          }
+        },
+        {
+          "id": "ev_61251999ce8e59a44fd6",
+          "evidence_id": "ev_0202b51b-c606-414a-9c25-8a46ac3fa107",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "field": "language",
+          "source": "html.lang",
+          "text": "zh-Hans",
+          "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+          "observed_at": "2026-10-18T23:46:04.412347+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:04.459881+00:00"
+          }
+        },
+        {
+          "id": "ev_4dd5d904393d63bbe5e2",
+          "evidence_id": "ev_8f90bd78-8e29-4cc2-96a4-923cf59d2d9f",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "field": "resource_type",
+          "source": "meta.og:type",
+          "text": "video",
+          "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+          "observed_at": "2026-10-18T23:46:04.412347+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:04.459881+00:00"
+          }
+        },
+        {
+          "id": "ev_7a8cc5a009b896440f6e",
+          "evidence_id": "ev_bf1f7aa3-84d0-48fe-9cd6-dbf57bb6bd88",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "field": "video_evidence_status",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+          "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+          "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+          "observed_at": "2026-10-18T23:46:04.412347+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:04.459881+00:00"
+          }
+        },
+        {
+          "id": "ev_b8a90bbfc33fc473ad4f",
+          "evidence_id": "ev_397b5a6e-52ef-4407-902b-d394fa9a784d",
+          "kind": "catalog",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "field": "chapters.0",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+          "text": "{\"duration_seconds\": 58, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV16BB5BTE3A/\", \"start_seconds\": null, \"title\": \"基于Sysblock的状态机模型构建（一）：创建状态与转移条件！\", \"url\": \"https://www.bilibili.com/video/BV16BB5BTE3A/?p=1\"}",
+          "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+          "observed_at": "2026-10-18T23:46:04.412347+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:04.459881+00:00"
+          }
+        },
+        {
+          "id": "ev_5c718f0a666debaee938",
+          "evidence_id": "ev_13f41490-b34f-44bb-a4ba-43fa95cb60c0",
+          "kind": "catalog",
+          "url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+          "field": "chapters",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+          "text": "[{'title': '基于Sysblock的状态机模型构建（一）：创建状态与转移条件！', 'url': 'https://www.bilibili.com/video/BV16BB5BTE3A/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV16BB5BTE3A/', 'duration_seconds': 58, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_b8a90bbfc33fc473ad4f'}]",
+          "fetched_at": "2026-10-18T23:46:04.412347+00:00",
+          "observed_at": "2026-10-18T23:46:04.412347+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:04.459881+00:00"
+          }
+        }
+      ],
+      "pointer": {
+        "knowledge_point_id": "afa102e8-0550-41f6-8927-d008b5b6a131",
+        "resource_id": "res_54932f10add441a71a529c69",
+        "skill_id": "skill_1",
+        "skill": "游戏状态机设计与转移",
+        "evidence_id": "ev_397b5a6e-52ef-4407-902b-d394fa9a784d",
+        "quote": "基于Sysblock的状态机模型构建（一）：创建状态与转移条件！",
+        "basis": "catalog",
+        "source_text_sha256": "9dff6569ffcb46be14e271a46a7176cc53cf553386012304924cb2ac76ece8fa",
+        "source_url": "https://www.bilibili.com/video/BV16BB5BTE3A/",
+        "target_url": "https://www.bilibili.com/video/BV16BB5BTE3A/?p=1",
+        "scope": "topic_declared",
+        "missing_components": [
+          "游戏状态机设计"
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resource_id": "res_24661df09500c1b1dbf056f7",
+        "title": "15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720",
+        "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/?uid=4256317A7743664275454441",
+        "canonical_url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+        "resolved_url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+        "platform": "bilibili",
+        "resource_type": "video",
+        "video_evidence_status": "page_verified",
+        "author": "小梅哥FPGA",
+        "author_role": null,
+        "parent_course_url": null,
+        "course_identity": {
+          "status": "partial",
+          "family_id": null,
+          "offering_id": null,
+          "lesson_id": null,
+          "family_url": null,
+          "offering_url": null,
+          "role": "video",
+          "basis": "unknown",
+          "source_url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "evidence_ids": [
+            "ev_7f82fb20-c237-4bd6-ac7e-1c220fb0536d"
+          ],
+          "unknown_reason": "已观察到视频或视频列表依据；没有可确认的同来源父课程，未按标题或跨站镜像合并"
+        },
+        "description": "啥是按键抖动，为啥会按键抖动，如何消除这令人讨厌的抖动，状态机出马了，分分钟拿下。 本套课程详细讲解了使用高云的Arora-V FPGA芯片以及Gowin软件进行FPGA开发的方法，思路和技巧，适合希望0基础入门到进阶系统学习FPGA的小伙伴。 本套课程内容全部免费开源，全部内容都上传到B站，欢迎大家关注学习，可以关注我，订阅本合集。关于课程内容有任何问题和疑惑，都可以直接评论区留言，我们会解答大家的疑惑。 本节课程我们就以手把手教学的形式，带领大家一起学习一下基于高云FPGA芯片的硬件开发板以及高云开发软件的FPGA开发流程。",
+        "video_topic_summary": null,
+        "thumbnail_url": "http://i2.hdslb.com/bfs/archive/13f879c2f86ada89173adad4031d35d26cc8174a.jpg",
+        "language": "zh-Hans",
+        "duration_seconds": null,
+        "published_at": null,
+        "discovered_at": "2026-10-19T00:18:16.799924+00:00",
+        "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+        "fetch_status": "fetched",
+        "metadata_evidence_level": "catalog",
+        "requires_login": null,
+        "requires_payment": null,
+        "requires_enrollment": null,
+        "access_notice": null,
+        "chapters": [
+          {
+            "title": "15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/?p=1",
+            "start_seconds": null,
+            "end_seconds": null,
+            "source_url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+            "duration_seconds": 1209,
+            "page_number": 1,
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+            "evidence_id": "ev_0b56381f-ec50-42ba-a6c9-d5a2b3796f2f"
+          }
+        ],
+        "catalog_kind": "video_parts",
+        "catalog_fetch_status": null,
+        "render_diagnostics": null,
+        "field_provenance": {
+          "title": {
+            "evidence_id": "ev_714e1616-afc3-46b2-b36f-f66605f0c3d1",
+            "source": "html.bilibili.video_title",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+            "fetched_at": "2026-10-18T23:46:00.185818+00:00"
+          },
+          "url": {
+            "evidence_id": "ev_15d9678b-336b-4a02-885f-e49aa5840508",
+            "source": "search",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/?uid=4256317A7743664275454441"
+          },
+          "description": {
+            "evidence_id": "ev_e5ee1f64-8419-4b01-aef1-ad9246f043d6",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.desc",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+            "fetched_at": "2026-10-18T23:46:00.185818+00:00"
+          },
+          "resource_type": {
+            "evidence_id": "ev_f22b6b11-77e4-4bfc-8cd3-7120ec430c86",
+            "source": "meta.og:type",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+            "fetched_at": "2026-10-18T23:46:00.185818+00:00"
+          },
+          "video_evidence_status": {
+            "evidence_id": "ev_7f82fb20-c237-4bd6-ac7e-1c220fb0536d",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+            "fetched_at": "2026-10-18T23:46:00.185818+00:00"
+          },
+          "thumbnail_url": {
+            "evidence_id": "ev_05e814c5-ccee-471a-9775-0cb2c6ee5ff9",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+            "fetched_at": "2026-10-18T23:46:00.185818+00:00"
+          },
+          "author": {
+            "evidence_id": "ev_de1d2708-1632-496d-82df-0b6c3cbf22df",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+            "fetched_at": "2026-10-18T23:46:00.185818+00:00"
+          },
+          "language": {
+            "evidence_id": "ev_5b8da84f-51cd-42e3-85c9-ac1ee171f707",
+            "source": "html.lang",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+            "fetched_at": "2026-10-18T23:46:00.185818+00:00"
+          },
+          "chapters": {
+            "evidence_id": "ev_a3877081-c9a2-47bd-8bf9-c26cac77377a",
+            "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+            "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+            "fetched_at": "2026-10-18T23:46:00.185818+00:00"
+          }
+        },
+        "cache": {
+          "hit": true,
+          "stale": false,
+          "cached_at": "2026-10-18T23:46:00.226258+00:00"
+        },
+        "playback_verified": false
+      },
+      "evidence": [
+        {
+          "evidence_id": "ev_15d9678b-336b-4a02-885f-e49aa5840508",
+          "candidate_id": "580fd37405791fc9516d0515",
+          "kind": "search",
+          "source": "searxng",
+          "source_engines": [
+            "duckduckgo videos"
+          ],
+          "type_source": "search_template",
+          "resource_type_hint": "video",
+          "knowledge_point_id": "afa102e8-0550-41f6-8927-d008b5b6a131",
+          "query": "游戏状态机设计与转移 视频教程",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/?uid=4256317A7743664275454441",
+          "title": "15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720",
+          "snippet": "",
+          "observed_at": "2026-10-19T00:18:16.799924+00:00",
+          "cache": {
+            "hit": false,
+            "cached_at": null,
+            "stale": false
+          },
+          "thumbnail_url": "https://tse2.mm.bing.net/th/id/OVP.HFjj614H_B_ccacYGoaFLAEsCo?pid=Api",
+          "thumbnail_source": "search.thumbnail"
+        },
+        {
+          "id": "ev_bb96c5464d6faed49d5a",
+          "evidence_id": "ev_714e1616-afc3-46b2-b36f-f66605f0c3d1",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "field": "title",
+          "source": "html.bilibili.video_title",
+          "text": "15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720",
+          "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+          "observed_at": "2026-10-18T23:46:00.185818+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:00.226258+00:00"
+          }
+        },
+        {
+          "id": "ev_fae7e9a37b8f3cf0e21c",
+          "evidence_id": "ev_05e814c5-ccee-471a-9775-0cb2c6ee5ff9",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "field": "thumbnail_url",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+          "text": "http://i2.hdslb.com/bfs/archive/13f879c2f86ada89173adad4031d35d26cc8174a.jpg",
+          "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+          "observed_at": "2026-10-18T23:46:00.185818+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:00.226258+00:00"
+          }
+        },
+        {
+          "id": "ev_3fb4cea99eaafa716261",
+          "evidence_id": "ev_e5ee1f64-8419-4b01-aef1-ad9246f043d6",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "field": "description",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.desc",
+          "text": "啥是按键抖动，为啥会按键抖动，如何消除这令人讨厌的抖动，状态机出马了，分分钟拿下。 本套课程详细讲解了使用高云的Arora-V FPGA芯片以及Gowin软件进行FPGA开发的方法，思路和技巧，适合希望0基础入门到进阶系统学习FPGA的小伙伴。 本套课程内容全部免费开源，全部内容都上传到B站，欢迎大家关注学习，可以关注我，订阅本合集。关于课程内容有任何问题和疑惑，都可以直接评论区留言，我们会解答大家的疑惑。 本节课程我们就以手把手教学的形式，带领大家一起学习一下基于高云FPGA芯片的硬件开发板以及高云开发软件的FPGA开发流程。",
+          "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+          "observed_at": "2026-10-18T23:46:00.185818+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:00.226258+00:00"
+          }
+        },
+        {
+          "id": "ev_792e4416510546e9d9d7",
+          "evidence_id": "ev_de1d2708-1632-496d-82df-0b6c3cbf22df",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "field": "author",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.owner.name",
+          "text": "小梅哥FPGA",
+          "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+          "observed_at": "2026-10-18T23:46:00.185818+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:00.226258+00:00"
+          }
+        },
+        {
+          "id": "ev_e615108a6d5c0dbb75f6",
+          "evidence_id": "ev_5b8da84f-51cd-42e3-85c9-ac1ee171f707",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "field": "language",
+          "source": "html.lang",
+          "text": "zh-Hans",
+          "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+          "observed_at": "2026-10-18T23:46:00.185818+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:00.226258+00:00"
+          }
+        },
+        {
+          "id": "ev_bb619a5b737e252ad846",
+          "evidence_id": "ev_f22b6b11-77e4-4bfc-8cd3-7120ec430c86",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "field": "resource_type",
+          "source": "meta.og:type",
+          "text": "video",
+          "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+          "observed_at": "2026-10-18T23:46:00.185818+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:00.226258+00:00"
+          }
+        },
+        {
+          "id": "ev_d60212d9f77ca880d927",
+          "evidence_id": "ev_7f82fb20-c237-4bd6-ac7e-1c220fb0536d",
+          "kind": "page",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "field": "video_evidence_status",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.bvid",
+          "text": "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested",
+          "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+          "observed_at": "2026-10-18T23:46:00.185818+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:00.226258+00:00"
+          }
+        },
+        {
+          "id": "ev_c718f537cd01e7429c4b",
+          "evidence_id": "ev_0b56381f-ec50-42ba-a6c9-d5a2b3796f2f",
+          "kind": "catalog",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "field": "chapters.0",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+          "text": "{\"duration_seconds\": 1209, \"end_seconds\": null, \"page_number\": 1, \"source_url\": \"https://www.bilibili.com/video/BV1zwCfBuEDA/\", \"start_seconds\": null, \"title\": \"15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720\", \"url\": \"https://www.bilibili.com/video/BV1zwCfBuEDA/?p=1\"}",
+          "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+          "observed_at": "2026-10-18T23:46:00.185818+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:00.226258+00:00"
+          }
+        },
+        {
+          "id": "ev_b53e59e1f0194ac6aaf6",
+          "evidence_id": "ev_a3877081-c9a2-47bd-8bf9-c26cac77377a",
+          "kind": "catalog",
+          "url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+          "field": "chapters",
+          "source": "html.bilibili.__INITIAL_STATE__.videoData.pages",
+          "text": "[{'title': '15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720', 'url': 'https://www.bilibili.com/video/BV1zwCfBuEDA/?p=1', 'start_seconds': None, 'end_seconds': None, 'source_url': 'https://www.bilibili.com/video/BV1zwCfBuEDA/', 'duration_seconds': 1209, 'page_number': 1, 'source': 'html.bilibili.__INITIAL_STATE__.videoData.pages', 'evidence_id': 'ev_c718f537cd01e7429c4b'}]",
+          "fetched_at": "2026-10-18T23:46:00.185818+00:00",
+          "observed_at": "2026-10-18T23:46:00.185818+00:00",
+          "cache": {
+            "hit": true,
+            "stale": false,
+            "cached_at": "2026-10-18T23:46:00.226258+00:00"
+          }
+        }
+      ],
+      "pointer": {
+        "knowledge_point_id": "afa102e8-0550-41f6-8927-d008b5b6a131",
+        "resource_id": "res_24661df09500c1b1dbf056f7",
+        "skill_id": "skill_1",
+        "skill": "游戏状态机设计与转移",
+        "evidence_id": "ev_0b56381f-ec50-42ba-a6c9-d5a2b3796f2f",
+        "quote": "15A_基于状态机的按键消抖原理与状态转移图--小梅哥2025高云全新开源教学课程-for ACG720",
+        "basis": "catalog",
+        "source_text_sha256": "623f0db1fba3f5e9e400972fbfba4f11fce2975030d571ee2692dd864226ce2c",
+        "source_url": "https://www.bilibili.com/video/BV1zwCfBuEDA/",
+        "target_url": "https://www.bilibili.com/video/BV1zwCfBuEDA/?p=1",
+        "scope": "topic_declared",
+        "missing_components": [
+          "游戏状态机设计"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "mode": {
+    "http": 0,
+    "model": 0,
+    "db_writes": 0,
+    "production_source_changes": 0
+  },
+  "source_module": {
+    "path": "tmp/phase3-work/backend/app/project_analysis.py",
+    "sha256": "3968eecf3f6c959250d2340748becb31ce419cf43bf3b934ac26863b2a47dd09"
+  },
+  "detector_cases": [
+    {
+      "id": "actual_maze_k4_skill",
+      "text": "区分暂停玩法逻辑与退出主循环",
+      "expected_stops_whole_loop": false,
+      "actual_stops_whole_loop": true,
+      "basis": "actual accepted skill compares two semantics; does not instruct quitting"
+    },
+    {
+      "id": "comparison_prefix",
+      "text": "区分退出主循环与暂停玩法逻辑",
+      "expected_stops_whole_loop": false,
+      "actual_stops_whole_loop": true,
+      "basis": "constructed comparison-only variant"
+    },
+    {
+      "id": "esc_only",
+      "text": "按 Esc 退出主循环，R 重置比赛数据。",
+      "expected_stops_whole_loop": false,
+      "actual_stops_whole_loop": true,
+      "basis": "constructed explicit authorized quit path"
+    },
+    {
+      "id": "close_only",
+      "text": "关闭窗口时退出主循环；获胜只暂停物理更新。",
+      "expected_stops_whole_loop": false,
+      "actual_stops_whole_loop": true,
+      "basis": "constructed explicit close-window path"
+    },
+    {
+      "id": "bad_gameover",
+      "text": "获胜时退出主循环，然后按 R 重开。",
+      "expected_stops_whole_loop": true,
+      "actual_stops_whole_loop": true,
+      "basis": "constructed actual unsafe restart contradiction"
+    },
+    {
+      "id": "mixed_bad_and_quit",
+      "text": "获胜时退出主循环；按 Esc 也退出。",
+      "expected_stops_whole_loop": true,
+      "actual_stops_whole_loop": true,
+      "basis": "constructed unsafe branch must not borrow quit exception"
+    },
+    {
+      "id": "negation",
+      "text": "不要退出主循环，胜利后继续处理 R 和 Esc。",
+      "expected_stops_whole_loop": false,
+      "actual_stops_whole_loop": false,
+      "basis": "constructed explicit negation"
+    },
+    {
+      "id": "physics_pause",
+      "text": "停止游戏主循环的物理更新，继续处理 R 与关窗。",
+      "expected_stops_whole_loop": false,
+      "actual_stops_whole_loop": false,
+      "basis": "constructed narrow update pause"
+    }
+  ],
+  "actual_maze_source_sha256": "6c1ce43c16593c48e9deca2021e6c95a96ba5e7a0c7b6458e94db74102b3e75d",
+  "actual_maze_issues_under_actual_source": [],
+  "synthetic_same_analysis_restart_wording_replay": {
+    "change": "Appended source sentence 按R键重新开始一轮。 to trigger existing restart-word gate; no provider call, not a new project quality verdict.",
+    "issues": [
+      {
+        "code": "unresponsive_game_restart",
+        "point_id": "k4",
+        "message": "Game over must pause playing-state physics/scoring while event handling and rendering continue for the restart key; do not stop or exit the whole game loop."
+      }
+    ]
+  },
+  "format_check": {
+    "sample": "2026-10-18",
+    "literal_format": "YYYY-MM-DD",
+    "correct_format": "%Y-%m-%d",
+    "pandas_installed": false,
+    "YYYY-MM-DD": {
+      "parsed": false,
+      "exception": "ValueError",
+      "raw_exception_not_retained": true
+    },
+    "%Y-%m-%d": {
+      "parsed": true,
+      "value": "2026-10-18T00:00:00"
+    }
+  },
+  "causal_limits": "No rejected Pong proposal was saved. These tests demonstrate detector false-positive risk only; they do not establish that the actual Pong k8 failure came from a comparison or quit sentence."
+}

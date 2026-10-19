@@ -1,0 +1,719 @@
+{
+  "review_version": "phase3-final-r2-independent-analysis-v1",
+  "created_at_utc": "2026-10-18T22:59:23.732639+00:00",
+  "mode": {
+    "upstream_http_requests": 0,
+    "model_calls": 0,
+    "database_writes": 0,
+    "stage_source_changes": 0,
+    "student_project_executed": false,
+    "hardware_executed": false
+  },
+  "frozen_rubric": {
+    "path": "evidence/phase3-audit/unseen-review-plan.json",
+    "sha256": "4813022d3ea711c5c5b392468fe254d98be8e4ca3496fe636dcf02de017baa34"
+  },
+  "run_snapshot": {
+    "path": "evidence/phase3-audit/observed-analysis-snapshots/final-r2-run.json",
+    "sha256": "6e622b5da6f46e1b8cedeed807fc8cc8e15a6e9f28d52fa882ccdc8c9dc8a844",
+    "header_note": "run.json is cumulative and retains old top-level prompt_version v3. Per-version persisted prompt_version v3.1 is the authoritative binding for these six records. Do not use the stale cumulative header to count r2 calls."
+  },
+  "records": [
+    {
+      "case_id": "bicycle_csv_advanced",
+      "project_id": "424bd3d9-7626-4498-bc90-703aab564b01",
+      "version": 7,
+      "origin": "analysis",
+      "prompt_version": "project-analysis-v3.1-consistent-recovery-observation",
+      "observed_status": "analyzed",
+      "source": {
+        "path": "evidence/phase3-audit/observed-analysis-snapshots/final-r2-bicycle_csv_advanced-v7.json",
+        "sha256": "b29691f9f05b14384817f84d2b801f6a5a985071a3ea0e608bb1d7e1604b4d8f",
+        "original_live_path": "tmp/phase3-work/evidence/phase3-live/bicycle_csv_advanced/project-view.json"
+      },
+      "input_fidelity": {
+        "matches_frozen_plan_exactly": true,
+        "original_current_and_version_equal": true,
+        "input_sha256": "6cbd5cc4cc298491446c686e26a4d5141b6c4388cf29584ee51e5369c9b61178"
+      },
+      "analysis_sha256": "5a500f8509f8b9595d8cf2d017d262f658305abc84be747cdc4cfcf0e845ecf2",
+      "issues": [],
+      "unit_count": 7,
+      "skill_count": 14,
+      "prerequisite_graph": {
+        "valid_references_and_earlier_order": true,
+        "no_cycles": true,
+        "feature_references_all_covered": true
+      },
+      "unit_review": [
+        {
+          "point_id": "k1",
+          "judgment": "适中且相关",
+          "reason": "针对read_csv、指定键去重与删行核验；高级但首次pandas，不重复Python整课。",
+          "learning_skills": [
+            "pandas 按指定列去重并保留首行",
+            "用前后 len 差值核对删行数"
+          ]
+        },
+        {
+          "point_id": "k2",
+          "judgment": "适中且相关",
+          "reason": "解析/缺失掩码是具体技能；项目列名及错误处理选项保留concepts，不要求课程用骑行数据。",
+          "learning_skills": [
+            "pandas 时间列解析与类型检查",
+            "用布尔掩码统计缺失行"
+          ]
+        },
+        {
+          "point_id": "k3",
+          "judgment": "适中且相关",
+          "reason": "严格end<start与缺失掩码分离；end==start显式保留，项目验收不弱化为任意非正时长剔除。",
+          "learning_skills": [
+            "pandas 时间列布尔比较与掩码组合",
+            "按不同失败条件分别计数"
+          ]
+        },
+        {
+          "point_id": "k4",
+          "judgment": "适中且相关",
+          "reason": "Timedelta总秒数转分钟和抽样核验；项目公式明确dt.total_seconds()/60。",
+          "learning_skills": [
+            "pandas Timedelta 差值转数值",
+            "抽样行手工核对计算结果"
+          ]
+        },
+        {
+          "point_id": "k5",
+          "judgment": "适中且相关",
+          "reason": "按时间字段分组行计数及总行数一致性；不要求视频使用相同小时列名。",
+          "learning_skills": [
+            "pandas 时间字段分组计数",
+            "聚合结果与总行数一致性校验"
+          ]
+        },
+        {
+          "point_id": "k6",
+          "judgment": "适中两facet输出练习",
+          "reason": "频次TopN与CSV列/索引导出可由两个材料组合；没有把两者等同整个数据分析。",
+          "learning_skills": [
+            "pandas 频次统计取前 N",
+            "to_csv 控制索引与列输出"
+          ]
+        },
+        {
+          "point_id": "k7",
+          "judgment": "适中且相关",
+          "reason": "首次Matplotlib需要Axes条形图与savefig/标签；工具明确，不用泛Python课替代。",
+          "learning_skills": [
+            "Matplotlib Axes 条形图绘制",
+            "savefig 导出图片并设置标题轴标签"
+          ]
+        }
+      ],
+      "disposition": "accepted_analysis_for_confirmation",
+      "ready_for_search": true,
+      "student_fit": "advanced已有Python/统计但首次pandas和Matplotlib：具体库方法入门合理，未重新安排Python整课。",
+      "requirement_checks": [
+        {
+          "id": "data_1",
+          "result": "pass",
+          "evidence": "f1/k1: trip_id去重、保留首行可改假设、前后len差值核验删行数。"
+        },
+        {
+          "id": "data_2",
+          "result": "pass",
+          "evidence": "f2/k2/k3: datetime解析、缺失/倒序分开计数；明确end==start不无效。"
+        },
+        {
+          "id": "data_3",
+          "result": "pass",
+          "evidence": "f3/k4: 有效行dt.total_seconds()/60；相等时间对应0分钟。"
+        },
+        {
+          "id": "data_4",
+          "result": "pass",
+          "evidence": "f4/k5: dt.hour groupby.size，和等于有效行数。"
+        },
+        {
+          "id": "data_5",
+          "result": "pass",
+          "evidence": "f5/k6/k7: value_counts().head(10)与Matplotlib条形图/标题/轴标签。"
+        },
+        {
+          "id": "data_6",
+          "result": "pass",
+          "evidence": "f6/k6/k7: 清洗含时长CSV、小时汇总CSV、PNG三个本地输出。"
+        }
+      ],
+      "low_observations": [
+        "k5依赖k4是构建顺序选择，小时分组算法并不严格依赖时长计算；线性路线可行，不构成错误先修。"
+      ],
+      "high_issues": 0,
+      "medium_issues": 0
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "project_id": "ec77f474-496a-4eb1-b5cc-ed0db4276ac3",
+      "version": 7,
+      "origin": "analysis",
+      "prompt_version": "project-analysis-v3.1-consistent-recovery-observation",
+      "observed_status": "analyzed",
+      "source": {
+        "path": "evidence/phase3-audit/observed-analysis-snapshots/final-r2-pygame_maze_intermediate-v7.json",
+        "sha256": "6c1ce43c16593c48e9deca2021e6c95a96ba5e7a0c7b6458e94db74102b3e75d",
+        "original_live_path": "tmp/phase3-work/evidence/phase3-live/pygame_maze_intermediate/project-view.json"
+      },
+      "input_fidelity": {
+        "matches_frozen_plan_exactly": true,
+        "original_current_and_version_equal": true,
+        "input_sha256": "1ca3a0798f7ec91870c343e74a526feaa47aaba795073329d29265b4cb1d373d"
+      },
+      "analysis_sha256": "497b4647a22285d5682bbde9eb631a33b6f70d1f19acdead9984cb53baee8e15",
+      "issues": [],
+      "unit_count": 6,
+      "skill_count": 18,
+      "prerequisite_graph": {
+        "valid_references_and_earlier_order": true,
+        "no_cycles": true,
+        "feature_references_all_covered": true
+      },
+      "unit_review": [
+        {
+          "point_id": "k1",
+          "judgment": "适中且相关",
+          "reason": "二维索引→像素格绘制；不同地图尺寸/格子大小可迁移，单纯画grid线不能证明二维列表映射。",
+          "learning_skills": [
+            "pygame 嵌套循环绘制二维网格",
+            "列表索引到屏幕像素坐标的换算",
+            "用常量表映射数据到绘制样式"
+          ]
+        },
+        {
+          "point_id": "k2",
+          "judgment": "适中且相关",
+          "reason": "明确KEYDOWN与get_pressed持续状态差异并关闭按键重复，保留方法语义。",
+          "learning_skills": [
+            "pygame KEYDOWN 与 get_pressed 的语义差异",
+            "维护 (行, 列) 坐标并按方向偏移更新",
+            "关闭按键重复实现一次按下一次动作"
+          ]
+        },
+        {
+          "point_id": "k3",
+          "judgment": "适中且相关",
+          "reason": "候选移动先边界再墙判定后提交；Python owner合理，保留0..7项目边界。",
+          "learning_skills": [
+            "二维网格边界与越界防护",
+            "用查表读取格子类型并过滤非法移动",
+            "先校验后提交的状态更新模式"
+          ]
+        },
+        {
+          "point_id": "k4",
+          "judgment": "适中且相关，存在非阻断措辞观察",
+          "reason": "状态分支与持续循环正确；比较退出主循环是概念辨析，不是退出指令。可在实际教材中寻找状态机和文字显示各自支持，不能一节字体课冒充整个状态机。",
+          "learning_skills": [
+            "用字符串状态机组织事件与绘制分支",
+            "区分暂停玩法逻辑与退出主循环",
+            "入口条件与出口条件的状态转移设计"
+          ]
+        },
+        {
+          "point_id": "k5",
+          "judgment": "适中且相关",
+          "reason": "perf_counter真实时间差与Clock.tick限帧分离；不得以限帧课声称实际耗时算法已教。",
+          "learning_skills": [
+            "用时间戳差值计算经过时间",
+            "pygame Clock.tick 帧率上限设置",
+            "格式化秒数显示（保留 1 位小数）"
+          ]
+        },
+        {
+          "point_id": "k6",
+          "judgment": "适中集成练习",
+          "reason": "重用初始化/集中reset并保持事件响应，课程可用其他游戏和状态标签，不需同款迷宫。",
+          "learning_skills": [
+            "集中式状态重置函数设计",
+            "复用初始化数据避免重复字面量",
+            "重置后验证状态与计时的一致性"
+          ]
+        }
+      ],
+      "disposition": "accepted_analysis_for_confirmation",
+      "ready_for_search": true,
+      "student_fit": "中级已会Python列表/循环/函数与pygame窗口绘图；学习目标聚焦新网格、离散输入、状态/重置和时间，未强加语言重学。",
+      "requirement_checks": [
+        {
+          "id": "maze_1",
+          "result": "pass",
+          "evidence": "f1/k1: 8x8二维列表，row/col→pixel及墙路出口。"
+        },
+        {
+          "id": "maze_2",
+          "result": "pass",
+          "evidence": "f2/k2/k3: KEYDOWN且关闭repeat；先边界与墙判断，不越界不穿墙。"
+        },
+        {
+          "id": "maze_3",
+          "result": "pass",
+          "evidence": "f3/k4/k5: 到出口won、胜利与冻结的真实耗时显示。"
+        },
+        {
+          "id": "maze_4",
+          "result": "pass",
+          "evidence": "f4/k6: 各状态R恢复起点/计时/ready，循环持续。"
+        },
+        {
+          "id": "maze_5",
+          "result": "pass",
+          "evidence": "f5/k4/k6: ready/playing/won均处理Esc和关窗，胜利只停玩法。"
+        },
+        {
+          "id": "maze_6",
+          "result": "pass",
+          "evidence": "f6/k5: perf_counter差值与Clock.tick限帧分别说明。"
+        }
+      ],
+      "low_observations": [
+        "k4.practice的“开始前按键不移动”与首次方向键启动需说明第一个方向键是否兼做首步；按一个清晰一致状态转移实现即可，不能从当前短句断定程序必然错误。",
+        "胜利文字显示是明确项目行为；未来课程审核要分别核文本显示与状态机支持，不把“格式化秒数”或font示例当整套状态机已教。",
+        "6单元的learning_order为1,2,3,4,6,7，非连续但依赖关系有效；不是语义失败。"
+      ],
+      "high_issues": 0,
+      "medium_issues": 0
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "project_id": "dbbc7902-f26a-4a94-9e64-390d42f9fe45",
+      "version": 6,
+      "origin": "analysis",
+      "prompt_version": "project-analysis-v3.1-consistent-recovery-observation",
+      "observed_status": "analyzed",
+      "source": {
+        "path": "evidence/phase3-audit/observed-analysis-snapshots/final-r2-arduino_reaction_beginner-v6.json",
+        "sha256": "51973ff811ce4a1822fcb116376343f95cf06878d77e70027040593a3d52b4bc",
+        "original_live_path": "tmp/phase3-work/evidence/phase3-live/arduino_reaction_beginner/project-view.json"
+      },
+      "input_fidelity": {
+        "matches_frozen_plan_exactly": true,
+        "original_current_and_version_equal": true,
+        "input_sha256": "317664081f9ac76b224542e4f602236b8c998f730777dcb77188805f35b5d23d"
+      },
+      "analysis_sha256": "d8337a51e880732432466457e22a7ec31fe8843f6b0d6324ab6c207a22db987f",
+      "issues": [
+        {
+          "id": "reaction-v6-first-check-needs-untaught-input-observation",
+          "severity": "medium",
+          "priority": "P2",
+          "pointer": "/version/analysis/knowledge_points/0/practice_check",
+          "quote": "断电接线后上电，运行最小点灯程序使 LED 稳定亮、灭；用串口或简单程序确认按钮未按时读 HIGH、按下时读 LOW。",
+          "reason": "本单元只教安全接线；背景未做按钮，最小digitalRead/INPUT_PULLUP/Serial.begin程序到k2才讲。没有已解释脚手架时第一步无法按当前所学验证。",
+          "contrast_pointer": "/version/analysis/knowledge_points/1/description",
+          "contrast_quote": "用 pinMode 设置输出/输入，用 digitalWrite 控制 LED，用 digitalRead 读取按钮；通过 Serial.begin/Serial.println 把按钮读数显示到串口监视器，建立可观察的调试路径。",
+          "proposed_edit": "evidence/phase3-audit/final-r2-arduino_reaction_beginner-student-edit-proposal.json"
+        }
+      ],
+      "unit_count": 5,
+      "skill_count": 15,
+      "prerequisite_graph": {
+        "valid_references_and_earlier_order": true,
+        "no_cycles": true,
+        "feature_references_all_covered": true
+      },
+      "unit_review": [
+        {
+          "point_id": "k1",
+          "judgment": "需修教学顺序",
+          "reason": "接线技能本身恰当，但practice先要求还未教的按钮电平/串口程序，见P2。",
+          "learning_skills": [
+            "按极性识别 LED 并串联限流电阻",
+            "用万用表或图示检查共地与通断",
+            "在断电状态下完成并复核低压面包板接线"
+          ]
+        },
+        {
+          "point_id": "k2",
+          "judgment": "适中且相关",
+          "reason": "数字IO和Serial.begin/println最小观察路径在本单元明确；背景不假定会按钮。",
+          "learning_skills": [
+            "Arduino 数字输出点灯与数字输入读取",
+            "串口监视器打印并观察输入电平变化",
+            "用串口输出定位接线或引脚错误"
+          ]
+        },
+        {
+          "point_id": "k3",
+          "judgment": "适中且相关",
+          "reason": "稳定时间窗后再HIGH→LOW边沿，长按单次；不将原始前后电平比较误当去抖。",
+          "learning_skills": [
+            "Arduino 用 millis 实现稳定时间窗去抖",
+            "从去抖后的状态识别单次按下沿事件",
+            "用串口计数验证长按不重复触发"
+          ]
+        },
+        {
+          "point_id": "k4",
+          "judgment": "适中且相关",
+          "reason": "millis非阻塞等待+random上界不含端点；2000–5000常量留实践，区间算法保留技能。",
+          "learning_skills": [
+            "Arduino 用 millis 做非阻塞定时等待",
+            "用 random 生成区间随机等待毫秒并处理开区间上界",
+            "用状态变量组织等待与亮灯切换"
+          ]
+        },
+        {
+          "point_id": "k5",
+          "judgment": "适中集成练习",
+          "reason": "只用去抖单次事件整合WAIT抢按/LED_ON反应差值/IDLE再开，未引入电机联网等无关项。",
+          "learning_skills": [
+            "Arduino 状态机整合输入事件与输出控制",
+            "用 millis 时间差计算反应毫秒",
+            "通过串口测试抢按、正常反应和长按场景"
+          ]
+        }
+      ],
+      "disposition": "changes_required_before_confirmation",
+      "ready_for_search": false,
+      "student_fit": "初学者只明确会上传/点灯，不能把数字按钮读取或串口观察当已会。安全接线→IO观察→稳定去抖→非阻塞等待→状态整合总体适合。",
+      "requirement_checks": [
+        {
+          "id": "reaction_1",
+          "result": "needs_change",
+          "evidence": "安全接线/单IO要求覆盖，但k1练习先要求k2首次教授的按钮读值/串口。"
+        },
+        {
+          "id": "reaction_2",
+          "result": "pass",
+          "evidence": "INPUT_PULLUP低有效；稳定30–50ms后HIGH→LOW事件；长按不重复。"
+        },
+        {
+          "id": "reaction_3",
+          "result": "pass",
+          "evidence": "millis差值非阻塞，random(2000,5001)解释含5000端点。"
+        },
+        {
+          "id": "reaction_4",
+          "result": "pass",
+          "evidence": "WAIT去抖按下判抢按，不亮灯，回可开始状态。"
+        },
+        {
+          "id": "reaction_5",
+          "result": "pass",
+          "evidence": "LED_ON亮灯时刻到有效按下的millis差显示毫秒。"
+        },
+        {
+          "id": "reaction_6",
+          "result": "pass",
+          "evidence": "结果后新的单次按下才再开，长按不会重复，未引入无关硬件。"
+        }
+      ],
+      "low_observations": [
+        "k4.practice复用k3去抖事件但prerequisite只列k2；既定顺序先学k3可行，若允许分支选学可明确依赖。"
+      ],
+      "high_issues": 0,
+      "medium_issues": 1
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "project_id": "bb01c9ec-8b25-4425-832e-ccd9fa7d0a60",
+      "version": 3,
+      "origin": "analysis",
+      "prompt_version": "project-analysis-v3.1-consistent-recovery-observation",
+      "observed_status": "analyzed",
+      "source": {
+        "path": "evidence/phase3-audit/observed-analysis-snapshots/final-r2-study_room_streamlit_intermediate-v3.json",
+        "sha256": "c4242405adf1b9dcfd34d1849bd948f541675adb97ac69a3011c8b81017097b9",
+        "original_live_path": "tmp/phase3-work/evidence/phase3-live/study_room_streamlit_intermediate/project-view.json"
+      },
+      "input_fidelity": {
+        "matches_frozen_plan_exactly": true,
+        "original_current_and_version_equal": true,
+        "input_sha256": "69bed53e0c58d1d40509c554955be013a76cbbc51653793fbca85a1c93f616f4"
+      },
+      "analysis_sha256": "df981958b3542b2f8cee34fd43d4cf6c45f5b93e8f6f4329ab6246c618661872",
+      "issues": [
+        {
+          "id": "dashboard-v3-date-format-inconsistent",
+          "severity": "medium",
+          "priority": "P2",
+          "pointer": "/version/analysis/technical_plan",
+          "quote": "pd.to_datetime(format='YYYY-MM-DD', errors='coerce')",
+          "reason": "YYYY-MM-DD是输入布局说明，不能原样作为pandas的格式指令。技术总方案与本计划单元给出的%Y-%m-%d互相矛盾；照总方案将合法日期视作解析失败。",
+          "contrast_pointer": "/version/analysis/knowledge_points/2/concepts/0",
+          "contrast_quote": "pd.to_datetime(format='%Y-%m-%d',errors='coerce')",
+          "validation_scope": "仅做本地标准日期格式指令演示；D venv没有pandas，未声称执行pandas或学生应用。",
+          "proposed_edit": "evidence/phase3-audit/final-r2-study_room_streamlit_intermediate-student-edit-proposal.json"
+        }
+      ],
+      "unit_count": 6,
+      "skill_count": 16,
+      "prerequisite_graph": {
+        "valid_references_and_earlier_order": true,
+        "no_cycles": true,
+        "feature_references_all_covered": true
+      },
+      "unit_review": [
+        {
+          "point_id": "k1",
+          "judgment": "适中且相关",
+          "reason": "首次Streamlit需页面/上传/None早退/重运行；CSV读取为已知pandas背景可复用。",
+          "learning_skills": [
+            "Streamlit 单文件应用骨架搭建",
+            "st.file_uploader 上传文件读取",
+            "条件早退避免空输入下游报错"
+          ]
+        },
+        {
+          "point_id": "k2",
+          "judgment": "适中且相关",
+          "reason": "内存文件对象读取与列集合报告是上传情境增量，不是重上pandas整课。",
+          "learning_skills": [
+            "pandas 从内存对象读取 CSV",
+            "DataFrame 列集合校验与缺失列报告"
+          ]
+        },
+        {
+          "point_id": "k3",
+          "judgment": "单元方法恰当，总方案与此矛盾",
+          "reason": "单元concept正确%Y-%m-%d；组合日期/整数范围/容量乘积校验和排除计数，保留零值与不去重。",
+          "learning_skills": [
+            "pandas 严格日期解析与缺失值识别",
+            "pandas 多条件布尔掩码组合筛选",
+            "数值列范围校验与非法行计数"
+          ]
+        },
+        {
+          "point_id": "k4",
+          "judgment": "适中且相关",
+          "reason": "明确date_input与multiselect返回值、闭区间、空选择=空结果，未退回通用控件族。",
+          "learning_skills": [
+            "Streamlit date_input/multiselect 返回值处理",
+            "pandas 闭区间日期与集合包含过滤",
+            "筛选空结果语义控制（空即无结果）"
+          ]
+        },
+        {
+          "point_id": "k5",
+          "judgment": "适中且相关",
+          "reason": "加权总量比不是行均值；空分支、1位百分比是具体方法，项目列名不要求课程照抄。",
+          "learning_skills": [
+            "pandas 列求和与加权比率计算",
+            "百分比数值格式化与空数据分支展示"
+          ]
+        },
+        {
+          "point_id": "k6",
+          "judgment": "适中且相关",
+          "reason": "已知groupby复用到Streamlit bar_chart数据形态/非空绘制；不要求每课覆盖整个看板。",
+          "learning_skills": [
+            "pandas 按类别分组求和",
+            "Streamlit 条形图数据形态与绘制",
+            "空结果分支跳过绘图"
+          ]
+        }
+      ],
+      "disposition": "changes_required_before_confirmation",
+      "ready_for_search": false,
+      "student_fit": "中级已会Python/pandas常用读取/筛选/groupby但首次Streamlit：6单元针对上传、具体控件、重运行、一致口径与空状态，未加ML/云/DB。",
+      "requirement_checks": [
+        {
+          "id": "dashboard_1",
+          "result": "pass",
+          "evidence": "f1/k1/k2: 上传/None提示、内存CSV与缺列错误，保持可重新操作。"
+        },
+        {
+          "id": "dashboard_2",
+          "result": "needs_change",
+          "evidence": "f2/k3保留全部数值/零值/不去重条件，但technical_plan日期format字面与k3正确指令矛盾。"
+        },
+        {
+          "id": "dashboard_3",
+          "result": "pass",
+          "evidence": "f3/k4: 实际date_input/multiselect、含等号日期、空房间为空。"
+        },
+        {
+          "id": "dashboard_4",
+          "result": "pass",
+          "evidence": "f4/k5: 总量比/非行均值、有效0保留、1位百分比与空—。"
+        },
+        {
+          "id": "dashboard_5",
+          "result": "pass",
+          "evidence": "f5/k6: 同filtered_df按room sum(visits)用st.bar_chart。"
+        },
+        {
+          "id": "dashboard_6",
+          "result": "pass_with_nonblocking_clarification",
+          "evidence": "scope/k1/k5/k6: 提示可操作、空指标—/不除零不画图；建议实现时在有效数据本身为空时也先分支，避免min/max默认日期无值。"
+        }
+      ],
+      "low_observations": [
+        "有效数据整份为空时，应在生成日期默认min/max前给出空数据提示与可重新上传路径；当前主要明确的是筛选后空结果，实际实现时需覆盖这一子状态，不能据短计划认定程序已经崩溃。"
+      ],
+      "high_issues": 0,
+      "medium_issues": 1
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "version": 6,
+      "origin": "analysis",
+      "prompt_version": "project-analysis-v3.1-consistent-recovery-observation",
+      "observed_status": "analysis_failed",
+      "source": {
+        "path": "evidence/phase3-audit/observed-analysis-snapshots/final-r2-web_pomodoro_beginner-v6.json",
+        "sha256": "cecc04b00f3d1082c40861dc8bdf726406a0021569aae26cf63da4c3f8b656ef",
+        "original_live_path": "tmp/phase3-work/evidence/phase3-live/web_pomodoro_beginner/project-view.json"
+      },
+      "input_fidelity": {
+        "matches_frozen_plan_exactly": true,
+        "original_current_and_version_equal": true,
+        "input_sha256": "8578b758f3ea6b4ad5ae3b9786cc1b3f8bc12c30501ec7f70ca26a8490befe17"
+      },
+      "analysis_sha256": null,
+      "issues": [],
+      "disposition": "unreviewable_generation_failed",
+      "ready_for_search": false,
+      "unit_count": 0,
+      "observed_error": {
+        "code": "invalid_json",
+        "message": "项目分析结构校验失败，有限修正仍未通过。原始输入已保留，请调整需求后重试。",
+        "diagnostics": [
+          {
+            "type": "invalid_json",
+            "message": "Return exactly a valid JSON object without Markdown fences."
+          },
+          {
+            "type": "attempt_history",
+            "attempts": [
+              {
+                "attempt": 1,
+                "phase": "semantic_review",
+                "category": "semantic_quality",
+                "issue_count": 4
+              },
+              {
+                "attempt": 2,
+                "phase": "generation",
+                "category": "invalid_json",
+                "exception_type": "JSONDecodeError",
+                "line": 1,
+                "column": 1228,
+                "position": 1227
+              }
+            ]
+          }
+        ]
+      },
+      "semantic_content": "No accepted analysis or rejected draft is available; no semantic requirement/skill scores assigned. Cannot infer wording from a rule ID.",
+      "failure_interpretation": {
+        "proven": "attempt1 reached semantic_review and returned a blocking report (4 issues by fixed count); attempt2 failed JSON decoding at line1,column1228,position1227.",
+        "unknown": "Earlier four issue messages/codes and rejected draft were not persisted here; cannot list or judge them. JSON location alone does not prove truncation or a specific malformed token.",
+        "not_passed": "The model-review pipeline did not produce a usable plan; do not confirm/search this version."
+      },
+      "high_issues": 0,
+      "medium_issues": 0
+    },
+    {
+      "case_id": "phase3_pygame_pong_intermediate",
+      "project_id": "3c339e7c-7f22-4aa5-aebc-3ac2f412d65c",
+      "version": 2,
+      "origin": "analysis",
+      "prompt_version": "project-analysis-v3.1-consistent-recovery-observation",
+      "observed_status": "analysis_failed",
+      "source": {
+        "path": "evidence/phase3-audit/observed-analysis-snapshots/final-r2-phase3_pygame_pong_intermediate-v2.json",
+        "sha256": "19b89a7f7997023798871784d19c9c53b0244993ec44d8003ddbbd4012af47c8",
+        "original_live_path": "tmp/phase3-work/evidence/phase3-live/phase3_pygame_pong_intermediate/project-view.json"
+      },
+      "input_fidelity": {
+        "matches_frozen_plan_exactly": true,
+        "original_current_and_version_equal": true,
+        "input_sha256": "a7936fc1add6c23c8bd09aeb336ad7869b638fea6041c15adb8155134a9669df"
+      },
+      "analysis_sha256": null,
+      "issues": [],
+      "disposition": "unreviewable_generation_failed",
+      "ready_for_search": false,
+      "unit_count": 0,
+      "observed_error": {
+        "code": "quality",
+        "message": "学习单元的需求覆盖、行为约束或学习说明复核未通过，有限修正仍有问题。原始输入已保留，请检查需求和项目背景后重试。",
+        "diagnostics": [
+          {
+            "type": "learning_unit_quality",
+            "code": "unresponsive_game_restart",
+            "point_id": "k8",
+            "message": "Game over must pause playing-state physics/scoring while event handling and rendering continue for the restart key; do not stop or exit the whole game loop."
+          },
+          {
+            "type": "attempt_history",
+            "attempts": [
+              {
+                "attempt": 1,
+                "phase": "generation",
+                "category": "learning_unit_quality",
+                "issue_count": 1
+              },
+              {
+                "attempt": 2,
+                "phase": "generation",
+                "category": "learning_unit_quality",
+                "issue_count": 1
+              }
+            ]
+          }
+        ]
+      },
+      "semantic_content": "No accepted analysis or rejected draft is available; no semantic requirement/skill scores assigned. Cannot infer wording from a rule ID.",
+      "failure_interpretation": {
+        "proven": "Both failed bounded generation attempts reached learning_unit_quality with one issue each; final feedback identifies unresponsive_game_restart at k8.",
+        "unknown": "No rejected draft, matching field, matched phrase or surrounding scope is retained. It is not possible to decide whether the actual k8 was an unsafe stop instruction, a comparison, a legal quit branch or something else.",
+        "detector_risk_not_causal_finding": "Independent actual maze phrase and constructed quit/comparison cases prove over-rejection risk, not the cause of this specific Pong rejection.",
+        "not_passed": "No usable plan; retain original v1 invalid_json and explicit v2 quality failure separately."
+      },
+      "high_issues": 0,
+      "medium_issues": 0
+    }
+  ],
+  "detector_review": {
+    "priority": "P2",
+    "source": {
+      "path": "evidence/phase3-audit/final-r2-detector-and-format-review.json",
+      "sha256": "028db40107977ffa21c4f7edf188616cca824553228d5336930335d189f29a8b"
+    },
+    "confirmed_risk": "Actual accepted maze skill compares paused gameplay with exiting the loop; current function rejects that phrase. Explicit Esc/close exits also reject in constructed tests.",
+    "minimal_fix_direction": "Recognize only bounded grammatical comparison scopes and explicit quit-event branches. Keep game-over→stop-loop→R contradictions rejected, including a bad branch adjacent to an allowed quit branch; never let any occurrence of quit/compare exempt the whole paragraph.",
+    "source_gate_note": "Current restart gate includes 重开/重新开始/restart but not 重置; actual maze source produces no quality issues, while a detector-only synonymous restart sentence triggers the false k4 issue. This does not change the actual maze semantic judgment.",
+    "actual_pong_cause": "unknown; no rejected draft retained",
+    "follow_up_owner": "backend_readiness isolated guard candidate; this review edits no source."
+  },
+  "summary": {
+    "old_case_analysis_versions_reviewed": 5,
+    "old_case_analyzed": 4,
+    "old_case_analysis_failed": 1,
+    "explicit_pong_retry_failed": 1,
+    "analyzed_units_reviewed": 24,
+    "analyzed_units_accepted_for_confirmation": 13,
+    "analyzed_units_in_plans_requiring_one_field_correction": 11,
+    "accepted_analysis_cases": [
+      "bicycle_csv_advanced v7",
+      "pygame_maze_intermediate v7"
+    ],
+    "changes_required_cases": [
+      "arduino_reaction_beginner v6",
+      "study_room_streamlit_intermediate v3"
+    ],
+    "unreviewable_failed_cases": [
+      "web_pomodoro_beginner v6",
+      "phase3_pygame_pong_intermediate v2"
+    ],
+    "P1_content_issues": 0,
+    "P2_content_issues": 2,
+    "P2_software_false_positive_risk": 1,
+    "new_model_calls_by_reviewer": 0,
+    "production_ready_or_recommendation_claim": "None. Analysis acceptance only; no source/course/video utility or student implementation execution has been assessed in this report.",
+    "first_generation_boundary": "Current versions are repeated real regressions of existing projects. Proposed student_edit corrections are not fresh-generation passes and are not executed by this reviewer.",
+    "cost_and_latency": "This read-only review makes no provider calls. The cumulative run and failed-attempt diagnostics are not a complete provider-usage ledger; exact actual call IDs/tokens/latency should be bound to root observer events, not inferred from timestamps or configured ceilings."
+  }
+}

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>Pygame Tutorial - Scoring &amp; Health Bars</title><meta content="Pygame Tutorial - Scoring &amp; Health Bars" property="og:title"/><meta content="This pygame tutorial goes over creating health bars and implemtning a scoring system. We can create a pygame health bar by drawing two rectangles and changing their dimesnions." property="og:description"/></head><body><div class="tutoriallayout__Grid-sc-7tt52k-0 bKOwPl"><div class="tutoriallayout__Content-sc-7tt52k-1 BwHlb"><div class="back__BackButton-sc-1z11glm-0 gdHgfv">Go back</div><h1 class="tutoriallayout__Title-sc-7tt52k-3 fSVODy">Scoring &amp; Health Bars</h1><div class="tutoriallayout__EmbededVideo-sc-7tt52k-2 fdHLFF"><iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" frameborder="0" src="https://www.youtube.com/embed/JLUqOmE9veI" title="Scoring &amp; Health Bars"></iframe></div><a class="tutoriallayout__Subscribe-sc-7tt52k-5 hFrKpH" href="https://www.youtube.com/channel/UC4JX40jDee_tINbkjycV4Sg?sub_confirmation=1&amp;feature=subscribe-embed-click" rel="noreferrer" target="_blank"><h5>Subscribe to Tech with Tim</h5><div class="tutoriallayout__YouTube-sc-7tt52k-6 jEucXN">YouTube</div></a><div class="markdown__Container-sc-8ik6ve-7 dNvCkQ"><h2 class="markdown__H2-sc-8ik6ve-1 iQehEn">Score</h2>
+<p class="markdown__P-sc-8ik6ve-5 fKdUXx">For simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.</p>
+<p class="markdown__P-sc-8ik6ve-5 fKdUXx">We are going to start by creating a variable at the top of our program called score.</p>
+<pre>score = 0
+</pre>
+<p class="markdown__P-sc-8ik6ve-5 fKdUXx">Next we are going to increment the score from our main loop where we check if the goblin is hit.</p>
+<pre># This code exists inside the main loop
+    for bullet in bullets:
+        if bullet.y - bullet.radius &lt; goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius &gt; goblin.hitbox[1]:
+            if bullet.x + bullet.radius &gt; goblin.hitbox[0] and bullet.x - bullet.radius &lt; goblin.hitbox[0] + goblin.hitbox[2]:
+                goblin.hit()
+                score += 1 # NEW CODE
+                bullets.pop(bullets.index(bullet))
+</pre>
+<p class="markdown__P-sc-8ik6ve-5 fKdUXx">We would like to display this score to the screen. To do this we must first create a font object.</p>
+<pre>font = pygame.font.SysFont("comicsans", 30, True)
+# The first argument is the font, next is size 
+# and then True to make our font bold
+</pre>
+<p class="markdown__P-sc-8ik6ve-5 fKdUXx">After we create our font we need to render some text and blit it to the screen.</p>
+<pre># This should go inside the redrawGameWindow function
+text = font.render("Score: " + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color
+win.blit(text, (390, 10))
+</pre>
+<h2 class="markdown__H2-sc-8ik6ve-1 iQehEn">Health Bar</h2>
+<p class="markdown__P-sc-8ik6ve-5 fKdUXx">What we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.</p>
+<p class="markdown__P-sc-8ik6ve-5 fKdUXx">To do this we must modify the enemy class like so.</p>
+<pre>class enemy(object):
+    walkRight = [pygame.image.load('R1E.png'), pygame.image.load('R2E.png'), pygame.image.load('R3E.png'), pygame.image.load('R4E.png'), pygame.image.load('R5E.png'), pygame.image.load('R6E.png'), pygame.image.load('R7E.png'), pygame.image.load('R8E.png'), pygame.image.load('R9E.png'), pygame.image.load('R10E.png'), pygame.image.load('R11E.png')]
+    walkLeft = [pygame.image.load('L1E.png'), pygame.image.load('L2E.png'), pygame.image.load('L3E.png'), pygame.image.load('L4E.png'), pygame.image.load('L5E.png'), pygame.image.load('L6E.png'), pygame.image.load('L7E.png'), pygame.image.load('L8E.png'), pygame.image.load('L9E.png'), pygame.image.load('L10E.png'), pygame.image.load('L11E.png')]
+
+    def __init__(self, x, y, width, height, end):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.end = end
+        self.path = [self.x, self.end]
+        self.walkCount = 0
+        self.vel = 3
+        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+        self.health = 10 # NEW
+        self.visible = True # NEW
+
+    def draw(self,win):
+        self.move()
+        if self.visible: # NEW
+            if self.walkCount + 1 &gt;= 33:
+                self.walkCount = 0
+
+            if self.vel &gt; 0:
+                win.blit(self.walkRight[self.walkCount //3], (self.x, self.y))
+                self.walkCount += 1
+            else:
+                win.blit(self.walkLeft[self.walkCount //3], (self.x, self.y))
+                self.walkCount += 1
+
+            pygame.draw.rect(win, (255,0,0), (self.hitbox[0], self.hitbox[1] - 20, 50, 10)) # NEW
+            pygame.draw.rect(win, (0,128,0), (self.hitbox[0], self.hitbox[1] - 20, 50 - (5 * (10 - self.health)), 10)) # NEW
+            self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+            #pygame.draw.rect(win, (255,0,0), self.hitbox,2)
+
+    def move(self):
+        if self.vel &gt; 0:
+            if self.x + self.vel &lt; self.path[1]:
+                self.x += self.vel
+            else:
+                self.vel = self.vel * -1
+                self.walkCount = 0
+        else:
+            if self.x - self.vel &gt; self.path[0]:
+                self.x += self.vel
+            else:
+                self.vel = self.vel * -1
+                self.walkCount = 0
+
+    def hit(self): # ALL NEW
+        if self.health &gt; 0:
+            self.health -= 1
+        else:
+            self.visible = False
+        print('hit')
+</pre>
+<p class="markdown__P-sc-8ik6ve-5 fKdUXx">Now we have a health bar that will move down as our goblin is hit.
+</p>
+<h2 class="markdown__H2-sc-8ik6ve-1 iQehEn">Full Code</h2>
+<p class="markdown__P-sc-8ik6ve-5 fKdUXx">If you are confused by any of this code the video above offers more in depth explanations.</p>
+<pre>import pygame
+pygame.init()
+
+win = pygame.display.set_mode((500,480))
+
+pygame.display.set_caption("First Game")
+
+walkRight = [pygame.image.load('R1.png'), pygame.image.load('R2.png'), pygame.image.load('R3.png'), pygame.image.load('R4.png'), pygame.image.load('R5.png'), pygame.image.load('R6.png'), pygame.image.load('R7.png'), pygame.image.load('R8.png'), pygame.image.load('R9.png')]
+walkLeft = [pygame.image.load('L1.png'), pygame.image.load('L2.png'), pygame.image.load('L3.png'), pygame.image.load('L4.png'), pygame.image.load('L5.png'), pygame.image.load('L6.png'), pygame.image.load('L7.png'), pygame.image.load('L8.png'), pygame.image.load('L9.png')]
+bg = pygame.image.load('bg.jpg')
+char = pygame.image.load('standing.png')
+
+clock = pygame.time.Clock()
+
+score = 0
+
+class player(object):
+    def __init__(self,x,y,width,height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.vel = 5
+        self.isJump = False
+        self.left = False
+        self.right = False
+        self.walkCount = 0
+        self.jumpCount = 10
+        self.standing = True
+        self.hitbox = (self.x + 17, self.y + 11, 29, 52)
+
+    def draw(self, win):
+        if self.walkCount + 1 &gt;= 27:
+            self.walkCount = 0
+
+        if not(self.standing):
+            if self.left:
+                win.blit(walkLeft[self.walkCount//3], (self.x,self.y))
+                self.walkCount += 1
+            elif self.right:
+                win.blit(walkRight[self.walkCount//3], (self.x,self.y))
+                self.walkCount +=1
+        else:
+            if self.right:
+                win.blit(walkRight[0], (self.x, self.y))
+            else:
+                win.blit(walkLeft[0], (self.x, self.y))
+        self.hitbox = (self.x + 17, self.y + 11, 29, 52)
+        #pygame.draw.rect(win, (255,0,0), self.hitbox,2)
+                
+
+
+class projectile(object):
+    def __init__(self,x,y,radius,color,facing):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+        self.facing = facing
+        self.vel = 8 * facing
+
+    def draw(self,win):
+        pygame.draw.circle(win, self.color, (self.x,self.y), self.radius)
+
+
+class enemy(object):
+    walkRight = [pygame.image.load('R1E.png'), pygame.image.load('R2E.png'), pygame.image.load('R3E.png'), pygame.image.load('R4E.png'), pygame.image.load('R5E.png'), pygame.image.load('R6E.png'), pygame.image.load('R7E.png'), pygame.image.load('R8E.png'), pygame.image.load('R9E.png'), pygame.image.load('R10E.png'), pygame.image.load('R11E.png')]
+    walkLeft = [pygame.image.load('L1E.png'), pygame.image.load('L2E.png'), pygame.image.load('L3E.png'), pygame.image.load('L4E.png'), pygame.image.load('L5E.png'), pygame.image.load('L6E.png'), pygame.image.load('L7E.png'), pygame.image.load('L8E.png'), pygame.image.load('L9E.png'), pygame.image.load('L10E.png'), pygame.image.load('L11E.png')]
+
+    def __init__(self, x, y, width, height, end):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.end = end
+        self.path = [self.x, self.end]
+        self.walkCount = 0
+        self.vel = 3
+        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+        self.health = 10
+        self.visible = True
+
+    def draw(self,win):
+        self.move()
+        if self.visible:
+            if self.walkCount + 1 &gt;= 33:
+                self.walkCount = 0
+
+            if self.vel &gt; 0:
+                win.blit(self.walkRight[self.walkCount //3], (self.x, self.y))
+                self.walkCount += 1
+            else:
+                win.blit(self.walkLeft[self.walkCount //3], (self.x, self.y))
+                self.walkCount += 1
+
+            pygame.draw.rect(win, (255,0,0), (self.hitbox[0], self.hitbox[1] - 20, 50, 10))
+            pygame.draw.rect(win, (0,128,0), (self.hitbox[0], self.hitbox[1] - 20, 50 - (5 * (10 - self.health)), 10))
+            self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+            #pygame.draw.rect(win, (255,0,0), self.hitbox,2)
+
+    def move(self):
+        if self.vel &gt; 0:
+            if self.x + self.vel &lt; self.path[1]:
+                self.x += self.vel
+            else:
+                self.vel = self.vel * -1
+                self.walkCount = 0
+        else:
+            if self.x - self.vel &gt; self.path[0]:
+                self.x += self.vel
+            else:
+                self.vel = self.vel * -1
+                self.walkCount = 0
+
+    def hit(self):
+        if self.health &gt; 0:
+            self.health -= 1
+        else:
+            self.visible = False
+        print('hit')
+
+        
+
+def redrawGameWindow():
+    win.blit(bg, (0,0))
+    text = font.render('Score: ' + str(score), 1, (0,0,0))
+    win.blit(text, (390, 10))
+    man.draw(win)
+    goblin.draw(win)
+    for bullet in bullets:
+        bullet.draw(win)
+    
+    pygame.display.update()
+
+
+#mainloop
+font = pygame.font.SysFont('comicsans', 30, True)
+man = player(200, 410, 64,64)
+goblin = enemy(100, 410, 64, 64, 450)
+shootLoop = 0
+bullets = []
+run = True
+while run:
+    clock.tick(27)
+
+    if shootLoop &gt; 0:
+        shootLoop += 1
+    if shootLoop &gt; 3:
+        shootLoop = 0
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        
+    for bullet in bullets:
+        if bullet.y - bullet.radius &lt; goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius &gt; goblin.hitbox[1]:
+            if bullet.x + bullet.radius &gt; goblin.hitbox[0] and bullet.x - bullet.radius &lt; goblin.hitbox[0] + goblin.hitbox[2]:
+                goblin.hit()
+                score += 1
+                bullets.pop(bullets.index(bullet))
+                
+        if bullet.x &lt; 500 and bullet.x &gt; 0:
+            bullet.x += bullet.vel
+        else:
+            bullets.pop(bullets.index(bullet))
+
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_SPACE] and shootLoop == 0:
+        if man.left:
+            facing = -1
+        else:
+            facing = 1
+            
+        if len(bullets) &lt; 5:
+            bullets.append(projectile(round(man.x + man.width //2), round(man.y + man.height//2), 6, (0,0,0), facing))
+
+        shootLoop = 1
+
+    if keys[pygame.K_LEFT] and man.x &gt; man.vel:
+        man.x -= man.vel
+        man.left = True
+        man.right = False
+        man.standing = False
+    elif keys[pygame.K_RIGHT] and man.x &lt; 500 - man.width - man.vel:
+        man.x += man.vel
+        man.right = True
+        man.left = False
+        man.standing = False
+    else:
+        man.standing = True
+        man.walkCount = 0
+        
+    if not(man.isJump):
+        if keys[pygame.K_UP]:
+            man.isJump = True
+            man.right = False
+            man.left = False
+            man.walkCount = 0
+    else:
+        if man.jumpCount &gt;= -10:
+            neg = 1
+            if man.jumpCount &lt; 0:
+                neg = -1
+            man.y -= (man.jumpCount ** 2) * 0.5 * neg
+            man.jumpCount -= 1
+        else:
+            man.isJump = False
+            man.jumpCount = 10
+            
+    redrawGameWindow()
+
+pygame.quit()
+</pre></div></div><div class="tutoriallayout__Lessons-sc-7tt52k-7 ewaOEm"><a href="/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement"><div></div>Basic Movement &amp; Key Presses</a><a href="/tutorials/game-development-with-python/pygame-tutorial/pygame-animation"><div></div>Character Animation &amp; Sprites</a><a href="/tutorials/game-development-with-python/pygame-tutorial/optimization"><div></div>Optimization &amp; OOP</a><a href="/tutorials/game-development-with-python/pygame-tutorial/projectiles"><div></div>Projectiles</a><a href="/tutorials/game-development-with-python/pygame-tutorial/pygame-enemies"><div></div>Enemies</a><a href="/tutorials/game-development-with-python/pygame-tutorial/pygame-collision"><div></div>Collision &amp; Hit Boxes</a><a href="/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars"><div></div>Scoring &amp; Health Bars</a><a href="/tutorials/game-development-with-python/pygame-tutorial/sound-effects-music"><div></div>Sound Effects &amp; Music</a><a href="/tutorials/game-development-with-python/pygame-tutorial/finishing-touches"><div></div>Finishing Touches</a><a href="/tutorials/game-development-with-python/pygame-tutorial/jumping"><div></div>Jumping &amp; Boundaries</a></div></div></body></html>

@@ -1,0 +1,652 @@
+{
+  "mode": "live_provider",
+  "started_at": "2026-10-18T13:57:57.666884+00:00",
+  "prompt_version": "project-analysis-v2-learning-units",
+  "limits": {
+    "max_live_analyses": 4,
+    "max_provider_requests": 6
+  },
+  "network_used": true,
+  "records": [
+    {
+      "case": "python_game",
+      "level": "beginner",
+      "input": {
+        "name": "Python 接金币小游戏",
+        "requirements": "使用 Python 和 pygame 在本地做接金币小游戏：左右键控制角色，金币从上方落下；碰到金币加分，漏接三次结束；支持开始和重新开始。不做联网排行榜。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "没有做过完整项目，希望每次学完一个小任务就能动手验证。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "角色控制和循环",
+            "passed": true
+          },
+          {
+            "criterion": "碰撞和计分",
+            "passed": true
+          },
+          {
+            "criterion": "开始结束重开",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 6,
+        "function_count": 6,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "Units fit the student stage and each practice check is independently observable."
+        ]
+      },
+      "analysis": {
+        "scope": "本项目范围是一个本地单机、单文件的 Python + pygame 接金币小游戏：创建可关闭的游戏窗口；用左右方向键控制底部角色移动；金币从窗口上方随机横坐标生成并下落；角色碰到金币后金币消失且分数增加；金币漏接时累计次数并显示剩余生命，漏接 3 次进入游戏结束画面；支持开始和重新开始。明确不实现联网排行榜、账号系统、云部署或数据库，所有数据仅保存在运行内存中。每个知识点都设计为一个小任务，完成后可立即运行验证，最后整合为完整游戏。",
+        "technical_plan": "采用题目指定的 pygame 实现，不引入网络、后端或数据库。建议使用单文件 game.py：启动时初始化 pygame 窗口和时钟；用状态变量区分 START、PLAYING、GAME_OVER；PLAYING 状态下每帧处理键盘输入、更新角色和金币列表、检测矩形碰撞与越界漏接、绘制分数和生命值。角色用 pygame.Rect 表示，金币用包含 Rect 和下落速度的列表元素表示；生成金币使用随机横坐标和生成间隔；碰撞使用 colliderect；漏接通过金币越过窗口底边判断；三次漏接后切换到 GAME_OVER。重开时通过统一重置函数清空分数、漏接次数、金币列表并恢复角色位置。按知识点逐个小步实现和验证，最后做完整流程回归测试。",
+        "assumptions": [
+          "按 beginner 处理：学生没有完整项目经验，仅假设能跟随步骤运行 Python 文件；若尚未接触变量、条件、循环等基础语法，可先补充一个短基础单元再进入本项目。",
+          "游戏采用 800×600 窗口、60 FPS、单文件 game.py；这些具体数值可调整，不影响学习目标。",
+          "角色和金币先用纯色矩形表示，不依赖图片、音效或中文字体素材；分数可先用默认字体显示英文，避免字体配置分散重点。",
+          "开始键设为 Enter，重新开始键设为 R，可在实现时改为其他明确按键。",
+          "按需求不做联网排行榜、账号、云部署或数据库，所有游戏数据只保存在运行内存中。",
+          "学习资源平台偏好为 bilibili、icourse163、xuetangx，本分析不生成具体课程链接或来源证据。"
+        ],
+        "learner_profile": {
+          "student_level": "beginner",
+          "assumed_knowledge": [
+            "按零完整项目经验处理，不预设 pygame 使用经验。",
+            "仅假设能跟随步骤运行 Python 文件；变量、条件、循环等语法可在需要时即时补充。"
+          ],
+          "adjustment_note": "当前按 beginner、且没有完整项目经验生成。学生可把 student_level 改为 intermediate 或 advanced，并将 k1-k2 标记为已掌握/跳过，也可修改项目范围、窗口尺寸、按键或素材方案后重新生成；所有 selection 只是学习建议，不代表已经掌握。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "本地游戏窗口与主循环",
+            "original_requirement": "使用 Python 和 pygame 在本地做接金币小游戏。",
+            "acceptance_criteria": "运行 game.py 后出现固定尺寸窗口，主循环以稳定帧率持续刷新；点击关闭按钮或触发退出事件后程序正常结束；运行过程中不发起网络请求。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "角色左右移动控制",
+            "original_requirement": "左右键控制角色。",
+            "acceptance_criteria": "按住左方向键或右方向键时角色连续水平移动，松开按键后停止；角色矩形不会越出窗口左右边界。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "金币随机生成与下落",
+            "original_requirement": "金币从上方落下。",
+            "acceptance_criteria": "金币按设定间隔从窗口顶部随机横坐标出现并向下移动；离开屏幕的金币会从金币列表中移除，长时间运行列表不会无限增长。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "金币碰撞与加分",
+            "original_requirement": "碰到金币加分。",
+            "acceptance_criteria": "角色与金币矩形相交时金币消失且分数加 1；同一个金币只计分一次；当前分数在窗口内可见。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "漏接三次结束条件",
+            "original_requirement": "漏接三次结束。",
+            "acceptance_criteria": "金币越过底边且未被接到时漏接次数加 1；界面显示剩余生命；漏接达到 3 次时进入游戏结束画面并停止正常加分流程。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f6",
+            "name": "开始与重新开始流程",
+            "original_requirement": "支持开始和重新开始。",
+            "acceptance_criteria": "启动后显示开始提示；按指定开始键进入游戏；游戏结束画面按重新开始键后，分数、漏接次数、金币列表和角色位置都重置，并能再次游玩。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "pygame 环境搭建与游戏主循环",
+            "description": "从空目录创建 game.py，安装并导入 pygame，初始化窗口和时钟，在主循环中处理退出事件、填充背景并刷新屏幕。这个单元只追求程序能稳定打开和关闭，不加入角色或金币。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "后续所有画面、输入和碰撞都依赖可运行的主循环，这是项目能够持续运行的最小骨架。",
+            "learning_goal": "理解 pygame 程序的基本生命周期：初始化、每帧处理事件、绘制画面、按固定帧率循环，直到收到退出事件。",
+            "project_task": "创建并运行 game.py：打开 800×600 窗口，以 60 FPS 刷新，点击关闭按钮能退出且不报错。",
+            "concepts": [
+              "安装与导入 pygame",
+              "display.set_mode 创建窗口",
+              "事件循环与 QUIT 事件",
+              "Clock.tick 控制帧率"
+            ],
+            "practice_check": "运行脚本后出现窗口，持续运行不卡死；点击关闭按钮后程序退出，终端没有异常；能说明主循环中每一帧大致做了什么。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "pygame 键盘控制角色左右移动",
+            "description": "在已有窗口中绘制一个位于底部中央的角色矩形，使用键盘状态或按键事件改变角色的横坐标，并把角色限制在窗口边界内。重点是让输入、坐标更新和边界限制形成可测试的小闭环。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "玩家需要用左右键接金币，角色移动是后续碰撞检测和游戏可玩性的前提。",
+            "learning_goal": "理解如何用 pygame.Rect 表示角色、读取持续按键状态、按速度更新坐标，并在边界处限制位置。",
+            "project_task": "在已有窗口中绘制底部中央的角色矩形，按住左右方向键时改变 x 坐标，松开停止，并把角色限制在窗口左右边界内。",
+            "concepts": [
+              "Rect 表示角色位置与尺寸",
+              "pygame.key.get_pressed 读取按键状态",
+              "每帧按速度更新坐标",
+              "窗口边界限制"
+            ],
+            "practice_check": "按住左键或右键时角色连续移动，松开后立即停止；把角色推到最左或最右时不会越界消失。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "pygame 金币随机生成与下落",
+            "description": "用列表保存多个金币对象，通过随机数决定生成横坐标，每隔一定时间从窗口顶部创建金币；每帧更新所有金币的纵坐标，并删除已经离开窗口的金币。此单元暂不处理接住和漏接。",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "金币是游戏的核心对象，随机生成和逐帧下落构成接金币玩法的基础运动逻辑。",
+            "learning_goal": "理解如何用列表管理多个游戏对象、用随机数生成位置、用计时器控制生成频率，并在对象越界后清理。",
+            "project_task": "在游戏窗口中实现金币定时生成：金币从顶部随机横坐标出现并向下移动，离开底边后从列表中移除。",
+            "concepts": [
+              "列表保存多个金币",
+              "random.randint 随机横坐标",
+              "生成计时器与生成间隔",
+              "逐帧更新坐标与越界删除"
+            ],
+            "practice_check": "等待几秒会在不同横坐标出现多个金币并向下移动；金币越过底边后从列表消失；打印金币数量可确认长时间运行不会无限增长。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "pygame 矩形碰撞与计分显示",
+            "description": "为角色和金币添加矩形碰撞检测，命中时移除对应金币、增加分数，并把当前分数绘制到窗口中。还要确保同一个金币只计分一次。",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "接住金币是否成功必须通过碰撞检测判断，分数则是玩家操作结果的直接反馈。",
+            "learning_goal": "理解 colliderect 的用法、碰撞后如何安全删除列表元素、如何维护分数变量，以及如何用 pygame 字体显示分数。",
+            "project_task": "在角色与金币之间做碰撞检测：接住金币时删除该金币、分数加 1，并在窗口中绘制当前分数。",
+            "concepts": [
+              "pygame.Rect.colliderect",
+              "碰撞后删除金币",
+              "分数变量维护",
+              "字体渲染分数文本"
+            ],
+            "practice_check": "移动角色接住金币后金币消失且分数加 1；同一个金币不会重复加分；分数变化能在窗口中看到。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2",
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "pygame 漏接计数与生命值显示",
+            "description": "区分金币被接住和被漏接：金币越过窗口底边且未被接住时增加漏接次数，并根据三次上限换算和显示剩余生命。此单元只建立计数与显示，结束画面在下一单元接入。",
+            "function_ids": [
+              "f5",
+              "f6"
+            ],
+            "why_needed": "需求规定漏接三次结束，必须先可靠地识别漏接事件并维护生命值，才能触发正确结束条件。",
+            "learning_goal": "理解如何用金币纵坐标判断越过底边、区分接住与漏接、用计数器换算生命值，并把状态反馈显示给玩家。",
+            "project_task": "修改金币离屏处理逻辑：金币越过底边时增加漏接次数并更新剩余生命，在窗口中显示漏接次数或生命值，为三次结束条件保留状态。",
+            "concepts": [
+              "金币越过底边判断",
+              "漏接计数器",
+              "剩余生命换算与显示",
+              "三次阈值准备"
+            ],
+            "practice_check": "连续放走 3 个金币时，界面或终端能依次看到漏接 1、2、3 次及生命 2、1、0；接到金币不会增加漏接次数。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "k6",
+            "name": "pygame 开始、结束与重新开始状态",
+            "description": "引入 START、PLAYING、GAME_OVER 状态变量，分别绘制开始提示、游戏画面和结束提示；处理开始键和重开键，并让重开操作完整重置游戏数据。",
+            "function_ids": [
+              "f5",
+              "f6"
+            ],
+            "why_needed": "开始和重新开始不是单纯清屏，而是要让对象、分数、生命和输入流程都恢复到一致初始状态，否则会出现重开后数据残留。",
+            "learning_goal": "理解用状态变量控制游戏流程、用按键事件切换状态，并把重置逻辑集中到可复用函数中以避免遗漏数据。",
+            "project_task": "实现完整状态流程：启动显示开始提示，按 Enter 进入游玩；漏接达到 3 次显示结束画面；按 R 重开并重置分数、漏接次数、金币列表和角色位置。",
+            "concepts": [
+              "状态变量区分 START、PLAYING、GAME_OVER",
+              "按键事件切换状态",
+              "重置分数、生命和金币列表",
+              "按状态绘制不同画面"
+            ],
+            "practice_check": "启动后显示开始提示；按 Enter 开始落币；放走 3 个金币出现结束画面；按 R 后分数归零、生命恢复、金币清空、角色回到初始位置，并能再次开始游戏。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4",
+              "k5"
+            ],
+            "learning_order": 6,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 42.383,
+      "provider_requests": 1
+    },
+    {
+      "case": "data_dashboard",
+      "level": "beginner",
+      "input": {
+        "name": "销售数据分析看板",
+        "requirements": "用 Python、pandas 和 Streamlit 上传本地销售 CSV，检查缺失和非法金额；按日期和产品筛选，显示月销售额趋势和产品销售对比，导出当前筛选数据。不需要登录或云部署。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "没有做过完整项目，希望每次学完一个小任务就能动手验证。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "completed",
+      "assessment": {
+        "automated_passed": true,
+        "quality_issues": [],
+        "required_behaviors": [
+          {
+            "criterion": "读入和清洗",
+            "passed": true
+          },
+          {
+            "criterion": "筛选和聚合",
+            "passed": true
+          },
+          {
+            "criterion": "图表",
+            "passed": true
+          },
+          {
+            "criterion": "导出",
+            "passed": true
+          }
+        ],
+        "scope_size_passed": true,
+        "unit_count": 9,
+        "function_count": 6,
+        "manual_review_required": true,
+        "manual_review_criteria": [
+          "Every stated requirement is actually implemented by the mapped units.",
+          "No unrelated feature or broad subject substitutes for project skills.",
+          "Units fit the student stage and each practice check is independently observable."
+        ]
+      },
+      "analysis": {
+        "scope": "构建一个本地运行的销售数据分析看板：上传包含日期、产品和销售额的 CSV，检查缺失字段与非法金额/日期，按日期范围和产品筛选，基于筛选结果展示月销售额趋势和产品销售对比，并导出当前筛选数据。不包含登录、权限、数据库、云部署或其他未要求的功能。",
+        "technical_plan": "使用用户指定的 Python + pandas + Streamlit，在本地以单个 app.py 起步，必要时把数据清洗逻辑抽成同目录函数。数据流为：st.file_uploader 读取 CSV → 检查日期、产品、销售额三列并统计缺失 → 用 pd.to_datetime 和 pd.to_numeric(errors='coerce') 清洗并剔除非法记录 → 侧边栏用 st.date_input 和 st.multiselect 生成 filtered_df → 按月 groupby 汇总销售额、按产品 groupby 汇总销售额 → 用 st.line_chart 和 st.bar_chart 展示 → 用 st.download_button 导出 filtered_df。所有处理在本地内存完成，不引入账号、数据库或云部署。CSV 列名与数据格式按假设统一处理；图表使用 Streamlit 内置组件，导出使用 utf-8-sig 编码。上述技术栈和列名映射均为可修改的实现假设。",
+        "assumptions": [
+          "技术栈按需求固定为 Python + pandas + Streamlit，本地单机运行；这是可修改的实现假设，若你更熟悉其他工具可重新生成方案。",
+          "假设销售 CSV 至少包含日期、产品、销售额三列；若实际列名不同，读取后可映射为统一字段。",
+          "假设销售额为数值金额，日期可被 pandas 解析；无法解析的记录按非法数据处理。",
+          "产品筛选默认允许多选；未选择产品时显示全部或提示，具体行为由实现者确定并在界面说明。",
+          "导出文件使用 UTF-8 with BOM 编码，便于中文 Excel 打开。",
+          "不实现登录、权限、云部署、数据库或定时任务。",
+          "学生按 beginner 路径学习；若已有 pandas 或 Streamlit 基础，可调整级别并减少基础单元。"
+        ],
+        "learner_profile": {
+          "student_level": "beginner",
+          "assumed_knowledge": [
+            "能看懂简单 Python 代码中的变量和函数调用",
+            "知道 CSV 是可用表格软件打开的表格数据文件"
+          ],
+          "adjustment_note": "当前按 beginner（无完整项目经验）设计，先补齐本地运行、CSV 读取和数据清洗，再进入筛选、聚合、图表和导出。你可以随时修改学生级别、项目背景或学习点选择并重新生成，系统不会替你标记已掌握内容。"
+        },
+        "functions": [
+          {
+            "id": "f1",
+            "name": "上传并读取本地销售 CSV",
+            "original_requirement": "上传本地销售 CSV，并用 pandas 读取和预览数据。",
+            "acceptance_criteria": "能在浏览器上传 CSV，并看到行列数、列名和前几行；上传非 CSV 或无法读取的文件时出现明确提示。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f2",
+            "name": "检查缺失字段与非法金额",
+            "original_requirement": "检查数据中的缺失值和非法金额，处理后再参与分析。",
+            "acceptance_criteria": "能显示关键字段的缺失数量；非法日期或非法金额记录不参与后续统计，并显示被剔除或隔离的数量。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f3",
+            "name": "按日期范围与产品筛选",
+            "original_requirement": "按日期和产品筛选销售数据。",
+            "acceptance_criteria": "选择日期范围和产品后，页面只显示符合条件的数据行；未选择产品或日期范围时行为明确且不报错。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f4",
+            "name": "显示月销售额趋势",
+            "original_requirement": "显示月销售额趋势。",
+            "acceptance_criteria": "根据当前筛选数据计算每月销售额，并以按时间顺序排列的折线图展示。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f5",
+            "name": "显示产品销售对比",
+            "original_requirement": "显示产品销售对比。",
+            "acceptance_criteria": "根据当前筛选数据计算各产品销售额，并以按销售额降序排列的柱状图展示。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "f6",
+            "name": "导出当前筛选数据",
+            "original_requirement": "导出当前筛选后的数据。",
+            "acceptance_criteria": "点击下载按钮得到当前筛选记录的 CSV，行数与页面筛选结果一致，中文可用 Excel 正常打开。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "k1",
+            "name": "Streamlit 本地应用骨架与运行",
+            "description": "搭建 app.py，使用 st.title 和 st.write 输出页面，理解 Streamlit 脚本自上而下执行以及保存后重跑的开发方式。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "后续上传、筛选、图表和下载都要挂在这个本地页面中，先确保应用能运行并看到界面。",
+            "learning_goal": "理解 Streamlit 应用是一个本地 Python 脚本，能启动它并在浏览器查看页面，知道修改后如何刷新。",
+            "project_task": "创建 app.py，显示看板标题和一句使用说明，并用 streamlit run 在本地打开。",
+            "concepts": [
+              "streamlit run",
+              "st.title/st.write",
+              "脚本重跑",
+              "本地浏览器页面"
+            ],
+            "practice_check": "终端运行 streamlit run app.py 后浏览器出现标题；修改标题并保存，页面刷新后显示新标题。",
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "learn"
+          },
+          {
+            "id": "k2",
+            "name": "Streamlit 文件上传与 pandas 读取 CSV",
+            "description": "用 st.file_uploader 接收本地 CSV，用 pd.read_csv 读取为 DataFrame，并预览行列数和前几行。",
+            "function_ids": [
+              "f1"
+            ],
+            "why_needed": "看板需要从本地 CSV 获取数据，读取成功并确认字段是后续清洗和筛选的前提。",
+            "learning_goal": "理解上传文件对象如何交给 pandas，能判断读取是否成功并查看数据字段。",
+            "project_task": "在页面添加上传控件，读取 CSV 并显示 shape、columns 和 head。",
+            "concepts": [
+              "st.file_uploader",
+              "pd.read_csv",
+              "DataFrame.shape/columns",
+              "df.head()"
+            ],
+            "practice_check": "上传一个样例 CSV 后页面显示行数、列名和前5行；上传非 CSV 或空文件时出现错误提示。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k1"
+            ],
+            "learning_order": 2,
+            "selection": "learn"
+          },
+          {
+            "id": "k3",
+            "name": "销售数据必填字段与缺失值检查",
+            "description": "检查日期、产品、销售额列是否存在，统计并处理缺失值，区分可用记录和被剔除记录。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "缺失字段会导致筛选、聚合和图表错误或产生误导结果，必须先检查数据质量。",
+            "learning_goal": "理解数据质量检查顺序：先确认列，再统计缺失，再决定剔除或提示。",
+            "project_task": "对读取的 DataFrame 检查日期、产品和销售额三列，显示缺失数量，并生成清洗后数据和剔除数量。",
+            "concepts": [
+              "列名检查",
+              "df.isna().sum()",
+              "dropna(subset=...)",
+              "处理数量提示"
+            ],
+            "practice_check": "上传含空产品名或空金额的样例，页面显示各列缺失数，清洗后行数减少且减少数量正确。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k2"
+            ],
+            "learning_order": 3,
+            "selection": "learn"
+          },
+          {
+            "id": "k4",
+            "name": "日期与金额字段类型清洗",
+            "description": "用 pd.to_datetime 和 pd.to_numeric(errors='coerce') 转换日期、销售额，识别无法解析的非法记录。",
+            "function_ids": [
+              "f2"
+            ],
+            "why_needed": "CSV 读入的日期和金额常为字符串，不转换就无法按日期筛选和进行数值求和。",
+            "learning_goal": "理解类型转换与非法值处理，能保留合法记录并报告非法数量。",
+            "project_task": "转换日期和金额，生成非法日期和非法金额掩码，剔除或隔离非法行并显示计数。",
+            "concepts": [
+              "pd.to_datetime",
+              "pd.to_numeric(errors='coerce')",
+              "非法值掩码",
+              "转换后类型检查"
+            ],
+            "practice_check": "用包含 abc 金额和错误日期的样例测试，非法行不进入后续数据，页面显示非法金额与日期数量。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k3"
+            ],
+            "learning_order": 4,
+            "selection": "learn"
+          },
+          {
+            "id": "k5",
+            "name": "Streamlit 日期范围与产品多选筛选",
+            "description": "使用 st.date_input 和 st.multiselect 获取筛选条件，用 pandas 布尔索引过滤清洗后的销售数据，并预览筛选结果。",
+            "function_ids": [
+              "f3"
+            ],
+            "why_needed": "这是看板交互核心，趋势、产品对比和导出都应基于同一份筛选结果。",
+            "learning_goal": "理解控件返回值与 DataFrame 布尔筛选如何连接，能处理空选择和空结果。",
+            "project_task": "在侧边栏放日期范围和产品多选，生成 filtered_df，显示筛选后行数并用 st.dataframe 预览。",
+            "concepts": [
+              "st.date_input",
+              "st.multiselect",
+              "between 日期过滤",
+              "isin 产品过滤",
+              "布尔索引",
+              "st.dataframe 预览"
+            ],
+            "practice_check": "选择某月和一个产品后表格只剩对应记录；不选产品或筛选无结果时按界面说明处理且不报错。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "k6",
+            "name": "pandas 月销售额分组汇总",
+            "description": "从日期列生成月份字段，用 groupby 汇总销售额并排序，得到月度趋势数据。",
+            "function_ids": [
+              "f4"
+            ],
+            "why_needed": "月销售额趋势需要先按月聚合，不能直接画原始流水记录。",
+            "learning_goal": "理解分组聚合和月份键的生成，能检查聚合结果是否与手算一致。",
+            "project_task": "基于 filtered_df 生成月份列，计算每月销售额并输出按月份排序的 DataFrame。",
+            "concepts": [
+              "dt.to_period('M') 或 strftime",
+              "groupby",
+              "sum",
+              "reset_index",
+              "sort_values"
+            ],
+            "practice_check": "用两三个月的少量记录手算总额，页面表格中的月销售额与手算一致且月份有序。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k5"
+            ],
+            "learning_order": 6,
+            "selection": "learn"
+          },
+          {
+            "id": "k7",
+            "name": "pandas 产品销售额分组对比",
+            "description": "按产品分组汇总销售额，降序排序得到产品对比数据。",
+            "function_ids": [
+              "f5"
+            ],
+            "why_needed": "产品销售对比需要按产品聚合，直接画明细无法比较各产品总量。",
+            "learning_goal": "理解 groupby 与排序，能识别销售额最高产品并处理空数据。",
+            "project_task": "基于 filtered_df 计算各产品销售额，按金额降序输出表格。",
+            "concepts": [
+              "groupby('产品')",
+              "sum",
+              "sort_values(ascending=False)",
+              "空结果处理"
+            ],
+            "practice_check": "筛选两个产品后，表格按销售额从高到低显示且合计等于筛选记录总额。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k5"
+            ],
+            "learning_order": 7,
+            "selection": "learn"
+          },
+          {
+            "id": "k8",
+            "name": "Streamlit 销售趋势折线图与产品柱状图",
+            "description": "把月度汇总表传入 st.line_chart，把产品汇总表传入 st.bar_chart，并处理空筛选结果。",
+            "function_ids": [
+              "f4",
+              "f5"
+            ],
+            "why_needed": "需求要求显示月销售额趋势和产品销售对比，图表能直接呈现聚合结果。",
+            "learning_goal": "理解图表函数对索引和列的要求，能根据数据形状选择折线图或柱状图。",
+            "project_task": "在页面展示月销售额折线图与产品销售额柱状图，切换筛选条件时同步更新。",
+            "concepts": [
+              "st.line_chart",
+              "st.bar_chart",
+              "索引作为横轴",
+              "空数据提示"
+            ],
+            "practice_check": "切换日期范围或产品后两个图同步变化；筛选无结果时显示提示而不是报错。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k6",
+              "k7"
+            ],
+            "learning_order": 8,
+            "selection": "learn"
+          },
+          {
+            "id": "k9",
+            "name": "筛选结果 CSV 导出与下载",
+            "description": "用 df.to_csv 生成 CSV 字节流，再用 st.download_button 提供当前筛选数据下载，使用 utf-8-sig 兼容中文。",
+            "function_ids": [
+              "f6"
+            ],
+            "why_needed": "需求要求导出当前筛选数据，需保证导出内容与屏幕筛选结果一致。",
+            "learning_goal": "理解内存中 DataFrame 转 CSV 字节和下载按钮的数据流，能验证导出文件内容。",
+            "project_task": "增加下载按钮，导出 filtered_df 的原始记录而不是聚合表，文件名为 sales_filtered.csv。",
+            "concepts": [
+              "st.download_button",
+              "df.to_csv(index=False)",
+              "encode('utf-8-sig')",
+              "下载数据与筛选同步"
+            ],
+            "practice_check": "筛选后下载 CSV，用表格软件打开，行数与页面筛选行数一致且中文列名正常显示。",
+            "necessity": "required",
+            "prerequisite_ids": [
+              "k5"
+            ],
+            "learning_order": 9,
+            "selection": "learn"
+          }
+        ]
+      },
+      "elapsed_seconds": 39.133,
+      "provider_requests": 1
+    },
+    {
+      "case": "web_app",
+      "level": "beginner",
+      "input": {
+        "name": "本地学习待办网站 APP",
+        "requirements": "使用 HTML、CSS、JavaScript 做本地学习待办网页：添加、完成、删除任务，按完成状态筛选，刷新后任务仍保留；手机上可用，键盘能操作表单和按钮。不做账号或后端。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "没有做过完整项目，希望每次学完一个小任务就能动手验证。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "failed",
+      "error_code": "timeout",
+      "elapsed_seconds": 60.012,
+      "provider_requests": 1
+    },
+    {
+      "case": "arduino",
+      "level": "beginner",
+      "input": {
+        "name": "Arduino 土壤湿度提醒器",
+        "requirements": "用 Arduino Uno 和模拟土壤湿度传感器读取干湿变化，在串口监视器观察并校准读数，低于可调阈值时用 LED 提示；定时采样时仍可响应阈值调整。不接水泵或市电，说明低压接线和 LED 限流。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "没有做过完整项目，希望每次学完一个小任务就能动手验证。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "status": "failed",
+      "error_code": "timeout",
+      "elapsed_seconds": 60.014,
+      "provider_requests": 1
+    }
+  ],
+  "provider_requests": 4,
+  "automated_passed": false
+}

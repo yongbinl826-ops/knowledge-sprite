@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="8" time="0.270" timestamp="2026-10-19T09:02:25.442656+08:00" hostname="LAPTOP-UT2FMDJK"><testcase classname="tests.test_topic_pointer_auxiliary" name="test_actual_requested_owner_chapter_retains_pointer_despite_auxiliary_data_tool" time="0.091"><failure message="AssertionError: assert [] == [{'knowledge_...集合包含过滤', ...}]&#10;  &#10;  Right contains one more item: {'knowledge_point_id': '77b4ebcf-003a-4efc-a353-e60deb353490', 'resource_id': 'res_f7b1450e7e0db5714058db4c', 'skill_id': 'skill_2', 'skill': 'pandas 闭区间日期与集合包含过滤', ...}&#10;  Use -v to get more diff">def test_actual_requested_owner_chapter_retains_pointer_despite_auxiliary_data_tool():
+        before = deepcopy(ACTUAL)
+        item = ACTUAL["entry"]
+        pair = teaching_match.prepare_pair(ACTUAL["point"], item["resource"], item["evidence"], ACTUAL["student_level"])
+        assert pair
+&gt;       assert teaching_match.topic_pointers(pair) == [item["pointer"]]
+E       AssertionError: assert [] == [{'knowledge_...集合包含过滤', ...}]
+E         
+E         Right contains one more item: {'knowledge_point_id': '77b4ebcf-003a-4efc-a353-e60deb353490', 'resource_id': 'res_f7b1450e7e0db5714058db4c', 'skill_id': 'skill_2', 'skill': 'pandas 闭区间日期与集合包含过滤', ...}
+E         Use -v to get more diff
+
+tmp\phase3-pointer-owner-auxiliary-patch\tests\test_topic_pointer_auxiliary.py:17: AssertionError</failure></testcase><testcase classname="tests.test_topic_pointer_auxiliary" name="test_current_requested_owner_heading_is_not_vetoed_by_auxiliary_tool[Test data was generated with CopperForge software.]" time="0.002"><failure message="AssertionError: assert ({'pair_id': 'pair_35b36f0e19da19f870311367', 'fingerprint': '35b36f0e19da19f870311367d5c8664bf51c6d7c2767bb065067ece0c0bda987', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...} and [])&#10; +  where [] = &lt;function topic_pointers at 0x00000143DFADE020&gt;({'pair_id': 'pair_35b36f0e19da19f870311367', 'fingerprint': '35b36f0e19da19f870311367d5c8664bf51c6d7c2767bb065067ece0c0bda987', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...})&#10; +    where &lt;function topic_pointers at 0x00000143DFADE020&gt; = teaching_match.topic_pointers">body = 'Test data was generated with CopperForge software.'
+
+    @pytest.mark.parametrize("body", [
+        "Test data was generated with CopperForge software.",
+        "示例数据通过QuillForge工具生成。",
+        "另用AuroraChip芯片作为辅助输入设备。",
+    ])
+    def test_current_requested_owner_heading_is_not_vetoed_by_auxiliary_tool(body):
+        _, _, _, pair = own_pair(body, title="pygame 状态机设计与转移")
+&gt;       assert pair and teaching_match.topic_pointers(pair)
+E       AssertionError: assert ({'pair_id': 'pair_35b36f0e19da19f870311367', 'fingerprint': '35b36f0e19da19f870311367d5c8664bf51c6d7c2767bb065067ece0c0bda987', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...} and [])
+E        +  where [] = &lt;function topic_pointers at 0x00000143DFADE020&gt;({'pair_id': 'pair_35b36f0e19da19f870311367', 'fingerprint': '35b36f0e19da19f870311367d5c8664bf51c6d7c2767bb065067ece0c0bda987', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...})
+E        +    where &lt;function topic_pointers at 0x00000143DFADE020&gt; = teaching_match.topic_pointers
+
+tmp\phase3-pointer-owner-auxiliary-patch\tests\test_topic_pointer_auxiliary.py:28: AssertionError</failure></testcase><testcase classname="tests.test_topic_pointer_auxiliary" name="test_current_requested_owner_heading_is_not_vetoed_by_auxiliary_tool[\u793a\u4f8b\u6570\u636e\u901a\u8fc7QuillForge\u5de5\u5177\u751f\u6210\u3002]" time="0.001"><failure message="AssertionError: assert ({'pair_id': 'pair_90bb5be5244afc8f5f2d6753', 'fingerprint': '90bb5be5244afc8f5f2d6753c52f528f3ab006348d5763bd16433354e04fce9a', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...} and [])&#10; +  where [] = &lt;function topic_pointers at 0x00000143DFADE020&gt;({'pair_id': 'pair_90bb5be5244afc8f5f2d6753', 'fingerprint': '90bb5be5244afc8f5f2d6753c52f528f3ab006348d5763bd16433354e04fce9a', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...})&#10; +    where &lt;function topic_pointers at 0x00000143DFADE020&gt; = teaching_match.topic_pointers">body = '示例数据通过QuillForge工具生成。'
+
+    @pytest.mark.parametrize("body", [
+        "Test data was generated with CopperForge software.",
+        "示例数据通过QuillForge工具生成。",
+        "另用AuroraChip芯片作为辅助输入设备。",
+    ])
+    def test_current_requested_owner_heading_is_not_vetoed_by_auxiliary_tool(body):
+        _, _, _, pair = own_pair(body, title="pygame 状态机设计与转移")
+&gt;       assert pair and teaching_match.topic_pointers(pair)
+E       AssertionError: assert ({'pair_id': 'pair_90bb5be5244afc8f5f2d6753', 'fingerprint': '90bb5be5244afc8f5f2d6753c52f528f3ab006348d5763bd16433354e04fce9a', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...} and [])
+E        +  where [] = &lt;function topic_pointers at 0x00000143DFADE020&gt;({'pair_id': 'pair_90bb5be5244afc8f5f2d6753', 'fingerprint': '90bb5be5244afc8f5f2d6753c52f528f3ab006348d5763bd16433354e04fce9a', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...})
+E        +    where &lt;function topic_pointers at 0x00000143DFADE020&gt; = teaching_match.topic_pointers
+
+tmp\phase3-pointer-owner-auxiliary-patch\tests\test_topic_pointer_auxiliary.py:28: AssertionError</failure></testcase><testcase classname="tests.test_topic_pointer_auxiliary" name="test_current_requested_owner_heading_is_not_vetoed_by_auxiliary_tool[\u53e6\u7528AuroraChip\u82af\u7247\u4f5c\u4e3a\u8f85\u52a9\u8f93\u5165\u8bbe\u5907\u3002]" time="0.001"><failure message="AssertionError: assert ({'pair_id': 'pair_ab9d7fbdc5024832e5d42213', 'fingerprint': 'ab9d7fbdc5024832e5d42213fd5feffa9da7f46524e982448ae4d9ad1a9b0431', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...} and [])&#10; +  where [] = &lt;function topic_pointers at 0x00000143DFADE020&gt;({'pair_id': 'pair_ab9d7fbdc5024832e5d42213', 'fingerprint': 'ab9d7fbdc5024832e5d42213fd5feffa9da7f46524e982448ae4d9ad1a9b0431', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...})&#10; +    where &lt;function topic_pointers at 0x00000143DFADE020&gt; = teaching_match.topic_pointers">body = '另用AuroraChip芯片作为辅助输入设备。'
+
+    @pytest.mark.parametrize("body", [
+        "Test data was generated with CopperForge software.",
+        "示例数据通过QuillForge工具生成。",
+        "另用AuroraChip芯片作为辅助输入设备。",
+    ])
+    def test_current_requested_owner_heading_is_not_vetoed_by_auxiliary_tool(body):
+        _, _, _, pair = own_pair(body, title="pygame 状态机设计与转移")
+&gt;       assert pair and teaching_match.topic_pointers(pair)
+E       AssertionError: assert ({'pair_id': 'pair_ab9d7fbdc5024832e5d42213', 'fingerprint': 'ab9d7fbdc5024832e5d42213fd5feffa9da7f46524e982448ae4d9ad1a9b0431', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...} and [])
+E        +  where [] = &lt;function topic_pointers at 0x00000143DFADE020&gt;({'pair_id': 'pair_ab9d7fbdc5024832e5d42213', 'fingerprint': 'ab9d7fbdc5024832e5d42213fd5feffa9da7f46524e982448ae4d9ad1a9b0431', 'skills': [{'id': 'skill_1', 'text': '状态机设计与转移'}], 'technology': 'pygame', ...})
+E        +    where &lt;function topic_pointers at 0x00000143DFADE020&gt; = teaching_match.topic_pointers
+
+tmp\phase3-pointer-owner-auxiliary-patch\tests\test_topic_pointer_auxiliary.py:28: AssertionError</failure></testcase><testcase classname="tests.test_topic_pointer_auxiliary" name="test_parent_title_cannot_donate_owner_to_foreign_current_heading" time="0.001" /><testcase classname="tests.test_topic_pointer_auxiliary" name="test_other_chapter_cannot_donate_requested_owner" time="0.001" /><testcase classname="tests.test_topic_pointer_auxiliary" name="test_negative_owner_mention_in_current_heading_is_not_permission" time="0.001" /><testcase classname="tests.test_topic_pointer_auxiliary" name="test_url_only_owner_mention_cannot_donate_context" time="0.001" /></testsuite></testsuites>

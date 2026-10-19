@@ -1,0 +1,1632 @@
+{
+  "job_id": "19e66aee-012a-4563-9512-6cb54c22ac76",
+  "status": "partial",
+  "phase": "done",
+  "created_at": "2026-10-18T20:13:13.935677+00:00",
+  "updated_at": "2026-10-18T20:14:26.181201+00:00",
+  "request": {
+    "knowledge_points": [
+      "pandas 读取骑行 CSV 与列结构检查",
+      "pandas trip_id 去重与删除行数统计",
+      "pandas 时间列解析与无效行分离",
+      "pandas 时间差计算骑行分钟时长",
+      "pandas 按出发小时分组计数"
+    ],
+    "student_level": "advanced",
+    "language": "zh",
+    "project_context": "共享单车出行 CSV 分析报告 使用 Python + pandas + Matplotlib 的单一本地脚本，按阶段拆分函数：load_and_dedupe 读取 CSV 并保留首个 trip_id、返回删除行数；parse_and_split 用 pd.to_datetime 解析两列时间并统计解析失败行；split_invalid 单独收集缺失时间行与 end<start 行（end==start 合法）；add_duration 计算 (end-start) 的分钟数；hourly_summary 用 dt.hour 分组计数；station_bar 用 value_counts().head(10) 画横向条形图并设置标题与轴标签；最后统一写出三个产物文件并打印各项计数以便复核。所有口径（去重、无效判定、单位、Top10 顺序）在打印日志与 CSV 中保持一致。 已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。 用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163",
+      "xuetangx"
+    ],
+    "learning_targets": {
+      "pandas 读取骑行 CSV 与列结构检查": [
+        "pd.read_csv 参数",
+        "DataFrame.shape 与 dtypes",
+        "head() 预览",
+        "原始行数基线"
+      ],
+      "pandas trip_id 去重与删除行数统计": [
+        "drop_duplicates(subset, keep)",
+        "nunique 与重复计数",
+        "去重前后行数差",
+        "顺序一致性"
+      ],
+      "pandas 时间列解析与无效行分离": [
+        "pd.to_datetime(errors)",
+        "isna 与缺失筛选",
+        "布尔条件 end < start",
+        "相等时间的边界判断"
+      ],
+      "pandas 时间差计算骑行分钟时长": [
+        "日期时间相减得 Timedelta",
+        "dt.total_seconds 换算分钟",
+        "新增列赋值",
+        "min 值校验"
+      ],
+      "pandas 按出发小时分组计数": [
+        "dt.hour 提取",
+        "groupby/size 与 value_counts",
+        "汇总表排序",
+        "合计一致性校验"
+      ]
+    }
+  },
+  "knowledge_points": [
+    {
+      "knowledge_point_id": "d002ce27-8155-4a1d-b55a-4dc063a8dcc2",
+      "text": "pandas 读取骑行 CSV 与列结构检查",
+      "learning_targets": [
+        "pd.read_csv 参数",
+        "DataFrame.shape 与 dtypes",
+        "head() 预览",
+        "原始行数基线"
+      ]
+    },
+    {
+      "knowledge_point_id": "5add57a3-a893-4412-98aa-17c1340b86dd",
+      "text": "pandas trip_id 去重与删除行数统计",
+      "learning_targets": [
+        "drop_duplicates(subset, keep)",
+        "nunique 与重复计数",
+        "去重前后行数差",
+        "顺序一致性"
+      ]
+    },
+    {
+      "knowledge_point_id": "dfad9187-d98c-472a-8c4b-b4762bb7c680",
+      "text": "pandas 时间列解析与无效行分离",
+      "learning_targets": [
+        "pd.to_datetime(errors)",
+        "isna 与缺失筛选",
+        "布尔条件 end < start",
+        "相等时间的边界判断"
+      ]
+    },
+    {
+      "knowledge_point_id": "1261f8bd-994a-429a-95a5-1eb71a2a1119",
+      "text": "pandas 时间差计算骑行分钟时长",
+      "learning_targets": [
+        "日期时间相减得 Timedelta",
+        "dt.total_seconds 换算分钟",
+        "新增列赋值",
+        "min 值校验"
+      ]
+    },
+    {
+      "knowledge_point_id": "76ca8d5d-0106-4800-a85b-23ef8e316760",
+      "text": "pandas 按出发小时分组计数",
+      "learning_targets": [
+        "dt.hour 提取",
+        "groupby/size 与 value_counts",
+        "汇总表排序",
+        "合计一致性校验"
+      ]
+    }
+  ],
+  "progress": {
+    "queries_planned": 30,
+    "queries_completed": 20,
+    "search_requests": 30,
+    "search_successes": 20,
+    "search_failures": 0,
+    "candidates_discovered": 120,
+    "resources_discovered": 92,
+    "details_attempted": 6,
+    "details_completed": 6,
+    "details_cached": 30,
+    "cache_hits": 30,
+    "catalog_pages_attempted": 0,
+    "catalog_pages_completed": 0
+  },
+  "budgets": {
+    "max_search_requests": 30,
+    "max_detail_pages": 40,
+    "deadline_seconds": 240
+  },
+  "warnings": [
+    "部分搜索或官方发现来源未完成查询；已保留成功来源的结果，搜索范围受限",
+    "部分公开目录页未完成补全，已保存主页证据；目录状态与失败原因可在资源详情查看",
+    "达到搜索请求预算；按知识点轮转执行，剩余查询未执行",
+    "57 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+    "7 个候选缺少课程或视频类型依据，未作为学习资源展示"
+  ],
+  "errors": [],
+  "queue_wait_seconds": 0.003,
+  "fetch_diagnostics": {
+    "available": true,
+    "started_at": "2026-10-18T20:13:13.938190+00:00",
+    "finished_at": "2026-10-18T20:14:26.181192+00:00",
+    "counts_delta": {
+      "dns_started": 9,
+      "dns_completed": 9,
+      "http_started": 9,
+      "http_transport": 9,
+      "http_completed": 9,
+      "host_blocked": 1,
+      "http_stopped": 1
+    },
+    "events": [
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:13:38.629154+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:13:39.965291+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:13:39.965316+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:13:39.965488+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:13:39.965483+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:13:40.136815+00:00",
+              "elapsed_seconds": 0.171355
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:13:40.139905+00:00",
+              "elapsed_seconds": 0.174429
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:13:40.139938+00:00",
+              "elapsed_seconds": 0.174457
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:13:40.806080+00:00",
+              "elapsed_seconds": 0.840611
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:40.807307+00:00",
+              "elapsed_seconds": 0.84183
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:40.807519+00:00",
+              "elapsed_seconds": 0.842043
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:40.807533+00:00",
+              "elapsed_seconds": 0.842052
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:40.807578+00:00",
+              "elapsed_seconds": 0.842098
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:40.807583+00:00",
+              "elapsed_seconds": 0.842102
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:41.335596+00:00",
+              "elapsed_seconds": 1.370138
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:41.336335+00:00",
+              "elapsed_seconds": 1.370855
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:41.336402+00:00",
+              "elapsed_seconds": 1.370921
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:13:41.337669+00:00",
+              "elapsed_seconds": 1.372192
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:13:41.337713+00:00",
+              "elapsed_seconds": 1.372232
+            }
+          ],
+          "bytes_read": 65,
+          "body_complete": true,
+          "body_sha256": "3c7225a7df79889d6fa7392f0798c1c001b0d0a83aea2dbf50214767e2610e3b",
+          "max_bytes": 256000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 65,
+          "decoded_bytes_read": 65,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "3c7225a7df79889d6fa7392f0798c1c001b0d0a83aea2dbf50214767e2610e3b",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:13:41.336232+00:00",
+          "headers_elapsed_seconds": 1.370761,
+          "body_total_budget_seconds": 5.00396728515625,
+          "body_idle_budget_seconds": 5,
+          "content_length": 65,
+          "body_size_basis_bytes": 65,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:13:41.338458+00:00",
+          "finished_at": "2026-10-18T20:13:41.339125+00:00",
+          "elapsed_seconds": 1.373648,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:13:41.339154+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/robots.txt",
+        "url_sha256": "e0aca95090cc6c61e8cb2aecb95dbf9243bf81e8d79a1efdd1127ab2e184fc08",
+        "kind": "robots",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 65
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:13:41.339368+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1DN4y1m7U3/",
+        "url_sha256": "2384c8f309d02f0c2e228cd63d9b5ca13df370fa1ae13035749b7b44c38e2089",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:13:42.709609+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1DN4y1m7U3/",
+        "url_sha256": "2384c8f309d02f0c2e228cd63d9b5ca13df370fa1ae13035749b7b44c38e2089",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:13:42.709642+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1DN4y1m7U3/",
+        "url_sha256": "2384c8f309d02f0c2e228cd63d9b5ca13df370fa1ae13035749b7b44c38e2089",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:13:42.709821+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1DN4y1m7U3/",
+        "url_sha256": "2384c8f309d02f0c2e228cd63d9b5ca13df370fa1ae13035749b7b44c38e2089",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:13:42.709813+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:13:42.890386+00:00",
+              "elapsed_seconds": 0.180583
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:13:42.893108+00:00",
+              "elapsed_seconds": 0.1833
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:13:42.893132+00:00",
+              "elapsed_seconds": 0.18332
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:13:43.635749+00:00",
+              "elapsed_seconds": 0.925945
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:43.636823+00:00",
+              "elapsed_seconds": 0.927017
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:43.637015+00:00",
+              "elapsed_seconds": 0.927207
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:43.637026+00:00",
+              "elapsed_seconds": 0.927215
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:43.637073+00:00",
+              "elapsed_seconds": 0.927268
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:43.637085+00:00",
+              "elapsed_seconds": 0.927273
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:44.246424+00:00",
+              "elapsed_seconds": 1.536626
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:44.246846+00:00",
+              "elapsed_seconds": 1.537035
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:44.282494+00:00",
+              "elapsed_seconds": 1.572694
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:13:44.283674+00:00",
+              "elapsed_seconds": 1.573868
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:13:44.283728+00:00",
+              "elapsed_seconds": 1.573917
+            }
+          ],
+          "bytes_read": 25367,
+          "body_complete": true,
+          "body_sha256": "d5b79956c684a45a0f9b5950d3b2dcd2e2f43ae8994688b2ba5cafff14410bbf",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 25367,
+          "decoded_bytes_read": 70881,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "2fee3ccde4cb105c419734274c1719e54402573b3879da384697577e482252d2",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:13:44.246762+00:00",
+          "headers_elapsed_seconds": 1.536953,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:13:44.284741+00:00",
+          "finished_at": "2026-10-18T20:13:44.285653+00:00",
+          "elapsed_seconds": 1.575847,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:13:44.285708+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1DN4y1m7U3/",
+        "url_sha256": "2384c8f309d02f0c2e228cd63d9b5ca13df370fa1ae13035749b7b44c38e2089",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 70881
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:13:46.279378+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1qi4y157hc/",
+        "url_sha256": "2d62908f87d8f06e9048d0d6152e53ec2764cf73c629ffb6b022706e534d5ee6",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:13:47.608003+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1qi4y157hc/",
+        "url_sha256": "2d62908f87d8f06e9048d0d6152e53ec2764cf73c629ffb6b022706e534d5ee6",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:13:47.608026+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1qi4y157hc/",
+        "url_sha256": "2d62908f87d8f06e9048d0d6152e53ec2764cf73c629ffb6b022706e534d5ee6",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:13:47.608193+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1qi4y157hc/",
+        "url_sha256": "2d62908f87d8f06e9048d0d6152e53ec2764cf73c629ffb6b022706e534d5ee6",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:13:47.608186+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:13:47.773893+00:00",
+              "elapsed_seconds": 0.165718
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:13:47.778151+00:00",
+              "elapsed_seconds": 0.169971
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:13:47.778178+00:00",
+              "elapsed_seconds": 0.169995
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:13:48.450077+00:00",
+              "elapsed_seconds": 0.841906
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:48.451276+00:00",
+              "elapsed_seconds": 0.843096
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:48.451463+00:00",
+              "elapsed_seconds": 0.84328
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:48.451472+00:00",
+              "elapsed_seconds": 0.843288
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:48.451514+00:00",
+              "elapsed_seconds": 0.84333
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:48.451519+00:00",
+              "elapsed_seconds": 0.843334
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:49.161183+00:00",
+              "elapsed_seconds": 1.553022
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:49.161842+00:00",
+              "elapsed_seconds": 1.553658
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:49.540553+00:00",
+              "elapsed_seconds": 1.932381
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:13:49.542108+00:00",
+              "elapsed_seconds": 1.933931
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:13:49.542174+00:00",
+              "elapsed_seconds": 1.933991
+            }
+          ],
+          "bytes_read": 87492,
+          "body_complete": true,
+          "body_sha256": "46d41fb6f095f842e3459e541d8d4d74b593ee9c6c2bea2637a335b01b4c7948",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 87492,
+          "decoded_bytes_read": 449102,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "a1783265106ad3fc754abf0f70ddc6b1bb51f16d0e92db451aa16a5fd39b1724",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:13:49.161763+00:00",
+          "headers_elapsed_seconds": 1.553582,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:13:49.543621+00:00",
+          "finished_at": "2026-10-18T20:13:49.545474+00:00",
+          "elapsed_seconds": 1.937297,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:13:49.545522+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1qi4y157hc/",
+        "url_sha256": "2d62908f87d8f06e9048d0d6152e53ec2764cf73c629ffb6b022706e534d5ee6",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 449102
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:13:51.776182+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Eu4y1z7XR/",
+        "url_sha256": "8de208794865ebe7c56c1b9c6cd45c5855d8259745e8f283c9ecd17a7eb477ec",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:13:53.058314+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Eu4y1z7XR/",
+        "url_sha256": "8de208794865ebe7c56c1b9c6cd45c5855d8259745e8f283c9ecd17a7eb477ec",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:13:53.058344+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Eu4y1z7XR/",
+        "url_sha256": "8de208794865ebe7c56c1b9c6cd45c5855d8259745e8f283c9ecd17a7eb477ec",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:13:53.058511+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Eu4y1z7XR/",
+        "url_sha256": "8de208794865ebe7c56c1b9c6cd45c5855d8259745e8f283c9ecd17a7eb477ec",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:13:53.058506+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:13:53.234237+00:00",
+              "elapsed_seconds": 0.175744
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:13:53.237412+00:00",
+              "elapsed_seconds": 0.178915
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:13:53.237456+00:00",
+              "elapsed_seconds": 0.178954
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:13:53.906209+00:00",
+              "elapsed_seconds": 0.847718
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:53.907459+00:00",
+              "elapsed_seconds": 0.848959
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:53.907642+00:00",
+              "elapsed_seconds": 0.84914
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:53.907651+00:00",
+              "elapsed_seconds": 0.849147
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:53.907712+00:00",
+              "elapsed_seconds": 0.849209
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:53.907719+00:00",
+              "elapsed_seconds": 0.849215
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:54.603943+00:00",
+              "elapsed_seconds": 1.545452
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:54.604363+00:00",
+              "elapsed_seconds": 1.54586
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:55.002903+00:00",
+              "elapsed_seconds": 1.94441
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:13:55.004490+00:00",
+              "elapsed_seconds": 1.94599
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:13:55.004536+00:00",
+              "elapsed_seconds": 1.946032
+            }
+          ],
+          "bytes_read": 57952,
+          "body_complete": true,
+          "body_sha256": "d7cd4ab48c1bb304abe957cf524f1d00f7f2784d5b60c94689f98d0059eab08a",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 57952,
+          "decoded_bytes_read": 302500,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "46f0b39527a55a160fb38518e0190d4f03b66083586470b1bf0d56bbac7da5aa",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:13:54.604290+00:00",
+          "headers_elapsed_seconds": 1.545788,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:13:55.005299+00:00",
+          "finished_at": "2026-10-18T20:13:55.005971+00:00",
+          "elapsed_seconds": 1.947469,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:13:55.006003+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1Eu4y1z7XR/",
+        "url_sha256": "8de208794865ebe7c56c1b9c6cd45c5855d8259745e8f283c9ecd17a7eb477ec",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 302500
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:13:57.060339+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+        "url_sha256": "5659617259cfc15963a12d97a45e9996efd36176de8c6dba1c46a6f451cd43ff",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:13:58.327300+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+        "url_sha256": "5659617259cfc15963a12d97a45e9996efd36176de8c6dba1c46a6f451cd43ff",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 7
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:13:58.327323+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+        "url_sha256": "5659617259cfc15963a12d97a45e9996efd36176de8c6dba1c46a6f451cd43ff",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:13:58.327541+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+        "url_sha256": "5659617259cfc15963a12d97a45e9996efd36176de8c6dba1c46a6f451cd43ff",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:13:58.327531+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:13:58.496197+00:00",
+              "elapsed_seconds": 0.16868
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:13:58.500177+00:00",
+              "elapsed_seconds": 0.172661
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:13:58.500228+00:00",
+              "elapsed_seconds": 0.172703
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:13:59.168134+00:00",
+              "elapsed_seconds": 0.840619
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:59.169363+00:00",
+              "elapsed_seconds": 0.841839
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:59.169541+00:00",
+              "elapsed_seconds": 0.842015
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:59.169550+00:00",
+              "elapsed_seconds": 0.842022
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:59.169610+00:00",
+              "elapsed_seconds": 0.842082
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:13:59.169616+00:00",
+              "elapsed_seconds": 0.842088
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:13:59.775493+00:00",
+              "elapsed_seconds": 1.447982
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:13:59.775968+00:00",
+              "elapsed_seconds": 1.44844
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:13:59.918886+00:00",
+              "elapsed_seconds": 1.591367
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:13:59.920014+00:00",
+              "elapsed_seconds": 1.592489
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:13:59.920055+00:00",
+              "elapsed_seconds": 1.592527
+            }
+          ],
+          "bytes_read": 43801,
+          "body_complete": true,
+          "body_sha256": "41c5f833f32c88453f84d46d9ea11388fd4151855ff0bb6bb28796af793e214a",
+          "max_bytes": 1000000,
+          "content_encoding": "gzip",
+          "encoded_bytes_read": 43801,
+          "decoded_bytes_read": 155906,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "98fa851619498ed5b47e3559ca83a444ce3e312ff5d8379f6688b81efcaad7c7",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:13:59.775902+00:00",
+          "headers_elapsed_seconds": 1.448375,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:13:59.920825+00:00",
+          "finished_at": "2026-10-18T20:13:59.921447+00:00",
+          "elapsed_seconds": 1.593922,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:13:59.921481+00:00",
+        "host": "www.bilibili.com",
+        "url": "https://www.bilibili.com/video/BV1eL4y1g7qY/",
+        "url_sha256": "5659617259cfc15963a12d97a45e9996efd36176de8c6dba1c46a6f451cd43ff",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 155906
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:14:02.201398+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/robots.txt",
+        "url_sha256": "b7ad385e4832de3eb0b1b87ede1ccfb3719cfacb4028febf6fdb9b18cc2fe767",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:14:03.465027+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/robots.txt",
+        "url_sha256": "b7ad385e4832de3eb0b1b87ede1ccfb3719cfacb4028febf6fdb9b18cc2fe767",
+        "kind": "robots",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:14:03.465052+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/robots.txt",
+        "url_sha256": "b7ad385e4832de3eb0b1b87ede1ccfb3719cfacb4028febf6fdb9b18cc2fe767",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:14:03.465247+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/robots.txt",
+        "url_sha256": "b7ad385e4832de3eb0b1b87ede1ccfb3719cfacb4028febf6fdb9b18cc2fe767",
+        "kind": "robots",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:14:03.465239+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:14:03.626279+00:00",
+              "elapsed_seconds": 0.161055
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:14:03.629690+00:00",
+              "elapsed_seconds": 0.164456
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:14:03.629715+00:00",
+              "elapsed_seconds": 0.164478
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:14:04.316530+00:00",
+              "elapsed_seconds": 0.851307
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:14:04.317753+00:00",
+              "elapsed_seconds": 0.85252
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:14:04.317938+00:00",
+              "elapsed_seconds": 0.852703
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:14:04.317947+00:00",
+              "elapsed_seconds": 0.85271
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:14:04.317990+00:00",
+              "elapsed_seconds": 0.852753
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:14:04.317995+00:00",
+              "elapsed_seconds": 0.852757
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:14:04.622420+00:00",
+              "elapsed_seconds": 1.157199
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:14:04.622830+00:00",
+              "elapsed_seconds": 1.157594
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:14:04.623365+00:00",
+              "elapsed_seconds": 1.158131
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:14:04.625000+00:00",
+              "elapsed_seconds": 1.159771
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:14:04.625068+00:00",
+              "elapsed_seconds": 1.159833
+            }
+          ],
+          "bytes_read": 6813,
+          "body_complete": true,
+          "body_sha256": "0de4c29629a51d06d442fec38eff3c3b29822167c58c4c7266523fb1a1b1a81d",
+          "max_bytes": 256000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 6813,
+          "decoded_bytes_read": 6813,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "0de4c29629a51d06d442fec38eff3c3b29822167c58c4c7266523fb1a1b1a81d",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:14:04.622748+00:00",
+          "headers_elapsed_seconds": 1.157514,
+          "body_total_budget_seconds": 20.625,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 256000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:14:04.626467+00:00",
+          "finished_at": "2026-10-18T20:14:04.628093+00:00",
+          "elapsed_seconds": 1.162882,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:14:04.628172+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/robots.txt",
+        "url_sha256": "b7ad385e4832de3eb0b1b87ede1ccfb3719cfacb4028febf6fdb9b18cc2fe767",
+        "kind": "robots",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 6813
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:14:04.629054+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/question-bank-solutions/the-python-code-written-below-has-syntactical-errors-rewrite-the-correct-code-and-underline-the-correction-s-made-import-pandas-as-pd-stud-name-ramya-class-11-house-red_394320",
+        "url_sha256": "28cf725fcafa806e110ba87bd124e4c4a51af6bd8d4216ea5428cbf913cc691d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:14:06.019203+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/question-bank-solutions/the-python-code-written-below-has-syntactical-errors-rewrite-the-correct-code-and-underline-the-correction-s-made-import-pandas-as-pd-stud-name-ramya-class-11-house-red_394320",
+        "url_sha256": "28cf725fcafa806e110ba87bd124e4c4a51af6bd8d4216ea5428cbf913cc691d",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 6
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:14:06.019229+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/question-bank-solutions/the-python-code-written-below-has-syntactical-errors-rewrite-the-correct-code-and-underline-the-correction-s-made-import-pandas-as-pd-stud-name-ramya-class-11-house-red_394320",
+        "url_sha256": "28cf725fcafa806e110ba87bd124e4c4a51af6bd8d4216ea5428cbf913cc691d",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:14:06.019420+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/question-bank-solutions/the-python-code-written-below-has-syntactical-errors-rewrite-the-correct-code-and-underline-the-correction-s-made-import-pandas-as-pd-stud-name-ramya-class-11-house-red_394320",
+        "url_sha256": "28cf725fcafa806e110ba87bd124e4c4a51af6bd8d4216ea5428cbf913cc691d",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:14:06.019415+00:00",
+          "status": "completed",
+          "http_status": 403,
+          "phase": "headers",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:14:06.187283+00:00",
+              "elapsed_seconds": 0.16788
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:14:06.190481+00:00",
+              "elapsed_seconds": 0.171071
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:14:06.190506+00:00",
+              "elapsed_seconds": 0.171093
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:14:06.735278+00:00",
+              "elapsed_seconds": 0.71588
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:14:06.736632+00:00",
+              "elapsed_seconds": 0.717223
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:14:06.736806+00:00",
+              "elapsed_seconds": 0.717394
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:14:06.736813+00:00",
+              "elapsed_seconds": 0.7174
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:14:06.736859+00:00",
+              "elapsed_seconds": 0.717446
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:14:06.736865+00:00",
+              "elapsed_seconds": 0.717453
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:14:07.025686+00:00",
+              "elapsed_seconds": 1.006287
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:14:07.026991+00:00",
+              "elapsed_seconds": 1.007581
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:14:07.027131+00:00",
+              "elapsed_seconds": 1.007719
+            }
+          ],
+          "bytes_read": 0,
+          "body_complete": false,
+          "body_sha256": null,
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 0,
+          "decoded_bytes_read": 0,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": null,
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:14:07.025938+00:00",
+          "headers_elapsed_seconds": 1.006528,
+          "body_read": "not_requested_status",
+          "finished_at": "2026-10-18T20:14:07.028302+00:00",
+          "elapsed_seconds": 1.008893,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:14:07.028334+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/question-bank-solutions/the-python-code-written-below-has-syntactical-errors-rewrite-the-correct-code-and-underline-the-correction-s-made-import-pandas-as-pd-stud-name-ramya-class-11-house-red_394320",
+        "url_sha256": "28cf725fcafa806e110ba87bd124e4c4a51af6bd8d4216ea5428cbf913cc691d",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 403,
+        "bytes_read": 0
+      },
+      {
+        "event": "host_blocked",
+        "at": "2026-10-18T20:14:07.028363+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/question-bank-solutions/the-python-code-written-below-has-syntactical-errors-rewrite-the-correct-code-and-underline-the-correction-s-made-import-pandas-as-pd-stud-name-ramya-class-11-house-red_394320",
+        "url_sha256": "28cf725fcafa806e110ba87bd124e4c4a51af6bd8d4216ea5428cbf913cc691d",
+        "status": "access_denied",
+        "source": "http.status.403"
+      },
+      {
+        "event": "http_stopped",
+        "at": "2026-10-18T20:14:07.028382+00:00",
+        "host": "www.shaalaa.com",
+        "url": "https://www.shaalaa.com/question-bank-solutions/the-python-code-written-below-has-syntactical-errors-rewrite-the-correct-code-and-underline-the-correction-s-made-import-pandas-as-pd-stud-name-ramya-class-11-house-red_394320",
+        "url_sha256": "28cf725fcafa806e110ba87bd124e4c4a51af6bd8d4216ea5428cbf913cc691d",
+        "kind": "page",
+        "attempt": 0,
+        "status": "access_denied"
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:14:09.473126+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/robots.txt",
+        "url_sha256": "32ec3c7b780cadca63f2749f3c12306981b26ae0e2640c89e3fcf27cde31dfaa",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:14:10.766373+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/robots.txt",
+        "url_sha256": "32ec3c7b780cadca63f2749f3c12306981b26ae0e2640c89e3fcf27cde31dfaa",
+        "kind": "robots",
+        "attempt": 0,
+        "address_count": 9
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:14:10.766396+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/robots.txt",
+        "url_sha256": "32ec3c7b780cadca63f2749f3c12306981b26ae0e2640c89e3fcf27cde31dfaa",
+        "kind": "robots",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:14:10.766563+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/robots.txt",
+        "url_sha256": "32ec3c7b780cadca63f2749f3c12306981b26ae0e2640c89e3fcf27cde31dfaa",
+        "kind": "robots",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:14:10.766558+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:14:10.926095+00:00",
+              "elapsed_seconds": 0.159549
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:14:10.929234+00:00",
+              "elapsed_seconds": 0.162681
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:14:10.929257+00:00",
+              "elapsed_seconds": 0.162702
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:14:11.530221+00:00",
+              "elapsed_seconds": 0.763679
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:14:11.531450+00:00",
+              "elapsed_seconds": 0.764897
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:14:11.531632+00:00",
+              "elapsed_seconds": 0.765078
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:14:11.531641+00:00",
+              "elapsed_seconds": 0.765085
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:14:11.531691+00:00",
+              "elapsed_seconds": 0.765135
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:14:11.531696+00:00",
+              "elapsed_seconds": 0.76514
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:14:11.884206+00:00",
+              "elapsed_seconds": 1.117663
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:14:11.884615+00:00",
+              "elapsed_seconds": 1.11806
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:14:11.884699+00:00",
+              "elapsed_seconds": 1.118143
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:14:11.886220+00:00",
+              "elapsed_seconds": 1.11967
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:14:11.886288+00:00",
+              "elapsed_seconds": 1.119733
+            }
+          ],
+          "bytes_read": 1567,
+          "body_complete": true,
+          "body_sha256": "835705a2ecb862f49a813b3aa4061e0edfefbb8318316b371f8fa2dba4018802",
+          "max_bytes": 256000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 1567,
+          "decoded_bytes_read": 1567,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "835705a2ecb862f49a813b3aa4061e0edfefbb8318316b371f8fa2dba4018802",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:14:11.884529+00:00",
+          "headers_elapsed_seconds": 1.117975,
+          "body_total_budget_seconds": 5.09564208984375,
+          "body_idle_budget_seconds": 5,
+          "content_length": 1567,
+          "body_size_basis_bytes": 1567,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:14:11.887645+00:00",
+          "finished_at": "2026-10-18T20:14:11.888761+00:00",
+          "elapsed_seconds": 1.12221,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:14:11.888804+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/robots.txt",
+        "url_sha256": "32ec3c7b780cadca63f2749f3c12306981b26ae0e2640c89e3fcf27cde31dfaa",
+        "kind": "robots",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 1567
+      },
+      {
+        "event": "dns_started",
+        "at": "2026-10-18T20:14:11.889177+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+        "url_sha256": "35cade8f8e6984da5fb13e077c80e2a0a53b0882ac8a7064ea39d75853db4e5e",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "dns_completed",
+        "at": "2026-10-18T20:14:13.433647+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+        "url_sha256": "35cade8f8e6984da5fb13e077c80e2a0a53b0882ac8a7064ea39d75853db4e5e",
+        "kind": "page",
+        "attempt": 0,
+        "address_count": 9
+      },
+      {
+        "event": "http_started",
+        "at": "2026-10-18T20:14:13.433670+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+        "url_sha256": "35cade8f8e6984da5fb13e077c80e2a0a53b0882ac8a7064ea39d75853db4e5e",
+        "kind": "page",
+        "attempt": 0
+      },
+      {
+        "event": "http_transport",
+        "at": "2026-10-18T20:14:13.433830+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+        "url_sha256": "35cade8f8e6984da5fb13e077c80e2a0a53b0882ac8a7064ea39d75853db4e5e",
+        "kind": "page",
+        "attempt": 0,
+        "transport": {
+          "started_at": "2026-10-18T20:14:13.433825+00:00",
+          "status": "completed",
+          "http_status": 200,
+          "phase": "complete",
+          "phases": [
+            {
+              "phase": "connect_tcp",
+              "state": "started",
+              "at": "2026-10-18T20:14:13.601139+00:00",
+              "elapsed_seconds": 0.167327
+            },
+            {
+              "phase": "connect_tcp",
+              "state": "complete",
+              "at": "2026-10-18T20:14:13.603168+00:00",
+              "elapsed_seconds": 0.16935
+            },
+            {
+              "phase": "start_tls",
+              "state": "started",
+              "at": "2026-10-18T20:14:13.603196+00:00",
+              "elapsed_seconds": 0.169373
+            },
+            {
+              "phase": "start_tls",
+              "state": "complete",
+              "at": "2026-10-18T20:14:14.154713+00:00",
+              "elapsed_seconds": 0.720901
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "started",
+              "at": "2026-10-18T20:14:14.155774+00:00",
+              "elapsed_seconds": 0.721954
+            },
+            {
+              "phase": "send_request_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:14:14.155968+00:00",
+              "elapsed_seconds": 0.722146
+            },
+            {
+              "phase": "send_request_body",
+              "state": "started",
+              "at": "2026-10-18T20:14:14.155977+00:00",
+              "elapsed_seconds": 0.722154
+            },
+            {
+              "phase": "send_request_body",
+              "state": "complete",
+              "at": "2026-10-18T20:14:14.156020+00:00",
+              "elapsed_seconds": 0.722196
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "started",
+              "at": "2026-10-18T20:14:14.156024+00:00",
+              "elapsed_seconds": 0.7222
+            },
+            {
+              "phase": "receive_response_headers",
+              "state": "complete",
+              "at": "2026-10-18T20:14:14.966547+00:00",
+              "elapsed_seconds": 1.532737
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "started",
+              "at": "2026-10-18T20:14:14.967004+00:00",
+              "elapsed_seconds": 1.533181
+            },
+            {
+              "phase": "receive_response_body",
+              "state": "complete",
+              "at": "2026-10-18T20:14:16.228389+00:00",
+              "elapsed_seconds": 2.794575
+            },
+            {
+              "phase": "response_closed",
+              "state": "started",
+              "at": "2026-10-18T20:14:16.229320+00:00",
+              "elapsed_seconds": 2.7955
+            },
+            {
+              "phase": "response_closed",
+              "state": "complete",
+              "at": "2026-10-18T20:14:16.229364+00:00",
+              "elapsed_seconds": 2.795541
+            }
+          ],
+          "bytes_read": 397810,
+          "body_complete": true,
+          "body_sha256": "e99d10a0daf7ef8014e0d2f5f075d736d976388de27dc0d1103f6641b2b3272c",
+          "max_bytes": 1000000,
+          "content_encoding": "identity",
+          "encoded_bytes_read": 397810,
+          "decoded_bytes_read": 397810,
+          "body_sha256_basis": "decoded_entity_prefix",
+          "encoded_body_sha256": "e99d10a0daf7ef8014e0d2f5f075d736d976388de27dc0d1103f6641b2b3272c",
+          "encoded_body_sha256_basis": "wire_body_prefix",
+          "phased_timeouts": true,
+          "headers_at": "2026-10-18T20:14:14.966938+00:00",
+          "headers_elapsed_seconds": 1.533115,
+          "body_total_budget_seconds": 30.0,
+          "body_idle_budget_seconds": 5,
+          "content_length": null,
+          "body_size_basis_bytes": 1000000,
+          "body_min_bytes_per_second": 16384,
+          "body_budget_formula": "min(cap, idle + size/min_rate, request_remaining, job_remaining)",
+          "job_deadline_clipped": false,
+          "body_completed_at": "2026-10-18T20:14:16.230299+00:00",
+          "finished_at": "2026-10-18T20:14:16.231117+00:00",
+          "elapsed_seconds": 2.797297,
+          "partial_body": false
+        }
+      },
+      {
+        "event": "http_completed",
+        "at": "2026-10-18T20:14:16.231149+00:00",
+        "host": "www.tiktok.com",
+        "url": "https://www.tiktok.com/@karinadatascientist/video/7295326298539445505",
+        "url_sha256": "35cade8f8e6984da5fb13e077c80e2a0a53b0882ac8a7064ea39d75853db4e5e",
+        "kind": "page",
+        "attempt": 0,
+        "status_code": 200,
+        "bytes_read": 397810
+      }
+    ],
+    "truncated": false,
+    "scope": "target HTML/XML+robots only; DoH HTTP separately traced for official discovery"
+  }
+}

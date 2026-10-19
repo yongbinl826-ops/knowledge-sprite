@@ -1,0 +1,1238 @@
+{
+  "plan_version": "phase3-independent-transfer-review-v1",
+  "created_at": "2026-10-18T22:12:13.875227+00:00",
+  "preregistered_before_new_runtime_results": true,
+  "root_matching_implementation_consulted_for_this_plan": false,
+  "source_audit": {
+    "path": "evidence\\phase3-audit\\learning-goal-audit.json",
+    "sha256": "441033c4b2ba9cd7d396b988fa49cb4c8c4e0ad663bb1e0c7cabcc22cc9725bd"
+  },
+  "mode": "zero_HTTP_zero_model_zero_DB_no_main_code_changes_except_standalone_reviewer_script",
+  "cases": [
+    {
+      "case_id": "phase3_review_cards_browser_beginner",
+      "cohort": "unseen",
+      "name": "离线复习卡网页",
+      "input": {
+        "name": "离线复习卡网页",
+        "requirements": "使用原生 HTML/CSS/JavaScript 展示12张合成术语复习卡。上一张/下一张切换，首尾禁用对应按钮；可标记已掌握，显示已掌握数量。刷新后从 localStorage 恢复标记，首次打开无数据或本地数据损坏时给提示并安全恢复默认。手机可用，原生按钮可键盘操作。不登录、不联网、不做推荐算法、云同步或后端。",
+        "student_level": "beginner",
+        "project_context": "会基础 HTML/CSS、JavaScript 变量、if、数组与简单函数；第一次将 DOM 事件与本地保存组成应用。",
+        "language": "zh",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "student_fit": {
+        "stage": "beginner",
+        "background_verbatim": "会基础 HTML/CSS、JavaScript 变量、if、数组与简单函数；第一次将 DOM 事件与本地保存组成应用。",
+        "fit_rule": "依据明确已有技能选择针对性方法；来源未说明门槛时保留未知，不因项目或数值不同拒绝，不以阶段标签推断会所有库。"
+      },
+      "project_practice_requirements": [
+        "首尾边界正确，不跳错卡",
+        "每卡标记独立，计数与状态一致",
+        "刷新恢复，坏 JSON/缺键不崩溃",
+        "窄屏和键盘操作可用"
+      ],
+      "project_values_not_required_in_tutorial": [
+        "12张卡、术语内容、按钮文案与计数显示格式"
+      ],
+      "unit_count_observation": "4–5个练习单元，其中最后一个可为集成检查；不按每个按钮/变量拆单元。",
+      "do_not_add_scope": [
+        "账号",
+        "云同步",
+        "后端",
+        "推荐算法"
+      ],
+      "skills": [
+        {
+          "id": "card_state",
+          "technology": "JavaScript",
+          "skill": "数组状态、索引边界与DOM渲染",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "前后导航更新当前索引；模型状态与显示一致；标记按卡片独立保存"
+          ],
+          "acceptable_transfer": [
+            "其他图库/待办/卡片应用教同类数组状态与渲染即可，不要求12张或术语主题"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "变量/循环整课无DOM方法",
+            "仅相同卡片效果演示",
+            "React/Vue组件状态当原生JS DOM已教"
+          ]
+        },
+        {
+          "id": "card_actions",
+          "technology": "JavaScript",
+          "skill": "事件监听与原生按钮状态",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "点击事件更新状态；首尾禁用；避免依赖鼠标专有交互"
+          ],
+          "acceptable_transfer": [
+            "列表/表单中的事件与disabled示例可迁移"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只讲HTML按钮标签就声称状态更新",
+            "仅onclick符号清单"
+          ]
+        },
+        {
+          "id": "card_persistence",
+          "technology": "JavaScript",
+          "skill": "localStorage和JSON恢复与异常分支",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "保存并恢复结构化状态；缺失/坏JSON有可继续使用的默认路径"
+          ],
+          "acceptable_transfer": [
+            "偏好设置/待办保存教程，明确本地存储和JSON处理的片段可组合"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "后台数据库/账号同步替代localStorage",
+            "JSON.stringify名称就声称异常恢复已教"
+          ]
+        },
+        {
+          "id": "card_accessible_ui",
+          "technology": "HTML/CSS",
+          "skill": "原生按钮键盘可用、可见焦点与窄屏布局",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "按钮可用Tab/Enter/空格；焦点可见；布局适应窄屏"
+          ],
+          "acceptable_transfer": [
+            "任何网页中分别教授原生按钮行为、焦点样式或响应式布局的针对性章节"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "CSS焦点样式单独证明HTML默认激活",
+            "泛网页全栈整课无对应章节"
+          ]
+        }
+      ],
+      "input_sha256": "3fdd806c708554e33f7b7f979da8bcd5e711dcd5d5d6c27281c1e3868273e622",
+      "score_unit": "按技能与来源范围评估；同一资源可教多个经逐项有据的技能，多条资源也可组合；不要求每视频覆盖全单元/项目。"
+    },
+    {
+      "case_id": "phase3_pygame_pong_intermediate",
+      "cohort": "unseen",
+      "name": "pygame 双人乒乓球",
+      "input": {
+        "name": "pygame 双人乒乓球",
+        "requirements": "用 pygame 做本地双人乒乓球。W/S控制左拍、上下键控制右拍，按住可持续移动且球拍不出屏；球按经过时间移动，碰上下边界或球拍反弹。出左右边界给另一方加1分，显示比分并暂停等空格发球，先到3分显示获胜；获胜后R重开，Esc/关窗始终可退出。固定单屏，不做AI、联网、音效或物理引擎。",
+        "student_level": "intermediate",
+        "project_context": "会 Python 函数/列表和 pygame 窗口、绘图、离散按键事件；未做持续输入、速度运动、反弹和一局多轮状态。",
+        "language": "zh",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "student_fit": {
+        "stage": "intermediate",
+        "background_verbatim": "会 Python 函数/列表和 pygame 窗口、绘图、离散按键事件；未做持续输入、速度运动、反弹和一局多轮状态。",
+        "fit_rule": "依据明确已有技能选择针对性方法；来源未说明门槛时保留未知，不因项目或数值不同拒绝，不以阶段标签推断会所有库。"
+      },
+      "project_practice_requirements": [
+        "持续输入与迷宫离散输入不同，球拍保持边界内",
+        "改变帧率后运动速度大致一致",
+        "反弹不反复卡在球拍中，出界只加一次分",
+        "每分/获胜后正确暂停和重开，事件仍活着"
+      ],
+      "project_values_not_required_in_tutorial": [
+        "W/S与方向键、3分阈值、空格/R键、场地尺寸与颜色"
+      ],
+      "unit_count_observation": "5–6个可练习单元，输入/运动/碰撞/状态与文字/集成；不按每个键名或常量拆开。",
+      "do_not_add_scope": [
+        "AI",
+        "联网",
+        "物理引擎",
+        "音效"
+      ],
+      "skills": [
+        {
+          "id": "pong_held_input",
+          "technology": "pygame",
+          "skill": "持续键盘状态与球拍边界",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "持续按住持续运动，与KEYDOWN单次动作区分；限制球拍位置"
+          ],
+          "acceptable_transfer": [
+            "平台游戏或移动方块get_pressed与边界方法"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "离散一次KEYDOWN移动当持续输入已教",
+            "其他引擎控制器替代pygame"
+          ]
+        },
+        {
+          "id": "pong_elapsed_motion",
+          "technology": "pygame",
+          "skill": "按经过时间更新速度运动",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "位移与实际经过时间相联系；限帧和运动时间依据分开"
+          ],
+          "acceptable_transfer": [
+            "其他pygame明确delta time/速度位移的教学"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "仅clock.tick限帧当时间无关速度已教",
+            "固定每帧位移但声称帧率变化无影响"
+          ]
+        },
+        {
+          "id": "pong_collision",
+          "technology": "pygame",
+          "skill": "球与边界/球拍碰撞和反弹方向",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "检测接触后调整速度方向；避免重复反弹卡在球拍"
+          ],
+          "acceptable_transfer": [
+            "打砖块或球与障碍物课程解释同种运动/反弹即可"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只提colliderect就声称反射算法已教",
+            "演示视频无方法说明"
+          ]
+        },
+        {
+          "id": "pong_rounds",
+          "technology": "pygame",
+          "skill": "回合状态、一次计分和持续事件循环",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "出界事件只加一次分；暂停运动仍处理发球/重开/退出；重置数据"
+          ],
+          "acceptable_transfer": [
+            "其他游戏的game-over/serve/restart状态机，键名和分数可不同"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "游戏结束跳出整个主循环仍宣称按键重开",
+            "同名Pong但只教绘图"
+          ]
+        },
+        {
+          "id": "pong_text",
+          "technology": "pygame",
+          "skill": "比分状态与文字渲染",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "更新得分数据并把文字画到屏幕；不等同仅字体安装"
+          ],
+          "acceptable_transfer": [
+            "pygame得分/文字显示片段，不需同比分规则"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只有Python print当屏幕文字渲染",
+            "字体API清单不解释渲染显示"
+          ]
+        }
+      ],
+      "input_sha256": "a7936fc1add6c23c8bd09aeb336ad7869b638fea6041c15adb8155134a9669df",
+      "score_unit": "按技能与来源范围评估；同一资源可教多个经逐项有据的技能，多条资源也可组合；不要求每视频覆盖全单元/项目。"
+    },
+    {
+      "case_id": "phase3_arduino_pot_led_beginner",
+      "cohort": "unseen",
+      "name": "Arduino 电位器调节 LED 亮度",
+      "input": {
+        "name": "Arduino 电位器调节 LED 亮度",
+        "requirements": "用Arduino Uno、电位器、带限流电阻的LED做低压亮度调节器。读取电位器位置并映射为LED亮度，转到两端分别接近最暗/最亮，中间位置为中间亮度；串口显示原始读数和输出值。约每50ms采样一次，主循环不长时间阻塞，越界输入被限制在有效输出范围。断电接线、共地和LED极性必须说明，模拟输入电压及PWM引脚先按板卡官方说明确认。不连接市电、电机、继电器，不加按钮、传感器联网或屏幕。",
+        "student_level": "beginner",
+        "project_context": "会上传程序、做过LED点亮；第一次使用模拟输入、PWM和数值范围映射。",
+        "language": "zh",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "student_fit": {
+        "stage": "beginner",
+        "background_verbatim": "会上传程序、做过LED点亮；第一次使用模拟输入、PWM和数值范围映射。",
+        "fit_rule": "依据明确已有技能选择针对性方法；来源未说明门槛时保留未知，不因项目或数值不同拒绝，不以阶段标签推断会所有库。"
+      },
+      "project_practice_requirements": [
+        "按实际板卡/元件约束检查断电接线、限流与共地",
+        "两端及中间位置输出符合单调映射，限制越界",
+        "串口读值/输出对应且周期采样不冻结loop",
+        "不把PWM误称任意引脚可输出真正模拟电压"
+      ],
+      "project_values_not_required_in_tutorial": [
+        "50ms周期、元件/引脚选型与串口格式；源材料不要求相同数值"
+      ],
+      "unit_count_observation": "4–5个单元：低压接线、模拟读值、范围映射/PWM、周期采样与集成验证。",
+      "do_not_add_scope": [
+        "按钮",
+        "水泵/电机/继电器",
+        "市电",
+        "联网",
+        "屏幕"
+      ],
+      "skills": [
+        {
+          "id": "pot_wiring",
+          "technology": "Arduino",
+          "skill": "电位器和LED低压接线",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "模拟输入/回路共地；LED极性和限流；实际电压/引脚需按板卡元件资料核对"
+          ],
+          "acceptable_transfer": [
+            "同Uno电位器/LED正确接线，可用不同合规引脚或电阻示例"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "无电阻LED接法",
+            "不兼容板卡针脚或供电直接套用",
+            "仅展示效果就承诺硬件安全"
+          ]
+        },
+        {
+          "id": "pot_adc",
+          "technology": "Arduino",
+          "skill": "模拟输入读值与串口观察",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "观察analogRead类型的输入变化并打印；了解输入量程取决于板卡配置"
+          ],
+          "acceptable_transfer": [
+            "旋钮或其他合规模拟输入的读值/调试教学"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "digitalRead当连续模拟输入",
+            "纯Python文件输入代替板卡输入"
+          ]
+        },
+        {
+          "id": "pot_pwm",
+          "technology": "Arduino",
+          "skill": "范围映射、限幅与PWM亮度输出",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "读值范围映射到合法输出范围；PWM与普通开关输出不同；不能当任意引脚真实模拟电压"
+          ],
+          "acceptable_transfer": [
+            "其他低压LED调光示例明确map/限幅/PWM方法即可"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "digitalWrite闪烁当PWM调光",
+            "只含analogWrite符号就声称量程映射已教"
+          ]
+        },
+        {
+          "id": "pot_nonblocking",
+          "technology": "Arduino",
+          "skill": "非阻塞周期采样",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "用时间差条件安排采样，loop继续；串口打印不被默认阻塞输入策略绑住"
+          ],
+          "acceptable_transfer": [
+            "Blink Without Delay或其他传感器millis周期采样，可用不同周期"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "长delay阻塞仍宣称持续响应",
+            "仅millis名称不解释时间差安排"
+          ]
+        }
+      ],
+      "hardware_execution_boundary": "仅合成规划，未接硬件；执行前须用官方板卡/元件资料核对电压、引脚与量程，本审计不声称已查证或通电验证。",
+      "input_sha256": "9886dc9ef4af8a56ea56eab5cf537e1845787417c51a305d19585971ecb60481",
+      "score_unit": "按技能与来源范围评估；同一资源可教多个经逐项有据的技能，多条资源也可组合；不要求每视频覆盖全单元/项目。"
+    },
+    {
+      "case_id": "bicycle_csv_advanced",
+      "cohort": "retained_project_prospective_usability",
+      "name": "共享单车出行 CSV 分析报告",
+      "input": {
+        "name": "共享单车出行 CSV 分析报告",
+        "requirements": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+        "student_level": "advanced",
+        "language": "zh",
+        "project_context": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "student_fit": {
+        "stage": "advanced",
+        "background_verbatim": "已有 Python 函数、文件读写、调试和统计基础，但第一次用 pandas 处理出行数据，也不熟悉 Matplotlib 的API。希望重点理解时间清洗、分组与可复核的数据口径，不要重新上通用 Python 入门课，也不要假定高级标签就代表熟悉所有库。",
+        "fit_rule": "复用明确已知技能；advanced第一次pandas/Matplotlib仍可学库的针对性入门，Streamlit学生不重上已会pandas整课。来源门槛未知如实标注。"
+      },
+      "skills": [
+        {
+          "id": "csv_read",
+          "technology": "pandas",
+          "skill": "读取CSV并检查数据结构",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "列访问、结构/类型观察；不是骑行专属格式"
+          ],
+          "acceptable_transfer": [
+            "其他CSV数据集对应读取/检查片段"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "Python通用入门替代pandas",
+            "只有读文件路径未说明DataFrame"
+          ]
+        },
+        {
+          "id": "csv_dedup",
+          "technology": "pandas",
+          "skill": "按字段去重与保留策略",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "子集键、保留规则与前后行数复核"
+          ],
+          "acceptable_transfer": [
+            "不同字段名去重教程"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只删整行完全重复而声称指定键策略已教"
+          ]
+        },
+        {
+          "id": "csv_time_clean",
+          "technology": "pandas",
+          "skill": "日期时间解析及有效性掩码",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "解析失败/缺失识别；列间比较可用于无效筛选"
+          ],
+          "acceptable_transfer": [
+            "订单、日志日期解析/布尔筛选可组合"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "仅格式化日期",
+            "要求视频字段也叫start/end"
+          ]
+        },
+        {
+          "id": "csv_duration",
+          "technology": "pandas",
+          "skill": "时间差和总时长换算",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "日期时间相减、总持续时间与单位换算"
+          ],
+          "acceptable_transfer": [
+            "其他时间段/日志时长课"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只取秒分量当总秒数",
+            "泛算术替代pandas时长"
+          ]
+        },
+        {
+          "id": "csv_group",
+          "technology": "pandas",
+          "skill": "时间分量和分组计数",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "提取小时、按分类计数、合计复核"
+          ],
+          "acceptable_transfer": [
+            "其他日期/分类计数课"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只groupby名称而无计数方法"
+          ]
+        },
+        {
+          "id": "csv_chart",
+          "technology": "Matplotlib",
+          "skill": "分类条形图、标签和图文件输出",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "绘制条图、标注坐标、保存图像"
+          ],
+          "acceptable_transfer": [
+            "其他类别排名条图；TopN和类别名字可不同"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "泛Python基础",
+            "演示图无方法"
+          ]
+        },
+        {
+          "id": "csv_export",
+          "technology": "pandas",
+          "skill": "DataFrame写出CSV与选项/重新读取",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "明确写出方法；索引选项只有来源解释才归已教；复核可由学生练习"
+          ],
+          "acceptable_transfer": [
+            "任意DataFrame CSV写出教材，不要求同日志/文件名"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只读CSV当写出",
+            "仅搜索标题当正文",
+            "要求同清洗计数链才允许相关"
+          ]
+        }
+      ],
+      "original_project_constraints_verbatim": "用 Python、pandas 和 Matplotlib 在本机分析一份合成骑行 CSV，列为trip_id、start_time、end_time、start_station；时间均为同一城市本地时间。按trip_id去重并记录删行数，解析时间，单独记录缺失或结束早于开始的无效行；对有效行计算分钟时长，按出发小时汇总骑行次数，绘制出发站次数Top10条形图。导出清洗后含时长的CSV、按小时汇总CSV和PNG图；图要有标题、轴标签。不要预测、仪表盘、地图、账号或云部署。",
+      "accepted_defaults_verbatim": [
+        "合成 CSV 的时间两列使用 pandas 可解析的统一字符串格式（如 ISO），解析失败行按缺失处理并计数。",
+        "Top10 按出发站次数降序，取前 10 个站；不足 10 个时全部展示。",
+        "按出发小时汇总使用 0–23 的整点小时，不按日期拆分。",
+        "无效行在被去重之后、计算时长之前剔除；去重优先于无效判定。",
+        "图表与文件均输出到本机当前工作目录的指定文件名。",
+        "学生可修改学生阶段、项目背景与技术选择后重新生成。"
+      ],
+      "project_practice_requirements": [
+        "运行后终端显示列名、原始行数和各列 dtype，与 CSV 表头一致。",
+        "去重前后行数之差等于打印的删除行数，且余下 trip_id 唯一。",
+        "打印两个无效行数与各自示例行；构造一条 end==start 记录确认它仍在有效数据中。",
+        "清洗表新增时长列，最小值 >=0，end==start 行的时长恰为 0。",
+        "汇总表各小时次数之和等于有效行数，小时取值为 0–23。",
+        "生成的 PNG 显示最多 10 个出发站、次数降序，标题与两轴标签齐全。",
+        "两个 CSV 存在且可重新读取，日志中各计数满足：原始行数-删除数-无效数=有效行数。"
+      ],
+      "project_values_not_required_in_tutorial": [
+        "不同数据集/维度、数值参数、业务列名、按键/引脚、状态名、文件名允许迁移；具体原需求和已接受默认仍须在项目练习中保留。"
+      ],
+      "prospective_only": "本准则不倒改r9c历史指标；需用root提供的新结果重新独立评估。",
+      "input_sha256": "6cbd5cc4cc298491446c686e26a4d5141b6c4388cf29584ee51e5369c9b61178",
+      "score_unit": "按技能与来源范围评估；同一资源可教多个经逐项有据的技能，多条资源也可组合；不要求每视频覆盖全单元/项目。"
+    },
+    {
+      "case_id": "pygame_maze_intermediate",
+      "cohort": "retained_project_prospective_usability",
+      "name": "pygame 单屏迷宫寻出口",
+      "input": {
+        "name": "pygame 单屏迷宫寻出口",
+        "requirements": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "student_fit": {
+        "stage": "intermediate",
+        "background_verbatim": "会 Python 列表、循环、函数，做过 pygame 窗口和绘图，但没写过网格地图和完整胜利/重置状态。希望聚焦网格坐标、阻挡、输入边沿和时间/状态处理。",
+        "fit_rule": "复用明确已知技能；advanced第一次pandas/Matplotlib仍可学库的针对性入门，Streamlit学生不重上已会pandas整课。来源门槛未知如实标注。"
+      },
+      "skills": [
+        {
+          "id": "maze_grid",
+          "technology": "Python/pygame",
+          "skill": "二维地图索引到屏幕格子绘制",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "行列到像素映射；地图类型区分绘制"
+          ],
+          "acceptable_transfer": [
+            "棋盘/tilemap等不同尺寸地图"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "仅grid线声称二维列表已教",
+            "Python基础替代pygame绘制"
+          ]
+        },
+        {
+          "id": "maze_valid_move",
+          "technology": "Python/pygame",
+          "skill": "候选网格移动、边界和墙检查",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "更新前判断合法格，再检查可通行"
+          ],
+          "acceptable_transfer": [
+            "其他网格游戏的对应校验"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "像素边界限制当地图墙阻挡",
+            "要求同0..7才能相关"
+          ]
+        },
+        {
+          "id": "maze_discrete_input",
+          "technology": "pygame",
+          "skill": "离散按下与持续按住的区别",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "事件队列按下动作；一次按下的行为与持续状态不同"
+          ],
+          "acceptable_transfer": [
+            "回合/菜单离散动作示例，键名可变"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "get_pressed连续运动当单次移动"
+          ]
+        },
+        {
+          "id": "maze_states",
+          "technology": "pygame",
+          "skill": "状态转换与屏幕提示",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "状态驱动移动/画面；文本渲染独立支持具体部分"
+          ],
+          "acceptable_transfer": [
+            "其他胜利/结束状态与文本显示课程"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "字体渲染当整个状态机已教"
+          ]
+        },
+        {
+          "id": "maze_lifecycle",
+          "technology": "pygame",
+          "skill": "持续事件循环和数据重置",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "胜利后事件仍处理；重开重置游戏数据/时间基准"
+          ],
+          "acceptable_transfer": [
+            "game over/restart不同游戏"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "停止主循环后仍承诺按键重开"
+          ]
+        },
+        {
+          "id": "maze_elapsed",
+          "technology": "pygame",
+          "skill": "实际经过时间与限帧区分",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "时钟差计时；限帧不等于耗时依据"
+          ],
+          "acceptable_transfer": [
+            "其他游戏/计时应用的同类方法"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "clock.tick只限帧就算真实计时"
+          ]
+        }
+      ],
+      "original_project_constraints_verbatim": "用 Python 和 pygame 做单屏8乘8固定迷宫小游戏。地图用二维列表表示墙、路和出口；方向键每次按下移动一格，不能穿墙或越出地图。到达出口后显示胜利和本轮耗时，按R可重置玩家位置与计时，Esc或关闭窗口可退出。开始前和胜利后都必须能处理按键与关窗，使用帧率上限，耗时依据真实时间而非帧数。不需要自动生成迷宫、寻路提示、敌人、联网或计分排行。",
+      "accepted_defaults_verbatim": [
+        "图形库选用 pygame，基于项目上下文，属于可修改假设。",
+        "地图为固定 8×8，玩家起点与出口位置在代码中写定。",
+        "网格坐标为 (列, 行)，左上角为 (0,0)，墙用 1、路用 0、出口用 2 表示（表示方式可改）。",
+        "耗时单位用秒并保留一位小数；显示为近似值也接受。",
+        "开始前按方向键不移动，仅 R/Esc 生效。"
+      ],
+      "project_practice_requirements": [
+        "运行后能看到口径一致的 8×8 迷宫，墙、路、出口颜色可区分。",
+        "朝墙或地图边界按方向键时玩家不动，朝路移动一格。",
+        "按住方向键不连发，每次重新按下只移动一格。",
+        "踩到出口格后画面出现“胜利”，且此前开始前不响应移动。",
+        "胜利后按 R 能回到可玩状态，按 Esc 或关窗可退出。",
+        "胜利界面秒数与实际游玩时间大致相符，改变帧率不影响读数。"
+      ],
+      "project_values_not_required_in_tutorial": [
+        "不同数据集/维度、数值参数、业务列名、按键/引脚、状态名、文件名允许迁移；具体原需求和已接受默认仍须在项目练习中保留。"
+      ],
+      "prospective_only": "本准则不倒改r9c历史指标；需用root提供的新结果重新独立评估。",
+      "input_sha256": "1ca3a0798f7ec91870c343e74a526feaa47aaba795073329d29265b4cb1d373d",
+      "score_unit": "按技能与来源范围评估；同一资源可教多个经逐项有据的技能，多条资源也可组合；不要求每视频覆盖全单元/项目。"
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "cohort": "retained_project_prospective_usability",
+      "name": "离线番茄钟学习网页",
+      "input": {
+        "name": "离线番茄钟学习网页",
+        "requirements": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "student_fit": {
+        "stage": "beginner",
+        "background_verbatim": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。",
+        "fit_rule": "复用明确已知技能；advanced第一次pandas/Matplotlib仍可学库的针对性入门，Streamlit学生不重上已会pandas整课。来源门槛未知如实标注。"
+      },
+      "skills": [
+        {
+          "id": "timer_html",
+          "technology": "HTML",
+          "skill": "语义结构与原生按钮",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "标签/可读文本和默认按钮行为"
+          ],
+          "acceptable_transfer": [
+            "其他网页原生按钮章节"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "div点击当键盘默认行为"
+          ]
+        },
+        {
+          "id": "timer_layout",
+          "technology": "CSS",
+          "skill": "响应式布局和焦点呈现",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "窄屏布局/可读性；焦点样式"
+          ],
+          "acceptable_transfer": [
+            "其他响应式页面/Flex章节"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只有Flex声称全部响应式/键盘行为"
+          ]
+        },
+        {
+          "id": "timer_state_dom",
+          "technology": "JavaScript",
+          "skill": "对象状态、事件与DOM集中渲染",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "让状态决定显示；函数/元素引用短前置"
+          ],
+          "acceptable_transfer": [
+            "待办、播放器等原生JS交互课"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "JS变量整课无目标章节"
+          ]
+        },
+        {
+          "id": "timer_deadline",
+          "technology": "JavaScript",
+          "skill": "基于实际时间差的倒计时",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "截止时间与当前时刻差；刷新调度不作时间依据"
+          ],
+          "acceptable_transfer": [
+            "任意时长倒计时/秒表的明确对应算法"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "每次interval减1当后台准确",
+            "只有Date.now名称就证明算法"
+          ]
+        },
+        {
+          "id": "timer_pause",
+          "technology": "JavaScript",
+          "skill": "暂停/继续的剩余量与状态转换",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "保存剩余量，继续重建截止；重置基准"
+          ],
+          "acceptable_transfer": [
+            "其他计时器暂停恢复课"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "点击事件符号就声称完整暂停逻辑"
+          ]
+        },
+        {
+          "id": "timer_phase",
+          "technology": "JavaScript",
+          "skill": "转换时一次性动作与条件计数",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "转换不在每个刷新反复执行；业务计数规则由实践检验"
+          ],
+          "acceptable_transfer": [
+            "其他有限状态流程"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "要求专注/休息标签和25/5相同",
+            "泛if语法当状态动作"
+          ]
+        },
+        {
+          "id": "timer_keyboard",
+          "technology": "HTML/CSS",
+          "skill": "原生按钮键盘激活与可见焦点",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "实际HTML激活和CSS焦点分别取证"
+          ],
+          "acceptable_transfer": [
+            "任何网页对应章节可组合"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "focus-visible单独证明Enter/空格"
+          ]
+        }
+      ],
+      "original_project_constraints_verbatim": "用 HTML、CSS、JavaScript 做本机浏览器可用的番茄钟网页。专注固定25分钟、休息固定5分钟，能开始、暂停、继续和重置；倒计时结束后切换到下一阶段并暂停等待用户开始；每完成一个专注阶段次数加1。切到后台标签页再回来，剩余时间仍应准确，不能只靠setInterval每次减1。显示当前阶段、剩余时间和已完成次数，手机窄屏可用，键盘能操作所有按钮。不需要账号、联网、通知、音效或后端。",
+      "accepted_defaults_verbatim": [
+        "未指定 CSS 框架、构建工具或图形库，采用原生 CSS 与单个 script.js 文件；如学生更换工具可重新生成。",
+        "休息结束后同样切回专注并暂停，等待用户点开始；这是对“切换到下一阶段并暂停”的对称解释，可修改。",
+        "仅完成专注阶段时次数加 1，休息阶段完成不加。",
+        "按钮采用原生 <button>，优先用浏览器默认键盘激活而非自定义快捷键。",
+        "不做页面关闭后的持久化，刷新即重置。",
+        "暂停后继续时以保存的剩余毫秒重新计算结束时间戳。"
+      ],
+      "project_practice_requirements": [
+        "打开页面能看到三块显示内容和四个可用 Tab 聚焦的按钮。",
+        "浏览器缩到约 360px 宽，所有内容与按钮可见且无横向滚动条。",
+        "手动修改状态值后调用渲染函数，页面阶段、时间、次数同步变化。",
+        "计时中切到其他标签页等十几秒再回来，剩余时间与真实经过一致。",
+        "依次点开始、暂停、继续、重置，观察显示按预期冻结、续走并回到 25:00。",
+        "用缩短的时长测试：专注结束切休息并暂停、次数加 1；休息结束切专注且次数不变。",
+        "仅用键盘 Tab 到每个按钮并按 Enter/空格，功能与鼠标一致且焦点清晰可见。"
+      ],
+      "project_values_not_required_in_tutorial": [
+        "不同数据集/维度、数值参数、业务列名、按键/引脚、状态名、文件名允许迁移；具体原需求和已接受默认仍须在项目练习中保留。"
+      ],
+      "prospective_only": "本准则不倒改r9c历史指标；需用root提供的新结果重新独立评估。",
+      "input_sha256": "8578b758f3ea6b4ad5ae3b9786cc1b3f8bc12c30501ec7f70ca26a8490befe17",
+      "score_unit": "按技能与来源范围评估；同一资源可教多个经逐项有据的技能，多条资源也可组合；不要求每视频覆盖全单元/项目。"
+    },
+    {
+      "case_id": "arduino_reaction_beginner",
+      "cohort": "retained_project_prospective_usability",
+      "name": "Arduino LED 按钮反应时间小游戏",
+      "input": {
+        "name": "Arduino LED 按钮反应时间小游戏",
+        "requirements": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+        "student_level": "beginner",
+        "language": "zh",
+        "project_context": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "student_fit": {
+        "stage": "beginner",
+        "background_verbatim": "做过一次点亮 LED，知道上传Arduino程序，但没有做过按钮输入和状态机项目。希望先完成安全接线和单个输入输出，再整合游戏。",
+        "fit_rule": "复用明确已知技能；advanced第一次pandas/Matplotlib仍可学库的针对性入门，Streamlit学生不重上已会pandas整课。来源门槛未知如实标注。"
+      },
+      "skills": [
+        {
+          "id": "reaction_wiring",
+          "technology": "Arduino",
+          "skill": "低压LED/按钮电路",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "LED极性限流、共地、上拉接地接线核对"
+          ],
+          "acceptable_transfer": [
+            "不同合规引脚/LED按钮项目"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "无电阻LED/不兼容电路"
+          ]
+        },
+        {
+          "id": "reaction_input",
+          "technology": "Arduino",
+          "skill": "INPUT_PULLUP低有效输入和串口观察",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "内部上拉、digitalRead、按下LOW；调试可独立支持"
+          ],
+          "acceptable_transfer": [
+            "同配置按钮/串口课程"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "外部下拉高有效直接当同电路",
+            "Serial课当上拉语义"
+          ]
+        },
+        {
+          "id": "reaction_debounce",
+          "technology": "Arduino",
+          "skill": "稳定输入去抖及单次按下",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "稳定窗口/稳定采样后产生边沿；长按不重复"
+          ],
+          "acceptable_transfer": [
+            "不同稳定参数或有依据去抖库"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "原始边沿比较代替去抖"
+          ]
+        },
+        {
+          "id": "reaction_wait",
+          "technology": "Arduino",
+          "skill": "随机时长与非阻塞等待",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "每轮选择时长；时间差检查且仍处理输入"
+          ],
+          "acceptable_transfer": [
+            "random课和Blink Without Delay可分别支持"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "random标题就证明millis非阻塞",
+            "delay等待仍宣称抢按实时"
+          ]
+        },
+        {
+          "id": "reaction_states",
+          "technology": "Arduino",
+          "skill": "事件状态机和实际输出时刻计时",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "等待/亮灯/抢按动作；从实际亮灯开始算反应时间"
+          ],
+          "acceptable_transfer": [
+            "其他LED按钮非阻塞状态机"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "switch语法当全状态机",
+            "从开始按钮就起算反应时间"
+          ]
+        }
+      ],
+      "original_project_constraints_verbatim": "用 Arduino Uno、一个带限流电阻的LED和一个按钮做低压反应时间小游戏。按钮使用INPUT_PULLUP接地，串口监视器显示提示和结果；按一下开始一轮，先随机等待2到5秒再亮LED，亮灯后按按钮显示反应毫秒数。等待期间若提前按下则判抢按，之后可按按钮开始新一轮。全程仍能识别按钮，不能用delay阻塞随机等待；按钮需要去抖，长按不能连续启动多轮。说明断电接线、LED极性和共地，不接市电、电机或继电器。",
+      "accepted_defaults_verbatim": [
+        "使用Arduino Uno和Arduino IDE，串口监视器波特率设为9600。",
+        "按钮和LED的引脚可修改，方案中默认按钮接D2、LED接D9。",
+        "随机等待范围2到5秒包含端点，程序使用random(2000, 5001)实现。",
+        "去抖参数（稳定采样次数和间隔）是可修改假设，默认每5ms采样一次，连续4次相同电平确认。",
+        "硬件接线为低压直流，不涉及市电、电机或继电器。",
+        "学生可更换开发板型号、引脚或去抖参数并重新生成方案。"
+      ],
+      "project_practice_requirements": [
+        "上电后LED不异常常亮，按钮可被读取；用万用表检查GND连通。",
+        "串口监视器显示：未按时为1，按下时为0。",
+        "快速按下松开一次，串口只打印一次“按下”；按住不放3秒，也只打印一次；抖动时不会打印多次。",
+        "等待期间按下按钮能立即被检测到，3次测试亮灯时间随机分布在2-5秒内且不阻塞。",
+        "完整流程可运行：按按钮→等待→亮灯→再按显示反应毫秒；等待中抢按显示提示，再按可开始新一轮。"
+      ],
+      "project_values_not_required_in_tutorial": [
+        "不同数据集/维度、数值参数、业务列名、按键/引脚、状态名、文件名允许迁移；具体原需求和已接受默认仍须在项目练习中保留。"
+      ],
+      "prospective_only": "本准则不倒改r9c历史指标；需用root提供的新结果重新独立评估。",
+      "input_sha256": "317664081f9ac76b224542e4f602236b8c998f730777dcb77188805f35b5d23d",
+      "score_unit": "按技能与来源范围评估；同一资源可教多个经逐项有据的技能，多条资源也可组合；不要求每视频覆盖全单元/项目。"
+    },
+    {
+      "case_id": "study_room_streamlit_intermediate",
+      "cohort": "retained_project_prospective_usability",
+      "name": "校园自习室使用情况本地看板",
+      "input": {
+        "name": "校园自习室使用情况本地看板",
+        "requirements": "用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率以百分比保留1位小数，不能平均各行百分比；有效零到访记录必须保留。按room汇总到访人次并用Streamlit自带条形图显示。尚未上传、CSV缺列或格式错误、筛选无匹配时给清晰提示且页面可继续操作；空结果时指标显示“—”，不算除零或显示NaN，不画误导性图。只用本地文件，不需要账号、联网数据、数据库、预测、地图或云部署。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163",
+          "xuetangx"
+        ]
+      },
+      "student_fit": {
+        "stage": "intermediate",
+        "background_verbatim": "已会Python函数、pandas read_csv、布尔筛选和groupby，第一次使用Streamlit。希望学习上传/控件/重运行与一致的数据口径；不重上Python或pandas整门入门课。项目范围适中，学习路线合并为不超过6个可练习单元。",
+        "fit_rule": "复用明确已知技能；advanced第一次pandas/Matplotlib仍可学库的针对性入门，Streamlit学生不重上已会pandas整课。来源门槛未知如实标注。"
+      },
+      "skills": [
+        {
+          "id": "room_upload",
+          "technology": "Streamlit",
+          "skill": "文件上传与脚本重运行",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "st.file_uploader返回值和未上传分支；交互重运行"
+          ],
+          "acceptable_transfer": [
+            "其他CSV上传/交互页面"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只有安装hello-world",
+            "要求同六列数据才相关"
+          ]
+        },
+        {
+          "id": "room_validation",
+          "technology": "pandas",
+          "skill": "输入结构错误与行规则验证",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "区分缺列/解析失败和行掩码；不自动套通用清洗政策"
+          ],
+          "acceptable_transfer": [
+            "其他表结构/多条件验证示例，已知布尔筛选可复用"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "默认删零/去重当本项目规则"
+          ]
+        },
+        {
+          "id": "room_date",
+          "technology": "Streamlit",
+          "skill": "实际日期输入控件返回值/默认值",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "具体日期输入控制与筛选连接"
+          ],
+          "acceptable_transfer": [
+            "其他日期范围数据界面的日期控件课"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "泛控件族/文本输入当日期控件"
+          ]
+        },
+        {
+          "id": "room_multi",
+          "technology": "Streamlit",
+          "skill": "实际多选控件集合返回值",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "多选值、默认和空集合；空选政策保留在项目实践"
+          ],
+          "acceptable_transfer": [
+            "其他分类筛选的多选课"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "单选课当多选",
+            "空选自动全选当项目政策"
+          ]
+        },
+        {
+          "id": "room_weighted",
+          "technology": "pandas/统计",
+          "skill": "总分子总分母的加权比率",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "不能平均各行百分比；聚合口径一致"
+          ],
+          "acceptable_transfer": [
+            "其他业务比率/权重实例或明确ratio-of-sums原理"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "只有mean/sum名称就声称正确加权"
+          ]
+        },
+        {
+          "id": "room_chart",
+          "technology": "Streamlit",
+          "skill": "聚合数据到条形图绑定",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "st.bar_chart对应数据结构；已会groupby可复用"
+          ],
+          "acceptable_transfer": [
+            "其他分类条图"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "Matplotlib教程当st.bar_chart已教"
+          ]
+        },
+        {
+          "id": "room_empty",
+          "technology": "Streamlit",
+          "skill": "错误/空结果条件展示与保护",
+          "essential": true,
+          "known_by_explicit_background": false,
+          "method_semantics": [
+            "无数据/错误分支不崩溃，计算前保护分母/空表"
+          ],
+          "acceptable_transfer": [
+            "其他上传筛选应用中的对应条件展示"
+          ],
+          "must_reject_as_claimed_teaching": [
+            "显示0冒充无数据",
+            "try/except名称当完整交互状态"
+          ]
+        }
+      ],
+      "original_project_constraints_verbatim": "用 Python、pandas 和 Streamlit 做本机浏览器使用的自习室 CSV 看板。通过文件上传读取合成CSV，列为date、room、visits、capacity、open_minutes、occupied_seat_minutes。date按YYYY-MM-DD解析；room不能为空；visits为非负整数，capacity和open_minutes为正整数，occupied_seat_minutes为非负数且不得超过capacity*open_minutes；不合格行排除并显示数量，不做未要求的去重。提供起止日期（两端包含）和房间多选筛选，默认全部有效日期及全部房间，房间选空表示无结果而非自动全部。所有指标与图使用同一份筛选后有效数据：显示到访总人次sum(visits)、占用座位分钟sum(occupied_seat_minutes)、加权使用率sum(occupied_seat_minutes)/sum(capacity*open_minutes)，使用率以百分比保留1位小数，不能平均各行百分比；有效零到访记录必须保留。按room汇总到访人次并用Streamlit自带条形图显示。尚未上传、CSV缺列或格式错误、筛选无匹配时给清晰提示且页面可继续操作；空结果时指标显示“—”，不算除零或显示NaN，不画误导性图。只用本地文件，不需要账号、联网数据、数据库、预测、地图或云部署。",
+      "accepted_defaults_verbatim": [
+        "CSV 为合成数据，列名与要求一致（date、room、visits、capacity、open_minutes、occupied_seat_minutes），编码默认为 UTF-8。",
+        "起止日期默认取有效数据的 min/max，房间多选默认选中全部有效房间。",
+        "“缺列或格式错误”指必需列缺失或整表无法解析，与逐行排除分开提示。",
+        "日期筛选与起止两端包含；若用户选到无匹配日期区间按“筛选无匹配”处理。",
+        "学生第一次用 Streamlit，按 intermediate 略去 Python/pandas 入门，只讲项目所需部分。"
+      ],
+      "project_practice_requirements": [
+        "上传文件后页面显示列名与前几行；不传文件时只显示提示。",
+        "对含负数、零容量、日期非法、超占用行的样本，只剩合规行，排除数正确且零 visits 行保留。",
+        "默认展示全部数据；房间全不选时结果为空；起止两端日期记录被包含。",
+        "用两行不同容量数据验证结果是加权比，且格式为带1位小数的百分数。",
+        "非空时出现按房间的条形图；空数据时不出现图表。",
+        "筛选无匹配时三项显示“—”，无 NaN 报错，且无图表；页面仍可继续操作。"
+      ],
+      "project_values_not_required_in_tutorial": [
+        "不同数据集/维度、数值参数、业务列名、按键/引脚、状态名、文件名允许迁移；具体原需求和已接受默认仍须在项目练习中保留。"
+      ],
+      "prospective_only": "本准则不倒改r9c历史指标；需用root提供的新结果重新独立评估。",
+      "input_sha256": "69bed53e0c58d1d40509c554955be013a76cbbc51653793fbca85a1c93f616f4",
+      "score_unit": "按技能与来源范围评估；同一资源可教多个经逐项有据的技能，多条资源也可组合；不要求每视频覆盖全单元/项目。"
+    }
+  ],
+  "evidence_rules": {
+    "real_resource": "保留真实链接、来源、标题及视频身份/访问状态；标题是文章不能靠search_template当视频。付费/登录/地区限制不直接当无效链接，不能虚称播放核验。",
+    "teaching_scope": "不同项目可支持同一技能，但每条声称教授的方法须有本课自身标题/简介/目录/教学笔记的明确对应证据。搜索query/snippet、相关尾巴、先修/否定/TODO/索引清单不作当前讲授。",
+    "evidence_tiers": [
+      "own_title_topic:明确具体教学主题，可证明针对性相关；不能单凭标题推断参数/算法深度",
+      "own_description_or_catalog:可支持明确列出的技能/章节范围",
+      "own_teaching_excerpt:可支持具体方法；引用与来源ID/URL绑定",
+      "unknown_or_search_only:保留线索，不能声称已教授"
+    ],
+    "no_literal_example_requirement": "教程不必同项目、同参数、同验收。技能语义须相符；项目数值/边界仍由任务与实践验证。",
+    "unknown": "未知授课语言/门槛/章节/参数如实保留；不能因未知自动宣称无关或已教。"
+  },
+  "hard_gates": [
+    "input_and_original_scope_preserved",
+    "critical_algorithm_semantics_preserved",
+    "claimed_source_teaching_grounded",
+    "real_video_identity_and_source_binding_not_fabricated",
+    "no_prerequisite_negation_related_or_demo_scope_theft",
+    "no_false_full_coverage_or_student_mastery",
+    "project_practice_constraints_retained_separately"
+  ],
+  "scoring": {
+    "scale": {
+      "0": "缺失、矛盾或误导",
+      "1": "大多缺失/泛化，学生难以使用",
+      "2": "有用但重要切面仍缺，范围说明准确",
+      "3": "适合学生执行，多数关键方法有明确对应材料/已知先修，少量非关键深度未知",
+      "4": "所有关键方法有具体适配，证据/未知透明，迁移步骤明确"
+    },
+    "dimensions": [
+      {
+        "id": "learning_plan",
+        "weight": 25,
+        "criterion": "技能具体、粒度适中、工具与背景适配，不要求同款项目，不丢项目要求"
+      },
+      {
+        "id": "algorithm_fit",
+        "weight": 25,
+        "criterion": "关键算法语义正确，明确区分不能互相替代的方法"
+      },
+      {
+        "id": "material_utility",
+        "weight": 25,
+        "criterion": "关键新技能有实际可学习材料；集成可复用先修；没有泛课冒充具体技能"
+      },
+      {
+        "id": "source_scope",
+        "weight": 15,
+        "criterion": "真实视频身份、出处、原文范围与推荐声明一致；未知层级透明"
+      },
+      {
+        "id": "student_next_step",
+        "weight": 10,
+        "criterion": "说明学生先学哪段/哪个方法、如何迁移练习和还需核对什么；不编造时间戳"
+      }
+    ],
+    "weighted_score": "sum(dimension_score/4*weight)，只对人工完成评分计算；脚本不从关键词自动打分。",
+    "decisions": {
+      "accepted_useful": "所有hard_gates人工通过、总分>=80、每个关键新技能至少有一项明确对应教学材料，或有基于原背景/前置的具体复用理由；项目练习完整映射。无需同一视频/单元全包，不表示学生已学会或项目代码运行通过。",
+      "partially_useful": "已有真实具体材料但关键新技能仍有缺口，或得分<80而无严重虚假声明；写出能学什么及下一步。",
+      "failed": "存在未解决的高/中优先级误导、技术矛盾、错误工具/伪视频或删除关键需求。",
+      "unreviewable": "未提供足够原始分析/推荐/来源证据，或人工尚未完成；不得用自动keyword分替代。"
+    }
+  },
+  "latency_and_cost": "记录实际生成/推荐延迟、首条有用材料、模型生成+review次数/usage、声明预算和失败；未提供值写unknown。没有事后加新时限；是否违反操作预算独立记录，不把速度当教学相关性。",
+  "reviewer_process": [
+    "先比输入/背景/需求与预注册计划，记录差异，不能静默换简单输入",
+    "逐学习单元映射具体新技能与已知先修/集成角色，保留全部实践约束",
+    "逐卡审真实身份、工具、当前讲授范围和原文依据，按技能而不是同项目名称判断",
+    "每个关键技能汇总有据材料/已知复用/尚缺，避免资源或重复技能计数膨胀",
+    "给五维人工评分、hard_gate及限制，保留负例与失败，归档原文件SHA",
+    "新根线程结果到达后只读离线评估；不在review脚本里发请求、调用模型或读写数据库"
+  ],
+  "calibration_negatives": [
+    {
+      "claim": "某页只教clock.tick，所以已教真实时间位移或耗时冻结",
+      "reject_reason": "限帧不等于实际时间差算法"
+    },
+    {
+      "claim": "教程数字不是2000–5000，所以random参数教学无用",
+      "reject_reason": "同数值不是相关性门槛；需核对随机范围语义后迁移参数"
+    },
+    {
+      "claim": "机械按钮原始前后电平不同就完成去抖",
+      "reject_reason": "边沿不替代稳定窗口/连续稳定采样/有依据的去抖方法"
+    },
+    {
+      "claim": "只含pandas日期API名称就已覆盖所有无效行规则",
+      "reject_reason": "API相关可有用，筛选方法和业务验证须另列范围，不追认整项目"
+    },
+    {
+      "claim": "其他业务的date_input/multiselect课程不讲自习室，因此不相关",
+      "reject_reason": "实际控件返回值/默认值方法可迁移；保留自习室空选/日期边界练习"
+    },
+    {
+      "claim": "泛Streamlit控件族能够代替实际日期和多选教学",
+      "reject_reason": "不能用同一工具的泛类目偷换具体技能"
+    },
+    {
+      "claim": "学会材料=项目全部验收完成",
+      "reject_reason": "课程教学与学生实践完成分别评估"
+    }
+  ],
+  "future_artifacts": "root提供8010生成与推荐的原始JSON/时间成本证据后，用standalone scripts/phase3_review_cases.py先准备无评分模板，再人工逐case评估。"
+}

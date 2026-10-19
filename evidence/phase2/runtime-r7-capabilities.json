@@ -1,0 +1,198 @@
+{
+  "mode": "live",
+  "search": {
+    "name": "searxng",
+    "status": "configured",
+    "message": "已配置，尚未验证真实搜索",
+    "selected_provider": "searxng",
+    "providers": [
+      {
+        "name": "searxng",
+        "status": "configured",
+        "message": "已配置，尚未验证真实搜索"
+      },
+      {
+        "name": "tavily",
+        "status": "unconfigured",
+        "message": "尚未配置"
+      },
+      {
+        "name": "official_sitemap",
+        "status": "configured",
+        "message": "已配置，需实际查询确认可用性"
+      }
+    ]
+  },
+  "llm": {
+    "status": "configured",
+    "message": "模型已配置，尚未实际验证"
+  },
+  "fetch": {
+    "status": "available",
+    "message": "公开元信息；独立站点策略与 robots 检查，受限时仅保留搜索证据",
+    "browser_fallback": false,
+    "stopped_hosts": [
+      "open.edu"
+    ],
+    "transport": {
+      "version": 3,
+      "phased_timeouts": true,
+      "bounded_content_encodings": [
+        "identity",
+        "gzip",
+        "deflate"
+      ],
+      "initial_timeout_seconds": 10,
+      "body_idle_timeout_seconds": 5,
+      "body_min_bytes_per_second": 16384,
+      "body_timeout_cap_seconds": 30
+    }
+  },
+  "js_render": {
+    "enabled": true,
+    "allowed_hosts": [
+      "microsoft.github.io"
+    ],
+    "allowed_entries": [
+      "https://microsoft.github.io/AI-For-Beginners/"
+    ],
+    "asset_hosts": [
+      "cdn.jsdelivr.net"
+    ],
+    "timeout_seconds": 90,
+    "max_resources": 6,
+    "max_target_requests": 10,
+    "max_doh_requests": 20,
+    "max_total_bytes": 2000000,
+    "max_dom_bytes": 1000000,
+    "settle_ms": 500,
+    "max_observed_data_resources": 2,
+    "status": "configured",
+    "profile_version": 6,
+    "mode": "anonymous_offline_manifest_fulfill",
+    "message": "仅显式允许来源；资源经安全采集后离线执行，配置不证明真实动态字段已取得",
+    "policy_and_robots_required": true,
+    "online_browser_fallback": false,
+    "process_network_egress": "unknown",
+    "playback_verified": false
+  },
+  "official_discovery": {
+    "selected": false,
+    "fallback_enabled": true,
+    "scope": "MIT official robots-declared sitemap links; page evidence required",
+    "children_per_query": 1,
+    "cache_ttl_seconds": 21600,
+    "dns_counter_scope": "discovery_dns_requests counts official discovery DoH HTTP only"
+  },
+  "public_catalog_discovery": {
+    "enabled": true,
+    "scope": "freeCodeCamp public tag cards and Tech With Tim category/series lesson links; independent video and topic page evidence required",
+    "max_indexes_per_query": 2,
+    "max_detail_probes_per_point": 2,
+    "cache_ttl_seconds": 21600,
+    "status": "configured"
+  },
+  "platforms": [
+    {
+      "id": "bilibili",
+      "name": "B站",
+      "discovery": "search",
+      "metadata": "public_video_metadata_only",
+      "playback": "unknown",
+      "policy_status": "explicit_permission_required",
+      "source_url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+      "reviewed_at": "2026-10-17",
+      "policy_basis": "本地自用模式已开启：读取匿名公开视频HTML中的元信息和分P目录，不因许可状态预先停止；实际登录、验证码、访问拒绝和robots规则仍独立检查。平台条款记录保留作来源说明。",
+      "policy_section": "5.6(3)、1.5",
+      "terms_date": "2025-04-30",
+      "effective_at": "2025-05-07",
+      "review_method": "browser_visible_terms"
+    },
+    {
+      "id": "icourse163",
+      "name": "中国大学 MOOC",
+      "discovery": "search",
+      "metadata": "public_course_metadata_only",
+      "playback": "unknown",
+      "policy_status": "public_course_metadata_only",
+      "source_url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+      "reviewed_at": "2026-10-17",
+      "policy_basis": "协议3.1允许浏览课程信息；5.2.7涉及第三方工具、服务接入，未明确列出匿名公开课程HTML读取。当前仅读取公开/course/课程页响应自带的介绍与大纲，逐次检查robots和访问限制；不接入登录学习、选课、播放或私有API，不代表取得平台自动聚合的广泛许可。",
+      "policy_section": "3.1、5.2.7",
+      "terms_date": "2021-07-16",
+      "effective_at": "2021-07-16",
+      "review_method": "browser_visible_terms"
+    },
+    {
+      "id": "xuetangx",
+      "name": "学堂在线",
+      "discovery": "search",
+      "metadata": "site_policy_blocked",
+      "playback": "unknown",
+      "policy_status": "explicit_scraping_prohibition",
+      "source_url": "https://www.xuetangx.com/app/protocol",
+      "reviewed_at": "2026-10-13",
+      "policy_basis": "官方用户协议“网络行为准则”明确约定不抓取和批量下载本产品内容；当前停止自动页面采集，保留搜索发现证据。公开课程可供用户访问不等于许可自动抓取。",
+      "policy_section": "网络行为准则",
+      "terms_date": "2021-01-05",
+      "effective_at": null,
+      "review_method": null
+    },
+    {
+      "id": "other",
+      "name": "其他公开网站",
+      "discovery": "search",
+      "metadata": "public_metadata_when_allowed",
+      "playback": "unknown",
+      "policy_status": "per_site_check_required",
+      "source_url": null,
+      "reviewed_at": null,
+      "policy_basis": null,
+      "policy_section": null,
+      "terms_date": null,
+      "effective_at": null,
+      "review_method": null
+    }
+  ],
+  "limits": {
+    "max_knowledge_points": 5,
+    "max_results_per_point": 5,
+    "max_search_requests": 30,
+    "max_detail_pages": 40,
+    "global_concurrency": 1,
+    "per_host_concurrency": 1
+  },
+  "deployment": {
+    "local_only": true,
+    "authentication": false,
+    "single_process": true,
+    "external_access_requires_authenticated_proxy": true
+  },
+  "project_analysis": {
+    "status": "configured",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v2.6.1-review-repair-context",
+    "max_functions": 12,
+    "max_knowledge_points": 24,
+    "semantic_review_enabled": true,
+    "max_model_calls": 4,
+    "review_max_output_tokens": 1500,
+    "message": "项目分析使用独立提示词；内容需学生检查确认"
+  },
+  "project_search": {
+    "max_batches": 6,
+    "max_search_requests": 180,
+    "max_detail_pages": 240,
+    "deadline_seconds": 1800,
+    "batch_size": 5,
+    "budget_policy": "按每批完整单任务上限预留；超预算整体拒绝，不截断知识点",
+    "deadline_policy": "预留各批完整执行时限之和；墙钟时限控制新批次启动，已提交共享任务继续至原任务时限",
+    "cancel_policy": "停止未提交批次并取消仅本项目使用的任务；共享或历史归属未知的任务继续，保留其结果"
+  },
+  "http_limits": {
+    "max_request_body_bytes": 512000,
+    "write_limit_per_minute": 60,
+    "max_pending_analyses": 8,
+    "max_pending_project_searches": 20
+  }
+}

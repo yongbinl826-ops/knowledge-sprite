@@ -1,0 +1,140 @@
+{
+  "reviewed_at": "2026-10-18T21:21:30.109331+00:00",
+  "mode": "independent_static_composition_closure_no_test_rerun",
+  "verdict": "closed_for_the_reviewed_merge; full r9b and D regression owned by root",
+  "ranking": {
+    "path": "backend/app/ranking.py",
+    "sha256": "e928ddb76cc1f15f0e6101fa8a574d83a097e65b337963ce78e8c93001d78956",
+    "expected_sha256": "e928ddb76cc1f15f0e6101fa8a574d83a097e65b337963ce78e8c93001d78956",
+    "pre_r9b_sha256": "5b13407e16189f8f733a4b835e962e865f5b9e5a749421a774333c37b7e57599",
+    "changed_functions": [
+      "_confirmed_api_operation_cores"
+    ],
+    "only_semantic_change": "_whole_source_non_teaching(title, body) returning [] inserted in _confirmed_api_operation_cores",
+    "guard_line": 1354,
+    "guard_is_after_own_bindings_and_before_identifier_loop": true,
+    "bindings": [
+      {
+        "line": 1346,
+        "source": "title_row = next((row for row in own if row.get(\"evidence_id\") == title_id and row.get(\"field\") == \"title\"\n                      and row.get(\"source\") == title_proof.get(\"source\")\n                      and row.get(\"text\") == resource.get(\"title\")), None)"
+      },
+      {
+        "line": 1351,
+        "source": "title = own_video_description(resource, title_row[\"text\"])"
+      },
+      {
+        "line": 1352,
+        "source": "body = \" \".join(own_video_description(resource, row.get(\"text\", \"\"))\n                    for row in own if row.get(\"field\") in {\"description\", \"video_topic_summary\"})"
+      }
+    ],
+    "unchanged_function_AST_after_removing_guard": true
+  },
+  "binding_scope_notes": [
+    "Guard runs after required actual page_verified video proof, normalized own URL page-row filtering and non-search source restrictions.",
+    "Title additionally requires matching field/evidence ID/source/text and title provenance URL.",
+    "Body uses same-page description/video_topic_summary rows from the filtered own set, then own_video_description strips source-related tails before the veto. The new guard contributes no positive identity or teaching evidence."
+  ],
+  "positive_source_and_denominator": {
+    "actual_fixture": "tests/fixtures/confirmed_api_core_actual_v6.json",
+    "actual_fixture_sha256": "14c9bf9a4bf39c08d60f2b6aae7a6a738677f0091e9e2f3e058a62da49cd4441",
+    "fixture_sha_matches_r9_install": true,
+    "original_confirmed_targets": [
+      "pd.to_datetime(errors)",
+      "isna 与缺失筛选",
+      "布尔条件 end < start",
+      "相等时间的边界判断"
+    ],
+    "coverage_targets_function_AST_unchanged": true,
+    "assess_topic_evidence_function_AST_unchanged": true,
+    "summarize_collection_coverage_function_AST_unchanged": true,
+    "expected_original_collection_denominator_from_unchanged_positive_test": 8,
+    "expected_original_target_statuses": "all unknown, with API-use core only as supplemental partial evidence; never original parameter/business support",
+    "positive_assertions_present_and_unchanged": true,
+    "new_guard_only_removes_disclaimed_source_core": true,
+    "API_test_existing_functions_AST_all_unchanged": true,
+    "API_test_added_functions": [
+      "test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core"
+    ],
+    "API_test_current_sha256": "e69ebad783f2725ff8d23d26ac65627f59a371dc3f68d43e755e6eb5c8ee5d24"
+  },
+  "fixture_assertions": [
+    {
+      "path": "tests/test_core.py",
+      "baseline_sha256": "21a2eb8b2ea809860c62606e35a3234098940ce48f0f33e569dfb54cd3231067",
+      "current_sha256": "b4b8bdab2349d1b9bf275ed2943d611e13c9df02aa3f4e3eb58844dd3d35fc3a",
+      "original_assert_count": 140,
+      "assertion_AST_unchanged": true
+    },
+    {
+      "path": "tests/test_project_matching_diagnosis.py",
+      "baseline_sha256": "36c9a3e429234d85d9a1a5316b6b9782b40390994ad096ff9d41021fb022439c",
+      "current_sha256": "3820ce1e05ba071bb0f76c7cdb9083d1efa3297e8068f59e6e6b954c788012fb",
+      "original_assert_count": 45,
+      "assertion_AST_unchanged": true
+    }
+  ],
+  "total_original_assertion_AST_unchanged": 185,
+  "all_38_real_fixtures_unchanged": true,
+  "existing_evidence_not_rerun": [
+    {
+      "path": "evidence/phase2/r9b-composition-before.xml",
+      "sha256": "f6554c8424f7bed48eb08df82d9d11590c210cb083360a25dea0e4f5a86a5749",
+      "suite": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "3",
+          "skipped": "0",
+          "tests": "3",
+          "time": "0.332",
+          "timestamp": "2026-10-19T05:18:48.367295+08:00",
+          "hostname": "LAPTOP-UT2FMDJK"
+        }
+      ],
+      "actual_positive_tests": [],
+      "combination_cases": [
+        "test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core[\\u672c\\u89c6\\u9891\\u4e0d\\u63d0\\u4f9b\\u4efb\\u4f55\\u6559\\u5b66\\u3002]",
+        "test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core[This video does not teach anything.]",
+        "test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core[\\u672c\\u89c6\\u9891\\u4ec5\\u6f14\\u793a\\u6548\\u679c\\u3002]"
+      ]
+    },
+    {
+      "path": "evidence/phase2/r9b-composition-and-fixture-focused.xml",
+      "sha256": "2c63807e46179c42fc6e37df0e3cb06fb81822a02e340aea13895f4245aa7196",
+      "suite": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "174",
+          "time": "4.046",
+          "timestamp": "2026-10-19T05:18:49.246925+08:00",
+          "hostname": "LAPTOP-UT2FMDJK"
+        }
+      ],
+      "actual_positive_tests": [
+        "test_actual_v6_only_source_spelled_core_is_partial_not_original_parameter_target",
+        "test_actual_full_rank_bucket_reason_and_collection_preserve_original_denominator",
+        "test_normal_jobservice_results_read_replay_places_core_only_in_partial_bucket"
+      ],
+      "combination_cases": [
+        "test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core[\\u672c\\u89c6\\u9891\\u4e0d\\u63d0\\u4f9b\\u4efb\\u4f55\\u6559\\u5b66\\u3002]",
+        "test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core[This video does not teach anything.]",
+        "test_whole_source_disclaimer_cannot_be_restored_by_supplemental_api_core[\\u672c\\u89c6\\u9891\\u4ec5\\u6f14\\u793a\\u6548\\u679c\\u3002]"
+      ]
+    }
+  ],
+  "actions": {
+    "HTTP_requests": 0,
+    "model_calls": 0,
+    "source_DB_writes": 0,
+    "production_or_tests_edits": 0,
+    "full_test_reruns": 0,
+    "service_operations": 0
+  },
+  "remaining_limits": [
+    "Static closure and existing focused evidence do not replace the running complete r9b/D regression or actual result read-projection acceptance.",
+    "The guard deliberately addresses explicit whole-source disclaimers; it does not prove general semantic teaching correctness."
+  ]
+}

@@ -1,0 +1,311 @@
+{
+  "review_version": "phase3-final-r3-independent-analysis-v1",
+  "reviewed_at_utc": "2026-10-18T23:14:52.576462+00:00",
+  "mode": {
+    "upstream_http": 0,
+    "model_calls": 0,
+    "database_writes": 0,
+    "stage_source_changes": 0,
+    "student_implementation_executed": false
+  },
+  "rubric": {
+    "path": "evidence/phase3-audit/unseen-review-plan.json",
+    "sha256": "4813022d3ea711c5c5b392468fe254d98be8e4ca3496fe636dcf02de017baa34",
+    "frozen_before_actual_results": true
+  },
+  "records": [
+    {
+      "case_id": "phase3_pygame_pong_intermediate",
+      "project_id": "3c339e7c-7f22-4aa5-aebc-3ac2f412d65c",
+      "version": 3,
+      "origin": "analysis",
+      "prompt_version": "project-analysis-v3.2-scoped-loop-diagnostics",
+      "observed_status": "analyzed",
+      "source": {
+        "immutable_raw_path": "evidence/phase3-audit/observed-analysis-snapshots/final-r3-phase3_pygame_pong_intermediate-v3.json",
+        "sha256": "66ce8e361f47ed0db0669b0b7e84a56bef0a59e362b1eddcf38fd3236fc65b82",
+        "mutable_live_path": "tmp/phase3-work/evidence/phase3-live/phase3_pygame_pong_intermediate/project-view.json"
+      },
+      "analysis_sha256": "c7961d20bebbc3d19e0c7a06000aab2b523273e8b7ee42cbcf5ee3139098c404",
+      "input_fidelity": {
+        "exact_frozen_plan_input_match": true,
+        "original_current_version_input_equal": true,
+        "input_sha256": "a7936fc1add6c23c8bd09aeb336ad7869b638fea6041c15adb8155134a9669df"
+      },
+      "unit_count": 6,
+      "skill_count": 16,
+      "prerequisite_graph": {
+        "references_valid": true,
+        "all_prerequisites_earlier": true,
+        "no_cycles": true,
+        "every_feature_has_learning_mapping": true
+      },
+      "P1_issues": 0,
+      "P2_issues": 0,
+      "issues": [],
+      "not_first_generation_pass": true,
+      "new_trial_boundary": "An explicitly authorized post-fix real analysis trial of the same input. Prior failed versions remain failed; this is not a first-attempt success or proof of why the old rejected draft failed.",
+      "disposition": "accepted_analysis_for_confirmation",
+      "ready_for_search": true,
+      "student_fit": "Intermediate knows Python functions/lists, pygame windows/drawing and discrete events. New targets focus held input, dt motion, reflection and multi-round state rather than generic Python basics.",
+      "requirement_checks": [
+        {
+          "id": "pong_held_input",
+          "result": "pass",
+          "pointers": [
+            "knowledge_points.k1",
+            "functions.f1"
+          ],
+          "reason": "get_pressed held polling vs KEYDOWN discrete is explicit; two mapped paddles clamped to [0,screen_height-paddle_height]."
+        },
+        {
+          "id": "pong_time_motion",
+          "result": "pass",
+          "pointers": [
+            "knowledge_points.k2",
+            "functions.f2",
+            "technical_plan"
+          ],
+          "reason": "Clock.tick milliseconds converted to seconds, pixel/second velocity multiplied by dt, comparison across frame caps."
+        },
+        {
+          "id": "pong_reflection",
+          "result": "pass",
+          "pointers": [
+            "knowledge_points.k3"
+          ],
+          "reason": "Rect collision; top/bottom flip vy and paddle flip vx, position correction prevents repeated overlap rebounds."
+        },
+        {
+          "id": "pong_score_serve",
+          "result": "pass",
+          "pointers": [
+            "knowledge_points.k4",
+            "knowledge_points.k5",
+            "functions.f3"
+          ],
+          "reason": "Opposite side +1 on leaving a boundary, centered still ball after scoring, font-rendered score, only discrete Space resumes service while events/render remain live."
+        },
+        {
+          "id": "pong_win_reset",
+          "result": "pass",
+          "pointers": [
+            "knowledge_points.k6",
+            "functions.f4"
+          ],
+          "reason": "First to3 wins and scoring freezes; R resets score, ball and paddles and starts again. Concentrated reset and global event processing taught."
+        },
+        {
+          "id": "pong_quit_all_states",
+          "result": "pass",
+          "pointers": [
+            "technical_plan",
+            "knowledge_points.k6",
+            "functions.f4"
+          ],
+          "reason": "Esc and QUIT in every state; pauses only ball physics or playing updates, not whole event/render loop."
+        }
+      ],
+      "unit_review": [
+        {
+          "point_id": "k1",
+          "judgment": "appropriate",
+          "reason": "Concrete held-state polling, dt displacement and clamp for paddles; not individual key constants as microtopics."
+        },
+        {
+          "point_id": "k2",
+          "judgment": "appropriate",
+          "reason": "Specific elapsed-time integration lesson plus a different-FPS check; does not count Clock names alone as a teaching source."
+        },
+        {
+          "point_id": "k3",
+          "judgment": "appropriate",
+          "reason": "Collision/reflection/position correction are one coherent motion-response block."
+        },
+        {
+          "point_id": "k4",
+          "judgment": "appropriate",
+          "reason": "Spatial event→score update; intermediate can inspect list/variable values before later font UI integration."
+        },
+        {
+          "point_id": "k5",
+          "judgment": "appropriate",
+          "reason": "Score display plus physics gating and discrete serve trigger; font lesson may support text, state lesson may support gating without either claiming all."
+        },
+        {
+          "point_id": "k6",
+          "judgment": "appropriate integration",
+          "reason": "Win/reset/always-available exit reuse previous score, input and object data; <=4 goals, no forced same-game video."
+        }
+      ],
+      "low_observations": [
+        "k1 already names dt displacement but detailed Clock/dt setup is k2. Both current targets explain the method, so this is reinforcement/order clarity rather than an established unreachable exercise; teaching material should provide the timing setup used by k1.",
+        "The modifiable initial service assumption is fully horizontal. A nonzero vertical component or explicit test vector is useful when demonstrating top/bottom rebound; the required y-reflection algorithm is still present, so no unsupported new game feature is demanded.",
+        "“画出足球位置” in k2 is a wording typo for the ball; it adds no football game requirement."
+      ]
+    },
+    {
+      "case_id": "web_pomodoro_beginner",
+      "project_id": "ea521eeb-a1a7-4bbc-8845-d3764201b0ae",
+      "version": 7,
+      "origin": "analysis",
+      "prompt_version": "project-analysis-v3.2-scoped-loop-diagnostics",
+      "observed_status": "analyzed",
+      "source": {
+        "immutable_raw_path": "evidence/phase3-audit/observed-analysis-snapshots/final-r3-web_pomodoro_beginner-v7.json",
+        "sha256": "f01d47b68b80b38853d1b058eb296fdd9fba70ca981bec9e2cef52a5aee6d847",
+        "mutable_live_path": "tmp/phase3-work/evidence/phase3-live/web_pomodoro_beginner/project-view.json"
+      },
+      "analysis_sha256": "b43dab42b26bf51c361b52a4f8e686cf0f19292980e438cd0c57349014ac7969",
+      "input_fidelity": {
+        "exact_frozen_plan_input_match": true,
+        "original_current_version_input_equal": true,
+        "input_sha256": "8578b758f3ea6b4ad5ae3b9786cc1b3f8bc12c30501ec7f70ca26a8490befe17"
+      },
+      "unit_count": 7,
+      "skill_count": 14,
+      "prerequisite_graph": {
+        "references_valid": true,
+        "all_prerequisites_earlier": true,
+        "no_cycles": true,
+        "every_feature_has_learning_mapping": true
+      },
+      "P1_issues": 0,
+      "P2_issues": 1,
+      "issues": [
+        {
+          "id": "pomodoro-v7-essential-state-render-learning-target-missing",
+          "severity": "medium",
+          "priority": "P2",
+          "pointer": "/version/analysis/knowledge_points/1/learning_skills",
+          "quote": [
+            "用 Math.floor 和取模把总秒数格式化为分钟:秒",
+            "用补零方法统一两位数字显示"
+          ],
+          "evidence": [
+            {
+              "pointer": "/version/input/project_context",
+              "quote": "会基础 HTML/CSS 和 JavaScript 变量、if，还没有做过完整交互项目；希望每个单元有可验证的小成果。"
+            },
+            {
+              "pointer": "/version/analysis/knowledge_points/1/name",
+              "quote": "JavaScript 状态对象与 mm:ss 格式化"
+            },
+            {
+              "pointer": "/version/analysis/knowledge_points/1/project_task",
+              "quote": "定义阶段、剩余毫秒、完成次数变量，写一个渲染函数把当前状态写成阶段文字、mm:ss 与次数并更新到页面。"
+            },
+            {
+              "pointer": "/version/analysis/technical_plan",
+              "quote": "状态用一个对象保存：stage（focus/break）、remainingMs（暂停时的剩余毫秒数）、endTime（运行中目标结束时间戳）、running（是否运行中）、completedFocus（已完成专注次数）。"
+            }
+          ],
+          "reason": "The beginner explicitly knows only variables/if, not state objects, render functions or DOM text writes. k2 requires that state→display method but both teaching goals cover formatting, and no other learning_skills list supplies the missing method. These are necessary transferable skills, not removable project constants. Searching only formatting skills cannot substitute for teaching the required interactive rendering pattern.",
+          "frozen_criterion": "unseen-review-plan timer_state_dom: 对象状态、事件与DOM集中渲染；函数/元素引用短前置.",
+          "minimal_repair": "Keep both original formatting goals; append object-based UI state organization and render-function DOM text updates as two complementary specific goals. Total4, same coherent subtask.",
+          "proposal": "evidence/phase3-audit/final-r3-web_pomodoro_beginner-student-edit-proposal.json"
+        }
+      ],
+      "not_first_generation_pass": true,
+      "new_trial_boundary": "An explicitly authorized post-fix real analysis trial of the same input. Prior failed versions remain failed; this is not a first-attempt success or proof of why the old rejected draft failed.",
+      "disposition": "changes_required_before_confirmation",
+      "ready_for_search": false,
+      "student_fit": "HTML/CSS and JS variables/if are known; DOM selection, events, object state/rendering and real-time scheduling are legitimate incremental learning needs. Missing state/render teaching target is a prerequisite/coverage defect, not a request for a general JS course.",
+      "requirement_checks": [
+        {
+          "id": "timer_html",
+          "result": "pass",
+          "evidence": "k1 native button structure and actual element selectors; no clickable-div keyboard shortcut substitution."
+        },
+        {
+          "id": "timer_state_dom",
+          "result": "needs_change",
+          "evidence": "Object state and render function required in task but learning_skills only floor/modulo and zero padding. See preciseP2."
+        },
+        {
+          "id": "timer_deadline",
+          "result": "pass",
+          "evidence": "k4 endTime=Date.now()+remainingMs and endTime-now; interval only refreshes, not remaining--."
+        },
+        {
+          "id": "timer_pause",
+          "result": "pass",
+          "evidence": "k3 stores remaining quantity on pause, k4 rebuilds deadline on start/resume, reset restores focus25:00 paused."
+        },
+        {
+          "id": "timer_phase",
+          "result": "pass",
+          "evidence": "<=0 boundary, focus completion only +1, next phase fixed5/25 and paused, clearInterval/running=false prevents repeated finish handling."
+        },
+        {
+          "id": "timer_keyboard",
+          "result": "pass",
+          "evidence": "k6 native buttons Tab/Enter/Space, visible focus; no state-specific disable of global keyboard operation."
+        },
+        {
+          "id": "timer_layout",
+          "result": "pass",
+          "evidence": "k7 media/Flex-wrap/touch constraints and375px check."
+        }
+      ],
+      "unit_review": [
+        {
+          "point_id": "k1",
+          "judgment": "appropriate with owner clarity observation",
+          "reason": "Element selection and native semantic structure suit first DOM integration; querySelector is JS DOM even under primaryHTML owner."
+        },
+        {
+          "point_id": "k2",
+          "judgment": "needs learning-target completion",
+          "reason": "Formatting concrete but only two same-facet goals omit state organization and render function needed by beginner task."
+        },
+        {
+          "point_id": "k3",
+          "judgment": "appropriate",
+          "reason": "Events and timer run-state with staged state-only verification before full deadline integration are a coherent next step."
+        },
+        {
+          "point_id": "k4",
+          "judgment": "appropriate",
+          "reason": "Timestamp algorithm retained as a teaching method, not reduced to arbitrary timer project constants."
+        },
+        {
+          "point_id": "k5",
+          "judgment": "appropriate integration",
+          "reason": "One-time boundary actions/phase state and focus-only counting; tutorial can use another state sequence and duration."
+        },
+        {
+          "point_id": "k6",
+          "judgment": "appropriate with announcement-frequency refinement",
+          "reason": "Native keyboard behavior/visible focus present; aria-live is additional accessible-output topic, not proof of keyboard activation."
+        },
+        {
+          "point_id": "k7",
+          "judgment": "appropriate",
+          "reason": "Existing CSS background gets focused responsive layout and overflow prevention."
+        }
+      ],
+      "low_observations": [
+        "k1 primary tool isHTML while DOM selector skill isJavaScript; naming that own skill owner explicitly helps retrieval clarity without inventing evidence.",
+        "A continuously updating aria-live timer can be noisy; actual implementation should announce meaningful stage/user actions or throttle announcements. Current raw is a learning plan, not executed screen-reader behavior.",
+        "k5 short-duration check should shorten current remainingMs or use an explicit test mode while restoring production25/5 constants. A few-second temporary test is valid and must not force a tutorial to use25/5."
+      ]
+    }
+  ],
+  "summary": {
+    "real_post_fix_analyses_reviewed": 2,
+    "saved_units_reviewed": 13,
+    "P1_issues": 0,
+    "P2_issues": 1,
+    "ready_for_search": [
+      "phase3_pygame_pong_intermediate v3"
+    ],
+    "requires_student_edit": [
+      "web_pomodoro_beginner v7"
+    ],
+    "first_generation_success_claim": false,
+    "old_pong_failure_cause": "unknown; the new success does not recover or explain the rejected v1/v2 drafts.",
+    "scope": "Independent static analysis/learning-contract review only. No claim about actual course/video teaching coverage, playable student projects or full production readiness.",
+    "cost": "No model calls by reviewer. This report does not infer provider usage from versions or retry limits; root observer is the billing/call source."
+  }
+}
