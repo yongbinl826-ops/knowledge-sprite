@@ -14,14 +14,23 @@ from backend.app.config import Settings
 from backend.app.llm import LLMCompletionTruncated, LLMResponseTooLarge
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer, generation_schema
 from backend.app.project_models import AnalysisDocument, ProjectInput
+from tests.professional_contract_support import flat_proposal, assert_simple_generation_schema
 
 
 FIXTURE = json.loads((Path(__file__).parent / "fixtures/professional_knowledge/original_v1_fixture.json").read_text(encoding="utf-8"))
 EXPANDED = {"project_task", "concepts", "learning_skills", "practice_check"}
 
 
+def historical_body():
+    # The raw original_v1_fixture remains unchanged for historical reads.
+    # New-generation protocol fixtures use independent concept labels.
+    result = deepcopy(FIXTURE["analysis"])
+    result["knowledge_points"][1]["name"] = "pandas 缺失值处理"
+    return result
+
+
 def body():
-    return deepcopy(FIXTURE["analysis"])
+    return flat_proposal(historical_body())
 
 
 def config():
@@ -60,25 +69,17 @@ async def analyze_replies(replies, *, settings=None):
 
 
 def test_schema_contains_only_base_document_and_points_with_optional_technology():
-    schema = generation_schema()
-    assert set(schema["properties"]) == {"scope", "technical_plan", "assumptions", "functions", "knowledge_points"}
-    assert "learner_profile" not in schema["required"]
-    point = schema["$defs"]["ProjectKnowledgePoint"]
-    assert set(point["properties"]) == {"id", "name", "description", "function_ids", "why_needed",
-        "learning_goal", "necessity", "prerequisite_ids", "learning_order", "selection", "technology"}
-    assert "technology" not in point["required"]
-    assert EXPANDED.isdisjoint(point["properties"])
-    assert schema["additionalProperties"] is False and point["additionalProperties"] is False
+    assert_simple_generation_schema()
 
 
 @pytest.mark.asyncio
-async def test_original_v1_payload_works_without_expanded_fields_or_critic(monkeypatch):
+async def test_flat_payload_works_without_expanded_fields_or_critic(monkeypatch):
     def forbidden(*_a, **_k):
         pytest.fail("The abandoned learning-unit quality checklist must not gate term generation")
 
     monkeypatch.setattr(module, "learning_quality_issues", forbidden)
-    result, calls = await analyze_replies([body()])
-    assert len(calls) == 1 and result.learner_profile is None
+    result, calls = await analyze_replies([body(), body()])
+    assert len(calls) == 2 and result.learner_profile is None
     assert result.knowledge_points[0].technology == ""
     assert all(p.learning_skills == [] and p.concepts == [] and p.project_task is None and p.practice_check is None
                for p in result.knowledge_points)
@@ -88,7 +89,7 @@ async def test_original_v1_payload_works_without_expanded_fields_or_critic(monke
     assert calls[0]["max_tokens"] == config().llm_max_output_tokens
     assert module.ANALYSIS_MAX_MODEL_CALLS == module.ANALYSIS_MAX_ATTEMPTS == 2
     assert "professional noun or technical term" in module.SYSTEM_PROMPT
-    assert "format examples, never a fixed answer list" in module.SYSTEM_PROMPT
+    assert "Use a reusable mechanism" in module.SYSTEM_PROMPT
 
 
 @pytest.mark.parametrize("name", ["pygame事件处理", "矩形碰撞检测", "有限状态机", "pandas分组聚合"])
@@ -96,31 +97,34 @@ async def test_original_v1_payload_works_without_expanded_fields_or_critic(monke
 async def test_professional_term_names_are_accepted_without_mandatory_tool_or_skills(name):
     sample = body()
     sample["knowledge_points"][0]["name"] = name
-    result, calls = await analyze_replies([sample])
-    assert result.knowledge_points[0].name == name and len(calls) == 1
+    result, calls = await analyze_replies([sample, sample])
+    assert result.knowledge_points[0].name == name and len(calls) == 2
 
 
 @pytest.mark.asyncio
 async def test_technology_is_optional_but_supported_when_explicit():
     sample = body()
     sample["knowledge_points"][0]["technology"] = "pandas"
-    result, calls = await analyze_replies([sample])
-    assert len(calls) == 1 and result.knowledge_points[0].technology == "pandas"
+    result, calls = await analyze_replies([sample, sample])
+    assert len(calls) == 2 and result.knowledge_points[0].technology == "pandas"
 
 
 @pytest.mark.parametrize("extra", sorted(EXPANDED) + ["learner_profile"])
 @pytest.mark.asyncio
-async def test_unrequested_known_legacy_fields_are_safely_projected_out(extra):
+async def test_unrequested_known_legacy_fields_are_rejected_not_projected_out(extra):
     sample = body()
     if extra == "learner_profile":
         sample[extra] = None
     else:
         sample["knowledge_points"][0][extra] = [] if extra in {"concepts", "learning_skills"} else "旧的项目任务拆解"
-    result, calls = await analyze_replies([sample])
-    assert len(calls) == 1 and result.knowledge_points
-    assert result.learner_profile is None
-    assert all(p.project_task is None and p.practice_check is None and not p.concepts and not p.learning_skills
-               for p in result.knowledge_points)
+    result, calls = await analyze_replies([sample, body()])
+    assert len(calls) == 2 and result.knowledge_points
+    feedback = json.loads(calls[1]["messages"][1]["content"])["validation_feedback"]
+    assert any(item["type"] == "extra_forbidden" for item in feedback)
+    assert "learner_profile" not in result.model_dump()
+    assert all(set(p) == {"id", "name", "description", "technology", "selection"}
+               for p in result.model_dump()["knowledge_points"])
+
 
 
 @pytest.mark.parametrize("extra", sorted(EXPANDED))
@@ -135,7 +139,7 @@ async def test_unsafe_known_legacy_fields_cannot_hide_behind_projection(extra):
 
 
 def historical_document():
-    historical = AnalysisDocument.model_validate(body()).model_dump()
+    historical = AnalysisDocument.model_validate(historical_body()).model_dump()
     historical["learner_profile"] = {"student_level": "beginner", "assumed_knowledge": ["会运行脚本"],
                                     "adjustment_note": "可修改的旧版本假设"}
     for p in historical["knowledge_points"]:
@@ -203,7 +207,7 @@ async def test_original_v1_title_and_mastery_rejection_remains_terminal_after_tw
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         with pytest.raises(AnalysisError) as error:
             await ProjectAnalyzer(config(), client).analyze(project())
-    assert len(calls) == 2 and error.value.code == "quality"
+    assert len(calls) == 2 and error.value.code == ("quality" if field == "name" else "schema")
 
 
 @pytest.mark.parametrize("status", [400, 401, 403, 429, 500])

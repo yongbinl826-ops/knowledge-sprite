@@ -10,7 +10,7 @@ from backend.app import project_analysis as module
 from backend.app.analysis_review import SYSTEM_REVIEW_PROMPT, REVIEW_PROMPT_VERSION
 from backend.app.llm import LLMCompletionTruncated, LLMResponseTooLarge
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer, SYSTEM_PROMPT
-from tests.test_project_analysis import analysis_fixture, settings, request, response
+from tests.test_project_analysis import flat_analysis_fixture as analysis_fixture, settings, request, response
 
 
 def history(error):
@@ -57,12 +57,12 @@ async def test_json_then_schema_keeps_both_reasons_and_json_coordinates():
 async def test_unknown_extra_key_is_masked_in_feedback_history_and_repair_payload():
     bad = analysis_fixture()
     bad["private-user-field-key"] = "private-user-field-value"
-    bad["knowledge_points"][0]["learning_order"] = "private-user-invalid-value"
+    bad["knowledge_points"][0]["name"] = ["private-user-invalid-value"]
     error, calls = await run_failure([bad, "not-json"])
     first = history(error)[0]
     assert first["category"] == "schema"
     assert {"location": ["<unknown_field>"], "type": "extra_forbidden"} in first["errors"]
-    assert {"location": ["knowledge_points", 0, "learning_order"], "type": "int_type"} in first["errors"]
+    assert {"location": ["knowledge_points", 0, "name"], "type": "string_type"} in first["errors"]
     retained = json.dumps(error.diagnostics) + calls[1]["messages"][1]["content"]
     assert all(word not in retained for word in ["private-user-field-key", "private-user-field-value", "private-user-invalid-value"])
 
@@ -100,7 +100,7 @@ async def test_title_quality_then_json_repair_retains_both_generation_attempts()
     rows = history(error)
     assert error.code == "invalid_json" and len(calls) == 2
     assert [(r["attempt"], r["phase"], r["category"]) for r in rows] == [
-        (1, "generation", "quality"), (2, "generation", "invalid_json")]
+        (1, "generation", "quality"), (2, "normalization", "invalid_json")]
     repair = json.loads(calls[1]["messages"][1]["content"])
     assert repair["previous_analysis"]["knowledge_points"]
     assert repair["validation_feedback"][0]["code"] == "broad_subject"
@@ -115,8 +115,8 @@ async def test_two_title_rejections_keep_quality_code_and_two_generation_call_ca
     assert error.code == "quality" and len(calls) == 2
     assert error.diagnostics[0]["code"] == "broad_subject"
     assert [x["attempt"] for x in history(error)] == [1, 2]
-    assert all(x["phase"] == "generation" for x in history(error))
-    assert [c["max_tokens"] for c in calls] == [6000, 6000]
+    assert [x["phase"] for x in history(error)] == ["generation", "normalization"]
+    assert [c["max_tokens"] for c in calls] == [6000, 12000]
 
 
 @pytest.mark.asyncio
@@ -124,16 +124,20 @@ async def test_retained_review_setting_does_not_invoke_auxiliary_transport():
     from tests.professional_contract_support import projected_once
     result, calls = await projected_once(analysis_fixture(), request(),
         replace(settings(), project_semantic_review_enabled=True))
-    assert result.knowledge_points and len(calls) == 1
+    assert result.knowledge_points and len(calls) == 2
 
 
 @pytest.mark.asyncio
 async def test_configured_secret_echo_gets_only_fixed_invalid_analysis_summary():
     body = analysis_fixture()
     body["scope"] = "private-offline-token"
-    error, _ = await run_failure([body, "invalid-json"])
+    error, calls = await run_failure([body, "invalid-json"])
     assert history(error)[0] == {"attempt": 1, "phase": "generation", "category": "invalid_analysis"}
     assert "private-offline-token" not in json.dumps(error.diagnostics)
+    repair = json.loads(calls[1]["messages"][1]["content"])["validation_feedback"]
+    message = repair[0]["message"]
+    assert "flat concept-list schema" in message
+    assert all(word not in message for word in ("graph", "selection", "prerequisite", "learning_order"))
 
 
 @pytest.mark.asyncio
@@ -160,7 +164,7 @@ async def test_terminal_provider_failure_keeps_first_schema_reason_and_no_body(m
 
 
 @pytest.mark.asyncio
-async def test_successful_json_repair_returns_only_projected_v1_document():
+async def test_successful_json_repair_returns_only_flat_concept_document():
     from tests.professional_contract_support import assert_v1_projection
     calls = []
     def respond(req):
@@ -200,12 +204,13 @@ def test_schema_summary_is_bounded_and_does_not_echo_unknown_fields():
     assert "untrusted-value" not in json.dumps(details)
 
 
-def test_prompt_contract_uses_professional_terms_and_untrusted_v1_data():
+def test_prompt_contract_uses_professional_terms_and_untrusted_project_data():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v4.1-coherent-professional-terms"
+    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
     assert "untrusted project data" in SYSTEM_PROMPT
     assert "concise professional noun or technical term" in SYSTEM_PROMPT
     assert "Never invent courses, video links, chapters or source evidence" in SYSTEM_PROMPT
-    assert "The student decides selection and order later" in SYSTEM_PROMPT
-    assert "Do not output project_task, concepts, learning_skills, practice_check or learner_profile" in SYSTEM_PROMPT
+    assert "The student only decides which concepts to learn" in SYSTEM_PROMPT
+    assert "Do not infer mastery" in SYSTEM_PROMPT
+    assert "project_task, concepts, learning_skills, practice_check or learner_profile" in SYSTEM_PROMPT
     assert_simple_generation_schema()

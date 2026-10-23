@@ -66,6 +66,11 @@ class Store:
         with self.connection:
             self.connection.execute("INSERT OR IGNORE INTO job_consumers VALUES(?,?)", (job_id, consumer_key))
 
+    def has_job_consumer(self, job_id: str, consumer_key: str) -> bool:
+        # Internal batch reference only; this is not a user authorization check.
+        return self.connection.execute("SELECT 1 FROM job_consumers WHERE job_id=? AND consumer_key=?",
+                                       (job_id, consumer_key)).fetchone() is not None
+
     def release_job_consumer(self, job_id: str, consumer_key: str) -> bool:
         """Return true only when a known last consumer was actually released."""
         with self.connection:

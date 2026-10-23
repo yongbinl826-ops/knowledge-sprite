@@ -1,0 +1,53 @@
+name: knowledge-sprite-app
+services:
+  app:
+    image: ${APP_IMAGE:-knowledge-sprite-app:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Linux host networking preserves the application's loopback client check.
+    # There is deliberately no bridge publish / LOCAL_ONLY=false workaround.
+    network_mode: host
+    env_file:
+      - ${APP_CONFIG_FILE:-./deploy/app.env.example}
+    environment:
+      DATABASE_PATH: ${APP_DATABASE_PATH:-/var/lib/knowledge-sprite/discovery.sqlite3}
+      LOCAL_ONLY: "true"
+      ALLOWED_HOSTS: localhost,127.0.0.1,::1
+      CORS_ORIGINS: http://127.0.0.1:8000,http://localhost:8000
+      PYTHON_DOTENV_DISABLED: "1"
+      JS_RENDER_ENABLED: "false"
+    secrets:
+      - app_api_keys
+    volumes:
+      - app-data:/var/lib/knowledge-sprite
+      - app-backups:/var/backups/knowledge-sprite
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+    user: "10001:10001"
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 1g
+    cpus: 1.0
+    stop_grace_period: 45s
+    restart: "on-failure:3"
+    healthcheck:
+      test: [CMD, python, /app/deploy/app-healthcheck.py]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+secrets:
+  app_api_keys:
+    file: ${APP_API_KEYS_FILE:-./deploy/app-api-keys.env.example}
+volumes:
+  app-data:
+  app-backups:

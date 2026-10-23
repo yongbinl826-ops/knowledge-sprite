@@ -17,7 +17,7 @@ from backend.app.source_adapters.bilibili import part_duration_seconds
 from backend.app.source_adapters.icourse163 import outline_duration_seconds
 
 
-CAPTURES = Path(__file__).resolve().parents[1] / "reports/platform-catalog-20261017/browser"
+CAPTURES = Path(__file__).resolve().parents[1] / "tests/fixtures/public_catalog_replays/platform-catalog-20261017/browser"
 BILIBILI = "https://www.bilibili.com/video/BV1VZ4y1G7YB/"
 MOOC = "https://www.icourse163.org/course/PKU-1003479006"
 AT = "2026-10-17T03:58:05.372Z"

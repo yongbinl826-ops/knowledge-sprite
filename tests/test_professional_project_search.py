@@ -20,6 +20,9 @@ class OfflinePlatforms:
     def __init__(self):self.calls=[]
     async def search(self,query,language,limit,domains,**kwargs):
         self.calls.append(query)
+        if not domains:
+            assert 'site:' not in query
+            return []
         bili='bilibili.com' in domains[0]
         return [Candidate(id='bili' if bili else 'mooc',title='Offline source '+query,
             url='https://www.bilibili.com/video/BV1q741157jG/' if bili else 'https://www.icourse163.org/course/QA-123',
@@ -83,14 +86,15 @@ async def test_v1_without_yesterday_fields_confirms_and_searches_professional_na
         assert candidate['assessment']['display_eligible'] is False
         observations=[row for row in store.evidence(batch['job_id'],candidate['resource_id']) if row['kind']=='search']
         assert len(observations)==2
-        assert job['progress']['platform_search_requests']=={'bilibili':2,'icourse163':2}
-        bili_queries=[query for query in provider.calls if platform(query)=='bilibili']
-        mooc_queries=[query for query in provider.calls if platform(query)=='icourse163']
+        assert job['progress']['platform_search_requests']=={'bilibili':2,'icourse163':2,'open_web':1}
+        bili_queries=[query for query in provider.calls if 'site:bilibili.com' in query]
+        mooc_queries=[query for query in provider.calls if 'site:icourse163.org' in query]
         assert bili_queries==['site:bilibili.com/video Python 二维列表索引 video tutorial',
                              'site:bilibili.com/video Python 二维列表索引 video tutorial examples']
         assert mooc_queries==['site:icourse163.org/course Python 二维列表索引 course',
                              'site:icourse163.org/course Python programming course content']
-        assert len(search_scopes)==4 and all(scope['original_point']=='Python 二维列表索引' for scope in search_scopes)
+        assert len({scope['query'] for scope in search_scopes})==5 and all(scope['original_point']=='Python 二维列表索引' for scope in search_scopes)
+        assert sum('site:' not in query for query in provider.calls)==1
         assert {row['query'] for row in observations}==set(mooc_queries)
         assert all(row['knowledge_point_id']==job['knowledge_points'][0]['knowledge_point_id']
                    and row['source']=='offline' and row['url']==retained[candidate['resource_id']]['url']
@@ -154,18 +158,18 @@ async def test_skipped_prerequisite_is_not_an_acknowledgement_gate_and_never_aut
         a['knowledge_points'][1]['prerequisite_ids']=['k0']
     original=rewrite(projects,pid,change)
     confirmed=projects.confirm(pid,1,[])['version']['confirmation']
-    assert confirmed['acknowledged_skipped_prerequisites']==[]
+    assert 'acknowledged_skipped_prerequisites' not in confirmed
     assert confirmed['selected_ids']==['k1']
     assert confirmed['analysis']==original
     await projects.stop();store.close()
 
 
 @pytest.mark.asyncio
-async def test_unrelated_ack_is_still_rejected(tmp_path):
+async def test_legacy_ack_input_is_accepted_and_ignored(tmp_path):
     store,jobs,projects,provider,pid=await prepared(tmp_path)
-    with pytest.raises(ProjectError) as exc:projects.confirm(pid,1,['not-a-prerequisite'])
-    assert exc.value.code=='invalid_acknowledgement'
-    assert projects.db.version(pid,1)['confirmation'] is None
+    confirmed=projects.confirm(pid,1,['not-a-prerequisite'])['version']['confirmation']
+    assert confirmed['selected_ids']==['k0']
+    assert 'acknowledged_skipped_prerequisites' not in confirmed
     await projects.stop();store.close()
 
 
@@ -206,7 +210,7 @@ async def test_already_searched_legacy_confirmation_keeps_technology_scope_guard
     await projects.stop();store.close()
 
 
-def test_capabilities_advertise_professional_names_two_generation_calls_and_no_critic(tmp_path):
+def test_capabilities_advertise_bounded_generation_normalization_and_no_legacy_critic(tmp_path):
     config,store,jobs,projects,provider=setup(tmp_path)
     capability=projects.capabilities()
     analysis=capability['project_analysis']
@@ -214,6 +218,10 @@ def test_capabilities_advertise_professional_names_two_generation_calls_and_no_c
     assert analysis['max_model_calls']==2
     assert analysis['semantic_review_enabled'] is False
     assert analysis['review_max_calls']==analysis['review_max_output_tokens']==0
+    assert analysis['concept_normalization_enabled'] is True
+    assert analysis['normalization_max_calls']==1
+    assert analysis['normalization_max_output_tokens']==12000
+    assert analysis['generation_stages']==['generation','normalization']
     assert capability['project_search']['mode']=='professional_terms_v1'
     store.close()
 

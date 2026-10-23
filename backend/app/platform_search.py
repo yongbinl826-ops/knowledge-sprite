@@ -8,27 +8,60 @@ from copy import copy, deepcopy
 
 from .models import Candidate, Query, now
 from .providers import HTTPProvider, QueryBudgetReached, SearchBudgetReached, SearchError, SearXNGProvider
-from .queries import PLATFORMS, gap_query_candidates, generate_queries
+from .queries import PLATFORMS, gap_query_candidates, generate_queries, contextual_search_phrase, complementary_search_phrase, query_contextual_concept_name
 from .mooc_queries import mooc_query_label, mooc_query_site
 from .ranking import candidate_topic_signal
 
 
 def platform_budget(settings, count, platforms):
     selected = list(dict.fromkeys(platforms))
-    if not settings.parallel_platform_search or not selected or settings.search_provider == "official_sitemap":
+    if not settings.parallel_platform_search or settings.search_provider == "official_sitemap":
+        return None
+    if getattr(settings, "open_web_search_enabled", True):
+        selected.append("open_web")
+    if not selected:
         return None
     initial = count * len(selected)
     rounds = {platform: {"bilibili": settings.bilibili_search_rounds,
-                        "icourse163": settings.mooc_search_rounds}.get(platform, 2)
+                        "icourse163": settings.mooc_search_rounds, "open_web": 1}.get(platform, 2)
               for platform in selected}
-    total = count * sum(rounds.values())
-    if total > settings.max_search_requests:
+    requested_rounds = dict(rounds)
+    requested = total = count * sum(rounds.values())
+    allocation = None
+    limits = {platform: rounds[platform] * count for platform in selected}
+    if "open_web" in selected and initial <= settings.max_search_requests:
+        remaining = settings.max_search_requests - initial
+        allocation, limits = {}, {platform: count for platform in selected}
+        rounds = {platform: 1 for platform in selected}
+        for index in range(1, max(requested_rounds.values())):
+            lanes = [platform for platform in selected if requested_rounds[platform] > index]
+            row = {platform: [] for platform in lanes}
+            # Every optional point/lane pair appears once per round. Rotate
+            # points together with lanes so a clipped lane differs by <=1.
+            for step in range(count * len(lanes)):
+                if remaining == 0:
+                    break
+                point_index = step % count
+                platform = lanes[(step // count + point_index) % len(lanes)]
+                row[platform].append(point_index)
+                rounds[platform] = index + 1
+                limits[platform] += 1
+                remaining -= 1
+            allocation[str(index)] = row
+            if remaining == 0:
+                break
+        total = sum(limits.values())
+    if initial > settings.max_search_requests or total > settings.max_search_requests:
         raise ValueError(f"本批需要 {total} 次搜索预算（首轮 {initial} 次及补搜 {total - initial} 次），当前上限为 {settings.max_search_requests} 次")
-    return {"policy": "platform-rounds-v1" if all(value == 2 for value in rounds.values()) else "platform-rounds-v2",
+    return {"policy": ("platform-rounds-v3" if "open_web" in selected else
+                       "platform-rounds-v1" if all(value == 2 for value in rounds.values()) else "platform-rounds-v2"),
             "platforms": selected, "platform_rounds": rounds,
             "initial_search_requests": initial, "followup_search_requests": total - initial,
             "max_search_requests": total,
-            "platform_request_limits": {platform: rounds[platform] * count for platform in selected}}
+            "platform_request_limits": limits,
+            **({"requested_search_requests": requested, "reserved_search_requests": total,
+                "requested_platform_rounds": requested_rounds, "budget_limited": total < requested,
+                "followup_point_indexes": allocation} if allocation is not None else {})}
 
 
 def _supplementary_labels(point, platform, request):
@@ -56,6 +89,16 @@ def _supplementary_labels(point, platform, request):
 
 def platform_query(point, platform, request, *, followup=False, round_index=None):
     index = int(followup) if round_index is None else round_index
+    if platform == "open_web":
+        if index != 0:
+            raise ValueError("Open web has one bounded initial slot per point")
+        label = contextual_search_phrase(point["text"], request)
+        if request.topic_technologies.get(point["text"]):
+            label = query_contextual_concept_name(label, request.topic_technologies[point["text"]])
+        suffix = "course tutorial" if request.language == "en" else "课程 教学"
+        return Query(knowledge_point_id=point["knowledge_point_id"],
+                     query=f"{label} {request.technical_version} {suffix}".replace("  ", " ").strip(),
+                     domain_filters=[])
     maximum = 10 if platform == "icourse163" else 6
     if not 0 <= index < maximum:
         raise ValueError(f"Platform search round must be between 0 and {maximum - 1}")
@@ -66,7 +109,7 @@ def platform_query(point, platform, request, *, followup=False, round_index=None
     followup = index > 0
     domain = PLATFORMS[platform]
     path = "/video" if platform == "bilibili" else "/course" if platform == "icourse163" else ""
-    label = point["text"]
+    label = contextual_search_phrase(point["text"], request)
     if followup:
         alternatives = generate_queries(point["knowledge_point_id"], point["text"], request)
         selected = next((query for query in alternatives if query.domain_filters == [domain]), None)
@@ -87,7 +130,12 @@ def platform_query(point, platform, request, *, followup=False, round_index=None
             suffixes = ("课程 章节", "课程 内容", "课程 知识点", "课程 学习目标") if request.language != "en" else (
                 "course chapters", "course content", "course topics", "course learning objectives")
         suffix = suffixes[index - 2]
-    version = f" {request.technical_version}" if request.technical_version and not followup else ""
+    component = complementary_search_phrase(point["text"], request, index)
+    if component:
+        label = component
+    if request.topic_technologies.get(point["text"]):
+        label = query_contextual_concept_name(label, request.topic_technologies[point["text"]])
+    version = f" {request.technical_version}" if request.technical_version and (not followup or component) else ""
     return Query(knowledge_point_id=point["knowledge_point_id"],
                  query=f"site:{domain}{path} {label}{version} {suffix}", domain_filters=[domain])
 
@@ -101,7 +149,6 @@ async def search_platform_rounds(service, job, state):
     progress.setdefault("initial_platform_pairs_completed", 0)
     progress.setdefault("followup_platform_pairs_completed", 0)
     gap_enabled = (getattr(service.settings, "mooc_gap_search_enabled", False)
-                   and not service.settings.teaching_match_enabled
                    and "icourse163" in plan["platforms"])
     if gap_enabled:
         progress.setdefault("queries_skipped", 0)
@@ -148,7 +195,17 @@ async def search_platform_rounds(service, job, state):
         used = 0
         async def count_request():
             nonlocal used
-            if progress["search_requests"] >= job["budgets"]["max_search_requests"]:
+            # This hook runs inside the actual provider's start lock, after
+            # network-slot/pacing waits and immediately before reserving HTTP.
+            # Do not send an already-selected fallback if its original source
+            # entered a strong access stop during either wait. No reselection.
+            if configured_provider == "searxng" and provider_name == "tavily":
+                stop = service._searxng_failover_stop(query)
+                if stop:
+                    attempt.update(failover_blocked_before_request=True,
+                                   failover_stop_source="searxng", failover_stop_reason=stop)
+                    raise SearchError("failover_source_stopped", "原默认搜索来源进入访问停止状态，未发送备用来源请求")
+            if progress["search_requests"] >= state.get("search_limit", job["budgets"]["max_search_requests"]):
                 raise SearchBudgetReached()
             if used >= 1 or progress["platform_search_requests"][platform] >= plan["platform_request_limits"][platform]:
                 raise QueryBudgetReached()
@@ -159,7 +216,8 @@ async def search_platform_rounds(service, job, state):
             progress["platform_search_requests"][platform] += 1
             service._save(job)
 
-        provider_name, provider, provider_error = service._search_source(query)
+        configured_provider = service.settings.search_provider_for(platform)
+        provider_name, provider, provider_error = service._search_source(query, job=job)
         if provider is not None and not isinstance(provider, HTTPProvider):
             # Injected/offline providers get isolated trace attributes; their
             # shared transport/call collectors remain shared by a shallow copy.
@@ -173,16 +231,30 @@ async def search_platform_rounds(service, job, state):
             "original_point": point["text"], "query": query.query, "domains": query.domain_filters,
             "language": request.language, "limit": service.settings.search_results_per_query})
         cached = None if refreshing else service.store.cache_get(cache_key)
+        if cached is None and not refreshing and plan["policy"] == "platform-rounds-v3":
+            # Adding a lane cannot invalidate an otherwise identical provider
+            # observation. Read exact earlier keys without renewing their TTL.
+            for prior_policy in ("platform-rounds-v2", "platform-rounds-v1"):
+                prior_key = service.store.cache_key("search", {"policy": prior_policy,
+                    **service._search_identity(provider_name), "original_point": point["text"],
+                    "query": query.query, "domains": query.domain_filters,
+                    "language": request.language, "limit": service.settings.search_results_per_query})
+                cached = service.store.cache_get(prior_key)
+                if cached is not None:
+                    break
         if (cached is None and not refreshing and platform == "icourse163"
                 and provider_name in {"tavily", "serper"}):
             # The provider observation is unchanged when the exact query,
             # point, language, domain and limit still match an earlier plan.
             # Read its original expiry; do not relabel or renew it as a search.
-            legacy_key = service.store.cache_key("search", {"policy": plan["policy"],
-                **service._search_identity(provider_name), "mooc_query_policy": "course-discovery-phrases-v1",
-                "original_point": point["text"], "query": query.query, "domains": query.domain_filters,
-                "language": request.language, "limit": service.settings.search_results_per_query})
-            cached = service.store.cache_get(legacy_key)
+            for legacy_policy in ("course-discovery-phrases-v3", "course-discovery-phrases-v2", "course-discovery-phrases-v1"):
+                legacy_key = service.store.cache_key("search", {"policy": plan["policy"],
+                    **service._search_identity(provider_name), "mooc_query_policy": legacy_policy,
+                    "original_point": point["text"], "query": query.query, "domains": query.domain_filters,
+                    "language": request.language, "limit": service.settings.search_results_per_query})
+                cached = service.store.cache_get(legacy_key)
+                if cached is not None:
+                    break
         cache_info = {"hit": False, "cached_at": None, "stale": False}
         attempt = {"knowledge_point_id": point["knowledge_point_id"], "platform": platform,
             "query": query.query, "domain_filters": query.domain_filters,
@@ -190,6 +262,9 @@ async def search_platform_rounds(service, job, state):
             "status": "completed", "error_code": None, "executed_at": now(),
             **({"refresh_probe": True} if refreshing else {}),
             "priority_request_limit": 1, "candidate_count": 0, "network_attempted": False}
+        if provider_name != configured_provider:
+            attempt.update(configured_provider=configured_provider,
+                failover_reason=job["platform_search"]["source_failovers"][platform]["reason"])
         items, requests, warnings = [], [], []
         cancelled = False
         with scope:
@@ -276,6 +351,7 @@ async def search_platform_rounds(service, job, state):
             cache_origin_warnings=origin_warnings, cache_hit=cache_info["hit"],
             cached_at=cache_info["cached_at"], stale=cache_info["stale"], candidate_count=len(items))
         service.store.add_attempt(job["job_id"], attempt)
+        service._observe_searxng_attempt(job, attempt)
         if cancelled:
             raise asyncio.CancelledError
         progress["queries_completed"] += 1
@@ -293,7 +369,10 @@ async def search_platform_rounds(service, job, state):
         return attempt
 
     async def round_for_platform(platform, phase, round_index):
-        for point in points:
+        for point_index, point in enumerate(points):
+            allocation = plan.get("followup_point_indexes")
+            if phase == "followup" and allocation is not None and point_index not in allocation.get(str(round_index), {}).get(platform, []):
+                continue
             pid = point["knowledge_point_id"]
             if phase == "initial":
                 query = platform_query(point, platform, request)
@@ -331,7 +410,7 @@ async def search_platform_rounds(service, job, state):
                     if coverage["remaining"]:
                         coverage["stopped_reason"] = attempt.get("error_code") or None
                     service._save(job)
-            if phase == "initial":
+            if phase == "initial" and platform != "open_web":
                 retry = attempt["status"] == "failed"
                 # Failed initial queries get one retry only after the barrier;
                 # successful queries use a supplementary phrase in that slot.

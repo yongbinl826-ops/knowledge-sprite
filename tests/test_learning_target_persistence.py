@@ -13,7 +13,8 @@ from backend.app.service import IdempotencyConflict, JobService
 def offline_service(path, store):
     # Admission/persistence only: no worker is started and no provider is called.
     settings = Settings(database_path=str(path), fetch_enabled=False,
-                        official_sitemap_fallback=False, public_catalog_fallback=False)
+                        official_sitemap_fallback=False, public_catalog_fallback=False,
+                        shared_course_library_enabled=False, mooc_gap_search_enabled=False, mooc_refresh_enabled=False)
     return JobService(settings, store, provider=object(), fetcher=object(), llm=object())
 
 

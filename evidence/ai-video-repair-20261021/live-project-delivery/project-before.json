@@ -1,0 +1,466 @@
+{
+  "project_id": "fdfd2ce1-c5c7-4119-81ca-924d6c377c93",
+  "original_input": {
+    "name": "教学大纲生成助手",
+    "requirements": "教师给出课程名和教材目录，生成符合学校模板的教学大纲",
+    "student_level": "any",
+    "language": "zh",
+    "project_context": "",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163"
+    ]
+  },
+  "input": {
+    "name": "教学大纲生成助手",
+    "requirements": "教师给出课程名和教材目录，AI生成符合学校模板的教学大纲",
+    "student_level": "any",
+    "language": "zh",
+    "project_context": "",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163"
+    ]
+  },
+  "current_version": 7,
+  "created_at": "2026-10-20T23:21:49.022342+00:00",
+  "updated_at": "2026-10-21T01:29:56.217075+00:00",
+  "versions": [
+    {
+      "version": 7,
+      "status": "analyzed",
+      "created_at": "2026-10-21T01:29:41.952253+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v5.5-auditable-concept-validation"
+    },
+    {
+      "version": 6,
+      "status": "analysis_failed",
+      "created_at": "2026-10-21T01:18:14.174143+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v5.4-complete-concept-coverage"
+    },
+    {
+      "version": 5,
+      "status": "partial",
+      "created_at": "2026-10-21T01:07:10.087010+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v5.3-professional-concepts"
+    },
+    {
+      "version": 4,
+      "status": "partial",
+      "created_at": "2026-10-21T00:57:08.417107+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v5.3-professional-concepts"
+    },
+    {
+      "version": 3,
+      "status": "partial",
+      "created_at": "2026-10-21T00:43:26.777164+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v5.3-professional-concepts"
+    },
+    {
+      "version": 2,
+      "status": "interrupted",
+      "created_at": "2026-10-20T23:29:04.920970+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v5.3-professional-concepts"
+    },
+    {
+      "version": 1,
+      "status": "interrupted",
+      "created_at": "2026-10-20T23:21:49.033962+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v5.3-professional-concepts"
+    }
+  ],
+  "version": {
+    "version": 7,
+    "input": {
+      "name": "教学大纲生成助手",
+      "requirements": "教师给出课程名和教材目录，AI生成符合学校模板的教学大纲",
+      "student_level": "any",
+      "language": "zh",
+      "project_context": "",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163"
+      ]
+    },
+    "status": "analyzed",
+    "analysis": {
+      "scope": "构建一个教学大纲生成助手：教师输入课程名称与教材目录，系统调用大语言模型生成教学大纲内容，并将内容填入符合学校模板的文档中输出。包含输入校验、章节结构解析、课程目标/学时分布/考核方式等大纲要素生成、模板占位符映射、文档导出与生成失败处理。不包含账号体系、云端存储或人工审批流程。",
+      "technical_plan": "采用 Python 单机应用（Streamlit 界面），流程为：表单收集课程名与教材目录文本 → 文本清洗与章节层级解析得到结构化章节列表 → 组���结构化提示词调用大语言模型（如 OpenAI 兼容接口）要求按 JSON 输出大纲要素 → 校验并修复返回的 JSON → 按学校模板（docx 含占位符）进行字段映射与渲染，生成 Word 文档供下载；失败时给出重试与降级提示。",
+      "assumptions": [
+        "未指定具体 AI 服务，假设使用支持结构化（JSON）输出的通用大语言模型 API，密钥由环境变量提供。",
+        "未提供真实学校模板，假设使用含占位符的 Word（.docx）模板文件，通过 python-docx 替换占位符实现。",
+        "未指定界面形式，假设采用 Streamlit 网页表单作为教师输入界面。",
+        "教材目录以纯文本粘贴并提供章节编号，假设按编号与缩进规则解析层级。",
+        "教学大纲要素（课程目标、学时分配、考核方式等）按学校常见规范由模型生成，允许教师二次编辑。",
+        "不实现账号、云存储与多人协作。"
+      ],
+      "learner_profile": null,
+      "functions": [
+        {
+          "id": "f1_input_form",
+          "name": "课程信息与教材目录输入",
+          "original_requirement": "教师给出课程名和教材目录，AI生成符合学校模板的教学大纲",
+          "acceptance_criteria": "界面提供课程名称与教材目录两个输入项；课程名称为空或缺教材目录时阻止提交并给出提示；提交后能保留原始输入供后续处理。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f2_catalog_parse",
+          "name": "教材目录结构化解析",
+          "original_requirement": "教师给出课程名和教材目录，AI生成符合学校模板的教学大纲",
+          "acceptance_criteria": "输入的多行目录文本被解析为带层级（章/节）与编号的章节列表；能保留章节标题原文；层级异常时给出可读提示而非崩溃。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f3_syllabus_generation",
+          "name": "教学大纲要素生成",
+          "original_requirement": "AI生成符合学校模板的教学大纲",
+          "acceptance_criteria": "根据课程名与解析后的章节生成课程目标、章节教学内容、学时分配、考核方式等要素；输出覆盖教材目录中的所有章节，且内容为结构化数据。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f4_structured_output_validation",
+          "name": "模型输出结构化校验与修复",
+          "original_requirement": "AI生成符合学校模板的教学大纲",
+          "acceptance_criteria": "对模型返回内容做 JSON 解析与字段校验；缺失必填字段时触发重试或提示修复；校验失败不会产生残缺的教学大纲文档。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f5_template_mapping",
+          "name": "模板字段映射与渲染",
+          "original_requirement": "AI生成符合学校模板的教学大纲",
+          "acceptance_criteria": "大纲要素被填入学校 Word 模板对应占位符位置；多章节内容按表格或列表正确展开；未填写字段保留模板默认或空值标记。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f6_document_export",
+          "name": "教学大纲文档导出",
+          "original_requirement": "AI生成符合学校模板的教学大纲",
+          "acceptance_criteria": "生成可下载的 .docx 文件；文件名包含课程名；教师可多次生成并下载不同版本。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f7_error_handling",
+          "name": "生成失败处理与用户反馈",
+          "original_requirement": "AI生成符合学校模板的教学大纲",
+          "acceptance_criteria": "模型调用超时、返回非法结构或模板缺失时展示明确错误信息并提供重试；错误状态不阻塞输入表单再次提交。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "k1_string_cleaning",
+          "name": "文本清洗与规范化",
+          "description": "处理目录文本的空白字符、全角半角、行尾符号与空行，统一为可解析的行集合。",
+          "function_ids": [
+            "f2_catalog_parse"
+          ],
+          "why_needed": "教师粘贴的目录格式不统一，清洗后才能稳定解析层级。",
+          "learning_goal": "掌握去除噪声字符并规范化换行与空格的基本方法。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "k2_hierarchy_parsing",
+          "name": "层级文本解析",
+          "description": "依据编号模式（如 第一章、1.1、一、）与缩进推断章节层级，构建章节树。",
+          "function_ids": [
+            "f2_catalog_parse"
+          ],
+          "why_needed": "教学大纲需按章节目录组织内容，必须先得到层级结构。",
+          "learning_goal": "能基于规则识别编号层级并输出结构化章节列表或树。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k1_string_cleaning"
+          ],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "k3_prompt_engineering",
+          "name": "提示词设计",
+          "description": "将课程名、章节结构与模板要素要求组织为明确指令，约束模型输出范围与格式。",
+          "function_ids": [
+            "f3_syllabus_generation"
+          ],
+          "why_needed": "模型输出质量依赖提示词是否明确要素、语言与结构要求。",
+          "learning_goal": "能为结构化生成任务编写角色、任务、输入与输出格式约束完整的提示词。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "k4_llm_api",
+          "name": "大语言模型API调用",
+          "description": "通过 HTTP 客户端调用模型接口，设置超时、温度与最大输出长度，处理返回内容。",
+          "function_ids": [
+            "f3_syllabus_generation",
+            "f7_error_handling"
+          ],
+          "why_needed": "生成教学大纲的核心能力来自模型调用。",
+          "learning_goal": "能完成一次带超时控制的模型 API 请求并读取返回文本。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3_prompt_engineering"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "k5_structured_output",
+          "name": "结构化输出约束",
+          "description": "要求模型以 JSON 等结构化格式返回，并约定字段与嵌套结构（如章节数组）。",
+          "function_ids": [
+            "f3_syllabus_generation",
+            "f4_structured_output_validation"
+          ],
+          "why_needed": "只有结构化结果才能可靠映射到模板占位符。",
+          "learning_goal": "能设计输出 JSON 架构并在提示中明确字段含义与类型。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k3_prompt_engineering"
+          ],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "k6_json_parsing",
+          "name": "JSON解析与校验",
+          "description": "解析模型返回文本为对象，处理多余代码块标记，并检查必填字段与类型。",
+          "function_ids": [
+            "f4_structured_output_validation"
+          ],
+          "why_needed": "模型可能返回非严格 JSON，需要解析与校验后才能使用。",
+          "learning_goal": "能用 JSON 解析器与字段检查实现可靠的数据入口校验。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k5_structured_output"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        },
+        {
+          "id": "k7_retry_repair",
+          "name": "重试与修复策略",
+          "description": "解析或校验失败时携带错误信息重新请求模型或提示用户修正输入，限制重试次数。",
+          "function_ids": [
+            "f4_structured_output_validation",
+            "f7_error_handling"
+          ],
+          "why_needed": "模型输出不稳定，需要容错策略保证最终产出质量。",
+          "learning_goal": "能设计带次数上限的重试流程并在失败时给出明确反馈。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k6_json_parsing",
+            "k4_llm_api"
+          ],
+          "learning_order": 7,
+          "selection": "learn"
+        },
+        {
+          "id": "k8_docx_template",
+          "name": "Word模板占位符",
+          "description": "在 .docx 模板中放置字段占位符，理解段落与表格中的文本定位方式。",
+          "function_ids": [
+            "f5_template_mapping",
+            "f6_document_export"
+          ],
+          "why_needed": "需要按学校模板格式输出，占位符是填充数据的锚点。",
+          "learning_goal": "能设计可被程序识别的 Word 模板占位符结构。",
+          "technology": "python-docx",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 8,
+          "selection": "learn"
+        },
+        {
+          "id": "k9_docx_rendering",
+          "name": "文档内容渲染",
+          "description": "替换占位符、填充表格行与章节列表，保留模板样式并生成新文档。",
+          "function_ids": [
+            "f5_template_mapping",
+            "f6_document_export"
+          ],
+          "why_needed": "映射后的数据必须写入模板才能形成可交付文件。",
+          "learning_goal": "能使用文档库替换占位符并动态插入表格行与段落。",
+          "technology": "python-docx",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k8_docx_template"
+          ],
+          "learning_order": 9,
+          "selection": "learn"
+        },
+        {
+          "id": "k10_download_stream",
+          "name": "文件下载与流式输出",
+          "description": "在 Web 界面中将生成的内存字节流作为可下载文件返回，并设置文件名与 MIME 类型。",
+          "function_ids": [
+            "f6_document_export"
+          ],
+          "why_needed": "教师需要方便地下载大纲文档。",
+          "learning_goal": "能实现文件字节流下载并正确设置文件名与类型。",
+          "technology": "Streamlit",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k9_docx_rendering"
+          ],
+          "learning_order": 10,
+          "selection": "learn"
+        },
+        {
+          "id": "k11_streamlit_form",
+          "name": "表单输入与状态管理",
+          "description": "使用表单组件收集课程名与目录，控制提交行为并保存会话状态中的生成结果。",
+          "function_ids": [
+            "f1_input_form"
+          ],
+          "why_needed": "教师输入与页面状态是生成流程的入口。",
+          "learning_goal": "能构建带校验的表单并管理跨交互的会话状态。",
+          "technology": "Streamlit",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 11,
+          "selection": "learn"
+        },
+        {
+          "id": "k12_input_validation",
+          "name": "输入校验与错误提示",
+          "description": "检查必填项、文本长度与目录有效性，向用户展示具体错误信息。",
+          "function_ids": [
+            "f1_input_form",
+            "f7_error_handling"
+          ],
+          "why_needed": "避免无效输入进入耗时的模型调用阶段。",
+          "learning_goal": "能实现必填与格式校验并给出可读提示。",
+          "technology": "Streamlit",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k11_streamlit_form"
+          ],
+          "learning_order": 12,
+          "selection": "learn"
+        },
+        {
+          "id": "k13_timeout_handling",
+          "name": "超时与异常处理",
+          "description": "捕获网络超时、接口错误与文档库异常，转换为用户可见的错误状态。",
+          "function_ids": [
+            "f7_error_handling"
+          ],
+          "why_needed": "外部服务与文件操作均可能失败，需要统一处理以保证体验。",
+          "learning_goal": "能通过异常捕获与超时设置实现稳健的失败处理。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "k4_llm_api"
+          ],
+          "learning_order": 13,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": null,
+    "batches": [],
+    "budgets": null,
+    "error": null,
+    "warnings": [],
+    "created_at": "2026-10-21T01:29:41.952253+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v5.5-auditable-concept-validation",
+    "origin": "analysis",
+    "search_started_at": null,
+    "cancel_requested": false,
+    "updated_at": "2026-10-21T01:29:56.216926+00:00",
+    "validated_concept_context": {
+      "version": "professional-concepts-v1",
+      "analysis_fingerprint": "e4fcc6e36107241d95137556e3d800df1b1e35564df165c3d94f225bc6a6b400",
+      "topic_technologies": {
+        "文本清洗与规范化": "Python",
+        "层级文本解析": "Python",
+        "提示词设计": "Python",
+        "大语言模型API调用": "Python",
+        "结构化输出约束": "Python",
+        "JSON 解析与校验": "Python",
+        "重试与修复策略": "Python",
+        "Word 模板占位符": "python-docx",
+        "文档内容渲染": "python-docx",
+        "文件下载与流式输出": "Streamlit",
+        "表单输入与状态管理": "Streamlit",
+        "输入校验与错误提示": "Streamlit",
+        "超时与异常处理": "Python"
+      }
+    }
+  }
+}

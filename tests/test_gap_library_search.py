@@ -23,6 +23,7 @@ URL = "https://www.icourse163.org/course/OWN-123"
 
 
 def settings(tmp_path, **extra):
+    extra.setdefault("mooc_refresh_enabled", False)  # Gap-only controls; refresh has its own suite.
     return options(tmp_path, bilibili_search_rounds=3, mooc_search_rounds=5,
         max_search_requests=80, mooc_gap_search_enabled=True,
         mooc_target_courses_per_point=1, **extra)

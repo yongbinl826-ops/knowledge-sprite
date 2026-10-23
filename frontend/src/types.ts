@@ -136,6 +136,21 @@ export type ResultGroup = {
   related_topic_pointers?: RelatedTopicPointer[];
   discovery_items?: DiscoveredVideo[];
   discovery_platform_items?: Record<string, DiscoveredVideo[]>;
+  related_recommendations?: RelatedRecommendation[];
+  related_platform_recommendations?: Record<string, RelatedRecommendation[]>;
+  total_related_recommendations?: number;
+  recommendation_policy?: string;
+};
+export type RelatedRecommendation = {
+  resource: DiscoveredVideo['resource'] & Partial<Pick<Resource, 'cache' | 'resolved_url' | 'requires_login' | 'requires_payment' | 'requires_enrollment'>> & { access_notice?: string | null };
+  reference: {
+    policy: 'related-reference-v1'; kind: 'related_reference'; knowledge_point_id: string;
+    ranking_score: number; reason: string; exact_teaching_verified: false;
+    link_eligible?: boolean;
+    basis: string[]; evidence_ids: string[];
+    technical_context: 'observed' | 'parent_course' | 'unconfirmed';
+  };
+  evidence: Evidence[];
 };
 export type DiscoveredVideo = {
   resource: Pick<Resource, 'resource_id' | 'title' | 'url' | 'canonical_url' | 'platform' | 'thumbnail_url' | 'fetch_status' | 'video_evidence_status' | 'resource_type'>;

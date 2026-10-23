@@ -4,6 +4,7 @@ from dataclasses import replace
 
 import httpx
 import pytest
+from tests.professional_contract_support import flat_proposal
 
 from backend.app import project_analysis as module
 from backend.app.project_models import AnalysisDocument, ProjectInput
@@ -81,9 +82,9 @@ def attempt_rows(error):
 
 @pytest.mark.asyncio
 async def test_title_quality_then_bad_json_retains_safe_first_location_not_draft():
-    body = analysis_fixture()
+    body = flat_proposal(analysis_fixture())
     body["knowledge_points"][1]["name"] = "Python基础"
-    body["knowledge_points"][1]["project_task"] = "untrusted-draft-marker"
+    body["knowledge_points"][1]["description"] = "untrusted-draft-marker"
     replies = [body, '{"untrusted-response-marker":}']
     calls = []
     def respond(req):
@@ -98,12 +99,12 @@ async def test_title_quality_then_bad_json_retains_safe_first_location_not_draft
     retained = json.dumps(error.value.diagnostics)
     assert "untrusted-draft-marker" not in retained and "untrusted-response-marker" not in retained
     assert "message" not in rows[0]["issues"][0]
-    assert "untrusted-draft-marker" not in calls[1].content.decode()
+    assert "untrusted-draft-marker" in calls[1].content.decode()  # Bounded quality repair retains the accepted schema draft.
 
 
 @pytest.mark.asyncio
 async def test_mastery_then_bad_json_retains_fixed_code_and_safe_location_only():
-    body = analysis_fixture()
+    body = flat_proposal(analysis_fixture())
     body["knowledge_points"][1]["selection"] = "mastered"
     body["knowledge_points"][1]["project_task"] = "untrusted-review-message-marker"
     replies = [body, "bad-json"]
@@ -117,10 +118,11 @@ async def test_mastery_then_bad_json_retains_fixed_code_and_safe_location_only()
                 ProjectInput(name="成绩分析", requirements="读取本地 Excel 成绩并统计平均分"))
     assert len(calls) == 2 and error.value.code == "invalid_json"
     rows = attempt_rows(error.value)
-    assert rows[0]["issues"] == [{"code": "model_selected_mastery", "severity": "medium", "location": ["knowledge_points", 1]}]
+    assert rows[0]["category"] == "schema"
+    assert any(row["type"] == "extra_forbidden" for row in rows[0]["errors"])
     retained = json.dumps(error.value.diagnostics) + calls[1].content.decode()
     assert "untrusted-review-message-marker" not in retained
-    assert "message" not in rows[0]["issues"][0]
+    assert all("message" not in row for row in rows[0]["errors"])
 
 
 @pytest.mark.parametrize("location,expected", [
@@ -151,14 +153,14 @@ def test_two_generation_budget_preserves_complete_json_and_closed_schema():
     assert module.ANALYSIS_MAX_ATTEMPTS == 2 and module.ANALYSIS_MAX_MODEL_CALLS == 2
     assert settings().project_analysis_total_timeout_seconds == 120
     assert "one valid JSON object only" in module.SYSTEM_PROMPT
-    assert "Escape strings correctly" in module.SYSTEM_PROMPT
+    assert "without Markdown" in module.SYSTEM_PROMPT
     assert_simple_generation_schema()
 
 
 def test_generation_scope_excludes_compulsory_expanded_breakdown_and_critic():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert "compulsory project-task/skills/practice breakdown" in module.SYSTEM_PROMPT
-    assert "or add a separate semantic-review report" in module.SYSTEM_PROMPT
+    assert "Every knowledge point contains only name, description and optional technology" in module.SYSTEM_PROMPT
+    assert "Do not emit this review as extra fields" in module.SYSTEM_PROMPT
     assert module.ANALYSIS_MAX_ATTEMPTS == 2 and module.ANALYSIS_MAX_MODEL_CALLS == 2
     assert_simple_generation_schema()
 
@@ -179,7 +181,7 @@ def test_comparison_or_quit_cannot_excuse_real_restart_stop(text):
 
 
 def test_generation_version_names_the_professional_term_contract():
-    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v4.1-coherent-professional-terms"
+    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
 
 
 @pytest.mark.parametrize("text", ["按Esc退出主循环后等待R", "Exit the main game loop when Escape is pressed then wait for R key"])

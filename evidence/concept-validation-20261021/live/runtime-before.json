@@ -1,0 +1,223 @@
+{
+  "restart_receipt": "evidence/ai-video-fallback-repair-20261021/runtime/restart-4.json",
+  "restart_status": "passed",
+  "restart_finished_at": "2026-10-21T01:27:26.847478+00:00",
+  "source_matches_restarted_process": {
+    "backend/app/project_analysis.py": true,
+    "backend/app/project_service.py": true,
+    "backend/app/professional_concepts.py": true
+  },
+  "health": {
+    "status": "ok",
+    "mode": "live",
+    "single_worker": true,
+    "worker_alive": true,
+    "database_ok": true,
+    "accepting": true,
+    "queue_depth": 0,
+    "queue_capacity": 20,
+    "oldest_queue_wait_seconds": 0.0,
+    "active_jobs": 0,
+    "job_counts": {
+      "completed": 24,
+      "failed": 4,
+      "interrupted": 1,
+      "partial": 23
+    },
+    "admission_rejections": 0,
+    "recent_outcomes": [],
+    "source_cooldown_seconds": 0,
+    "source_access_denied": false,
+    "engine_cooldowns": {},
+    "search_sources": {
+      "searxng": {
+        "source_cooldown_seconds": 0,
+        "source_access_denied": false,
+        "engine_cooldowns": {}
+      },
+      "tavily": {
+        "source_cooldown_seconds": 0,
+        "source_access_denied": false,
+        "engine_cooldowns": {}
+      },
+      "serper": {
+        "source_cooldown_seconds": 0,
+        "source_access_denied": false,
+        "engine_cooldowns": {}
+      }
+    },
+    "project_analysis_pending": 0,
+    "project_search_pending": 0
+  },
+  "project_analysis": {
+    "status": "configured",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v5.5-auditable-concept-validation",
+    "max_functions": 12,
+    "max_knowledge_points": 24,
+    "mode": "professional_knowledge_points",
+    "semantic_review_enabled": false,
+    "max_model_calls": 2,
+    "review_max_calls": 0,
+    "review_max_output_tokens": 0,
+    "message": "项目分析使用独立提示词；内容需学生检查确认"
+  },
+  "project": {
+    "project_id": "fdfd2ce1-c5c7-4119-81ca-924d6c377c93",
+    "original_input": {
+      "name": "教学大纲生成助手",
+      "requirements": "教师给出课程名和教材目录，生成符合学校模板的教学大纲",
+      "student_level": "any",
+      "language": "zh",
+      "project_context": "",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163"
+      ]
+    },
+    "input": {
+      "name": "教学大纲生成助手",
+      "requirements": "教师给出课程名和教材目录，AI生成符合学校模板的教学大纲",
+      "student_level": "any",
+      "language": "zh",
+      "project_context": "",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163"
+      ]
+    },
+    "current_version": 6,
+    "created_at": "2026-10-20T23:21:49.022342+00:00",
+    "updated_at": "2026-10-21T01:18:34.716102+00:00",
+    "versions": [
+      {
+        "version": 6,
+        "status": "analysis_failed",
+        "created_at": "2026-10-21T01:18:14.174143+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v5.4-complete-concept-coverage"
+      },
+      {
+        "version": 5,
+        "status": "partial",
+        "created_at": "2026-10-21T01:07:10.087010+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v5.3-professional-concepts"
+      },
+      {
+        "version": 4,
+        "status": "partial",
+        "created_at": "2026-10-21T00:57:08.417107+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v5.3-professional-concepts"
+      },
+      {
+        "version": 3,
+        "status": "partial",
+        "created_at": "2026-10-21T00:43:26.777164+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v5.3-professional-concepts"
+      },
+      {
+        "version": 2,
+        "status": "interrupted",
+        "created_at": "2026-10-20T23:29:04.920970+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v5.3-professional-concepts"
+      },
+      {
+        "version": 1,
+        "status": "interrupted",
+        "created_at": "2026-10-20T23:21:49.033962+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v5.3-professional-concepts"
+      }
+    ],
+    "version": {
+      "version": 6,
+      "input": {
+        "name": "教学大纲生成助手",
+        "requirements": "教师给出课程名和教材目录，AI生成符合学校模板的教学大纲",
+        "student_level": "any",
+        "language": "zh",
+        "project_context": "",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163"
+        ]
+      },
+      "status": "analysis_failed",
+      "analysis": null,
+      "confirmation": null,
+      "batches": [],
+      "budgets": null,
+      "error": {
+        "code": "quality",
+        "message": "知识点名称或学习选择未通过校验，原始输入已保留，可稍后重试。",
+        "diagnostics": [
+          {
+            "type": "knowledge_term_quality",
+            "code": "compound_concept_name",
+            "point_id": "kp_error_feedback",
+            "location": [
+              "knowledge_points",
+              5,
+              "name"
+            ],
+            "message": "Prefer one independent concept per point; put related project uses in its description, not a joined title."
+          },
+          {
+            "type": "attempt_history",
+            "attempts": [
+              {
+                "attempt": 1,
+                "phase": "generation",
+                "category": "quality",
+                "issue_count": 1,
+                "issues": [
+                  {
+                    "code": "compound_concept_name",
+                    "severity": "medium",
+                    "location": [
+                      "knowledge_points",
+                      8,
+                      "name"
+                    ]
+                  }
+                ]
+              },
+              {
+                "attempt": 2,
+                "phase": "generation",
+                "category": "quality",
+                "issue_count": 1,
+                "issues": [
+                  {
+                    "code": "compound_concept_name",
+                    "severity": "medium",
+                    "location": [
+                      "knowledge_points",
+                      5,
+                      "name"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "warnings": [],
+      "created_at": "2026-10-21T01:18:14.174143+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v5.4-complete-concept-coverage",
+      "origin": "analysis",
+      "search_started_at": null,
+      "cancel_requested": false,
+      "updated_at": "2026-10-21T01:18:34.715873+00:00"
+    }
+  }
+}

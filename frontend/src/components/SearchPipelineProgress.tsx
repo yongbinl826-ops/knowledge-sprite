@@ -1,15 +1,37 @@
+import { useEffect, useState } from 'react';
 import type { SearchPipeline } from '../types';
 import './SearchPipelineProgress.css';
 
-export function SearchPipelineProgress({ pipeline, displayed }: { pipeline: SearchPipeline; displayed?: number }) {
-  const searching = !pipeline.terminal && ['queued', 'searching', 'analyzing'].includes(pipeline.stage);
-  const checking = !pipeline.terminal && (pipeline.checking > 0 || pipeline.stage === 'checking');
-  return <div className="search-pipeline" role="status" aria-label="搜索与匹配进度" aria-live="polite" aria-atomic="true">
-    <ol className="search-pipeline-steps">
-      <li className={searching ? 'active' : ''}><span className="pipeline-number" aria-hidden="true">1</span><div><strong>搜索候选</strong><span>{pipeline.candidates} 条候选{pipeline.search_budget > 0 ? ` · ${pipeline.search_requests}/${pipeline.search_budget} 次搜索` : ''}</span></div></li>
-      <li className={checking ? 'active' : ''}><span className="pipeline-number" aria-hidden="true">2</span><div><strong>匹配与大纲校验</strong><span>{pipeline.terminal ? '本次校验结束' : `正在校验 ${pipeline.checking} 条`} · 已过滤 {pipeline.filtered} 条{pipeline.unknown > 0 ? ` · 覆盖待确认 ${pipeline.unknown} 条` : ''}</span></div></li>
-      <li className="displayed"><span className="pipeline-number" aria-hidden="true">3</span><div><strong>已显示 {displayed ?? pipeline.displayed} 条</strong><span>{pipeline.terminal ? '本次结果已保留' : '找到后陆续显示'}</span></div></li>
-    </ol>
-    {pipeline.source_limited && <p className="pipeline-limit">部分来源已限流，已找到的结果继续保留。</p>}
+type ProgressProps = { pipeline: SearchPipeline; displayed?: number };
+
+export function ProjectSearchProgress(props: ProgressProps) {
+  const [scrolled, setScrolled] = useState(() => window.scrollY > 0);
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 0);
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+  return props.pipeline.terminal ? null : <div className="project-progress" data-scrolled={scrolled}><SearchPipelineProgress {...props}/></div>;
+}
+
+export function SearchPipelineProgress({ pipeline, displayed }: ProgressProps) {
+  if (pipeline.terminal) return null;
+  let phase: string;
+  if (pipeline.stage === 'analyzing') {
+    phase = '正在分析知识点';
+  } else if (pipeline.stage === 'checking') {
+    phase = pipeline.source_limited ? '来源受限，正在校验' : '正在校验视频与大纲';
+  } else if (pipeline.stage === 'queued') {
+    phase = '正在准备搜索';
+  } else {
+    phase = pipeline.source_limited ? '来源受限，继续搜索' : '正在搜索相关视频';
+  }
+  const description = `${phase} · 已显示 ${displayed ?? pipeline.displayed} 条`;
+  return <div className="search-pipeline" data-state="active" role="status" aria-label="搜索与匹配进度" aria-live="polite" aria-atomic="true">
+    <div className="pipeline-bar" role="progressbar" aria-label="搜索与匹配进度" aria-valuemin={0} aria-valuemax={100} aria-valuetext={description}>
+      <span className="pipeline-bar-fill"/>
+    </div>
+    <p className="pipeline-description">{description}</p>
   </div>;
 }

@@ -16,8 +16,10 @@ from .source_adapters import extract_source_facts
 from .source_adapters.freecodecamp import SUMMARY_SOURCE as FCC_SUMMARY_SOURCE
 from .source_adapters.techwithtim import SUMMARY_SOURCE as TWT_SUMMARY_SOURCE, SUMMARY_LIMIT as TWT_SUMMARY_LIMIT
 from .source_adapters.base import clean_text
+from .source_adapters.video_leads import observed_bilibili_video_leads
 from .source_adapters.archive import archive_video_playlist  # Compatibility for existing imports.
 from .source_adapters.icourse163 import MOOC_CATALOG_LIMIT, MOOC_STRUCT_SOURCE, extract_embedded_course_facts
+from .source_adapters.kaoyan import extract_embedded_kaoyan_facts
 from .source_adapters.bilibili import BILIBILI_DESCRIPTION_LIMIT, BILIBILI_DESCRIPTION_SOURCE, BILIBILI_DESCRIPTION_STATUS_SOURCE, BILIBILI_CATALOG_LIMIT, UNAVAILABLE_NOTICE, extract_embedded_video_facts, unavailable_video_fact, unconfirmed_unavailable_video_fact
 
 
@@ -127,6 +129,12 @@ def detect_access_page(soup: BeautifulSoup, url: str) -> str | None:
 
 class MetadataExtractor:
     def extract(self, html: str, url: str, fetched_at: str) -> dict:
+        # Seal same-BV localized facts under the existing canonical identity.
+        # The fetcher keeps the exact response route separately as resolved_url.
+        if urlsplit(url).path.startswith("/zh-Hans/video/"):
+            canonical = normalize_url(url)
+            if urlsplit(canonical).path.startswith("/video/"):
+                url = canonical
         soup = BeautifulSoup(html, "html.parser")
         unavailable = unavailable_video_fact(soup, url)
         if unavailable:
@@ -218,6 +226,11 @@ class MetadataExtractor:
             metadata["catalog_kind"] = kind
 
         embedded_video_facts = extract_embedded_video_facts(soup, url)
+        # Preserve observed navigation separately, before DOM cleanup changes
+        # anchor positions. Same-BV identity is required before collecting any.
+        video_leads = observed_bilibili_video_leads(soup, url) if any(
+            fact.field == "video_evidence_status" and fact.value == "page_verified"
+            for fact in embedded_video_facts.fields) else []
         bili_description_limited = any(fact.field == "description_extraction_status"
             and fact.source == BILIBILI_DESCRIPTION_STATUS_SOURCE
             and fact.value in {"limit_exceeded", "invalid_encoding"} for fact in embedded_video_facts.fields)
@@ -307,6 +320,7 @@ class MetadataExtractor:
         # HTTP document. Read that narrowly typed payload before removing script
         # nodes; this never executes code or follows an API/media URL.
         embedded_facts = extract_embedded_course_facts(soup, url)
+        embedded_facts.fields.extend(extract_embedded_kaoyan_facts(soup, url).fields)
         for tag in soup.select("script, style, noscript, template, [hidden], [aria-hidden='true']"):
             if not tag.decomposed:
                 tag.decompose()
@@ -399,4 +413,6 @@ class MetadataExtractor:
         if len(visible) < 80 and not metadata.get("description") and not primary and not embedded_video_facts.fields:
             metadata["fetch_status"] = "javascript_required"
         metadata.setdefault("video_evidence_status", "none")
+        if video_leads and metadata.get("fetch_status") == "fetched" and metadata["video_evidence_status"] == "page_verified":
+            metadata["_video_leads"] = video_leads
         return metadata

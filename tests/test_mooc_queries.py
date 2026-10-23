@@ -70,7 +70,7 @@ def test_sixth_slot_quotes_each_original_part_without_changing_first_five_or_poi
     assert queries[5].query == mooc_platform_query(point, request, round_index=5).query == "site:icourse163.org/course " + exact
     assert all(query.query == query.query.strip() and query.knowledge_point_id == "original-point" for query in queries)
     assert (point, request.model_dump()) == before
-    assert MOOC_QUERY_POLICY == "course-discovery-phrases-v2"
+    assert MOOC_QUERY_POLICY == "course-discovery-phrases-v4"
 
 
 @pytest.mark.parametrize("text", ["UnknownTool 数据分组与聚合", "控制变量与条件实验", "pandas 分组聚合", "Python 列表"])
@@ -109,11 +109,11 @@ def test_exact_slot_keeps_explicit_version_and_english_phrases_without_translati
     assert all("2016" in row.query for row in queries)
 
 
-def test_bilibili_all_six_slots_keep_existing_unquoted_video_queries():
+def test_bilibili_first_whole_then_distinct_components_keep_six_unquoted_video_queries():
     text = "Python 列表与字典"
     point = {"knowledge_point_id": "original-point", "text": text}
     request = SearchRequest(knowledge_points=[text], preferred_platforms=["bilibili", "icourse163"])
-    expected = [f"{text} 视频教程", f"{text} 视频教程 示例", "Python 列表 教学 实战",
+    expected = [f"{text} 视频教程", "Python 列表 视频教程 示例", "Python 字典 教学 实战",
                 "Python 字典 教程 讲解", "Python 列表 实例 操作", f"{text} 课程 完整"]
     assert [platform_query(point, "bilibili", request, round_index=index).query for index in range(6)] == [
         "site:bilibili.com/video " + label for label in expected]
@@ -138,7 +138,8 @@ def test_operator_targets_are_rejected_before_punctuation_cleanup_and_other_owne
 @pytest.mark.parametrize("text", ["函数列表", "PythonWrapper 列表与字典", "NoSQL 多表连接与分组查询", "Machine learning"])
 def test_unknown_owner_or_non_type_phrase_does_not_acquire_known_family_or_api_alias(text):
     queries = plan(text)
-    assert text in queries[1].query
+    # Exact name stays first; unknown compound parts may now be prioritized.
+    assert text in queries[0].query
     assert "程序设计" not in queries[1].query and "数据库" not in queries[1].query
     assert " JOIN " not in queries[4].query and " dictionary " not in queries[4].query
     if text[0].isascii():

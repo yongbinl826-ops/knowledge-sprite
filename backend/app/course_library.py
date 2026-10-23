@@ -275,8 +275,12 @@ class CourseLibrary:
                 self.store.connection.executemany("INSERT INTO shared_mooc_terms VALUES(?,?)", ((term, key) for term in _terms(text)))
         return not revoked
 
-    def lookup(self, point, profile, limit=3):
+    def lookup(self, point, profile, limit=3, *, request=None, allow_related=False):
         from .mooc_relevance import assess_mooc_relevance
+        assessment_point = point
+        if point.get("technology"):
+            from .professional_concepts import contextual_concept_name
+            assessment_point = {**point, "text": contextual_concept_name(point["text"], point["technology"])}
         limit = max(0, min(int(limit), self.max_candidates))
         terms = _terms(str(point.get("text") or "") + " " + " ".join(map(str, point.get("learning_targets") or [])))[:128]
         if not limit or not terms:
@@ -305,9 +309,15 @@ class CourseLibrary:
                 evidence.append({**receipt, "id": "library_" + _hash(receipt), "evidence_id": "library_" + _hash(receipt),
                                  "kind": "course_library", "source": "shared_course_library", "url": resource["url"],
                                  "knowledge_point_id": point.get("knowledge_point_id"), "title": resource["title"]})
-                assessment = assess_mooc_relevance(point, resource, evidence)
-                if assessment.get("status") == "outline_supported" and assessment.get("display_eligible"):
-                    results.append({"resource": resource, "evidence": evidence, "assessment": assessment, **receipt})
+                assessment = assess_mooc_relevance(assessment_point, resource, evidence)
+                full = assessment.get("status") == "outline_supported" and assessment.get("display_eligible")
+                reference = None
+                if allow_related and request is not None:
+                    from .related_recommendations import related_recommendation
+                    reference = related_recommendation(point, resource, evidence, request)
+                if full or reference is not None:
+                    results.append({"resource": resource, "evidence": evidence, "assessment": assessment,
+                                    "related_reference": reference, **receipt})
             except (KeyError, TypeError, ValueError, AttributeError):
                 continue
             if len(results) >= limit:

@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "purpose": "Independent finite concept-style and relevance oracle, not a production topic dictionary or a fixed generated answer list",
+  "generation_not_observed": true,
+  "cases": [
+    {
+      "id": "python_game_beginner",
+      "input": {"name": "接星星小游戏", "requirements": "用Python和pygame制作接星星小游戏：星星随机出现并下落，玩家控制挡板接住，碰到得分，漏接结束，可重新开始。", "student_level": "beginner", "project_context": "已经会Python条件、循环和函数，第一次接触pygame。"},
+      "concepts": [
+        {"name": "事件循环", "technology": "pygame", "serves": "处理窗口及输入事件"},
+        {"name": "坐标系", "technology": "pygame", "serves": "表示挡板与星星的位置"},
+        {"name": "碰撞检测", "technology": "pygame", "serves": "判定接住星星"},
+        {"name": "有限状态机", "technology": "Python", "serves": "区分运行、结束和重新开始"},
+        {"name": "随机数", "technology": "Python", "serves": "产生星星横向位置"},
+        {"name": "帧率", "technology": "pygame", "serves": "控制更新节奏"}
+      ],
+      "not_required_by_default": ["线性表", "栈", "数据库", "机器学习"],
+      "source_boundary": "同技术栈的单个独立概念材料可用；碰撞演示不能自动证明随机生成、计分或重开全部行为。"
+    },
+    {
+      "id": "data_dashboard_advanced",
+      "input": {"name": "共享单车数据看板", "requirements": "用pandas整理CSV骑行数据，解析日期与缺失值，按月份聚合骑行次数，绘制趋势图，并支持按区域筛选。", "student_level": "advanced", "project_context": "已熟悉Python和统计学，首次使用pandas与Matplotlib。"},
+      "concepts": [
+        {"name": "DataFrame", "technology": "pandas", "serves": "承载表格与CSV数据"},
+        {"name": "缺失值", "technology": "pandas", "serves": "识别与处理空数据"},
+        {"name": "日期时间类型", "technology": "pandas", "serves": "解析和表达时间列"},
+        {"name": "分组聚合", "technology": "pandas", "serves": "计算月度骑行次数"},
+        {"name": "折线图", "technology": "Matplotlib", "serves": "呈现趋势"},
+        {"name": "布尔索引", "technology": "pandas", "serves": "按区域筛选记录"}
+      ],
+      "not_required_by_default": ["Python基础", "栈", "深度学习", "关系数据库范式"],
+      "source_boundary": "已有Python经验不代表已有pandas经验；讲分组聚合的课程不自动证明缺失处理或时间解析。"
+    },
+    {
+      "id": "browser_flashcards_intermediate",
+      "input": {"name": "浏览器单词卡", "requirements": "使用原生HTML、CSS和JavaScript制作单词卡，点击翻面、切换卡片，把学习记录保存到浏览器，刷新后可以恢复。", "student_level": "intermediate", "project_context": "已会HTML和CSS，知道JavaScript变量与函数；不使用Vue或React。"},
+      "concepts": [
+        {"name": "DOM", "technology": "JavaScript", "serves": "表示和更新页面结构"},
+        {"name": "事件", "technology": "JavaScript", "serves": "响应按钮交互"},
+        {"name": "数组", "technology": "JavaScript", "serves": "保存卡片集合"},
+        {"name": "JSON", "technology": "JavaScript", "serves": "表示可保存的数据"},
+        {"name": "Web Storage", "technology": "JavaScript", "serves": "保存与恢复浏览器记录"},
+        {"name": "状态机", "technology": "JavaScript", "serves": "区分卡片正反面等界面状态"}
+      ],
+      "not_required_by_default": ["Vue组件", "React Hooks", "账号系统", "云数据库"],
+      "source_boundary": "大课程中的独立原生JS章节不因课程标题含Vue而直接否决；需核当前章节工具和依赖。JSON材料不自动证明localStorage读写。"
+    },
+    {
+      "id": "arduino_reaction_beginner",
+      "input": {"name": "Arduino反应计时器", "requirements": "用Arduino Uno、LED和按钮制作反应计时器。按钮需要可靠消抖，只记录一次按下，计时期间保持输入响应，并把成绩输出到串口。", "student_level": "beginner", "project_context": "已会上传程序与点亮LED，不熟悉可靠按钮输入和非阻塞计时。"},
+      "concepts": [
+        {"name": "数字输入", "technology": "Arduino", "serves": "读取按钮电平"},
+        {"name": "上拉电阻", "technology": "Arduino", "serves": "保证输入有确定电平"},
+        {"name": "按键消抖", "technology": "Arduino", "serves": "避免机械抖动形成重复事件"},
+        {"name": "边沿检测", "technology": "Arduino", "serves": "只计一次按下"},
+        {"name": "非阻塞定时", "technology": "Arduino", "serves": "计时同时保留输入响应"},
+        {"name": "串口通信", "technology": "Arduino", "serves": "输出成绩"}
+      ],
+      "not_required_by_default": ["STM32 CubeMX", "FreeRTOS", "栈", "电机驱动"],
+      "source_boundary": "简单边沿检测不是可靠消抖；STM32、ESP32的独有机制不能直接替代Uno实现，通用电路概念可以不带Arduino前缀。"
+    }
+  ],
+  "additional_valid_canonical_names": ["线性表", "栈", "队列", "哈希表", "异或", "逻辑或", "饱和度", "生成模型", "构建器模式", "依赖注入", "协程", "归一化"],
+  "invalid_task_names": ["创建窗口并循环读取事件", "读取CSV、清理数据、绘制看板", "点击按钮显示下一张", "使用millis计时并避免阻塞", "第3章 栈", "Chapter 2 Queues", "小球下落+矩形碰撞", "按R重开与状态重置", "上传文件以及创建图表"],
+  "invalid_quality_names": ["Python基础", "Arduino基础", "Web开发基础", "x = x + 1", "score += 1"],
+  "judgment_limits": "Finite deterministic grammar tests cannot prove arbitrary name is a professional concept or project-relevant. Relevance/prerequisite oracles above are independent human expectations; no real model generation or source retrieval has been observed for this new contract."
+}

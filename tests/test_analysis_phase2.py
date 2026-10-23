@@ -57,7 +57,7 @@ async def test_only_presend_connection_failure_can_use_second_analysis_attempt(c
         calls.append(request)
         if len(calls) == 1:
             raise connection_error("offline connection failure", request=request)
-        return offline.response(offline.analysis_fixture())
+        return offline.response(offline.flat_analysis_fixture())
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         result = await ProjectAnalyzer(offline.settings(), client).analyze(offline.request())
     assert result.knowledge_points and len(calls) == 2

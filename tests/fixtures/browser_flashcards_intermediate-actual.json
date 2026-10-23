@@ -1,0 +1,229 @@
+{
+  "provenance": {
+    "source_path": "tmp\\motion-paid-four-project-harness\\runs\\approved-round-1-decoding-recovery\\browser_flashcards_intermediate\\analyzed.json",
+    "source_sha256": "7f426f10a0c6b0fdfdf5c58b5b96c8168e9540a092623ce0c05bb696e70bdc5c",
+    "project_id": "1545749d-5355-4b90-85e2-0fefa4b938a8",
+    "version": 1,
+    "kind": "actual_retained_paid_output_offline_fixture_no_new_HTTP"
+  },
+  "project": {
+    "name": "离线单词卡网页",
+    "requirements": "只用原生 HTML、CSS、JavaScript 做单词卡网页。显示单词卡，点击按钮或按空格翻面，支持上一张/下一张；用 localStorage 保存卡片数据与当前进度，刷新后恢复；用 Flexbox 排列控件，并在手机宽度下通过媒体查询改为紧凑布局。不做账号、服务器、云同步或框架。",
+    "student_level": "intermediate",
+    "language": "zh",
+    "project_context": "已会HTML基本标签、CSS选择器和JavaScript变量/函数/数组，尚未熟悉DOM事件、localStorage和响应式布局。卡片内容可采用少量本地合成单词。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163"
+    ]
+  },
+  "analysis": {
+    "scope": "用原生 HTML、CSS、JavaScript 实现一个离线单词卡网页：展示卡片正面（单词），通过按钮或空格键翻面显示释义；支持上一张/下一张切换；用 localStorage 持久化卡片数据与当前进度，刷新后恢复；控件用 Flexbox 布局，手机窄屏下通过媒体查询切换为紧凑布局。不涉及账号、服务器、云同步或框架。",
+    "technical_plan": "使用单页 index.html 引入 style.css 与 app.js。用 HTML 结构组织卡片区与控件区；CSS 用 Flexbox 排列控件，用媒体查询在窄屏下调整尺寸与排列；JavaScript 维护卡片数组与当前索引状态，通过 DOM 事件（按钮 click、document keydown 监听空格）驱动翻面与切换，翻面和进度变化后写入 localStorage，页面加载时读取并恢复。",
+    "assumptions": [
+      "卡片内容使用少量本地合成的单词与释义数组，硬编码在 app.js 中",
+      "翻面状态用 CSS 类切换配合 3D 变换实现，不引入第三方库",
+      "localStorage 键名与数据结构由学生自行约定，存储卡片数组与当前索引"
+    ],
+    "learner_profile": null,
+    "functions": [
+      {
+        "id": "F1",
+        "name": "单词卡展示与翻面",
+        "original_requirement": "显示单词卡，点击按钮或按空格翻面",
+        "acceptance_criteria": "页面显示当前卡片正面单词；点击翻面按钮或按空格键后在正面与释义之间切换，再次触发恢复正面或继续切换正面/背面。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F2",
+        "name": "上一张/下一张切换",
+        "original_requirement": "支持上一张/下一张",
+        "acceptance_criteria": "点击上一张或下一张按钮可在卡片间切换，索引不越界（首张与末张处有合理边界处理），切换后显示对应单词内容。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F3",
+        "name": "localStorage 持久化与恢复",
+        "original_requirement": "用 localStorage 保存卡片数据与当前进度，刷新后恢复",
+        "acceptance_criteria": "刷新页面后卡片数据与当前索引与刷新前一致；localStorage 中无数据时以初始卡片数据启动。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F4",
+        "name": "Flexbox 布局与响应式紧凑布局",
+        "original_requirement": "用 Flexbox 排列控件，并在手机宽度下通过媒体查询改为紧凑布局",
+        "acceptance_criteria": "控件区使用 Flexbox 排列；视口宽度小于约 600px 时媒体查询生效，控件改为更紧凑的尺寸或换行排列。",
+        "no_new_learning_reason": null
+      }
+    ],
+    "knowledge_points": [
+      {
+        "id": "K1",
+        "name": "DOM 元素查询与内容更新",
+        "description": "使用 document.getElementById/querySelector 获取元素，通过 textContent 等属性更新卡片文本。",
+        "function_ids": [
+          "F1",
+          "F2"
+        ],
+        "why_needed": "单词内容需要随当前索引动态写入页面。",
+        "learning_goal": "能选中页面元素并在状态变化时更新其文本内容。",
+        "technology": "JavaScript DOM",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 1,
+        "selection": "learn"
+      },
+      {
+        "id": "K2",
+        "name": "click 事件监听与回调",
+        "description": "用 addEventListener 绑定按钮 click 事件，在回调中执行翻面与切换逻辑。",
+        "function_ids": [
+          "F1",
+          "F2"
+        ],
+        "why_needed": "按钮交互依赖事件绑定而非内联 onclick。",
+        "learning_goal": "能为多个按钮绑定点击事件并区分各自行为。",
+        "technology": "JavaScript DOM",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1"
+        ],
+        "learning_order": 2,
+        "selection": "learn"
+      },
+      {
+        "id": "K3",
+        "name": "键盘事件与空格键检测",
+        "description": "监听 document 的 keydown 事件，通过 event.code 或 event.key 判断空格并防止页面滚动。",
+        "function_ids": [
+          "F1"
+        ],
+        "why_needed": "需求要求按空格翻面，需区分按键并阻止默认滚动。",
+        "learning_goal": "能监听键盘事件并识别空格键触发翻面。",
+        "technology": "JavaScript DOM",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K2"
+        ],
+        "learning_order": 3,
+        "selection": "learn"
+      },
+      {
+        "id": "K4",
+        "name": "应用状态与索引管理",
+        "description": "用变量维护卡片数组、当前索引与翻面状态，并封装切换函数处理边界。",
+        "function_ids": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "why_needed": "翻面与切换需要一致的状态源，持久化也依赖该状态。",
+        "learning_goal": "能用状态变量和函数组织卡片切换的边界逻辑。",
+        "technology": "JavaScript",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 2,
+        "selection": "learn"
+      },
+      {
+        "id": "K5",
+        "name": "localStorage 读写与 JSON 序列化",
+        "description": "用 localStorage.setItem/getItem 与 JSON.stringify/parse 存取卡片数组和当前进度。",
+        "function_ids": [
+          "F3"
+        ],
+        "why_needed": "刷新恢复需要把对象状态序列化写入并在加载时解析。",
+        "learning_goal": "能把数组与索引写入 localStorage 并在页面加载时安全读取恢复。",
+        "technology": "JavaScript localStorage",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K4"
+        ],
+        "learning_order": 4,
+        "selection": "learn"
+      },
+      {
+        "id": "K6",
+        "name": "CSS Flexbox 布局",
+        "description": "用 display:flex、justify-content、gap 等属性排列卡片与控件。",
+        "function_ids": [
+          "F4"
+        ],
+        "why_needed": "需求明确要求用 Flexbox 排列控件。",
+        "learning_goal": "能用 Flexbox 组织控件行并控制间距与对齐。",
+        "technology": "CSS",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 2,
+        "selection": "learn"
+      },
+      {
+        "id": "K7",
+        "name": "CSS 媒体查询响应式布局",
+        "description": "用 @media 断点在小屏下调整布局为紧凑排列。",
+        "function_ids": [
+          "F4"
+        ],
+        "why_needed": "手机宽度下需切换为紧凑布局。",
+        "learning_goal": "能编写媒体查询并在窄屏下调整控件布局。",
+        "technology": "CSS",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K6"
+        ],
+        "learning_order": 3,
+        "selection": "learn"
+      },
+      {
+        "id": "K8",
+        "name": "CSS 类切换与 3D 翻面变换",
+        "description": "通过切换类名配合 transform: rotateY 与 backface-visibility 实现卡片翻面视觉。",
+        "function_ids": [
+          "F1"
+        ],
+        "why_needed": "翻面需要视觉表现与状态同步。",
+        "learning_goal": "能用类名切换驱动 CSS 3D 翻面效果。",
+        "technology": "CSS",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "extension",
+        "prerequisite_ids": [
+          "K6"
+        ],
+        "learning_order": 5,
+        "selection": "learn"
+      }
+    ]
+  }
+}

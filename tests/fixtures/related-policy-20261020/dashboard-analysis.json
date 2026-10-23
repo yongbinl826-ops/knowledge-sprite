@@ -1,0 +1,287 @@
+{
+  "input": {
+    "name": "pandas 和 Streamlit 销售数据看板",
+    "requirements": "用 Python、pandas 和 Streamlit 做本地 CSV 销售数据看板：上传包含日期、地区、销售额三列的 CSV；提示缺列或日期/销售额格式错误，忽略日期或销售额为空的行；按月份和地区汇总销售额；按地区筛选并显示月度趋势折线图；下载当前筛选结果为 CSV。不需要登录、数据库或云服务。",
+    "student_level": "intermediate",
+    "language": "zh",
+    "project_context": "会 Python 循环、函数和列表，刚开始学习 pandas，未使用过 Streamlit。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili"
+    ]
+  },
+  "analysis": {
+    "scope": "基于 Python、pandas 和 Streamlit 的本地 CSV 销售数据看板：用户上传包含日期、地区、销售额三列的 CSV；程序校验列名与日期/销售额格式，忽略日期或销售额为空的行，并按月份和地区汇总销售额；支持按地区筛选、显示月度趋势折线图，并将当前筛选结果下载为 CSV。不含登录、数据库和云服务。",
+    "technical_plan": "使用 pandas.read_csv 读取上传的 CSV（Streamlit file_uploader 提供文件对象），先检查必需列是否齐全，再用 pandas.to_datetime 与 pandas.to_numeric 结合 errors='coerce' 做类型校验以识别格式错误，用 dropna 过滤日期或销售额为空/无法解析的行；通过 dt.to_period('M') 生成月份列，用 groupby 按月份和地区对销售额求和；用 Streamlit selectbox 做地区筛选，用 st.line_chart 绘制筛选后的月度趋势折线图；用 DataFrame.to_csv 生成字节流并通过 download_button 提供下载。全部逻辑在本地运行。",
+    "assumptions": [
+      "CSV 文件编码按 UTF-8 处理，若含 BOM 由 pandas 默认处理，不额外实现编码选择。",
+      "“按月汇总”的月份取自日期列的年份-月份，输出列名为 month 及 region、sales 聚合列。",
+      "地区筛选为单选，另提供“全部地区”选项。",
+      "日期与销售额格式错误的判断标准为 to_datetime/to_numeric 转换后为 NaN。",
+      "未指定 Streamlit 版本，按当前稳定版本的常用 API 实现。"
+    ],
+    "learner_profile": null,
+    "functions": [
+      {
+        "id": "F1",
+        "name": "CSV 上传与读取",
+        "original_requirement": "上传包含日期、地区、销售额三列的 CSV",
+        "acceptance_criteria": "用户可通过文件上传控件选择本地 CSV；成功读取后展示原始数据行数与前几行预览；读取失败时给出错误提示且不进入后续流程。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F2",
+        "name": "列名与数据类型校验",
+        "original_requirement": "提示缺列或日期/销售额格式错误",
+        "acceptance_criteria": "缺少日期/地区/销售额任一列时显示明确的缺列提示；存在可解析失败的日期或销售额值时提示格式错误，并说明被忽略的行数。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F3",
+        "name": "空值行过滤",
+        "original_requirement": "忽略日期或销售额为空的行",
+        "acceptance_criteria": "日期或销售额为空（或转换为 NaN）的行不参与后续汇总；过滤后的有效行数与提示信息一致。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F4",
+        "name": "按月份和地区汇总",
+        "original_requirement": "按月份和地区汇总销售额",
+        "acceptance_criteria": "输出包含月份、地区、销售额合计的汇总表；同一月份同一地区只有一行，销售额为对应分组合计值。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F5",
+        "name": "地区筛选与月度趋势图",
+        "original_requirement": "按地区筛选并显示月度趋势折线图",
+        "acceptance_criteria": "可选择某个地区或全部地区；折线图横轴为月份、纵轴为销售额，并随筛选条件更新。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F6",
+        "name": "筛选结果 CSV 下载",
+        "original_requirement": "下载当前筛选结果为 CSV",
+        "acceptance_criteria": "点击下载按钮可得到与当前筛选条件一致的 CSV 文件，包含月份、地区和销售额合计列。",
+        "no_new_learning_reason": null
+      }
+    ],
+    "knowledge_points": [
+      {
+        "id": "K1",
+        "name": "DataFrame 数据结构",
+        "description": "pandas 的二维带标签数据结构，包含行索引、列名与列类型，是读取 CSV 后所有数据处理与聚合的载体。",
+        "function_ids": [
+          "F1",
+          "F3",
+          "F4"
+        ],
+        "why_needed": "看板的所有数据都保存在 DataFrame 中，必须先理解其行列与索引结构才能继续清洗和汇总。",
+        "learning_goal": "能创建 DataFrame，查看 shape、columns、dtypes，并按列选取数据。",
+        "technology": "pandas",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 1,
+        "selection": "learn"
+      },
+      {
+        "id": "K2",
+        "name": "CSV 文件读取",
+        "description": "用 pandas.read_csv 将 CSV 文本解析为 DataFrame，涉及分隔符、表头与编码等基本参数。",
+        "function_ids": [
+          "F1"
+        ],
+        "why_needed": "需求以上传 CSV 作为数据入口，需掌握读取函数及读取失败时的处理方式。",
+        "learning_goal": "能用 read_csv 读取本地或文件对象形式的 CSV 并检查结果。",
+        "technology": "pandas",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1"
+        ],
+        "learning_order": 2,
+        "selection": "learn"
+      },
+      {
+        "id": "K3",
+        "name": "数据类型转换",
+        "description": "用 to_datetime、to_numeric 等函数把字符串列转换为日期类型与数值类型，并通过 errors='coerce' 把无法解析的值变为 NaN 以识别格式错误。",
+        "function_ids": [
+          "F2"
+        ],
+        "why_needed": "日期与销售额需要正确类型才能进行比较和求和，同时转换失败是判断格式错误的主要手段。",
+        "learning_goal": "能对指定列做日期和数值转换，并区分成功值与转换产生的 NaN。",
+        "technology": "pandas",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1"
+        ],
+        "learning_order": 3,
+        "selection": "learn"
+      },
+      {
+        "id": "K4",
+        "name": "缺失值处理",
+        "description": "识别与删除 DataFrame 中 NaN 缺失值的方法，包括 isna 判断与 dropna 按列过滤缺失行。",
+        "function_ids": [
+          "F2",
+          "F3"
+        ],
+        "why_needed": "需求要求忽略日期或销售额为空的行，需要掌握缺失值的检测与过滤。",
+        "learning_goal": "能查看各列缺失情况，并按指定列去除包含缺失值的行。",
+        "technology": "pandas",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1"
+        ],
+        "learning_order": 4,
+        "selection": "learn"
+      },
+      {
+        "id": "K5",
+        "name": "日期时间属性",
+        "description": "pandas 日期类型的 dt 访问器，可从日期中提取年份、月份等时间属性，用于生成月份分组键。",
+        "function_ids": [
+          "F4"
+        ],
+        "why_needed": "按月份汇总需要从完整日期中提取年月作为分组依据。",
+        "learning_goal": "能从日期列生成表示年月的月份列，并验证结果取值。",
+        "technology": "pandas",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K3"
+        ],
+        "learning_order": 5,
+        "selection": "learn"
+      },
+      {
+        "id": "K6",
+        "name": "分组聚合",
+        "description": "用 groupby 按一个或多个键拆分数据，再对目标列应用 sum 等聚合函数得到汇总结果。",
+        "function_ids": [
+          "F4"
+        ],
+        "why_needed": "核心分析需求是按月份和地区两个键汇总销售额。",
+        "learning_goal": "能按多列分组并计算销售额合计，理解输出结果的索引与列结构。",
+        "technology": "pandas",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1",
+          "K5"
+        ],
+        "learning_order": 6,
+        "selection": "learn"
+      },
+      {
+        "id": "K7",
+        "name": "布尔索引过滤",
+        "description": "通过布尔条件表达式对 DataFrame 行进行筛选，以及按列取值比较生成布尔序列的方式。",
+        "function_ids": [
+          "F5",
+          "F6"
+        ],
+        "why_needed": "地区筛选与下载当前筛选结果都需要按条件选取子集。",
+        "learning_goal": "能构造条件并按地区筛选出行，得到与条件一致的新 DataFrame。",
+        "technology": "pandas",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1"
+        ],
+        "learning_order": 7,
+        "selection": "learn"
+      },
+      {
+        "id": "K8",
+        "name": "Streamlit 交互控件",
+        "description": "Streamlit 的 file_uploader、selectbox、button 等控件，脚本自上而下重新执行并根据返回值驱动界面。",
+        "function_ids": [
+          "F1",
+          "F5",
+          "F6"
+        ],
+        "why_needed": "上传、地区选择和下载触发都由 Streamlit 控件完成，需要理解其重执行模型。",
+        "learning_goal": "能在页面中放置上传、选择与按钮控件并读取其返回值。",
+        "technology": "Streamlit",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 8,
+        "selection": "learn"
+      },
+      {
+        "id": "K9",
+        "name": "Streamlit 图表展示",
+        "description": "借助 st.line_chart 等接口把 DataFrame 直接渲染为折线图，横轴使用索引或指定列。",
+        "function_ids": [
+          "F5"
+        ],
+        "why_needed": "月度趋势折线图需要以图表形式输出筛选后的汇总数据。",
+        "learning_goal": "能把表示月份与销售额的 DataFrame 渲染为折线图，并确认坐标含义正确。",
+        "technology": "Streamlit",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K6",
+          "K8"
+        ],
+        "learning_order": 9,
+        "selection": "learn"
+      },
+      {
+        "id": "K10",
+        "name": "CSV 文件导出与下载",
+        "description": "用 to_csv 将 DataFrame 序列化为 CSV 文本或字节流，并通过 st.download_button 触发浏览器下载。",
+        "function_ids": [
+          "F6"
+        ],
+        "why_needed": "需求要求下载当前筛选结果为 CSV。",
+        "learning_goal": "能把筛选后的 DataFrame 导出为 CSV 字节数据，并接到下载按钮上。",
+        "technology": "Streamlit",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K7",
+          "K8"
+        ],
+        "learning_order": 10,
+        "selection": "learn"
+      }
+    ]
+  },
+  "prompt_version": "project-analysis-v5.1-professional-concepts"
+}

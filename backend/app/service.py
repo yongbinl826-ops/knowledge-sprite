@@ -20,24 +20,27 @@ from .fetcher import Fetcher, FetcherConfig, FETCH_DEADLINE_AT, PLATFORM_POLICY_
 from .llm import build_llm
 from .models import Candidate, Query, Resource, SearchRequest, now
 from .read_rank_cache import ReadRankCache
+from .read_related_cache import ReadRelatedCache
 from .providers import HTTPProvider, QueryBudgetReached, SearchBudgetReached, SearchError, SearXNGProvider, build_provider
 from .queries import PLATFORMS, generate_queries, fair_queries, prioritize_video_entry_query, gap_query_candidates, public_catalog_query
 from .probe_priority import probe_api_priority
 from .ranking import has_course_discovery, has_learning_evidence, has_type_evidence, has_video_evidence, rank_resource, type_from_discovered_url
 from .resource_identity import derive_course_identity, diversify, summarize_course_identities
 from .source_adapters.bilibili import unavailable_video_projection
-from .video_availability import project_unconfirmed_video_shell, project_unconfirmed_fetched_media
+from .video_availability import has_known_media_fault, project_unconfirmed_video_shell, project_unconfirmed_fetched_media
 from .url_utils import UnsafeURL
 from .ranking import candidate_topic_signal, decompose_topic, relevance, search_course_evidence, summarize_collection_coverage, coverage_targets, tokens
 from . import teaching_match
 from . import teaching_review
 from .learning_support import summarize_learning_support
 from .discovery_display import discovered_video, display_discovered_videos
-from .mooc_relevance import assess_mooc_relevance, is_mooc_resource
+from .related_recommendations import POLICY_VERSION as RECOMMENDATION_POLICY
+from .mooc_relevance import assess_mooc_relevance, is_mooc_resource, teaching_probe_eligible
 from .platform_search import platform_budget, search_platform_rounds
 from .course_library import CourseLibrary, course_family_key
 from .mooc_queries import MOOC_QUERY_POLICY
 from .mooc_refresh import MoocRefresh
+from .ai_video_service import reserve_fallback, run_ai_video_fallback, verified_ai_resource
 
 
 def _topic_pointer_reservoir(point: dict) -> dict:
@@ -249,15 +252,16 @@ class JobService:
         self.settings, self.store = settings, store
         self.course_library = (CourseLibrary(store, ttl_seconds=settings.shared_course_library_ttl_seconds,
             max_candidates=settings.shared_course_library_max_candidates)
-            if settings.shared_course_library_enabled and not settings.teaching_match_enabled else None)
+            if settings.shared_course_library_enabled else None)
         self.mooc_refresh = (MoocRefresh(store, settings.mooc_refresh_interval_seconds)
-            if settings.mooc_refresh_enabled and not settings.teaching_match_enabled else None)
+            if settings.mooc_refresh_enabled else None)
         self.provider_error = None
         self.fetcher = fetcher or Fetcher(FetcherConfig(enabled=settings.fetch_enabled,
             timeout_seconds=settings.fetch_timeout_seconds, global_concurrency=settings.global_concurrency,
             min_interval_seconds=settings.fetch_min_interval_seconds,
             allowed_restricted_hosts=settings.allowed_restricted_hosts, denied_hosts=settings.denied_fetch_hosts,
             bilibili_public_metadata=settings.bilibili_public_metadata,
+            bilibili_public_metadata_max_bytes=settings.bilibili_public_metadata_max_bytes,
             dns_resolver=settings.dns_resolver, phased_timeouts=settings.fetch_phased_timeouts,
             body_idle_timeout_seconds=settings.fetch_body_idle_timeout_seconds,
             body_min_bytes_per_second=settings.fetch_body_min_bytes_per_second,
@@ -273,7 +277,13 @@ class JobService:
         # and spacing. Optional platform routing never resets another source.
         self._providers = {settings.search_provider: self.provider}
         self._provider_errors = {settings.search_provider: self.provider_error}
-        for name in dict.fromkeys(settings.search_provider_for(platform) for platform in PLATFORMS):
+        self._searxng_failover_health = {}
+        names = [settings.search_provider_for(platform) for platform in PLATFORMS]
+        if settings.ai_video_fallback_enabled:
+            names += [name for name, key in (("serper", settings.serper_api_key), ("tavily", settings.tavily_api_key)) if key]
+        if settings.searxng_failover_provider == "tavily" and settings.tavily_api_key:
+            names.append("tavily")
+        for name in dict.fromkeys(names):
             if name in self._providers:
                 continue
             try:
@@ -310,13 +320,155 @@ class JobService:
         return next((platform for platform, domain in PLATFORMS.items()
                      if query.domain_filters == [domain]), None)
 
-    def _search_source(self, query):
+    def _search_source(self, query, *, job=None):
         name = self.settings.search_provider_for(self._query_platform(query))
+        if job is not None and name == "searxng" and self._failover_enabled():
+            platform = self._query_platform(query)
+            reason = self._searxng_failover_reason(query)
+            if platform and reason:
+                route = {"from": "searxng", "to": "tavily", "reason": reason,
+                         "source_identity": self._searxng_failover_identity()}
+                job["platform_search"].setdefault("source_failovers", {})[platform] = route
+                return "tavily", self._providers.get("tavily"), self._provider_errors.get("tavily")
         if name == self.settings.search_provider:
             # The legacy injectable slot remains authoritative, including
             # callers that replace it before starting the worker.
             return name, self.provider, getattr(self, "provider_error", None)
         return name, self._providers.get(name), self._provider_errors.get(name)
+
+    def _failover_enabled(self):
+        # An already-configured key is necessary; never opt into keyless access.
+        return (getattr(self.settings, "searxng_failover_provider", "") == "tavily"
+                and bool(self.settings.tavily_api_key) and self._providers.get("tavily") is not None
+                and self._provider_errors.get("tavily") is None)
+
+    def _ai_search_source(self, query):
+        """Gap-only routing; never changes the ordinary platform provider."""
+        configured = self.settings.search_provider_for(self._query_platform(query))
+        selected = self.settings.ai_video_search_provider
+        if selected == "auto":
+            selected = ("serper" if self.settings.serper_api_key else
+                        "tavily" if self.settings.tavily_api_key else configured)
+        if selected == "default":
+            selected = configured
+        if selected == configured:
+            if configured == "searxng" and self._searxng_failover_stop(query):
+                return configured, None, SearchError("source_stopped", "搜索来源暂时受限")
+            return self._search_source(query)
+        # This is the preselected independent index, not another endpoint for
+        # the stopped ordinary provider. Keep both provider objects and their
+        # access state intact; never fall through to another index on a stop.
+        provider, error = self._providers.get(selected), self._provider_errors.get(selected)
+        if provider is not None:
+            if getattr(provider, "quota_exhausted", False):
+                return selected, None, SearchError("quota_exhausted", "搜索来源额度已用尽")
+            if getattr(provider, "access_denied", False):
+                return selected, None, SearchError("access_denied", "搜索来源此前拒绝访问")
+            if getattr(provider, "paused_until", 0) > time.monotonic():
+                return selected, None, SearchError("rate_limited", "搜索来源仍在暂停期内")
+        return selected, provider, error
+
+    def _searxng_failover_identity(self):
+        return self.store.cache_key("searxng-failover-source", self._search_identity("searxng"))
+
+    def _searxng_query_engines(self, query):
+        course = query.domain_filters == ["icourse163.org"]
+        video = bool(re.search(r"视频|\bvideo\b", query.query, re.I))
+        primary = (self.settings.searxng_video_engines if not course and video
+                   and self.settings.searxng_video_engines else self.settings.searxng_engines)
+        if not primary:
+            return ()  # Unknown default groups are not an attributable engine scope.
+        return tuple(dict.fromkeys((*primary, *self.settings.searxng_fallback_engines)))
+
+    def _searxng_failover_stop(self, query):
+        """Recheck at election and at the actual fallback request hook."""
+        provider = self._source_objects().get("searxng")
+        if provider is None:
+            return None
+        current = time.monotonic()
+        if getattr(provider, "access_denied", False):
+            return "access_denied"
+        if getattr(provider, "paused_until", 0) > current:
+            return "rate_limited"
+        if getattr(provider, "default_group_pause_until", 0) > current:
+            return "default_group_access_pause"
+        engines = self._searxng_query_engines(query)
+        pauses = getattr(provider, "engine_pauses", {})
+        timeouts = getattr(provider, "engine_timeout_cooldowns", {})
+        if any(pauses.get(engine, 0) > current and (timeouts.get(engine, 0) <= current
+               or pauses[engine] > timeouts[engine]) for engine in engines):
+            return "engine_access_pause"
+        return None
+
+    def _searxng_failover_reason(self, query):
+        platform = self._query_platform(query)
+        if not platform or self._searxng_failover_stop(query):
+            return None
+        provider = self._source_objects().get("searxng")
+        if provider is None:
+            return None
+        current = time.monotonic()
+        engines = self._searxng_query_engines(query)
+        pauses = getattr(provider, "engine_pauses", {})
+        timeouts = getattr(provider, "engine_timeout_cooldowns", {})
+        record = self._searxng_failover_health.get((platform, self._searxng_failover_identity()))
+        if record and record["until"] > current:
+            return record["reason"]
+        # Explicit engine health, not last_status or an unrelated platform's
+        # fault. An available configured fallback engine may still be used.
+        if engines and all(timeouts.get(engine, 0) > current and pauses.get(engine, 0) > current
+                           for engine in engines):
+            return "engine_timeout_cooldown"
+        return None
+
+    def _observe_searxng_attempt(self, job, attempt):
+        """Elect only from an actual failed observation, preserving its clock."""
+        if not self._failover_enabled() or attempt.get("provider") != "searxng":
+            return False
+        try:
+            query = Query(knowledge_point_id=attempt["knowledge_point_id"], query=attempt["query"],
+                          domain_filters=attempt["domain_filters"])
+        except (ValueError, TypeError, KeyError):
+            return False
+        platform = self._query_platform(query)
+        if not platform or self.settings.search_provider_for(platform) != "searxng":
+            return False
+        if not any(point["knowledge_point_id"] == query.knowledge_point_id for point in job["knowledge_points"]):
+            return False
+        requests = attempt.get("provider_requests", [])
+        if (not isinstance(requests, list) or not requests
+                or any(not isinstance(row, dict) or row.get("provider") != "searxng" for row in requests)):
+            return False
+        warnings = [*attempt.get("upstream_warnings", []),
+                    *(warning for row in requests for warning in row.get("upstream_warnings", []))]
+        if (attempt.get("candidate_count") or attempt.get("status") != "failed"
+                or attempt.get("error_code") not in {"search_timeout", "search_unavailable", "upstream_engine_failed"}
+                or any(row.get("reason_code") in {"captcha", "access_denied", "rate_limited", "suspended"}
+                       or row.get("code") == "no_topic_signal" for row in warnings)):
+            return False
+        try:
+            stamp = datetime.fromisoformat(attempt["executed_at"].replace("Z", "+00:00"))
+            if stamp.tzinfo is None:
+                return False
+            remaining = 300 - (datetime.now(timezone.utc) - stamp).total_seconds()
+            if not 0 < remaining <= 300:
+                return False
+        except (ValueError, TypeError, KeyError):
+            return False
+        self._searxng_failover_health[(platform, self._searxng_failover_identity())] = {
+            "until": time.monotonic() + remaining, "reason": attempt["error_code"]}
+        return True
+
+    def restore_searxng_failover_health(self, job_id, *, source_identity):
+        """Replay only this Store's real attempts from an explicitly bound runtime.
+
+        No requests or DB writes; old timestamps cannot renew the 300s window.
+        The caller must supply the original runtime's nonsecret source identity.
+        """
+        if source_identity != self._search_identity("searxng"):
+            return 0
+        job = self.store.get_job(job_id)
+        return sum(self._observe_searxng_attempt(job, attempt) for attempt in self.store.attempts(job_id))
 
     def _source_objects(self):
         return {**self._providers, self.settings.search_provider: self.provider}
@@ -349,7 +501,7 @@ class JobService:
             "renderer": self._renderer_profile()})
 
     def _mooc_discovery_policy(self, request):
-        if self.settings.teaching_match_enabled or "icourse163" not in request.preferred_platforms:
+        if "icourse163" not in request.preferred_platforms:
             return None
         if not (self.settings.shared_course_library_enabled or self.settings.mooc_gap_search_enabled):
             return None
@@ -376,7 +528,8 @@ class JobService:
             # Look past matching semesters of the same course, while retaining
             # the library's configured bound and each entry's own evidence.
             for hit in self.course_library.lookup(point, profile,
-                    limit=self.settings.shared_course_library_max_candidates):
+                    limit=self.settings.shared_course_library_max_candidates,
+                    request=state["request"], allow_related=True):
                 family = course_family_key(hit["resource"]["canonical_url"])
                 if not family or family in families:
                     continue
@@ -432,12 +585,82 @@ class JobService:
             if resource.get("course_library") and not self._library_resource_current(resource):
                 continue
             evidence = self.store.evidence(job["job_id"], rid)
-            if (assess_mooc_relevance(point, resource, evidence)["display_eligible"]
+            if (assess_mooc_relevance(self._mooc_assessment_point(point), resource, evidence)["display_eligible"]
                     and discovered_video(point, resource, evidence)):
                 key = course_family_key(resource["canonical_url"])
                 if key:
                     urls.add(key)
         return len(urls)
+
+    @staticmethod
+    def _mooc_assessment_point(point):
+        if not point.get("technology"):
+            return point
+        from .professional_concepts import contextual_concept_name
+        return {**point, "text": contextual_concept_name(point["text"], point["technology"])}
+
+    def _seed_public_library(self, job, state):
+        """Mobile persistent library supplies public facts, never user matches."""
+        public = getattr(self, "public_library", None)
+        if public is None or job.get("public_library_reuse", {}).get("loaded"):
+            return
+        imported, pairs = set(), 0
+        for point in state["points"]:
+            for hit in public.lookup(point, state["request"], limit=12):
+                resource, observations = deepcopy(hit["resource"]), deepcopy(hit["evidence"])
+                if resource.get("platform") == "icourse163" and self.course_library is not None:
+                    # Reuse the existing outline receipt validator. A related
+                    # public card alone is never a full-outline assessment.
+                    profile = self._course_library_profile()
+                    self.course_library.observe(resource, observations, profile)
+                    current = next((row for row in self.course_library.lookup(point, profile,
+                        limit=self.settings.shared_course_library_max_candidates,
+                        request=state["request"], allow_related=True)
+                        if row["resource"]["canonical_url"] == resource["canonical_url"]), None)
+                    if current:
+                        resource, observations = deepcopy(current["resource"]), deepcopy(current["evidence"])
+                rid = "res_" + hashlib.sha256(resource["canonical_url"].encode()).hexdigest()[:24]
+                if rid not in state["resources"]:
+                    digest = hit["content_sha256"]
+                    ids = {row["evidence_id"]: "ev_" + str(uuid4()) for row in observations}
+                    for row in observations:
+                        row["evidence_id"] = ids[row["evidence_id"]]
+                    for proof in resource.get("field_provenance", {}).values():
+                        if isinstance(proof, dict) and proof.get("evidence_id") in ids:
+                            proof["evidence_id"] = ids[proof["evidence_id"]]
+                    for chapter in resource.get("chapters", []):
+                        if isinstance(chapter, dict) and chapter.get("evidence_id") in ids:
+                            chapter["evidence_id"] = ids[chapter["evidence_id"]]
+                    resource.update(resource_id=rid, public_library={"course_id": hit["course_id"],
+                        "observed_at": hit["observed_at"], "expires_at": hit["expires_at"], "content_sha256": digest},
+                        cache={"hit": True, "stale": False, "cached_at": hit["observed_at"]})
+                    state["resources"][rid] = resource
+                    state["started"].add(rid)
+                    self.store.save_resource(job["job_id"], resource)
+                    for row in observations:
+                        pid = point["knowledge_point_id"] if row.get("kind") == "course_library" else None
+                        self.store.add_evidence(job["job_id"], rid, pid, row)
+                    imported.add(rid)
+                else:
+                    for row in observations:
+                        if row.get("kind") == "course_library":
+                            row["evidence_id"] = "ev_" + str(uuid4())
+                            self.store.add_evidence(job["job_id"], rid, point["knowledge_point_id"], row)
+                if rid not in state["candidate_groups"][point["knowledge_point_id"]]:
+                    state["candidate_groups"][point["knowledge_point_id"]].append(rid)
+                    pairs += 1
+        job["public_library_reuse"] = {"loaded": True, "resources": len(imported), "point_pairs": pairs,
+            "scope": "public source facts; current-point relevance reassessed; no teaching claims copied"}
+        job["progress"]["public_library_hit_pairs"] = pairs
+        job["progress"]["library_hit_pairs"] = job["progress"].get("library_hit_pairs", 0) + pairs
+        if imported:
+            state["ready"] = True
+            state["changed"].set()
+        self._save(job)
+
+    def _public_library_current(self, resource, evidence):
+        public = getattr(self, "public_library", None)
+        return public is not None and public.is_current(resource, evidence)
 
     def _library_resource_current(self, resource):
         return bool(self.settings.shared_course_library_enabled and self.course_library is not None
@@ -506,7 +729,7 @@ class JobService:
         if idempotency_key is not None and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}", idempotency_key):
             raise ValueError("幂等键格式无效")
         normalized = request.model_dump()
-        for optional_target in ("learning_targets", "learning_skills"):
+        for optional_target in ("learning_targets", "learning_skills", "topic_technologies"):
             if not normalized.get(optional_target):
                 normalized.pop(optional_target, None)
         for field in ("project_context", "technical_version"):
@@ -524,6 +747,13 @@ class JobService:
                if search_plan["policy"] != "platform-rounds-v1" else {})} if search_plan else normalized
         if discovery_policy:
             identity = {**identity, "discovery_policy": discovery_policy}
+        if search_plan and search_plan.get("followup_point_indexes") is not None:
+            identity = {**identity, "followup_point_indexes": search_plan["followup_point_indexes"]}
+        failover_policy = ({"provider": self.settings.searxng_failover_provider, "version": 1,
+                            "cooldown_seconds": 300, "scope": "parallel-platform-slots"}
+                           if search_plan and self.settings.searxng_failover_provider else None)
+        if failover_policy:
+            identity = {**identity, "source_failover_policy": failover_policy}
         request_hash = self.store.cache_key("request", identity)
         if idempotency_key:
             prior = self.store.idempotent_request(idempotency_key)
@@ -541,7 +771,9 @@ class JobService:
             requested_rounds = search_plan["platform_rounds"] if search_plan else None
             # Equal request text is not an equal search plan after an operator
             # changes per-source limits. Old persisted v1 plans mean two rounds.
-            if prior_rounds != requested_rounds or existing.get("discovery_policy") != discovery_policy:
+            if (prior_rounds != requested_rounds or existing.get("discovery_policy") != discovery_policy
+                    or (prior_plan or {}).get("followup_point_indexes") != (search_plan or {}).get("followup_point_indexes")
+                    or existing.get("source_failover_policy") != failover_policy):
                 existing = None
         # Project initial passes must reach their own cross-batch barrier.
         # Idempotency still reuses this exact batch; unrelated consumers cannot
@@ -574,7 +806,8 @@ class JobService:
         job = {"job_id": job_id, "status": "queued", "phase": "queued", "created_at": stamp, "updated_at": stamp,
                "request": normalized, "knowledge_points": [{"knowledge_point_id": str(uuid4()), "text": text,
                    **({"learning_targets": list(request.learning_targets[text])} if request.learning_targets.get(text) else {}),
-                   **({"learning_skills": list(request.learning_skills[text])} if request.learning_skills.get(text) else {})}
+                   **({"learning_skills": list(request.learning_skills[text])} if request.learning_skills.get(text) else {}),
+                   **({"technology": request.topic_technologies[text]} if request.topic_technologies.get(text) else {})}
                    for text in request.knowledge_points],
                "progress": {"queries_planned": 0, "queries_completed": 0, "search_requests": 0, "search_successes": 0,
                             "search_failures": 0, "candidates_discovered": 0, "resources_discovered": 0,
@@ -584,9 +817,14 @@ class JobService:
                            "deadline_seconds": self.settings.deadline_seconds}, "warnings": [], "errors": []}
         if search_plan:
             job["platform_search"] = {**search_plan, "defer_followups": defer_platform_followups}
+            if search_plan.get("budget_limited"):
+                job["budget_limited"] = True
+                job["warnings"].append("已预留所有知识点和来源的首轮；后续补搜按现有总预算公平轮转，未增加请求额度。")
             job["budgets"].update({key: value for key, value in search_plan.items() if key != "policy"})
         if discovery_policy:
             job["discovery_policy"] = discovery_policy
+        if failover_policy:
+            job["source_failover_policy"] = failover_policy
         if request.learning_skills and self.settings.teaching_match_enabled:
             job["progress"].update(teaching_match_calls=0, teaching_pairs_evaluated=0, teaching_cache_hits=0,
                 teaching_review_calls=0, teaching_claims_reviewed=0, teaching_claims_accepted=0,
@@ -755,20 +993,28 @@ class JobService:
                 FETCH_DEADLINE_AT.reset(deadline_token)
 
     async def _run_job(self, job):
+        if job.get("platform_search", {}).get("budget_limited"):
+            job["budget_limited"] = True
         job.update(status="running", phase="expanding")
         self._save(job)
         try:
             async with asyncio.timeout_at(FETCH_DEADLINE_AT.get()):
                 await self._execute(job)
             progress = job["progress"]
-            if progress["search_successes"] == 0 and progress["search_failures"] and not progress.get("library_hit_pairs"):
+            if (progress["search_successes"] == 0 and progress["search_failures"] and not progress.get("library_hit_pairs")
+                    and not job.get("ai_video_fallback", {}).get("covered_points")
+                    and not job.get("grounded_related", {}).get("accepted")):
                 job["status"] = "failed"
             elif progress["search_failures"] or job.pop("budget_limited", False) or job.pop("upstream_partial", False):
                 job["status"] = "partial"
             else:
                 job["status"] = "completed"
         except TimeoutError:
-            job["status"] = "partial" if (job["progress"]["search_successes"] or job["progress"].get("library_hit_pairs")) else "failed"
+            if job.get("platform_search"):
+                job["platform_search"].update(followup_pending=False, finished=True, stopped_reason="job_deadline")
+            job["status"] = "partial" if (job["progress"]["search_successes"] or job["progress"].get("library_hit_pairs")
+                or job.get("ai_video_fallback", {}).get("covered_points")
+                or job.get("grounded_related", {}).get("accepted")) else "failed"
             self._warn(job, "达到任务期限，已保存目前结果；搜索与页面补全范围受限")
             unfinished = job["progress"]["details_attempted"] - job["progress"]["details_completed"]
             if unfinished > 0:
@@ -787,7 +1033,11 @@ class JobService:
             raise
         except Exception:
             # External exception messages can contain Authorization or internal service addresses.
-            job["status"] = "partial" if (job["progress"]["search_successes"] or job["progress"].get("library_hit_pairs")) else "failed"
+            if job.get("platform_search"):
+                job["platform_search"].update(followup_pending=False, finished=True, stopped_reason="processing_error")
+            job["status"] = "partial" if (job["progress"]["search_successes"] or job["progress"].get("library_hit_pairs")
+                or job.get("ai_video_fallback", {}).get("covered_points")
+                or job.get("grounded_related", {}).get("accepted")) else "failed"
             job["errors"].append({"code": "internal_error", "message": "任务处理异常，已保留可用证据；请检查服务端运行条件"})
         job.pop("budget_limited", None)
         job.pop("upstream_partial", None)
@@ -806,6 +1056,11 @@ class JobService:
                                               (job_id, consumer_key)).fetchone()
         if not owner:
             raise ValueError("该项目未持有此检索任务")
+        if job.get("platform_search_active_seconds", 0) >= job["budgets"]["deadline_seconds"]:
+            plan.update(followup_pending=False, finished=True, stopped_reason="job_deadline")
+            job.update(phase="done", status="partial")
+            self._save(job)
+            return False
         if not self.accepting or (self.worker is not None and self.worker.done()):
             raise AdmissionRejected("worker_unavailable", "补充检索工作进程不可用，首轮结果已保留", status=503)
         if self.queue.full():
@@ -870,6 +1125,8 @@ class JobService:
                  "reserved": job["progress"]["details_attempted"] + job["progress"].get("catalog_pages_attempted", 0),
                  "cursor": 0, "network_slots": asyncio.Semaphore(self.settings.global_concurrency)}
         self._seed_course_library(job, state)
+        self._seed_public_library(job, state)
+        fallback_reserve = reserve_fallback(self, job, state)
         # Platform search signals readiness as soon as candidates are persisted;
         # details can verify and publish courses while the first round continues.
         reserve = (min(self.settings.teaching_match_max_calls_per_job * teaching_match.DEADLINE_SECONDS
@@ -877,7 +1134,7 @@ class JobService:
                        self.settings.deadline_seconds / 4) if request.learning_skills and self.llm and self.settings.teaching_match_enabled else 0)
         source_deadline = FETCH_DEADLINE_AT.get()
         try:
-            async with asyncio.timeout_at(source_deadline - reserve if source_deadline is not None else None):
+            async with asyncio.timeout_at(source_deadline - reserve - fallback_reserve if source_deadline is not None else None):
                 async with asyncio.TaskGroup() as group:
                     group.create_task(self._run_details(job, state))
                     try:
@@ -892,12 +1149,26 @@ class JobService:
                         job["phase"] = "fetching"
                         self._save(job)
         except TimeoutError:
-            if not reserve:
+            if not (reserve or fallback_reserve):
                 raise
             job["budget_limited"] = True
-            self._warn(job, "来源检索已到达预留时限，已保留当前资料并为技能核对留出时间；可调整目标后重试。")
+            self._warn(job, "来源检索已到达预留时限，已保留当前资料并继续核对视频；可调整目标后重试。")
+            plan = job.get("platform_search")
+            if plan and not (plan.get("defer_followups") and plan.get("initial_done") and plan.get("followup_pending")):
+                # A timed-out active round is not the project's intentional
+                # first-pass barrier. Spend the reserve on remaining gaps now.
+                plan.update(followup_pending=False, finished=True, stopped_reason="source_deadline")
+        if not job.get("platform_search", {}).get("followup_pending"):
+            try:
+                async with asyncio.timeout_at(source_deadline - reserve if source_deadline is not None else None):
+                    await run_ai_video_fallback(self, job, state, effective_deadline=source_deadline - reserve if source_deadline is not None else None)
+            except TimeoutError:
+                job["budget_limited"] = True
+            finally:
+                state["detail_limit"] = self.settings.max_detail_pages
         self._refresh_gap_coverage(job, state)
-        limited = [r for r in resources.values() if r.get("metadata_evidence_level") == "search"]
+        limited = [r for r in resources.values() if r.get("metadata_evidence_level") == "search"
+                   and any(row.get("kind") == "search" for row in self.store.evidence(job["job_id"], r["resource_id"]))]
         if limited:
             self._warn(job, f"{len(limited)} 个候选仅搜索发现，页面详情未核验；不代表可播放或免费")
         unknown = sum(not has_type_evidence(resource, self.store.evidence(job["job_id"], resource["resource_id"])) for resource in resources.values())
@@ -1142,7 +1413,7 @@ class JobService:
         async def check_request_budget():
             # The global limit always wins. A priority-query slice only defers
             # optional backup/retry/discovery work to protect other points.
-            if job["progress"]["search_requests"] >= self.settings.max_search_requests:
+            if job["progress"]["search_requests"] >= state.get("search_limit", self.settings.max_search_requests):
                 raise BudgetReached()
             if (query_request_limit is not None
                     and job["progress"]["search_requests"] - query_request_start >= query_request_limit):
@@ -1607,9 +1878,12 @@ class JobService:
         extractor_version = (15 if page_host == "www.freecodecamp.org" else
                              18 if page_host in {"www.techwithtim.net", "techwithtim.net"} else
                              15 if page_host in {"www.icourse163.org", "icourse163.org"} else
-                             14 if page_host in {"www.bilibili.com", "bilibili.com"} else 13)
+                             18 if page_host in {"www.bilibili.com", "bilibili.com"} else 13)
         key = self.store.cache_key("page", {"url": resource["canonical_url"], "extractor_version": extractor_version,
             **({"mooc_public_route_version": 2} if page_host in {"www.icourse163.org", "icourse163.org"} else {}),
+            **({"bilibili_metadata_size_policy": {"version": 1,
+                "max_bytes": self.settings.bilibili_public_metadata_max_bytes,
+                "max_state_chars": 4_000_000}} if page_host in {"www.bilibili.com", "bilibili.com"} else {}),
             "payload_version": 2,
             "platform_policy_review": policy_review,
             "enabled": self.settings.fetch_enabled, "allowed_restricted_hosts": self.settings.allowed_restricted_hosts,
@@ -1672,6 +1946,13 @@ class JobService:
     def _detail_queues(self, job, state):
         queues = {}
         for point in state["points"]:
+            if point.get("technology"):
+                from .professional_concepts import contextual_concept_name
+                try:
+                    point = {**point, "text": contextual_concept_name(point["text"], point["technology"])}
+                except ValueError:
+                    queues[point["knowledge_point_id"]] = []
+                    continue
             entries = []
             mooc_entries = []
             public_priorities = {}
@@ -1681,12 +1962,24 @@ class JobService:
                     continue
                 resource = state["resources"][rid]
                 evidence = self.store.evidence(job["job_id"], rid, point["knowledge_point_id"])
-                if is_mooc_resource(resource) and not self.settings.teaching_match_enabled:
+                provisional = None
+                if is_mooc_resource(resource):
                     assessment = assess_mooc_relevance(point, resource, evidence)
-                    if assessment["probe_eligible"]:
+                    if assessment["probe_eligible"] and (not self.settings.teaching_match_enabled
+                            or teaching_probe_eligible(point, resource, evidence)):
                         mooc_entries.append((assessment["probe_priority"], rid))
-                    continue
-                provisional = rank_resource(point, resource, self._teaching_evidence(evidence), state["request"], require_type=False)
+                        continue
+                    if (not self.settings.teaching_match_enabled or any(code in assessment["reason_codes"] for code in (
+                            "unsupported_public_course_route", "missing_same_point_search_observation"))):
+                        continue
+                    # Keep existing genuinely supported atomic terms (including
+                    # Chinese-only names). A new broad-course probe is additive;
+                    # it is not a mandatory owner parser for old positive ranks.
+                    provisional = rank_resource(point, resource, self._teaching_evidence(evidence), state["request"])
+                    if not provisional:
+                        continue
+                else:
+                    provisional = rank_resource(point, resource, self._teaching_evidence(evidence), state["request"], require_type=False)
                 if provisional:
                     # Spend scarce metadata requests on already evidenced topic
                     # support before higher lexical-only discovery scores. This
@@ -1908,7 +2201,7 @@ class JobService:
                             if host in active_hosts:
                                 continue
                             key, cached = self._page_cache(resource)
-                            if not cached and state["reserved"] >= self.settings.max_detail_pages:
+                            if not cached and state["reserved"] >= state.get("detail_limit", self.settings.max_detail_pages):
                                 continue
                             selected = rid, host, key, cached, points[index]["knowledge_point_id"]
                             state["cursor"] = (index + 1) % len(points)
@@ -1964,9 +2257,10 @@ class JobService:
                 async def reserve_catalog_page():
                     # This callback does not yield before reservation; all resource
                     # and follow-up pages consume the same per-job detail budget.
-                    if state["reserved"] >= self.settings.max_detail_pages:
-                        job["budget_limited"] = True
-                        self._warn(job, "达到详情页预算，公开目录导航页未继续读取")
+                    if state["reserved"] >= state.get("detail_limit", self.settings.max_detail_pages):
+                        if state["reserved"] >= self.settings.max_detail_pages:
+                            job["budget_limited"] = True
+                            self._warn(job, "达到详情页预算，公开目录导航页未继续读取")
                         return False
                     state["reserved"] += 1
                     job["progress"]["catalog_pages_attempted"] += 1
@@ -1984,14 +2278,17 @@ class JobService:
             if ttl > 0:
                 self.store.cache_set(key, "page", enriched, ttl)
         enriched = unavailable_video_projection(enriched, self.store.evidence(job["job_id"], rid))
+        # Navigation leads stay private to this run/cache, outside Resource and
+        # all public recommendation facts. The target always needs its own fetch.
+        state.setdefault("observed_video_leads", {})[rid] = (
+            enriched.get("_video_leads", []) if not page_cache_info.get("stale") else [])
         if enriched.get("catalog_fetch_status") not in {None, "fetched", "success"}:
             job["upstream_partial"] = True
             self._warn(job, "部分公开目录页未完成补全，已保存主页证据；目录状态与失败原因可在资源详情查看")
         # Read the current resource again: a later search can have supplied a type
         # while its metadata request was in flight. Never replace the saved URL.
         resource = state["resources"][rid]
-        if cached:
-            resource["cache"] = page_cache_info
+        resource["cache"] = page_cache_info
         for field, value in enriched.items():
             if field not in {"resource_id", "url", "canonical_url", "evidence", "field_provenance", "discovered_at", "cache"}:
                 if value is not None and not (field == "resource_type" and value == "unknown") and not (
@@ -2042,6 +2339,9 @@ class JobService:
 
     def _rank(self, job, point, resource, request):
         evidence = self.store.evidence(job["job_id"], resource["resource_id"], point["knowledge_point_id"])
+        if not verified_ai_resource(resource, self.store.evidence(job["job_id"], resource["resource_id"])):
+            self.store.delete_match(job["job_id"], point["knowledge_point_id"], resource["resource_id"])
+            return
         if self._sitemap_only(evidence):
             if not self._sitemap_page_covers(point, resource, evidence, request):
                 self.store.delete_match(job["job_id"], point["knowledge_point_id"], resource["resource_id"])
@@ -2056,11 +2356,73 @@ class JobService:
         else:
             self.store.delete_match(job["job_id"], point["knowledge_point_id"], resource["resource_id"])
 
+    @staticmethod
+    def _evidence_sort_key(match, resource, evidence):
+        """Prefer actual supporting own body/catalog, without creating support.
+
+        Called only after the original rank/identity gates. A page title, an
+        arbitrary catalog, and a foreign/stale/unbound record earn no priority.
+        Original scores and evidence/coverage remain unchanged.
+        """
+        supporting = set(match.get("supporting_evidence_ids") or [])
+        fallback = (0, -match["ranking_score"], match["resource_id"])
+        cache = resource.get("cache")
+        if cache is not None and (not isinstance(cache, dict) or cache.get("stale")):
+            return fallback
+        provenance = resource.get("field_provenance")
+        provenance = provenance if isinstance(provenance, dict) else {}
+        try:
+            own_urls = {normalize_url(resource[k]) for k in ("url", "canonical_url", "resolved_url") if resource.get(k)}
+        except (UnsafeURL, TypeError, ValueError):
+            own_urls = set()
+        own_support = False
+        for row in evidence:
+            cache = row.get("cache")
+            if (row.get("evidence_id") not in supporting or not row.get("source")
+                    or row.get("source") == "search"
+                    or (cache is not None and (not isinstance(cache, dict) or cache.get("stale")))):
+                continue
+            try:
+                if normalize_url(row.get("url")) not in own_urls:
+                    continue
+            except (UnsafeURL, TypeError, ValueError):
+                continue
+            field = row.get("field")
+            if row.get("kind") == "page" and field in {"description", "video_topic_summary"}:
+                proof = provenance.get(field)
+                if not isinstance(proof, dict):
+                    continue
+                try:
+                    bound = (proof.get("evidence_id") == row["evidence_id"]
+                             and proof.get("source") == row["source"]
+                             and normalize_url(proof.get("url")) in own_urls
+                             and resource.get(field) == row.get("text"))
+                except (UnsafeURL, TypeError, ValueError):
+                    bound = False
+                own_support = own_support or bound
+            elif row.get("kind") == "catalog":
+                try:
+                    raw = json.loads(row.get("text") or "")
+                except (TypeError, ValueError):
+                    continue
+                if not isinstance(raw, dict) or not raw.get("title"):
+                    continue
+                for chapter in resource.get("chapters") or []:
+                    if (not isinstance(chapter, dict) or chapter.get("evidence_id") != row["evidence_id"]
+                            or chapter.get("source") != row["source"]):
+                        continue
+                    # All source fields must agree, not merely a title keyword.
+                    if all(chapter.get(key) == value for key, value in raw.items()):
+                        own_support = True
+        return (-int(own_support), -match["ranking_score"], match["resource_id"])
+
     async def _rerank(self, job, resources):
         matches = self.store.matches(job["job_id"])
         for point in job["knowledge_points"]:
             group = sorted((m for m in matches if m["knowledge_point_id"] == point["knowledge_point_id"]
-                            and m.get("topic_evidence_status", "supported") == "supported"), key=lambda m: -m["ranking_score"])[:15]
+                            and m.get("topic_evidence_status", "supported") == "supported"),
+                           key=lambda m: self._evidence_sort_key(m, resources[m["resource_id"]],
+                               self.store.evidence(job["job_id"], m["resource_id"], point["knowledge_point_id"])))[:15]
             if not group:
                 continue
             candidates = []
@@ -2103,6 +2465,12 @@ class JobService:
         resources, matches = self.store.resources(job_id), self.store.matches(job_id)
         stored_matches = {(m["knowledge_point_id"], m["resource_id"]): m for m in matches}
         all_evidence = {rid: self.store.evidence(job_id, rid) for rid in resources}
+        resources = {rid: resource for rid, resource in resources.items()
+                     if (not resource.get("public_library") or self._public_library_current(resource, all_evidence[rid]))
+                     and (not resource.get("course_library") or self._library_resource_current(resource))
+                     and resource.get("requires_payment") is not True
+                     and not has_known_media_fault(resource, all_evidence[rid])
+                     and verified_ai_resource(resource, all_evidence[rid])}
         for rid, resource in resources.items():
             resource = resources[rid] = unavailable_video_projection(resource, all_evidence[rid])
             resource = resources[rid] = project_unconfirmed_video_shell(resource, all_evidence[rid])
@@ -2120,7 +2488,10 @@ class JobService:
             pointer_pools = _topic_pointer_reservoir(point)
             for rid, resource in resources.items():
                 observed = self.store.evidence(job_id, rid, point["knowledge_point_id"])
-                linked = any(row.get("kind") == "search" and row.get("knowledge_point_id") in {None, point["knowledge_point_id"]} for row in observed)
+                linked = any((row.get("kind") in {"search", "ai_suggestion"}
+                              and row.get("knowledge_point_id") in {None, point["knowledge_point_id"]})
+                             or (row.get("kind") == "page_link"
+                                 and row.get("knowledge_point_id") == point["knowledge_point_id"]) for row in observed)
                 decision = job.get("teaching_decisions", {}).get(point["knowledge_point_id"], {}).get(rid)
                 if decision is None:
                     decision = stored_matches.get((point["knowledge_point_id"], rid), {}).get("_teaching_decision")
@@ -2153,7 +2524,33 @@ class JobService:
                         for pointer in teaching_match.topic_pointers(pair)[:6]:
                             _reserve_topic_pointer(pointer_pools, point, resource, all_evidence[rid], pointer)
             related_topic_pointers = _display_topic_pointers(pointer_pools)
-            assessed.sort(key=lambda m: (-m["ranking_score"], m["resource_id"]))
+            assessed.sort(key=lambda m: self._evidence_sort_key(m, resources[m["resource_id"]], all_evidence[m["resource_id"]]))
+            # One visible course entry per identified same-platform family
+            # when no offering is known. Status outranks evidence for choosing
+            # that representative; existing order wins within the same status.
+            # Review/related observations are never removed by this projection.
+            course_keys, representatives = {}, {}
+            status_priority = {"supported": 0, "partial": 1}
+            for match in assessed:
+                status = match["topic_evidence_status"]
+                if status not in status_priority:
+                    continue
+                resource = resources[match["resource_id"]]
+                identity = resource.get("course_identity") or {}
+                family = identity.get("family_id")
+                if (identity.get("status") != "identified" or not family
+                        or identity.get("role") != "course"
+                        or identity.get("offering_id") is not None):
+                    continue
+                key = (resource["platform"], family)
+                course_keys[match["resource_id"]] = key
+                previous = representatives.get(key)
+                if (previous is None or status_priority[status]
+                        < status_priority[previous["topic_evidence_status"]]):
+                    representatives[key] = match
+            assessed = [match for match in assessed
+                        if match["resource_id"] not in course_keys
+                        or representatives[course_keys[match["resource_id"]]] is match]
             def render(matches):
                 return diversify([{"resource": resources[m["resource_id"]], "match": m,
                     "evidence": all_evidence[m["resource_id"]]} for m in matches], self.settings.max_results_per_point)
@@ -2179,13 +2576,46 @@ class JobService:
         displayed = [item["resource"] for group in groups for item in [*group["items"],
             *group["partial_items"], *group["review_items"],
             *(item for key in ("platform_items", "partial_platform_items", "review_platform_items") for items in group[key].values() for item in items)]]
+        self._add_related_recommendations(groups, resources, all_evidence, request, job=job)
         return {"job_id": job_id, "status": job["status"], "groups": groups, "warnings": job["warnings"],
+                "recommendation_policy": RECOMMENDATION_POLICY,
                 "search_attempts": self.store.attempts(job_id), "identity_summary": summarize_course_identities(displayed)}
+
+    def _add_related_recommendations(self, groups, resources, evidence, request, *, job=None):
+        read_cache = getattr(self, "_read_related_cache", None)
+        if read_cache is None:
+            self._read_related_cache = read_cache = ReadRelatedCache()
+        for group in groups:
+            # This projector reads only these point inputs. Display sections
+            # change as unrelated candidates arrive and must not invalidate
+            # unchanged point/resource pairs. MOOC assessment retains its full
+            # group below; its complete assessment is separately sealed.
+            related_point = {key: group.get(key) for key in ("knowledge_point_id", "text", "technology")}
+            qualified = {row["resource"]["resource_id"]: row["mooc_relevance"]
+                         for row in group.get("discovery_items", []) if row.get("mooc_relevance", {}).get("display_eligible")}
+            for rid, resource in resources.items():
+                if is_mooc_resource(resource):
+                    assessment = assess_mooc_relevance(self._mooc_assessment_point(group), resource, evidence.get(rid, []))
+                    if assessment.get("status") == "outline_supported" and assessment.get("display_eligible"):
+                        qualified[rid] = assessment
+            rows, platforms = read_cache.recommendations(related_point, resources, evidence, request,
+                self.settings.max_results_per_point, qualified_outlines=qualified,
+                grounded_decisions=(job or {}).get("grounded_related", {}).get("decisions", {}).get(group["knowledge_point_id"], {}))
+            group.update(related_recommendations=rows, related_platform_recommendations=platforms,
+                         recommendation_policy=RECOMMENDATION_POLICY,
+                         total_related_recommendations=len(rows),
+                         outline_evidence_summary={"qualified_course_count": len(qualified),
+                            "resource_ids": sorted(qualified), "related_reference_count": len(rows),
+                            "counts_are_independent": True})
 
     def _discovery_results(self, job):
         """Keep video discovery; require own-course outline support for MOOC."""
         resources = self.store.resources(job["job_id"])
         evidence = {rid: self.store.evidence(job["job_id"], rid) for rid in resources}
+        resources = {rid: resource for rid, resource in resources.items()
+                     if resource.get("requires_payment") is not True
+                     and not has_known_media_fault(resource, evidence[rid])
+                     and verified_ai_resource(resource, evidence[rid])}
         for rid, resource in resources.items():
             resources[rid] = unavailable_video_projection(resource, evidence[rid])
         groups = []
@@ -2233,11 +2663,17 @@ class JobService:
                     "recommended_count": sum(bool(row.get("mooc_relevance")) for row in rows),
                     "status_counts": dict(Counter(row["assessment"]["status"] for row in mooc_diagnostics)),
                     "candidates": mooc_diagnostics}})
+        # Historical cancelled jobs can have no request or groups. Reading a
+        # terminal empty snapshot must not invent a request or fail the stream.
+        if groups:
+            self._add_related_recommendations(groups, resources, evidence, SearchRequest.model_validate(job["request"]), job=job)
         return {"job_id": job["job_id"], "status": job["status"], "groups": groups,
                 "discovery_only": True, "warnings": job["warnings"],
+                "recommendation_policy": RECOMMENDATION_POLICY,
                 "search_attempts": self.store.attempts(job["job_id"])}
 
     def capabilities(self):
+        from . import grounded_related
         config = {"searxng": bool(self.settings.searxng_url),
             "tavily": bool(self.settings.tavily_api_key or self.settings.tavily_allow_keyless),
             "serper": bool(self.settings.serper_api_key),
@@ -2286,24 +2722,52 @@ class JobService:
                 policy = dict(policy, basis="本地自用模式已开启：读取匿名公开视频HTML中的元信息和分P目录，不因许可状态预先停止；实际登录、验证码、访问拒绝和robots规则仍独立检查。平台条款记录保留作来源说明。")
             platforms.append({"id": key, "name": name, "discovery": "out_of_scope" if self.settings.search_provider_for(key) == "official_sitemap" and key != "other" else "search", "metadata": metadata,
                 "search_provider": self.settings.search_provider_for(key),
+                **({"metadata_max_bytes": self.settings.bilibili_public_metadata_max_bytes,
+                    "metadata_max_state_chars": 4_000_000} if key == "bilibili" else {}),
                 "search_status": provider_status(self.settings.search_provider_for(key))["status"],
                 "playback": "unknown", "policy_status": status, "source_url": policy.get("source_url"),
                 "reviewed_at": policy.get("reviewed_at"), "policy_basis": policy.get("basis"),
                 "policy_section": policy.get("section"), "terms_date": policy.get("terms_date"),
                 "effective_at": policy.get("effective_at"), "review_method": policy.get("review_method")})
         return {"mode": "live", "search": selected, "teaching_match_enabled": self.settings.teaching_match_enabled,
+                "ai_video_fallback": {"enabled": self.settings.ai_video_fallback_enabled,
+                    "policy_version": "grounded-video-v2", "search_provider": self.settings.ai_video_search_provider,
+                    "retained_candidate_probes_per_point": 3,
+                    "max_recovery_attempts_per_query": 2,
+                    "max_recovery_queries_per_point": 3,
+                    "max_page_link_hops": 1, "max_page_link_probes_per_point": 3,
+                    "exclude_known_paid_videos": True,
+                    "model_configured": callable(getattr(self.llm, "suggest_video_urls", None)),
+                    "max_calls_per_job": 1, "max_urls_per_point": 3,
+                    "requires_verified_page": True, "read_time_model_calls": 0},
+                "related_reference_verification": {"policy_version": grounded_related.VERSION,
+                    "max_batches_per_job": grounded_related.MAX_BATCHES,
+                    "max_model_calls_per_job": grounded_related.MAX_MODEL_CALLS,
+                    "max_pairs_per_batch": grounded_related.MAX_PAIRS,
+                    "max_pairs_per_point": grounded_related.MAX_PER_POINT,
+                    "call_timeout_seconds": grounded_related.CALL_SECONDS,
+                    "independent_positive_review": True, "read_time_model_calls": 0,
+                    "total_deadline_extended": False},
                 "shared_course_library": {"enabled": self.course_library is not None,
+                    "persistent_public_reuse_enabled": getattr(self, "public_library", None) is not None,
                     "ttl_seconds": self.settings.shared_course_library_ttl_seconds,
                     "scope": "public MOOC own-page and outline evidence only; rematched for each knowledge point",
                     "stats": self.course_library.stats() if self.course_library is not None else {}},
-                "mooc_gap_search": {"enabled": self.settings.mooc_gap_search_enabled and not self.settings.teaching_match_enabled,
+            "mooc_gap_search": {"enabled": self.settings.mooc_gap_search_enabled,
+                    "query_refresh_enabled": self.mooc_refresh is not None,
+                    "query_refresh_interval_seconds": self.settings.mooc_refresh_interval_seconds,
                     "target_courses_per_point": self.settings.mooc_target_courses_per_point,
                     "check_wait_seconds": self.settings.mooc_gap_check_wait_seconds},
                 "mooc_relevance": {"schema_version": "mooc-outline-v1",
-                    "enabled": not self.settings.teaching_match_enabled, "policy": "outline_required",
+                    "enabled": True, "policy": "outline_required",
                     "scope": "icourse163 public course outline; every selected subtopic must have bound catalog evidence",
                     "model_calls": 0, "playback_verified": False},
                 "platform_search": {"parallel": self.settings.parallel_platform_search,
+                    "open_web_enabled": self.settings.open_web_search_enabled,
+                    "open_web_scope": "one unrestricted initial query per point within the same hard request budget",
+                    "searxng_failover": {"provider": self.settings.searxng_failover_provider or None,
+                        "configured": self._failover_enabled(), "cooldown_seconds": 300,
+                        "extra_requests_per_slot": 0},
                     "providers": platform_providers,
                     "initial_requests_per_point_per_platform": 1,
                     "followup_requests_per_point_per_platform": max(self.settings.bilibili_search_rounds, self.settings.mooc_search_rounds) - 1,

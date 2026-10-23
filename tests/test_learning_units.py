@@ -8,6 +8,7 @@ from pathlib import Path
 
 import httpx
 import pytest
+from tests.professional_contract_support import flat_proposal
 from pydantic import ValidationError
 
 from backend.app.config import Settings
@@ -21,6 +22,13 @@ from scripts.accept_learning_units import CASES, assess, case_input, offline_ref
 
 def fixture():
     return offline_reference_document(CASES[0], "beginner").model_dump()
+
+
+def professional_fixture():
+    # Explicit mock v5 proposal. fixture() stays the archived task-shaped example
+    # for legacy schema, expanded-quality and historical semantic controls.
+    from tests.professional_contract_support import concept_proposal
+    return concept_proposal(fixture(), {"k1": "事件循环", "k2": "二维坐标系", "k3": "碰撞检测", "k4": "状态机"})
 
 
 def browser_restart_fixture():
@@ -120,13 +128,13 @@ def test_generation_schema_uses_v1_terms_without_removing_optional_historical_st
 
 
 def test_v4_prompt_uses_project_relevant_professional_names_and_modifiable_technology_assumptions():
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v4.1-coherent-professional-terms"
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
     assert "Honor explicitly requested technologies" in SYSTEM_PROMPT
     assert "label it as a modifiable assumption" in SYSTEM_PROMPT
-    assert "technology may be supplied" in SYSTEM_PROMPT and "but is optional" in SYSTEM_PROMPT
+    assert "optional technology" in SYSTEM_PROMPT
     assert "Never invent courses, video links, chapters or source evidence" in SYSTEM_PROMPT
     assert "concise professional noun or technical term" in SYSTEM_PROMPT
-    assert "select terms from the actual requirements" in SYSTEM_PROMPT
+    assert "Analyze the full requested behavior and constraints" in SYSTEM_PROMPT
 
 
 @pytest.mark.parametrize("technology", ["", "Python", "pygame", "turtle", "pandas", "Arduino", "ASP.NET", "Socket.IO", "x" * 80])
@@ -168,41 +176,42 @@ def test_historical_analysis_without_technology_remains_readable_without_a_fresh
 @pytest.mark.asyncio
 async def test_optional_missing_technology_needs_no_generation_repair(missing_all):
     from tests.professional_contract_support import projected_once
-    body = fixture()
+    body = professional_fixture()
     affected = body["knowledge_points"] if missing_all else body["knowledge_points"][:1]
     for point in affected:
         point.pop("technology")
     result, calls = await projected_once(body, case_input(CASES[0], "beginner"), settings())
-    assert len(calls) == 1
+    assert len(calls) == 2
     assert all(point.technology == "" for point in result.knowledge_points[:len(affected)])
 
 
 @pytest.mark.asyncio
 async def test_omitted_technology_is_not_invented_from_other_units_or_a_later_proposal():
     from tests.professional_contract_support import projected_once
-    body = fixture()
+    body = professional_fixture()
     body["knowledge_points"][0].pop("technology")
     result, calls = await projected_once(body, case_input(CASES[0], "beginner"), settings())
-    assert len(calls) == 1 and result.knowledge_points[0].technology == ""
+    assert len(calls) == 2 and result.knowledge_points[0].technology == ""
     assert [p.technology for p in result.knowledge_points[1:]] == [p["technology"] for p in body["knowledge_points"][1:]]
 
 
 @pytest.mark.asyncio
 async def test_fresh_explicitly_general_target_remains_empty_without_repair():
-    body = fixture()
+    body = professional_fixture()
     body["knowledge_points"][0].update(
-        name="Screen coordinates and frame displacement", technology="",
+        name="Screen coordinates", technology="",
         project_task="Calculate the player's initial position and movement within the screen.",
         concepts=["Two dimensional coordinates", "Distance per frame"],
         learning_goal="Relate coordinate changes to visible movement.",
         practice_check="Predict the new position after three frames and verify the arithmetic.")
+    body = flat_proposal(body)
     calls = []
     def respond(req):
         calls.append(req)
         return response(body)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         result = await ProjectAnalyzer(settings(), client).analyze(case_input(CASES[0], "beginner"))
-    assert len(calls) == 1
+    assert len(calls) == 2
     assert result.knowledge_points[0].technology == ""
 
 
@@ -269,20 +278,20 @@ def test_rubric_exposes_unrelated_but_structurally_valid_analysis():
 @pytest.mark.asyncio
 async def test_absent_expanded_profile_and_task_are_not_new_generation_errors():
     from tests.professional_contract_support import projected_once
-    body = fixture()
+    body = professional_fixture()
     body.pop("learner_profile")
     body["knowledge_points"][0].pop("project_task")
     result, calls = await projected_once(body, case_input(CASES[0], "beginner"), settings())
-    assert len(calls) == 1 and result.learner_profile is None
+    assert len(calls) == 2 and result.learner_profile is None
     assert all(p.project_task is None and p.concepts == [] and p.learning_skills == [] for p in result.knowledge_points)
 
 
 @pytest.mark.asyncio
 async def test_quality_repair_gets_controlled_feedback_and_returns_specific_units():
-    original = fixture()
+    original = flat_proposal(professional_fixture())
     invalid = deepcopy(original)
     invalid["knowledge_points"][0]["name"] = "Python基础"
-    invalid["knowledge_points"][0]["project_task"] = "UNTRUSTED_PRIVATE_VALUE"
+    invalid["knowledge_points"][0]["description"] = "UNTRUSTED_PRIVATE_VALUE"
     calls = []
     def respond(req):
         calls.append(json.loads(req.content))
@@ -296,8 +305,8 @@ async def test_quality_repair_gets_controlled_feedback_and_returns_specific_unit
     # The validated draft is now supplied as untrusted proposal data so the
     # model can correct that exact plan. It never becomes repair instructions.
     repair = json.loads(calls[1]["messages"][1]["content"])
-    assert repair["previous_analysis"]["knowledge_points"][0]["project_task"] is None
-    assert "UNTRUSTED_PRIVATE_VALUE" not in json.dumps(repair)
+    assert "project_task" not in repair["previous_analysis"]["knowledge_points"][0]
+    assert repair["previous_analysis"]["knowledge_points"][0]["description"] == "UNTRUSTED_PRIVATE_VALUE"
 
 
 @pytest.mark.asyncio
@@ -305,7 +314,7 @@ async def test_explicit_input_stage_is_preserved_without_generated_learner_profi
     from tests.professional_contract_support import projected_once
     project = case_input(CASES[0], "intermediate")
     assert project.student_level == "intermediate"
-    result, calls = await projected_once(fixture(), project, settings())
+    result, calls = await projected_once(professional_fixture(), project, settings())
     payload = json.loads(calls[0]["messages"][1]["content"])
     assert payload["project"]["student_level"] == "intermediate"
     assert result.learner_profile is None
@@ -319,14 +328,15 @@ async def test_live_harness_stops_at_the_provider_request_budget(monkeypatch):
     monkeypatch.setattr(harness.Settings, "from_env", lambda: settings())
     monkeypatch.setattr(harness, "load_dotenv", lambda *args, **kwargs: None)
     monkeypatch.setattr(harness.httpx, "AsyncClient", lambda **kwargs: real_client(
-        transport=httpx.MockTransport(lambda _: response(fixture())), **kwargs))
+        transport=httpx.MockTransport(lambda _: response(flat_proposal(professional_fixture()))), **kwargs))
     evidence = await harness.run(Namespace(live=True, case=None, levels=["beginner"],
         env_file=Path("unused.env"), max_cases=4, max_requests=1))
     assert evidence["provider_requests"] == 1
-    assert len(evidence["records"]) == 2
-    assert evidence["records"][0]["status"] == "completed"
-    assert evidence["records"][1]["error_code"] == "request_budget_exhausted"
-    assert evidence["records"][1]["provider_requests"] == 0
+    assert len(evidence["records"]) == 1
+    assert evidence["records"][0]["status"] == "failed"
+    assert evidence["records"][0]["error_code"] == "request_budget_exhausted"
+    assert evidence["records"][0]["provider_requests"] == 1
+    assert "analysis" not in evidence["records"][0]  # First draft cannot bypass normalization.
     assert not evidence["automated_passed"]
 
 
@@ -373,12 +383,12 @@ async def test_expanded_analysis_uses_the_final_configured_token_limit():
     calls = []
     def respond(req):
         calls.append(json.loads(req.content))
-        return response(fixture())
+        return response(flat_proposal(professional_fixture()))
     configured = replace(settings(), llm_max_output_tokens=3210)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         document = await ProjectAnalyzer(configured, client).analyze(case_input(CASES[0], "beginner"))
-    assert len(calls) == 1
-    assert calls[0]["max_tokens"] == 3210
+    assert len(calls) == 2
+    assert [call["max_tokens"] for call in calls] == [3210, 12000]
     assert len(document.knowledge_points) == 4
 
 
@@ -485,7 +495,8 @@ async def test_legacy_restart_fixture_is_projected_without_claiming_new_semantic
     body = browser_restart_fixture()
     # The known contradiction remains in this archived semantic example.
     # The restored term generator does not certify or silently fix that behavior.
-    document, calls = await projected_once(body, restart_project(), settings())
-    assert len(calls) == 1
-    assert document.functions[4].acceptance_criteria == body["functions"][4]["acceptance_criteria"]
+    document, calls = await projected_once(body, restart_project(), settings(), concept_names={"k1": "事件循环", "k2": "二维坐标系", "k3": "按键状态", "k4": "碰撞检测", "k5": "文本渲染", "k6": "状态机"})
+    assert len(calls) == 2
+    assert "functions" not in document.model_dump()
+    assert body["functions"][4]["acceptance_criteria"] == "球越过挡板底部后停止游戏循环，并显示游戏结束提示。"
 

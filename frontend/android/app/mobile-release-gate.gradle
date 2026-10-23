@@ -1,0 +1,67 @@
+// Release has no signing configuration. This gate also blocks a debug/remote
+// WebView bundle from accidentally being assembled as a release artifact.
+def verifyLocalReleaseAssets = tasks.register('verifyLocalReleaseAssets') {
+    doLast {
+        def assetsRoot = file('src/main/assets/public')
+        def receiptFile = new File(assetsRoot, 'mobile-build.json')
+        if (!receiptFile.isFile()) throw new GradleException('Run mobile:prepare:release with the deployment HTTPS API origin first.')
+        def receipt = new groovy.json.JsonSlurper().parse(receiptFile)
+        def origin = new URI(receipt.apiBase ?: '')
+        if (receipt.schema != 'mobile-local-assets-v1' || receipt.kind != 'release' ||
+            receipt.releaseEligible != true || receipt.debugLoopback != false || receipt.appId != 'dev.knowledgeguide.sprite' ||
+            origin.scheme != 'https' || !origin.host || !origin.host.contains('.') ||
+            origin.rawUserInfo || origin.rawQuery || origin.rawFragment ||
+            (origin.path && origin.path != '/') || origin.host == 'localhost' ||
+            origin.host.endsWith('.localhost') || origin.host ==~ /[0-9.]+/) {
+            throw new GradleException('Release requires a prepared local bundle and explicit public HTTPS API domain; debug bundles are not releasable.')
+        }
+        def nativeConfig = new groovy.json.JsonSlurper().parse(file('src/main/assets/capacitor.config.json'))
+        if (nativeConfig.server?.containsKey('url') || nativeConfig.server?.containsKey('allowNavigation') ||
+            nativeConfig.server?.cleartext != false || nativeConfig.server?.androidScheme != 'https' ||
+            nativeConfig.android?.allowMixedContent != false || nativeConfig.android?.webContentsDebuggingEnabled != false) {
+            throw new GradleException('Release forbids remote WebView loading, mixed content and forced web debugging.')
+        }
+        def digest = { File item -> java.security.MessageDigest.getInstance('SHA-256').digest(item.bytes).encodeHex().toString() }
+        if (receipt.packageLockSha256 != digest(file('../../package-lock.json')) ||
+            receipt.capacitorConfigSha256 != digest(file('../../capacitor.config.ts'))) {
+            throw new GradleException('Native assets are stale; prepare the release again after configuration/dependency changes.')
+        }
+        if (!(receipt.assets instanceof Map) || !receipt.assets['index.html']) throw new GradleException('Missing packaged index/asset hashes.')
+        // Compare exact file sets as well as hashes, so an old chunk cannot be
+        // silently shipped alongside the new bundle. No environment file reads.
+        def frontendRoot = file('../..').canonicalFile
+        def sourceFiles = [:]
+        def collectRegularFiles
+        collectRegularFiles = { File directory, Closure consume ->
+            directory.listFiles().each { item ->
+                if (java.nio.file.Files.isSymbolicLink(item.toPath()) || item.name == '.env' || item.name.startsWith('.env.')) {
+                    throw new GradleException('Source/assets must not contain symlinks or environment files.')
+                }
+                if (item.isDirectory()) collectRegularFiles(item, consume)
+                else if (item.isFile()) consume(item)
+            }
+        }
+        collectRegularFiles(new File(frontendRoot, 'src'), { item ->
+            sourceFiles[frontendRoot.toPath().relativize(item.toPath()).toString().replace('\\', '/')] = item
+        })
+        ['vite.config.ts', 'index.html', 'tsconfig.json'].each { name -> sourceFiles[name] = new File(frontendRoot, name) }
+        if (!(receipt.sourceFiles instanceof Map) || sourceFiles.keySet() != receipt.sourceFiles.keySet()) {
+            throw new GradleException('Frontend source file list changed; prepare release again.')
+        }
+        sourceFiles.each { name, item ->
+            if (!item.isFile() || digest(item) != receipt.sourceFiles[name]) throw new GradleException('Frontend source changed; prepare release again.')
+        }
+        def actualAssets = [] as Set
+        collectRegularFiles(assetsRoot, { item ->
+            def name = assetsRoot.toPath().relativize(item.toPath()).toString().replace('\\', '/')
+            if (name != 'mobile-build.json') actualAssets.add(name)
+        })
+        if (actualAssets != receipt.assets.keySet()) throw new GradleException('Unexpected or missing packaged assets; prepare release again.')
+        receipt.assets.each { name, expected ->
+            def item = new File(assetsRoot, name.toString())
+            if (!item.canonicalPath.startsWith(assetsRoot.canonicalPath + File.separator) ||
+                !item.isFile() || digest(item) != expected) throw new GradleException('Packaged asset hash mismatch; prepare release again.')
+        }
+    }
+}
+tasks.matching { it.name == 'preReleaseBuild' }.configureEach { dependsOn verifyLocalReleaseAssets }

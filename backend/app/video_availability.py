@@ -25,9 +25,38 @@ _PAGE_VIDEO_PROOFS = frozenset({
 def _target(resource: dict) -> str | None:
     try:
         target = normalize_url(resource.get("canonical_url") or resource.get("url") or "")
-        if resource.get("url") and normalize_url(resource["url"]) != target:
+        if resource.get("url") and not _same_url(resource["url"], target):
             return None
         return target
+    except (UnsafeURL, ValueError, TypeError):
+        return None
+
+
+def _bili_part_identity(value) -> tuple[str, str, str | None] | None:
+    """Only native HTTPS BV paths; a trailing slash cannot change this part.
+
+    Reuse established tracking normalization while preserving raw native p
+    syntax, unknown query rejection, fragments, host and part boundaries.
+    This compares public metadata identity and performs no fetch or URL rewrite.
+    """
+    if not isinstance(value, str) or value != value.strip():
+        return None
+    try:
+        normalized = normalize_url(value)
+        parts = urlsplit(value)
+        if (parts.scheme != "https" or parts.hostname not in {"www.bilibili.com", "m.bilibili.com", "bilibili.com"}
+                or parts.port not in {None, 443} or parts.username is not None or parts.password is not None
+                or parts.fragment):
+            return None
+        # Keep the raw host/path boundary; only already-known tracking fields
+        # may disappear from the query used to compare the media identity.
+        prefix = r"/(?:zh-Hans/)?video/" if parts.hostname in {"www.bilibili.com", "bilibili.com"} else r"/video/"
+        path = re.fullmatch(prefix + r"(BV[0-9A-Za-z]{10})/?", parts.path)
+        query = urlsplit(normalized).query
+        part = re.fullmatch(r"p=([1-9][0-9]*)", query) if query else None
+        if not path or (query and (part is None or query not in parts.query.split("&"))):
+            return None
+        return parts.hostname, path[1], part[1] if part else None
     except (UnsafeURL, ValueError, TypeError):
         return None
 
@@ -36,7 +65,10 @@ def _same_url(value, target: str | None) -> bool:
     if not target or not isinstance(value, str):
         return False
     try:
-        return normalize_url(value) == target
+        if normalize_url(value) == target:
+            return True
+        identity = _bili_part_identity(value)
+        return identity is not None and identity == _bili_part_identity(target)
     except (UnsafeURL, ValueError, TypeError):
         return False
 
@@ -46,11 +78,33 @@ def _bound_page_video(resource: dict, evidence: list[dict]) -> bool:
         return False
     target = _target(resource)
     proof = (resource.get("field_provenance") or {}).get("video_evidence_status")
-    if not isinstance(proof, dict) or proof.get("source") not in _PAGE_VIDEO_PROOFS or not _same_url(proof.get("url"), target):
+    if not isinstance(proof, dict) or not _same_url(proof.get("url"), target):
+        return False
+    multipart = proof.get("source") == "html.bilibili.video_pod.multip"
+    if multipart:
+        # The registered selector proves media identity only on its own native
+        # BV/part page, with a separately bound video type. Generic og:video
+        # alone, search labels, or another part cannot supply this proof.
+        native = _bili_part_identity(resource.get("canonical_url") or resource.get("url"))
+        type_proof = (resource.get("field_provenance") or {}).get("resource_type") or {}
+        if (not native or not isinstance(type_proof, dict)
+                or resource.get("fetch_status") not in {"fetched", "success"}
+                or resource.get("resource_type") != "video"
+                or any(_bili_part_identity(value) != native for value in
+                       (resource.get("url"), resource.get("resolved_url") or resource.get("url"),
+                        proof.get("url"), type_proof.get("url")))
+                or not (_bound_adapter_media_type(resource, evidence)
+                        or _bound_media_field(resource, evidence, "resource_type", {"jsonld.@type", "meta.og:type"}))
+                or not any(row.get("evidence_id") == type_proof.get("evidence_id")
+                           and _bili_part_identity(row.get("url")) == native for row in evidence)):
+            return False
+    elif proof.get("source") not in _PAGE_VIDEO_PROOFS:
         return False
     return any(row.get("evidence_id") and row.get("evidence_id") == proof.get("evidence_id")
                and row.get("kind") == "page" and row.get("field") == "video_evidence_status"
                and row.get("source") == proof.get("source") and _same_url(row.get("url"), target)
+               and (not multipart or _bili_part_identity(row.get("url")) == native
+                    and isinstance(row.get("text"), str) and bool(row["text"].strip()))
                for row in evidence)
 
 
@@ -239,3 +293,81 @@ def unconfirmed_fetched_media_assessment(assessment: dict | None, resource: dict
         "subtopic_coverage": [{**part, "status": "unknown", "evidence_ids": [],
             "reason": "页面教学文字不等于视频身份；确认本条视频身份后再核对视频技能覆盖。"}
             for part in assessment.get("subtopic_coverage", [])]}
+
+
+# Deliberately narrow author declarations, not a general audio-quality score.
+# In particular, silence, missing narration and untested playback are not faults.
+_AUDIO_FAULT_DECLARATION = re.compile(
+    r"(?:^|[。.!！?？\n，,；;])\s*"
+    r"(?:(?:(?:本(?:期|次)?|这(?:个|段|期)?)视频|本次录屏)(?:的)?\s*)?"
+    r"(?:音频|音轨|录音)(?:文件)?\s*(?:已经|已|确实)?\s*(?:坏了|坏掉了|损坏(?:了)?)"
+    r"|\b(?:this|my)\s+(?:video|recording)['’]s\s+(?:audio|audio\s+track|sound)\s+is\s+(?:broken|corrupted|damaged)\b"
+    r"|\b(?:the\s+)?(?:audio|audio\s+track|sound)\s+(?:in|of|for)\s+this\s+video\s+is\s+(?:broken|corrupted|damaged)\b",
+    re.I,
+)
+_AUDIO_FAULT_CONTEXT = re.compile(
+    r"[?？]|(?:如何|怎样|怎么|教你|教大家|假如|如果|假设|例如|比如)|"
+    r"(?:修复|修好|恢复).{0,18}(?:教程|教学|方法|演示)|"
+    r"(?:教程|教学|方法|演示).{0,18}(?:修复|修好|恢复)|"
+    r"(?:以前|曾经|之前|上一期|上个视频|别人的|不是|并非|并不是|并没有)|"
+    r"\b(?:how\s+to|tutorial|example|suppose|if|previous(?:ly)?|used\s+to|not|isn['’]t|don['’]t)\b",
+    re.I,
+)
+_AUDIO_REPAIRED = re.compile(
+    r"(?<!未)(?<!没)(?<!没有)(?<!尚未)(?<!还没)(?:已经|现已|已|现在|目前)\s*"
+    r"(?:修复|修好|恢复正常|恢复声音|重新录制|重新上传)|"
+    r"(?:音频|音轨|录音|声音)(?:已经|现在|目前|已)?\s*(?:修复|修好|恢复正常|恢复了)|"
+    r"\b(?:audio|sound|recording)\s+(?:(?:has\s+been|is)\s+)?(?:now\s+)?(?:fixed|repaired|restored)\b|"
+    r"\b(?:now|already)\s+(?:fixed|repaired|restored)\b",
+    re.I,
+)
+_AUDIO_REPAIR_LESSON = re.compile(
+    r"(?:音频|音轨|录音).{0,18}(?:修复|修好|恢复).{0,18}(?:教程|教学|方法|演示)|"
+    r"(?:如何|怎样|怎么).{0,18}(?:修复|修好|恢复).{0,18}(?:音频|音轨|录音)|"
+    r"\bhow\s+to\s+(?:repair|fix|restore)\b.{0,30}\b(?:audio|sound|recordings?)\b|"
+    r"\b(?:audio|sound|recording)\s+(?:repair|restoration)\s+tutorial\b",
+    re.I,
+)
+
+
+def has_known_media_fault(resource: dict, evidence: list[dict]) -> bool:
+    """Whether current own-page facts explicitly report broken audio.
+
+    This is a pure exclusion signal, not a playback test or a claim that other
+    videos work. Discovery text and superseded page facts cannot supply it.
+    """
+    def stale(value: dict) -> bool:
+        cache = value.get("cache")
+        return bool(value.get("stale") or isinstance(cache, dict) and cache.get("stale"))
+
+    if resource.get("fetch_status") not in {"fetched", "success"} or stale(resource):
+        return False
+    target = _target(resource)
+    if not target:
+        return False
+    current = []
+    origins = resource.get("field_provenance") or {}
+    for row in evidence:
+        if not isinstance(row, dict):
+            continue
+        field, text = row.get("field"), row.get("text")
+        if (row.get("kind") != "page" or field not in {"title", "description"}
+                or not isinstance(row.get("evidence_id"), str) or not row["evidence_id"].strip()
+                or not isinstance(row.get("source"), str) or not row["source"].strip() or stale(row)
+                or not _same_url(row.get("url"), target)
+                or not isinstance(text, str) or not text.strip() or len(text) > 20_000
+                or text != resource.get(field)):
+            continue
+        if resource.get("fetched_at") and row.get("fetched_at") != resource["fetched_at"]:
+            continue
+        origin = origins.get(field)
+        if isinstance(origin, dict) and (origin.get("evidence_id") != row["evidence_id"]
+                or origin.get("source") != row["source"] or not _same_url(origin.get("url"), target)):
+            continue
+        current.append(text)
+    # A current correction may be in the description while the old defect is
+    # retained in the title. Never overrule an explicitly repaired declaration.
+    if any(_AUDIO_REPAIRED.search(text) or _AUDIO_REPAIR_LESSON.search(text) for text in current):
+        return False
+    return any(_AUDIO_FAULT_DECLARATION.search(text) and not _AUDIO_FAULT_CONTEXT.search(text)
+               for text in current)

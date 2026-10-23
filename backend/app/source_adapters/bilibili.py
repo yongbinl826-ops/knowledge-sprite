@@ -20,7 +20,7 @@ BILIBILI_DESCRIPTION_STATUS_SOURCE = BILIBILI_DESCRIPTION_SOURCE + ".limit"
 DESCRIPTION_LIMIT_NOTICE = "来源视频简介未完整提取，当前仅保留可核对的标题与目录；请到平台查看完整介绍。"
 UNAVAILABLE_NOTICE = "来源返回了视频不可见页面；是否删除、需要登录、地区限制或临时故障尚未确认，请到平台核实。"
 _UNAVAILABLE_TITLE = re.compile(r"视频去哪了呢[？?]?(?:[_\s-]*哔哩哔哩(?:[_\s-]*bilibili)?)?", re.I)
-_STATE_LIMIT = 2_000_000
+_STATE_LIMIT = 4_000_000
 _STATE_ASSIGNMENT = re.compile(r"\A\s*window\s*\.\s*__INITIAL_STATE__\s*=\s*")
 _STATE_ASSIGNMENT_REFERENCE = re.compile(
     r'''(?<![\w$.])(?:window\s*\.\s*__INITIAL_STATE__|window\s*\[\s*["']__INITIAL_STATE__["']\s*\]|__INITIAL_STATE__)\s*=(?!=|>)'''
@@ -206,6 +206,13 @@ def extract_embedded_video_facts(soup: BeautifulSoup, url: str) -> SourceFacts:
         FieldFact("video_evidence_status", "page_verified", source + ".bvid",
                   "Observed same-BV video metadata in the returned public HTML; playback was not tested and no media was requested"),
     ])
+    # The source's current charging flag is independent of legacy rights.pay:
+    # an observed charging-exclusive video can still have rights.pay == 0 and
+    # expose a free preview. Absence/false is not proof of unrestricted access.
+    if video.get("is_upower_exclusive") is True:
+        result.fields.append(FieldFact("requires_payment", True, source + ".is_upower_exclusive",
+            json.dumps({"bvid": requested_bvid, "is_upower_exclusive": True},
+                       ensure_ascii=False, sort_keys=True)))
     thumbnail = safe_thumbnail_url(video.get("pic"), page_url)
     if thumbnail:
         result.fields.append(FieldFact("thumbnail_url", thumbnail, source + ".pic"))
@@ -353,3 +360,59 @@ class BilibiliAdapter:
                 ])
                 break
         return result
+
+
+def empty_ssr_locale_url(html: str, raw_url: str, resolved_url: str, extracted: dict) -> str | None:
+    """One observed public HTML route, only for the platform's empty SSR shell."""
+    def native(value):
+        if not isinstance(value, str) or value != value.strip() or any(ord(c) < 32 for c in value):
+            return None
+        try:
+            parts = urlsplit(value)
+            if (parts.scheme != "https" or parts.netloc not in {"www.bilibili.com", "bilibili.com"}
+                    or parts.fragment or not re.fullmatch(r"/video/BV[0-9A-Za-z]{10}/?", parts.path)
+                    or parts.query and not re.fullmatch(r"p=[1-9][0-9]{0,5}", parts.query)):
+                return None
+            return parts
+        except ValueError:
+            return None
+    try:
+        normalized = normalize_url(raw_url, preserve_bilibili_locale=True)
+    except UnsafeURL:
+        return None
+    original, current = native(normalized), native(resolved_url)
+    # Preserve strict native p syntax even when known tracking is normalized away.
+    if original is not None and original.query and original.query not in urlsplit(raw_url).query.split("&"):
+        return None
+    if (original is None or current is None or original.netloc != current.netloc
+            or original.path.rstrip("/") != current.path.rstrip("/") or original.query != current.query):
+        return None
+    if (extracted.get("fetch_status") != "javascript_required"
+            or extracted.get("video_evidence_status") not in {None, "none"}
+            or extracted.get("chapters") or extracted.get("title") or extracted.get("description")
+            or extracted.get("resource_type") not in {None, "unknown"}
+            or any(extracted.get(key) is True for key in ("requires_login", "requires_payment", "requires_enrollment"))
+            or set(extracted.get("field_provenance", {})) - {"language"}):
+        return None
+    soup = BeautifulSoup(html, "html.parser")
+    shells = soup.select("div#video-page-app")
+    if (not soup.title or soup.title.get_text(strip=True) or len(shells) != 1
+            or shells[0].find(True) or shells[0].get_text(strip=True)
+            or soup.select_one("#app > *, video, audio, iframe, form, script[type='application/ld+json']")):
+        return None
+    if any(_STATE_ASSIGNMENT_REFERENCE.search(tag.string or tag.get_text())
+           for tag in soup.select("script:not([src])")):
+        return None
+    # Loading the shared CaptchaLoader SDK is normal bootstrap, not a challenge.
+    visible = soup.get_text(" ", strip=True)
+    if re.search(r"登录|登陆|验证码|安全验证|访问.{0,6}(?:限制|拒绝)|视频去哪|不存在|不可用|403|404|captcha|access denied|sign in|log in", visible, re.I):
+        return None
+    for tag in soup.select("script[src]"):
+        try:
+            bootstrap = urlsplit(tag.get("src", ""))
+        except ValueError:
+            continue
+        if (bootstrap.hostname == "s1.hdslb.com"
+                and re.fullmatch(r"/bfs/static/jinkela/video/video\.[0-9A-Za-z_-]+\.js", bootstrap.path)):
+            return urlunsplit((current.scheme, current.netloc, "/zh-Hans" + current.path, current.query, ""))
+    return None

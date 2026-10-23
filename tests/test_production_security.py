@@ -295,17 +295,47 @@ def test_model_cost_and_timeout_configuration_fail_closed(changes):
 def test_model_budget_defaults_and_exact_environment_overrides(monkeypatch):
     from backend.app import config
     monkeypatch.setattr(config, "load_dotenv", lambda *_args, **_kwargs: None)
-    for name in ("PROJECT_ANALYSIS_TIMEOUT_SECONDS", "PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", "LLM_MAX_OUTPUT_TOKENS"):
+    for name in ("PROJECT_ANALYSIS_TIMEOUT_SECONDS", "PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", "LLM_MAX_OUTPUT_TOKENS",
+                 "PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS"):
         monkeypatch.delenv(name, raising=False)
     defaults = Settings.from_env()
     assert (defaults.project_analysis_timeout_seconds, defaults.project_analysis_total_timeout_seconds,
-            defaults.llm_max_output_tokens) == (90, 120, 6000)
+            defaults.llm_max_output_tokens, defaults.project_analysis_normalization_max_output_tokens) == (90, 120, 6000, 12000)
     monkeypatch.setenv("PROJECT_ANALYSIS_TIMEOUT_SECONDS", "60")
     monkeypatch.setenv("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", "100")
     monkeypatch.setenv("LLM_MAX_OUTPUT_TOKENS", "2048")
+    monkeypatch.setenv("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", "4096")
     actual = Settings.from_env()
     assert (actual.project_analysis_timeout_seconds, actual.project_analysis_total_timeout_seconds,
-            actual.llm_max_output_tokens) == (60, 100, 2048)
+            actual.llm_max_output_tokens, actual.project_analysis_normalization_max_output_tokens) == (60, 100, 2048, 4096)
+
+
+@pytest.mark.parametrize("value", [255, 16001, True, False, None, "12000", 12000.0])
+def test_normalization_token_budget_rejects_invalid_values_before_startup(value):
+    with pytest.raises(ValueError, match="PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS"):
+        replace(Settings(), project_analysis_normalization_max_output_tokens=value).validate()
+
+
+@pytest.mark.parametrize("value", [256, 4096, 12000, 16000])
+def test_normalization_token_budget_accepts_boundaries_and_environment_overrides(monkeypatch, value):
+    from backend.app import config
+    monkeypatch.setattr(config, "load_dotenv", lambda *_args, **_kwargs: None)
+    monkeypatch.setenv("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", str(value))
+    monkeypatch.setenv("LLM_MAX_OUTPUT_TOKENS", "2048")
+    direct = replace(Settings(), project_analysis_normalization_max_output_tokens=value).validate()
+    assert direct.project_analysis_normalization_max_output_tokens == value
+    loaded = Settings.from_env()
+    assert loaded.project_analysis_normalization_max_output_tokens == value
+    assert loaded.llm_max_output_tokens == 2048
+
+
+@pytest.mark.parametrize("value", ["", "255", "16001", "-1", "12000.0", "true", "typo"])
+def test_normalization_token_budget_environment_typos_fail_closed(monkeypatch, value):
+    from backend.app import config
+    monkeypatch.setattr(config, "load_dotenv", lambda *_args, **_kwargs: None)
+    monkeypatch.setenv("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", value)
+    with pytest.raises(ValueError, match="PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS"):
+        Settings.from_env()
 
 
 def model_settings(**changes):

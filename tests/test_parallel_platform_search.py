@@ -25,7 +25,10 @@ def options(tmp_path, **extra):
     return replace(Settings(database_path=str(tmp_path / "parallel.sqlite3"),
         searxng_url="http://search.example", searxng_engines=("web",),
         searxng_video_engines=("video",), searxng_fallback_engines=("web", "video"),
-        parallel_platform_search=True, teaching_match_enabled=False,
+        parallel_platform_search=True, teaching_match_enabled=False, open_web_search_enabled=False,
+        # Original restricted-lane controls opt out explicitly; new defaults
+        # are exercised by test_requirements_discovery and mobile ASGI tests.
+        shared_course_library_enabled=False, mooc_gap_search_enabled=False, mooc_refresh_enabled=False,
         max_search_requests=30, max_detail_pages=0, search_min_interval_seconds=0,
         search_max_retries=1, deadline_seconds=10), **extra)
 
@@ -300,8 +303,8 @@ async def test_project_barrier_covers_all_seven_selected_points_across_both_batc
         pid = view["project_id"]
         confirmed = projects.confirm(pid, 1, [])
         budget = confirmed["version"]["budgets"]
-        assert budget["reserved_search_requests"] == 28
-        assert budget["batch_search_requests"] == [20, 8]
+        assert budget["reserved_search_requests"] == 35
+        assert budget["batch_search_requests"] == [25, 10]
         projects.search(pid, 1)
         await settle(projects)
         result = projects.results(pid, 1)
@@ -309,8 +312,8 @@ async def test_project_barrier_covers_all_seven_selected_points_across_both_batc
         assert len(batches) == 2 and sum(store.job_counts().values()) == 2
         attempts = [row for batch in batches for row in store.attempts(batch["job_id"])]
         chronological = sorted(attempts, key=lambda row: row["executed_at"])
-        assert [row["search_phase"] for row in chronological] == ["initial"] * 14 + ["followup"] * 14
-        assert result["version"]["budgets"]["actual_search_requests"] == 28
+        assert [row["search_phase"] for row in chronological] == ["initial"] * 21 + ["followup"] * 14
+        assert result["version"]["budgets"]["actual_search_requests"] == 35
         for batch in batches:
             job = store.get_job(batch["job_id"])
             assert job["platform_search"]["finished"]
@@ -420,7 +423,7 @@ async def test_missing_later_batch_initial_pass_prevents_earlier_batch_followups
         result = projects.results(pid, 1)
         first_job = result["version"]["batches"][0]["job_id"]
         assert all(row["search_phase"] == "initial" for row in store.attempts(first_job))
-        assert store.get_job(first_job)["progress"]["search_requests"] == 10
+        assert store.get_job(first_job)["progress"]["search_requests"] == 15
         assert any("首轮未完成" in warning for warning in result["version"]["warnings"])
     finally:
         await projects.stop()

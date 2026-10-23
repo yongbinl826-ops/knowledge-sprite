@@ -1,0 +1,216 @@
+{
+  "scope": "用 Python + pygame 做单机二维接金币游戏：左右方向键控制挡板水平移动，金币从屏幕顶部随机 x 位置下落，接住加 1 分，漏接累计 3 次进入结束画面，按 R 键清零分数与漏接次数并重新开始；画面实时显示分数与漏接次数。不含账号、联网、存档、音效和关卡。",
+  "technical_plan": "使用 pygame 初始化窗口与时钟，主循环中按 pygame.event 处理键盘输入与退出事件，用 pygame.key.get_pressed 实现方向键连续移动挡板并限制在窗口边界内；金币用列表管理，定时在随机 x 位置生成并逐帧下移，用矩形碰撞检测判定接住或漏接；分数与漏接计数用变量维护，通过 pygame.font 渲染文本显示；漏接达 3 次切换到结束状态，按 R 重置状态与数据重新开始。",
+  "assumptions": [
+    "使用 pygame 内置的 Rect 碰撞检测，不引入额外物理库。",
+    "金币下落速度与生成间隔用固定常量，不实现难度递增。",
+    "窗口大小、挡板与金币尺寸为可修改的常量假设。",
+    "游戏状态用简单布尔变量或字符串区分运行与结束，不使用状态机库。"
+  ],
+  "functions": [
+    {
+      "id": "f_paddle_move",
+      "name": "方向键控制挡板水平移动",
+      "original_requirement": "左右方向键移动挡板",
+      "acceptance_criteria": "按住左/右方向键时挡板沿水平方向连续移动，且不超出窗口左右边界。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f_coin_fall",
+      "name": "金币随机位置生成与下落",
+      "original_requirement": "金币从屏幕上方随机位置下落",
+      "acceptance_criteria": "金币在屏幕顶部随机 x 位置出现并逐帧向下移动，离开屏幕底部后被移除。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f_catch_score",
+      "name": "接住金币加分",
+      "original_requirement": "接住加 1 分",
+      "acceptance_criteria": "金币与挡板矩形相交时该金币被移除，分数增加 1。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f_miss_count",
+      "name": "漏接计数与结束判定",
+      "original_requirement": "漏接 3 次后显示结束画面",
+      "acceptance_criteria": "金币越过屏幕底部未被接住时漏接次数加 1，达到 3 次时停止游戏并显示结束画面。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f_hud_display",
+      "name": "分数与漏接次数显示",
+      "original_requirement": "需要显示当前分数与漏接次数",
+      "acceptance_criteria": "游戏画面中实时显示当前分数与漏接次数，数值随游戏进程更新。",
+      "no_new_learning_reason": null
+    },
+    {
+      "id": "f_reset",
+      "name": "R 键重置重新开始",
+      "original_requirement": "按 R 键重置分数和漏接次数并重新开始",
+      "acceptance_criteria": "结束画面下按 R 键后分数与漏接次数归零，游戏恢复运行状态。",
+      "no_new_learning_reason": null
+    }
+  ],
+  "knowledge_points": [
+    {
+      "id": "kp_pygame_init",
+      "name": "pygame 窗口初始化与主循环",
+      "description": "使用 pygame.init、set_mode 创建窗口，并在 while 循环中组织事件处理、更新与绘制帧。",
+      "function_ids": [
+        "f_paddle_move",
+        "f_coin_fall",
+        "f_hud_display"
+      ],
+      "why_needed": "游戏需要可持续刷新画面的运行框架。",
+      "learning_goal": "能写出初始化窗口并维持主循环的基本 pygame 程序骨架。",
+      "technology": "pygame",
+      "necessity": "required",
+      "prerequisite_ids": [],
+      "learning_order": 1,
+      "selection": "learn"
+    },
+    {
+      "id": "kp_event_handling",
+      "name": "pygame 事件处理",
+      "description": "通过 pygame.event.get 读取事件队列，区分退出、按键等事件类型并作相应处理。",
+      "function_ids": [
+        "f_reset"
+      ],
+      "why_needed": "R 键重置和窗口关闭都依赖事件处理。",
+      "learning_goal": "能遍历事件队列并对 KEYDOWN 等事件作出判断。",
+      "technology": "pygame",
+      "necessity": "required",
+      "prerequisite_ids": [
+        "kp_pygame_init"
+      ],
+      "learning_order": 2,
+      "selection": "learn"
+    },
+    {
+      "id": "kp_key_state",
+      "name": "键盘按键状态检测",
+      "description": "使用 pygame.key.get_pressed 获取按住状态，实现连续移动而非单次触发。",
+      "function_ids": [
+        "f_paddle_move"
+      ],
+      "why_needed": "方向键需要按住时连续移动挡板。",
+      "learning_goal": "能区分按键事件与按键按住状态的适用场景并实现连续移动。",
+      "technology": "pygame",
+      "necessity": "required",
+      "prerequisite_ids": [
+        "kp_event_handling"
+      ],
+      "learning_order": 3,
+      "selection": "learn"
+    },
+    {
+      "id": "kp_rect",
+      "name": "矩形坐标与边界约束",
+      "description": "用 Rect 表示物体位置与尺寸，并通过边界判断限制移动范围。",
+      "function_ids": [
+        "f_paddle_move",
+        "f_coin_fall"
+      ],
+      "why_needed": "挡板不能移出窗口，金币位置由矩形坐标描述。",
+      "learning_goal": "能用矩形表示物体位置并对坐标作范围限制。",
+      "technology": "pygame",
+      "necessity": "required",
+      "prerequisite_ids": [
+        "kp_pygame_init"
+      ],
+      "learning_order": 3,
+      "selection": "learn"
+    },
+    {
+      "id": "kp_render_loop",
+      "name": "画面绘制与屏幕刷新",
+      "description": "每帧填充背景、绘制图形并根据帧率控制调用 flip/update 显示画面。",
+      "function_ids": [
+        "f_paddle_move",
+        "f_coin_fall",
+        "f_hud_display"
+      ],
+      "why_needed": "物体移动与显示需要在每帧重新绘制。",
+      "learning_goal": "能在每帧绘制多个图形并以固定帧率刷新窗口。",
+      "technology": "pygame",
+      "necessity": "required",
+      "prerequisite_ids": [
+        "kp_pygame_init"
+      ],
+      "learning_order": 4,
+      "selection": "learn"
+    },
+    {
+      "id": "kp_collision",
+      "name": "矩形碰撞检测",
+      "description": "使用 Rect 相交判断两个矩形是否重叠，并据此处理接触结果。",
+      "function_ids": [
+        "f_catch_score",
+        "f_miss_count"
+      ],
+      "why_needed": "接住与漏接的判定依赖挡板与金币的位置关系。",
+      "learning_goal": "能用矩形相交判断物体接触并区分接住与漏接。",
+      "technology": "pygame",
+      "necessity": "required",
+      "prerequisite_ids": [
+        "kp_rect"
+      ],
+      "learning_order": 5,
+      "selection": "learn"
+    },
+    {
+      "id": "kp_random_spawn",
+      "name": "随机数生成与对象列表管理",
+      "description": "用 random 生成随机坐标，并用列表增删管理多个下落对象。",
+      "function_ids": [
+        "f_coin_fall",
+        "f_catch_score"
+      ],
+      "why_needed": "金币需要在随机 x 位置生成并被动态添加或移除。",
+      "learning_goal": "能生成随机位置的物体并用列表管理其生命周期。",
+      "technology": "pygame",
+      "necessity": "required",
+      "prerequisite_ids": [
+        "kp_render_loop"
+      ],
+      "learning_order": 6,
+      "selection": "learn"
+    },
+    {
+      "id": "kp_text_render",
+      "name": "文本渲染与字体显示",
+      "description": "通过 pygame.font 创建字体对象，渲染文本并通过 blit 显示在指定位置。",
+      "function_ids": [
+        "f_hud_display"
+      ],
+      "why_needed": "分数和漏接次数需要以文字形式显示在画面上。",
+      "learning_goal": "能把变量数值渲染为文本并显示在屏幕上。",
+      "technology": "pygame",
+      "necessity": "required",
+      "prerequisite_ids": [
+        "kp_render_loop"
+      ],
+      "learning_order": 7,
+      "selection": "learn"
+    },
+    {
+      "id": "kp_game_state",
+      "name": "游戏状态切换",
+      "description": "用状态标识区分运行中与结束状态，并在状态切换时执行停止更新或显示结束画面。",
+      "function_ids": [
+        "f_miss_count",
+        "f_reset"
+      ],
+      "why_needed": "漏接 3 次进入结束画面，按 R 后需恢复运行。",
+      "learning_goal": "能用状态变量控制游戏流程的暂停、结束与重新开始。",
+      "technology": "pygame",
+      "necessity": "required",
+      "prerequisite_ids": [
+        "kp_event_handling",
+        "kp_collision"
+      ],
+      "learning_order": 8,
+      "selection": "learn"
+    }
+  ]
+}

@@ -1,9 +1,20 @@
 .project-video-gallery{min-width:0}
+.gallery-toolbar{display:flex;justify-content:flex-end;margin-bottom:24px}
+.gallery-toolbar label{display:flex;align-items:center;gap:12px;max-width:100%;font-size:13px;color:#696660}
+.gallery-toolbar label>span{flex-shrink:0}
+.gallery-toolbar select{min-width:144px;max-width:240px;min-height:44px;padding:8px 12px;border:1px solid #d9d6d0;border-radius:4px;background:#fff;color:#181818;font:inherit;cursor:pointer}
+.gallery-toolbar select:hover{border-color:#969086}
+.gallery-toolbar select:focus-visible{outline:3px solid #3157ff;outline-offset:3px}
+.video-gallery-empty[data-filtered=true]{align-content:center;gap:14px;text-align:center;font-size:13px;color:#696660}
 .project-video-gallery .course-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
-.video-cover-card{min-width:0;margin:0;transition:transform .18s ease}
+.video-cover-card{min-width:0;margin:0;transition:transform .18s ease;animation:motion-surface-in 280ms var(--motion-ease,ease) backwards;animation-delay:calc(var(--reveal-index,0)*50ms)}
 .video-cover-card:hover{transform:translateY(-2px)}
+.video-cover-card:focus-within{animation:none}
+.gallery-motion{min-height:240px}
+.gallery-motion.motion-fallback{animation:motion-surface-in 220ms var(--motion-ease,ease) both}
 .video-cover-title{margin:10px 0 0;font-size:15px;font-weight:500;line-height:1.7;letter-spacing:0;overflow-wrap:anywhere}
 .video-cover-title a{color:#181818}.video-cover-title a:hover{color:#3157ff}
+.video-reference-label{display:block;margin-top:3px;font-size:12px;line-height:1.6;color:#696660}
 .project-video-gallery .course-cover{display:block;width:100%;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#e9e5dc}
 .project-video-gallery .course-cover img{width:100%;height:100%;object-fit:cover}
 .project-video-gallery .cover-action,.project-video-gallery .cover-placeholder>span{display:none}
@@ -13,6 +24,16 @@
 .video-gallery-empty{display:grid;place-items:center;min-height:240px;color:#b6aea1}
 .video-cover-skeleton{aspect-ratio:16/9;border-radius:6px;background:#e9e5dc;overflow:hidden;position:relative}
 .video-cover-skeleton:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#ffffff80,transparent);transform:translateX(-100%);animation:shimmer 1.6s infinite}
-@media(max-width:1200px){.project-video-gallery .course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:900px){.project-video-gallery .course-grid{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){.video-cover-card{transition:none}.video-cover-skeleton:after{animation:none}}
+@media(max-width:1200px){.project-video-gallery .course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.video-cover-skeleton:nth-child(n+3){display:none}}
+@media(max-width:900px){.project-video-gallery .course-grid{grid-template-columns:1fr}.video-cover-skeleton:nth-child(n+2){display:none}}
+@media(prefers-reduced-motion:reduce){.video-cover-card,.gallery-motion.motion-fallback{animation:motion-fade-in 100ms linear both!important;animation-delay:0ms!important;transition:none;transform:none}.video-cover-card:hover,.project-video-gallery .course-cover:hover img{transform:none}.video-cover-card:focus-within{animation:none!important}.video-cover-skeleton:after{animation:none}}
+.video-cover-card.motion-native-entry{animation-name:none!important}
+.project-video-gallery .course-cover{position:relative}
+/* Paint above the image/placeholder, inside the rounded clipping surface. */
+.project-video-gallery .course-cover:focus-visible::after{content:"";position:absolute;inset:3px;border:3px solid #3157ff;border-radius:3px;pointer-events:none;z-index:2}
+.project-support-summary{margin-top:20px;padding-top:14px;border-top:1px solid #d9d4ca;max-width:100%;font-size:12px;line-height:1.8;color:#57534d;overflow-wrap:anywhere}
+.project-support-title{font-weight:600;color:#181818;margin-bottom:5px}
+.project-support-summary p+p{margin-top:3px}
+.project-empty-message{font-size:12px;line-height:1.8;color:#57534d;margin:12px 0;overflow-wrap:anywhere}
+
+.project-video-gallery .video-cover-title a:focus-visible{outline:2px solid #3157ff;outline-offset:3px;border-radius:2px}

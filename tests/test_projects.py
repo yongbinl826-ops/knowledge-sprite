@@ -153,8 +153,8 @@ async def test_edit_add_delete_rename_and_shared_selection_do_not_inherit_maps(t
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("acknowledged", [[], ["k0"]])
-async def test_skipped_transitive_prerequisite_keeps_valid_refs_without_mandatory_ack(tmp_path, acknowledged):
+@pytest.mark.parametrize("acknowledged", [[], ["k0"], ["missing"]])
+async def test_legacy_acknowledgements_are_ignored_without_mutating_the_saved_graph(tmp_path, acknowledged):
     _, store, jobs, projects = setup(tmp_path)
     try:
         view = await analyzed(projects, 3)
@@ -164,13 +164,10 @@ async def test_skipped_transitive_prerequisite_keeps_valid_refs_without_mandator
         analysis["knowledge_points"][2]["prerequisite_ids"] = ["k1"]
         pid = view["project_id"]
         projects.edit(pid, 1, AnalysisDocument.model_validate(analysis))
-        with pytest.raises(ProjectError) as exc:
-            projects.confirm(pid, 2, ["missing"])
-        assert exc.value.code == "invalid_acknowledgement"
         result = projects.confirm(pid, 2, acknowledged)
         confirmation = deepcopy(result["version"]["confirmation"])
         assert confirmation["selected_ids"] == ["k2"]
-        assert confirmation["acknowledged_skipped_prerequisites"] == acknowledged
+        assert "acknowledged_skipped_prerequisites" not in confirmation
         assert confirmation["analysis"] == AnalysisDocument.model_validate(analysis).model_dump()
         assert result["version"]["analysis"]["knowledge_points"][0]["selection"] == "skip"
         assert projects.confirm(pid, 2, acknowledged)["version"]["confirmation"] == confirmation
@@ -248,7 +245,7 @@ async def test_cancel_pending_batches_does_not_cancel_shared_direct_job(tmp_path
 
 
 @pytest.mark.asyncio
-async def test_restart_recovers_pending_and_never_resubmits_interrupted_batch(tmp_path):
+async def test_restart_interrupts_pending_without_implicit_source_work(tmp_path):
     settings, store, jobs, projects = setup(tmp_path)
     view = await analyzed(projects, 7)
     pid = view["project_id"]
@@ -269,8 +266,11 @@ async def test_restart_recovers_pending_and_never_resubmits_interrupted_batch(tm
         result = second.results(pid)
         assert result["version"]["batches"][0]["job_id"] == original_job
         assert result["version"]["batches"][0]["status"] == "interrupted"
-        assert result["version"]["batches"][1]["status"] == "no_results"
-        assert sum(reopened.job_counts().values()) == 2
+        assert result["version"]["status"] == "interrupted"
+        assert result["version"]["error"]["code"] == "process_restarted"
+        assert result["version"]["batches"][1]["status"] == "interrupted"
+        assert result["version"]["batches"][1]["job_id"] is None
+        assert sum(reopened.job_counts().values()) == 1
         assert len(result["points"]) == 7
     finally:
         await second.stop()
@@ -511,7 +511,7 @@ async def test_later_batch_failure_retains_earlier_real_pipeline_results(tmp_pat
 
 
 @pytest.mark.asyncio
-async def test_recovery_rejects_tightened_total_budget_and_keeps_all_mappings(tmp_path):
+async def test_recovery_stops_work_even_after_limits_change_and_keeps_mappings(tmp_path):
     settings, store, jobs, projects = setup(tmp_path)
     view = await analyzed(projects, 7)
     pid = view["project_id"]
@@ -533,8 +533,8 @@ async def test_recovery_rejects_tightened_total_budget_and_keeps_all_mappings(tm
         result = projects.results(pid)
         assert len(result["points"]) == 7
         assert result["version"]["batches"][0]["job_id"] == original
-        assert result["version"]["batches"][1]["status"] == "budget_exceeded"
-        assert result["version"]["batches"][1]["error"]["code"] == "project_limits_changed"
+        assert result["version"]["batches"][1]["status"] == "interrupted"
+        assert result["version"]["batches"][1]["error"]["code"] == "process_restarted"
         assert sum(store.job_counts().values()) == 1
         assert store.connection.execute("SELECT COUNT(*) FROM project_point_job_mappings").fetchone()[0] == 5
         assert store.connection.execute("SELECT COUNT(*) FROM job_consumers WHERE job_id=?", (original,)).fetchone()[0] == 1

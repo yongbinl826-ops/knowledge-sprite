@@ -44,11 +44,15 @@ async def test_observed_broad_or_whole_statement_title_gets_bounded_quality_repa
 
 
 @pytest.mark.parametrize("title", [
-    "Python 列表与循环的游戏状态建模", "Python 基础数据类型的数值转换",
-    "英语音标与重音规则", "pygame.Rect", "pandas.to_datetime 日期时间解析",
-    "函数调用与参数传递", "变量作用域与状态建模", "JavaScript 严格相等比较",
-    "PWM 占空比与亮度控制", "React useState 状态管理", "矩形碰撞检测",
+    "状态机", "Python 基础数据类型的数值转换",
+    "英语音标", "pygame.Rect", "pandas.to_datetime 日期时间解析",
+    "函数调用", "变量作用域", "JavaScript 严格相等比较",
+    "占空比", "React useState 状态管理", "矩形碰撞检测",
     "函数调用 (Function Call)", "CSS: Grid", "HTML: forms",
+    # A syntax check cannot decide whether ordinary conjunctions describe one
+    # coherent topic; these names are not a claim of semantic certification.
+    "Python 列表与循环的游戏状态建模", "英语音标与重音规则",
+    "函数调用与参数传递", "变量作用域与状态建模", "PWM 占空比与亮度控制",
 ])
 @pytest.mark.asyncio
 async def test_professional_topics_are_not_rejected_for_substrings_or_api_identifiers(title, monkeypatch):
@@ -63,7 +67,7 @@ async def test_professional_topics_are_not_rejected_for_substrings_or_api_identi
         return response(supplied)
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         result = await ProjectAnalyzer(config(), client).analyze(project())
-    assert len(calls) == 1 and result.knowledge_points[0].name == title
+    assert len(calls) == 2 and result.knowledge_points[0].name == title
     assert result.knowledge_points[0].learning_skills == []
 
 
@@ -80,4 +84,4 @@ async def test_repeated_single_statement_is_quality_failure_with_no_third_call()
             await ProjectAnalyzer(config(), client).analyze(project())
     assert len(calls) == 2 and error.value.code == "quality"
     assert error.value.diagnostics[0]["code"] == "syntax_fragment"
-    assert [row["phase"] for row in error.value.diagnostics[-1]["attempts"]] == ["generation", "generation"]
+    assert [row["phase"] for row in error.value.diagnostics[-1]["attempts"]] == ["generation", "normalization"]

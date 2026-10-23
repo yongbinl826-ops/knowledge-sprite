@@ -40,6 +40,8 @@ POINTS = ["Python 列表与字典", "pandas 数据分组与聚合", "SQL 多表�
 PROVIDERS = ("tavily", "serper")
 REQUEST_CAP = 8
 OVERRIDES = dict(
+    # Fixed-budget platform comparison, intentionally excludes unrestricted web.
+    open_web_search_enabled=False,
     tavily_allow_keyless=False, llm_provider="none", llm_api_key="",
     teaching_match_enabled=False, teaching_match_max_calls_per_job=0, project_semantic_review_enabled=False,
     shared_course_library_enabled=False, mooc_gap_search_enabled=False,

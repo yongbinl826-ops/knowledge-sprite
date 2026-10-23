@@ -350,7 +350,7 @@ async def test_failed_refresh_does_not_mark_fresh_retry_covered_slots_or_storm_n
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("chapters,expected", [(("列表", "字典"), 2), (("列表",), 1)])
-async def test_refresh_sse_appends_new_course_only_after_complete_outline(tmp_path, clock, chapters, expected):
+async def test_refresh_sse_keeps_related_search_reference_and_gates_own_outline_claim(tmp_path, clock, chapters, expected):
     config, transport, pages = settings(tmp_path), SearchHTTP(), CoursePages()
     async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
         with closing(Store(config.database_path)) as store:
@@ -368,12 +368,16 @@ async def test_refresh_sse_appends_new_course_only_after_complete_outline(tmp_pa
                 await asyncio.wait_for(pages.started.wait(), 2)
                 snapshot = lambda: job_snapshot(jobs, store, jid)
                 initial = snapshot()
-                assert initial["pipeline"]["displayed"] == 1
+                # Both courses have actual topical search observations. They
+                # may be related references before the new outline finishes;
+                # the separate discovery/outline assertions below stay strict.
+                assert initial["pipeline"]["displayed"] == 2
+                assert len(initial["groups"][0]["discovery_items"]) == 1
                 assert not initial["pipeline"]["terminal"]
                 stream = result_events(Connection(), snapshot, lambda: store.connection.total_changes,
                     initial, initial_revision=store.connection.total_changes, interval=.001)
                 frames = [await anext(stream)]
-                assert '"displayed":1' in frames[0] and "event: snapshot" in frames[0]
+                assert '"displayed":2' in frames[0] and "event: snapshot" in frames[0]
                 pages.release.set()
                 async def consume():
                     async for frame in stream:
@@ -382,8 +386,8 @@ async def test_refresh_sse_appends_new_course_only_after_complete_outline(tmp_pa
                 values = [json.loads(frame.split("\ndata: ", 1)[1]) for frame in frames
                           if "event: snapshot" in frame]
                 assert values[-1]["pipeline"]["terminal"]
-                assert values[-1]["pipeline"]["displayed"] == expected
-                assert all(value["pipeline"]["displayed"] in {1, expected} for value in values)
+                assert values[-1]["pipeline"]["displayed"] == 2
+                assert all(value["pipeline"]["displayed"] == 2 for value in values)
                 assert frames[-1].startswith("event: complete") or "\nevent: complete" in frames[-1]
                 assert len(transport.mooc_calls) == 1 and recommended(jobs, jid) == expected
                 group = jobs.results(jid)["groups"][0]

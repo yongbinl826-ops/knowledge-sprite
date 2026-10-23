@@ -9,7 +9,7 @@ import pytest
 from backend.app.config import Settings
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer
 from backend.app.project_models import AnalysisDocument
-from tests.test_project_analysis import analysis_fixture, settings, request, response
+from tests.test_project_analysis import flat_analysis_fixture as analysis_fixture, settings, request, response
 
 
 def configured():
@@ -22,11 +22,11 @@ FAIL = {"passed": False, "issues": [{"severity": "medium", "code": "numeric_boun
 
 
 @pytest.mark.asyncio
-async def test_valid_terms_need_one_generation_even_with_legacy_review_setting():
+async def test_valid_terms_use_generation_and_normalization_even_with_legacy_review_setting():
     from tests.professional_contract_support import projected_once
     assert Settings().project_semantic_review_enabled is True  # historical config remains readable
     result, calls = await projected_once(analysis_fixture(), request(), configured())
-    assert result.knowledge_points and len(calls) == 1
+    assert result.knowledge_points and len(calls) == 2
 
 
 @pytest.mark.asyncio
@@ -50,11 +50,12 @@ async def test_structural_failure_uses_one_repair_and_never_a_third_call(last_re
             assert failure.value.code == "schema"
             assert failure.value.diagnostics[0]["type"] == "missing"
     assert len(calls) == 2
-    assert [c["max_tokens"] for c in calls] == [6000, 6000]
+    assert [c["max_tokens"] for c in calls] == [6000, 12000]
     repair = json.loads(calls[1]["messages"][1]["content"])
     assert repair["validation_feedback"][0]["type"] == "missing"
     assert repair["project"] == request().model_dump()
     assert "previous_analysis" not in repair  # invalid schema is never retained as a valid proposal
+    assert repair["normalization_required"] is True
 
 
 @pytest.mark.asyncio

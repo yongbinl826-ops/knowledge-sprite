@@ -5,7 +5,8 @@ import re
 import unicodedata
 from typing import Annotated, ClassVar, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator, model_serializer, model_validator
+from .professional_concepts import concept_name_issues, clean_topic_technology
 
 
 MAX_PROJECT_FUNCTIONS = 12
@@ -13,6 +14,8 @@ MAX_PROJECT_KNOWLEDGE_POINTS = 24
 MAX_PROJECT_REQUIREMENT_CHARS = 8000
 Identifier = Annotated[str, StringConstraints(pattern=r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")]
 Selection = Literal["learn", "mastered", "skip"]
+ReviewedTopicTechnologies = Annotated[dict[str, Annotated[str, StringConstraints(strict=True, min_length=1, max_length=48)]],
+    Field(strict=True, max_length=MAX_PROJECT_KNOWLEDGE_POINTS)]
 
 
 def normalized_name(value: str) -> str:
@@ -87,14 +90,14 @@ class ProjectFunction(AnalysisTextModel):
 
 
 class ProjectKnowledgePoint(AnalysisTextModel):
-    allow_empty_analysis_fields: ClassVar[frozenset[str]] = frozenset({"technology"})
+    allow_empty_analysis_fields: ClassVar[frozenset[str]] = frozenset({"technology", "why_needed", "learning_goal"})
 
     id: Identifier
-    name: str = Field(min_length=1, max_length=160)
+    name: str = Field(min_length=1, max_length=160, description="One independently learnable professional concept; no project story, implementation checklist or chapter label.")
     description: str = Field(min_length=1, max_length=800)
-    function_ids: list[Identifier] = Field(max_length=MAX_PROJECT_FUNCTIONS)
-    why_needed: str = Field(min_length=1, max_length=800)
-    learning_goal: str = Field(min_length=1, max_length=800)
+    function_ids: list[Identifier] = Field(default_factory=list, max_length=MAX_PROJECT_FUNCTIONS)
+    why_needed: str = Field(default="", min_length=1, max_length=800)
+    learning_goal: str = Field(default="", min_length=1, max_length=800)
     # This is a student-editable retrieval target, never proof that a video
     # covers the selected tool. Both historical and newly generated points may
     # omit this optional field; omission does not invent a tool selection.
@@ -111,9 +114,9 @@ class ProjectKnowledgePoint(AnalysisTextModel):
         description="Specific transferable skills for teaching-material discovery; not project acceptance criteria or evidence that a source teaches them.",
     )
     practice_check: str | None = Field(default=None, min_length=1, max_length=800)
-    necessity: Literal["required", "extension"]
-    prerequisite_ids: list[Identifier] = Field(max_length=MAX_PROJECT_KNOWLEDGE_POINTS - 1)
-    learning_order: int = Field(ge=1, le=MAX_PROJECT_KNOWLEDGE_POINTS)
+    necessity: Literal["required", "extension"] = "required"
+    prerequisite_ids: list[Identifier] = Field(default_factory=list, max_length=MAX_PROJECT_KNOWLEDGE_POINTS - 1)
+    learning_order: int | None = Field(default=None, ge=1, le=MAX_PROJECT_KNOWLEDGE_POINTS)
     selection: Selection = "learn"
 
 
@@ -148,12 +151,44 @@ class LearnerProfile(AnalysisTextModel):
 
 
 class AnalysisDocument(AnalysisTextModel):
+    analysis_format: Literal["concept_list_v1"] | None = None
     scope: str = Field(min_length=1, max_length=1600)
     technical_plan: str = Field(min_length=1, max_length=2000)
     assumptions: list[Annotated[str, StringConstraints(min_length=1, max_length=500)]] = Field(max_length=8)
     learner_profile: LearnerProfile | None = None
-    functions: list[ProjectFunction] = Field(min_length=1, max_length=MAX_PROJECT_FUNCTIONS)
+    functions: list[ProjectFunction] = Field(default_factory=list, max_length=MAX_PROJECT_FUNCTIONS)
     knowledge_points: list[ProjectKnowledgePoint] = Field(max_length=MAX_PROJECT_KNOWLEDGE_POINTS)
+
+    @model_serializer(mode="wrap")
+    def serialize_analysis(self, handler):
+        data = handler(self)
+        if self.analysis_format != "concept_list_v1":
+            # Existing analyses retain their original public shape. Reading or
+            # editing history never adds a format marker or migrates its graph.
+            data.pop("analysis_format", None)
+            return data
+        allowed = {"scope", "technical_plan", "assumptions", "analysis_format", "knowledge_points"}
+        data = {key: value for key, value in data.items() if key in allowed}
+        if "knowledge_points" in data:
+            fields = {"id", "name", "description", "technology", "selection"}
+            data["knowledge_points"] = [{key: value for key, value in point.items() if key in fields}
+                                        for point in data["knowledge_points"]]
+        return data
+
+    def professional_concept_issues(self) -> list[dict]:
+        """Explicit new-generation boundary; historical parsing stays compatible."""
+        issues = []
+        for index, point in enumerate(self.knowledge_points):
+            for code, message in concept_name_issues(point.name):
+                issues.append({"code": code, "point_id": point.id,
+                    "location": ["knowledge_points", index, "name"], "message": message})
+            try:
+                clean_topic_technology(point.technology)
+            except ValueError:
+                issues.append({"code": "invalid_topic_technology", "point_id": point.id,
+                    "location": ["knowledge_points", index, "technology"],
+                    "message": "Use only the actual short language/tool name; no instructions, URLs or project details."})
+        return issues[:24]
 
 
     @model_validator(mode="after")
@@ -167,6 +202,15 @@ class AnalysisDocument(AnalysisTextModel):
         names = [normalized_name(point.name) for point in self.knowledge_points]
         if len(names) != len(set(names)):
             raise ValueError("知识点名称不能重复；多个功能应共享同一知识点")
+        if self.analysis_format == "concept_list_v1":
+            if self.functions or self.learner_profile is not None:
+                raise ValueError("简明知识点分析不包含功能图或学习者画像")
+            allowed = {"id", "name", "description", "technology", "selection"}
+            if any(point.model_fields_set - allowed for point in self.knowledge_points):
+                raise ValueError("简明知识点只包含名称、说明、技术背景和系统维护的标识与选择")
+            return self
+        if not self.functions:
+            raise ValueError("历史项目分析必须保留功能列表")
         functions, points = set(function_ids), {point.id: point for point in self.knowledge_points}
         covered_functions: set[str] = set()
         for point in self.knowledge_points:
@@ -194,9 +238,9 @@ class AnalysisDocument(AnalysisTextModel):
 
         for point_id in points:
             visit(point_id)
-        # The simple interface treats learning_order as display/search priority.
-        # Keep the acyclic reference graph, but do not enforce a hidden teaching
-        # topology when the student freely reorders the visible terms.
+        # Retained for historical compatibility and stable system presentation.
+        # The student selects concepts, not their learning order. Click order
+        # neither rewrites this field nor creates a hidden prerequisite gate.
         for function in self.functions:
             if function.id not in covered_functions and not function.no_new_learning_reason:
                 raise ValueError("每个功能必须关联知识点，或明确说明不需要新增学习的原因")

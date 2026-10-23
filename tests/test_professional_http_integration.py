@@ -10,6 +10,7 @@ from pathlib import Path
 
 import httpx
 import pytest
+from tests.professional_contract_support import flat_proposal
 
 from backend.app.config import Settings
 from backend.app.main import create_app
@@ -38,6 +39,9 @@ class MockPlatforms:
         await asyncio.sleep(0)
         self.metrics['active']-=1
         bili=domains==['bilibili.com']
+        if not domains:
+            assert 'site:' not in query
+            return []  # Actual unrestricted lane is exercised, without inventing another course.
         assert bili or domains==['icourse163.org']
         return [Candidate(id='offline-bili' if bili else 'offline-mooc',
             title='Offline fixture video' if bili else 'Offline fixture course',
@@ -78,8 +82,12 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
     def model_response(req):
         assert req.url.host=='offline-model.example' and req.url.path.endswith('/chat/completions')
         model_calls.append(json.loads(req.content))
-        assert len(model_calls)==1,'A valid v1 response needs no critic or regeneration'
-        return httpx.Response(200,json={'choices':[{'finish_reason':'stop','message':{'content':json.dumps(V1,ensure_ascii=False)}}]})
+        # V5 mock output uses an independent concept; original retained v1 bytes stay unchanged.
+        generated=deepcopy(V1)
+        generated['knowledge_points'][1]['name']='pandas 缺失值处理'
+        generated=flat_proposal(generated)
+        assert len(model_calls)<=2,'Generation and normalization share the existing call budget'
+        return httpx.Response(200,json={'choices':[{'finish_reason':'stop','message':{'content':json.dumps(generated,ensure_ascii=False)}}]})
     async with httpx.AsyncClient(transport=httpx.MockTransport(model_response)) as model_client:
         analyzer=ProjectAnalyzer(config,model_client)
         app=create_app(config,provider=provider,fetcher=fetcher,llm=no_llm,analyzer=analyzer)
@@ -101,24 +109,34 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 view=await poll(api,f'/api/projects/{pid}',lambda b:b['version']['status']!='analyzing')
                 assert view['version']['status']=='analyzed'
                 assert view['original_input']==view['version']['input']==original|{'technical_version':''}
-                assert len(model_calls)==1
+                assert len(model_calls)==2
+                assert [(entry['phase'],entry['outcome']) for entry in view['version']['analysis_attempts']]==[
+                    ('generation','draft'),('normalization','accepted')]
+                assert not view['version'].get('rejected_analysis_attempts')
+                normalization=json.loads(model_calls[1]['messages'][1]['content'])
+                assert normalization['normalization_required'] is True
+                assert normalization['project']==original|{'technical_version':''}
+                assert normalization['previous_analysis']['knowledge_points'][1]['name']=='pandas 缺失值处理'
                 assert all(not point.get('learning_skills') and not point.get('concepts') for point in view['version']['analysis']['knowledge_points'])
                 capability=(await api.get('/api/capabilities')).json()['project_analysis']
                 assert capability['mode']=='professional_knowledge_points'
                 assert capability['max_model_calls']==2 and capability['semantic_review_enabled'] is False
                 assert capability['review_max_calls']==0
+                assert capability['concept_normalization_enabled'] is True
+                assert capability['normalization_max_calls']==1
+                assert capability['normalization_max_output_tokens']==12000
+                assert capability['generation_stages']==['generation','normalization']
 
                 edited=deepcopy(view['version']['analysis'])
-                # The student may put the visible term first while skipping its
-                # retained prerequisite. The graph remains acyclic and valid.
-                edited['knowledge_points'][0].update(name='pandas Excel 文件读取',selection='skip',learning_order=2)
-                edited['knowledge_points'][1].update(name='pandas分组聚合',selection='learn',learning_order=1,prerequisite_ids=['k1'])
+                # A current flat analysis lets students select concepts directly.
+                edited['knowledge_points'][0].update(name='pandas Excel 文件读取',selection='skip')
+                edited['knowledge_points'][1].update(name='pandas分组聚合',selection='learn')
                 edit=await api.post(f'/api/projects/{pid}/edit',json={'expected_version':1,'analysis':edited})
                 assert edit.status_code==200 and edit.json()['current_version']==2
-                confirmed=await api.post(f'/api/projects/{pid}/confirm',json={'version':2,'acknowledged_skipped_prerequisites':[]})
+                confirmed=await api.post(f'/api/projects/{pid}/confirm',json={'version':2})
                 assert confirmed.status_code==200
                 snapshot=deepcopy(confirmed.json()['version']['confirmation'])
-                assert snapshot['selected_ids']==['k2'] and snapshot['acknowledged_skipped_prerequisites']==[]
+                assert snapshot['selected_ids']==['k2'] and 'acknowledged_skipped_prerequisites' not in snapshot
                 assert snapshot['search_mode']=='professional_terms_v1'
                 assert snapshot['analysis']['knowledge_points'][1]['name']=='pandas分组聚合'
                 assert (await api.post(f'/api/projects/{pid}/search',json={'version':2})).status_code==202
@@ -131,7 +149,7 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 assert job['request']['knowledge_points']==['pandas 分组聚合']
                 assert not job['request'].get('learning_targets') and not job['request'].get('learning_skills')
                 assert job['request']['student_level']=='intermediate' and job['request']['language']=='en'
-                assert job['progress']['search_requests']==4 and job['progress']['platform_search_requests']=={'bilibili':2,'icourse163':2}
+                assert job['progress']['search_requests']==5 and job['progress']['platform_search_requests']=={'bilibili':2,'icourse163':2,'open_web':1}
                 selected=next(p for p in result['points'] if p['project_knowledge_point_id']=='k2')
                 skipped=next(p for p in result['points'] if p['project_knowledge_point_id']=='k1')
                 assert skipped['status']=='skip' and skipped['result'] is None
@@ -152,14 +170,15 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 assert len(observations)==2
                 assert selected['result']['items']==selected['result']['partial_items']==[]
                 assert 'learning_coverage' not in selected['result']
-                assert provider.metrics['peak']==2 and len(provider.calls)==4 and fetcher.calls==no_llm.calls==[]
+                assert provider.metrics['peak']==2 and len(provider.calls)==5 and fetcher.calls==no_llm.calls==[]
                 bili_queries=[call['query'] for call in provider.calls if call['domains']==['bilibili.com']]
                 mooc_queries=[call['query'] for call in provider.calls if call['domains']==['icourse163.org']]
                 assert bili_queries==['site:bilibili.com/video pandas 分组聚合 video tutorial',
                                      'site:bilibili.com/video pandas 分组聚合 video tutorial examples']
                 assert mooc_queries==['site:icourse163.org/course pandas 分组聚合 course',
                                      'site:icourse163.org/course pandas data analysis course content']
-                assert len(search_scopes)==4 and all(scope['original_point']=='pandas 分组聚合' for scope in search_scopes)
+                assert len({scope['query'] for scope in search_scopes})==5 and all(scope['original_point']=='pandas 分组聚合' for scope in search_scopes)
+                assert sum(not call['domains'] for call in provider.calls)==1
                 assert {row['query'] for row in observations}==set(mooc_queries)
                 assert all(row['knowledge_point_id']==selected['knowledge_point_id']
                            and row['source']=='explicit-offline-fixture' and row['url']==mooc_resource['url']
@@ -185,14 +204,16 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 first=(await api.get(f'/api/projects/{pid}?version=1')).json()
                 assert historic['version']['analysis']==result['version']['analysis']
                 assert historic['version']['confirmation']==snapshot and first['version']['version']==1
-                assert first['version']['analysis']['knowledge_points'][1]['name']==V1['knowledge_points'][1]['name']
+                assert first['version']['analysis']['knowledge_points'][1]['name']=='pandas 缺失值处理'
+                assert first['version']['analysis_attempts']==view['version']['analysis_attempts']
+                assert V1['knowledge_points'][1]['name']=='pandas 缺失值处理与平均值统计'  # retained v1 fixture stays byte-compatible
                 historic_selected=next(p for p in historic['points'] if p['project_knowledge_point_id']=='k2')['result']
                 assert len(historic_selected['discovery_items'])==1
                 assert historic_selected['mooc_relevance']==mooc
                 assert (await api.post(f'/api/projects/{pid}/search',json={'version':2})).status_code==202
                 assert (await api.post(f'/api/projects/{pid}/edit',json={'expected_version':1,'analysis':edited})).status_code==409
                 assert app.state.store.connection.total_changes==before
-                assert len(provider.calls)==calls_before and len(model_calls)==1 and no_llm.calls==[]
+                assert len(provider.calls)==calls_before and len(model_calls)==2 and no_llm.calls==[]
                 assert config.llm_api_key not in json.dumps([result,historic,first,empty_search.json(),capability],ensure_ascii=False)
 
 

@@ -30,6 +30,7 @@ class RequestSecurityMiddleware:
         self.app, self.settings = app, settings
         # One process owns both this limiter and the persistent job queues.
         self.writes: deque[float] = deque()
+        self.event_streams = 0
 
     @staticmethod
     def response_headers(path: str, request_id: str) -> dict[str, str]:
@@ -60,6 +61,7 @@ class RequestSecurityMiddleware:
         headers = Headers(scope=scope)
         status = 500
         response_started = False
+        stream_slot = False
 
         async def secure_send(message):
             nonlocal status, response_started
@@ -93,6 +95,10 @@ class RequestSecurityMiddleware:
             if not valid_host:
                 await reject("untrusted_host", "请求主机不在允许列表中。", 400)
                 return
+            if (self.settings.app_mode == "mobile" and path.startswith("/api/")
+                    and not path.startswith("/api/mobile/") and path != "/api/capabilities"):
+                await reject("not_found", "接口不存在。", 404)
+                return
             if self.settings.local_only:
                 client = scope.get("client")
                 try:
@@ -107,8 +113,9 @@ class RequestSecurityMiddleware:
                 return
             origin_values = headers.getlist("origin")
             own_origin = f"{scope.get('scheme', 'http')}://{host_values[0]}"
+            native_origins = self.settings.mobile_origins if self.settings.app_mode == "mobile" else ()
             if origin_values and (len(origin_values) != 1 or
-                origin_values[0] not in {*self.settings.cors_origins, own_origin}):
+                origin_values[0] not in {*self.settings.cors_origins, *native_origins, own_origin}):
                 await reject("untrusted_origin", "该网页来源无权访问本地项目。", 403)
                 return
             if path.startswith("/api/") and not origin_values and headers.get("sec-fetch-site") in {"cross-site", "same-site"}:
@@ -164,6 +171,14 @@ class RequestSecurityMiddleware:
                         await reject("api_write_rate_limited", "操作过于频繁，请稍后重试。", 429, retry)
                         return
                     self.writes.append(current)
+            if method == "GET" and path.startswith("/api/") and path.endswith("/events"):
+                # No await between checking and reserving on this process's loop.
+                # Bound idle subscribers before the first expensive projection.
+                if self.event_streams >= self.settings.max_event_streams:
+                    await reject("event_streams_full", "实时连接已达上限，请稍后重试。", 429, 2)
+                    return
+                self.event_streams += 1
+                stream_slot = True
             sent_body = False
 
             async def bounded_receive():
@@ -181,6 +196,8 @@ class RequestSecurityMiddleware:
                     raise
                 await reject("internal_error", "服务暂时异常，请保留请求编号并稍后重试。", 500)
         finally:
+            if stream_slot:
+                self.event_streams -= 1
             # Never log user text, raw URL/query, IP, Origin, headers or exception values.
             route = getattr(scope.get("route"), "path", "<unmatched>")
             logger.info("http_request request_id=%s method=%s route=%s status=%s duration_ms=%s",

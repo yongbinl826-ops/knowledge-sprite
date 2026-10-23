@@ -23,6 +23,9 @@ class MoocRefresh:
                  "targets": sorted(point.get("learning_targets") or []),
                  "language": request.language, "version": request.technical_version,
                  "profile": profile}
+        technology = (getattr(request, "topic_technologies", {}) or {}).get(point["text"]) or point.get("technology")
+        if technology:
+            value["technology"] = technology
         return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
     def claim(self, key):

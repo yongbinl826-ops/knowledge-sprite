@@ -21,6 +21,7 @@ from urllib.parse import parse_qsl, unquote, urljoin, urlsplit, urlunsplit
 import httpx
 
 from .extractor import MetadataExtractor
+from .source_adapters.bilibili import empty_ssr_locale_url
 from .url_utils import UnsafeURL, assert_public_ip, host_matches, normalize_url, platform_for_url
 
 # Optional per-task observers. Context tokens must be reset by callers; parallel
@@ -44,6 +45,8 @@ class FetcherConfig:
     user_agent: str = "ProjectLearningDiscovery/0.1"
     allowed_restricted_hosts: tuple[str, ...] = ()
     bilibili_public_metadata: bool = False
+    # Explicit service opt-in; standalone callers retain their generic limit.
+    bilibili_public_metadata_max_bytes: int | None = None
     denied_hosts: tuple[str, ...] = ()
     global_concurrency: int = 5
     min_interval_seconds: float = 0.5
@@ -131,7 +134,7 @@ def public_bilibili_metadata_url(url: str) -> bool:
             return False
         if parts.path == "/robots.txt":
             return not parts.query
-        if not re.fullmatch(r"/video/(?:BV[0-9A-Za-z]{10}|av[0-9]+)/?", parts.path):
+        if not re.fullmatch(r"/(?:video/(?:BV[0-9A-Za-z]{10}|av[0-9]+)|zh-Hans/video/BV[0-9A-Za-z]{10})/?", parts.path):
             return False
         query = parse_qsl(parts.query, keep_blank_values=True)
         return not query or (len(query) == 1 and query[0][0] == "p" and re.fullmatch(r"[1-9][0-9]*", query[0][1]) is not None)
@@ -265,7 +268,7 @@ class PinnedHTTPClient:
                 raise ValueError("Body transport budgets must be finite positive numbers")
 
     async def request(self, url: str, addresses: list[str], max_bytes: int) -> HTTPResult:
-        normalized = normalize_url(url)
+        normalized = normalize_url(url, preserve_bilibili_locale=True)
         original = httpx.URL(normalized)
         # Revalidate injected/resolved addresses so no later accidental caller bypasses the guard.
         address = assert_public_ip(addresses[0])
@@ -322,6 +325,13 @@ class PinnedHTTPClient:
                         if response.status_code in {301, 302, 303, 307, 308, 401, 403, 404, 410, 429} or response.status_code >= 500:
                             trace.update(status="completed", body_read="not_requested_status")
                             return HTTPResult(response.status_code, response_headers, b"", normalized)
+                        if (self.config.bilibili_public_metadata and public_bilibili_metadata_url(normalized)
+                                and max_bytes > self.config.max_bytes
+                                and response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+                                not in {"text/html", "application/xhtml+xml"}):
+                            # The larger metadata budget never becomes a media or API budget.
+                            max_bytes = self.config.max_bytes
+                            trace["max_bytes"] = max_bytes
                         if encoding not in {"identity", "gzip", "deflate"}:
                             raise FetchStopped("unsupported_encoding", f"暂不支持站点返回的内容编码：{encoding[:80]}")
                         decoder = zlib.decompressobj(31 if encoding == "gzip" else 15) if encoding != "identity" else None
@@ -519,6 +529,9 @@ class Fetcher:
         self.config = config or FetcherConfig()
         if self.config.dns_resolver not in {"system", "cloudflare_doh"}:
             raise ValueError("dns_resolver must be system or cloudflare_doh")
+        bili_limit = self.config.bilibili_public_metadata_max_bytes
+        if bili_limit is not None and (type(bili_limit) is not int or not 1 <= bili_limit <= 16_000_000):
+            raise ValueError("bilibili_public_metadata_max_bytes must be an integer between 1 and 16000000")
         self.resolver = resolver or (CloudflareDoHResolver() if self.config.dns_resolver == "cloudflare_doh" else public_addresses)
         self.http = http_client or PinnedHTTPClient(self.config)
         self.extractor = MetadataExtractor()
@@ -705,7 +718,7 @@ class Fetcher:
                 return cached[1]
             current = origin + "/robots.txt"
             for hop in range(self.config.max_redirects + 1):
-                current = normalize_url(current)
+                current = normalize_url(current, preserve_bilibili_locale=True)
                 if mooc_scope:
                     self._mooc_redirect_scope(current, robots=True)
                 if bili_scope:
@@ -754,7 +767,7 @@ class Fetcher:
         if not self.config.enabled:
             raise FetchStopped("disabled", "页面补全已关闭")
         async with self._global:
-            current = normalize_url(url)
+            current = normalize_url(url, preserve_bilibili_locale=True)
             mooc_scope = public_mooc_metadata_url(current)
             bili_scope = self.config.bilibili_public_metadata and public_bilibili_metadata_url(current)
             for hop in range(self.config.max_redirects + 1):
@@ -766,11 +779,15 @@ class Fetcher:
                 rules = await self._robots_for(current)
                 if not rules.allowed(current):
                     raise FetchStopped("robots_blocked", "robots.txt 禁止读取此路径")
-                response = await self._request(current, self.config.max_bytes)
+                page_limit = self.config.max_bytes
+                if (self.config.bilibili_public_metadata and self.config.bilibili_public_metadata_max_bytes is not None
+                        and public_bilibili_metadata_url(current) and urlsplit(current).path != "/robots.txt"):
+                    page_limit = self.config.bilibili_public_metadata_max_bytes
+                response = await self._request(current, page_limit)
                 if response.status_code in {301, 302, 303, 307, 308}:
                     if hop == self.config.max_redirects or not response.headers.get("location"):
                         raise FetchStopped("redirect_limit", "页面重定向超过预算或缺少地址")
-                    current = normalize_url(urljoin(current, response.headers["location"]))
+                    current = normalize_url(urljoin(current, response.headers["location"]), preserve_bilibili_locale=True)
                     continue
                 return response
         raise FetchStopped("redirect_limit", "页面重定向未完成")
@@ -798,7 +815,7 @@ class Fetcher:
         try:
             normalized = normalize_url(raw_url)
             resource["url"] = resource["canonical_url"] = normalized
-            response = await self.fetch(normalized)
+            response = await self.fetch(raw_url)
             resource["fetched_at"] = utcnow()
             status = {401: "login_required", 403: "access_denied", 404: "not_found", 410: "not_found"}.get(response.status_code)
             if status or response.status_code != 200:
@@ -817,8 +834,74 @@ class Fetcher:
             except LookupError:
                 html = response.body.decode("utf-8", errors="replace")
             extracted = self.extractor.extract(html, response.url, resource["fetched_at"])
+            locale_url = (empty_ssr_locale_url(html, raw_url, response.url, extracted)
+                          if self.config.bilibili_public_metadata else None)
+            if locale_url:
+                # Static one-hop only. Reuse the production detail reservation and
+                # every existing network/robots/deadline/byte observer; never recurse.
+                self._trace("bilibili_empty_ssr", response.url, status_code=response.status_code,
+                            bytes_read=len(response.body), body_sha256=hashlib.sha256(response.body).hexdigest())
+                resource["resolved_url"] = response.url
+                resource["evidence"].extend(extracted.pop("evidence", []))
+                ends_at = FETCH_DEADLINE_AT.get()
+                if ends_at is not None and asyncio.get_running_loop().time() >= ends_at:
+                    raise TimeoutError("job_deadline")
+                if catalog_budget_hook is None or not await catalog_budget_hook():
+                    resource["catalog_fetch_status"] = "not_attempted" if catalog_budget_hook is None else "budget_limited"
+                    self._trace("bilibili_locale_stopped", locale_url, status=resource["catalog_fetch_status"])
+                else:
+                    resource["catalog_fetch_status"] = "not_attempted"
+                    observer = NETWORK_OBSERVER.get() or {}
+                    original_before_resolve = observer.get("before_resolve")
+                    page_attempted = False
+                    origin = urlsplit(locale_url)
+                    robots_url = urlunsplit((origin.scheme, origin.netloc, "/robots.txt", "", ""))
+                    async def before_locale_resolve(url):
+                        nonlocal page_attempted
+                        if url == locale_url and not page_attempted:
+                            page_attempted = True
+                        elif url != robots_url:
+                            raise FetchStopped("redirect_limit", "公开视频静态补充仅允许同资源一次页面请求")
+                        if original_before_resolve:
+                            await original_before_resolve(url)
+                    token = NETWORK_OBSERVER.set({**observer, "max_retries": 0, "before_resolve": before_locale_resolve})
+                    try:
+                        locale_response = await self.fetch(locale_url)
+                    except FetchStopped as exc:
+                        resource["catalog_fetch_status"] = exc.status
+                        self._trace("bilibili_locale_stopped", locale_url, status=exc.status)
+                        raise
+                    finally:
+                        NETWORK_OBSERVER.reset(token)
+                    resource["catalog_pages_completed"] = 1
+                    self._trace("bilibili_locale_received", locale_response.url, status_code=locale_response.status_code,
+                                bytes_read=len(locale_response.body), body_sha256=hashlib.sha256(locale_response.body).hexdigest())
+                    if locale_response.url != locale_url:
+                        resource["catalog_fetch_status"] = "identity_mismatch"
+                    else:
+                        response = locale_response
+                        resource["resolved_url"] = response.url
+                        resource["fetched_at"] = utcnow()
+                        status = {401: "login_required", 403: "access_denied", 404: "not_found", 410: "not_found"}.get(response.status_code)
+                        if response.status_code != 200:
+                            resource["fetch_status"] = resource["catalog_fetch_status"] = status or "http_error"
+                            if status == "login_required":
+                                resource["requires_login"] = True
+                                self._record_access_evidence(resource, response.url, "http.status.401")
+                            return resource
+                        if not any(value in response.headers.get("content-type", "").lower()
+                                   for value in ("text/html", "application/xhtml+xml")):
+                            resource["catalog_fetch_status"] = "unsupported_content"
+                        else:
+                            locale_facts = self.extractor.extract(response.body.decode("utf-8", errors="replace"), response.url, resource["fetched_at"])
+                            resource["catalog_fetch_status"] = locale_facts.get("fetch_status", "javascript_required")
+                            if (locale_facts.get("video_evidence_status") == "page_verified"
+                                    or locale_facts.get("fetch_status") not in {"fetched", "javascript_required"}):
+                                extracted = locale_facts
+                            else:
+                                resource["catalog_fetch_status"] = "javascript_required"
             renderer = getattr(self, "renderer", None)
-            if (renderer is not None and renderer.config.enabled
+            if (not locale_url and renderer is not None and renderer.config.enabled
                     and (urlsplit(response.url).hostname or "").lower() in renderer.config.allowed_hosts
                     and extracted.get("fetch_status") in {"fetched", "javascript_required"}
                     and not extracted.get("chapters")):

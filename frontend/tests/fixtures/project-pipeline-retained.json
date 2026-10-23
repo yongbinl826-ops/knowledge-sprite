@@ -1,0 +1,774 @@
+{
+  "provenance": {
+    "source": "evidence/motion-default-chain-20261019/live-r2/js-initial-default/results.json",
+    "sha256": "14b64d1c7c101ca84f5a42123c289e853642313b635872f85da290bb4db6bbc8",
+    "scope": "Actual retained app view from bounded test harness with native pin interception error; no upstream failure or teaching acceptance claimed. UI placement fixture only."
+  },
+  "view": {
+    "project_id": "2d40b51c-e36c-4669-8a86-36b9b8956a2c",
+    "original_input": {
+      "name": "离线单词卡网页",
+      "requirements": "只用原生 HTML、CSS、JavaScript 做单词卡网页。显示单词卡，点击按钮或按空格翻面，支持上一张/下一张；用 localStorage 保存卡片数据与当前进度，刷新后恢复；用 Flexbox 排列控件，并在手机宽度下通过媒体查询改为紧凑布局。不做账号、服务器、云同步或框架。",
+      "student_level": "intermediate",
+      "language": "zh",
+      "project_context": "已会HTML基本标签、CSS选择器和JavaScript变量/函数/数组，尚未熟悉DOM事件、localStorage和响应式布局。卡片内容可采用少量本地合成单词。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163"
+      ]
+    },
+    "input": {
+      "name": "离线单词卡网页",
+      "requirements": "只用原生 HTML、CSS、JavaScript 做单词卡网页。显示单词卡，点击按钮或按空格翻面，支持上一张/下一张；用 localStorage 保存卡片数据与当前进度，刷新后恢复；用 Flexbox 排列控件，并在手机宽度下通过媒体查询改为紧凑布局。不做账号、服务器、云同步或框架。",
+      "student_level": "intermediate",
+      "language": "zh",
+      "project_context": "已会HTML基本标签、CSS选择器和JavaScript变量/函数/数组，尚未熟悉DOM事件、localStorage和响应式布局。卡片内容可采用少量本地合成单词。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163"
+      ]
+    },
+    "current_version": 1,
+    "created_at": "2026-10-19T17:25:44.543705+00:00",
+    "updated_at": "2026-10-19T17:25:55.907564+00:00",
+    "versions": [
+      {
+        "version": 1,
+        "status": "partial",
+        "created_at": "2026-10-19T17:25:44.545432+00:00",
+        "model": "deepseek-flash",
+        "prompt_version": "project-analysis-v4.2-numeric-and-namespace-contract"
+      }
+    ],
+    "version": {
+      "version": 1,
+      "input": {
+        "name": "离线单词卡网页",
+        "requirements": "只用原生 HTML、CSS、JavaScript 做单词卡网页。显示单词卡，点击按钮或按空格翻面，支持上一张/下一张；用 localStorage 保存卡片数据与当前进度，刷新后恢复；用 Flexbox 排列控件，并在手机宽度下通过媒体查询改为紧凑布局。不做账号、服务器、云同步或框架。",
+        "student_level": "intermediate",
+        "language": "zh",
+        "project_context": "已会HTML基本标签、CSS选择器和JavaScript变量/函数/数组，尚未熟悉DOM事件、localStorage和响应式布局。卡片内容可采用少量本地合成单词。",
+        "technical_version": "",
+        "preferred_platforms": [
+          "bilibili",
+          "icourse163"
+        ]
+      },
+      "status": "partial",
+      "analysis": {
+        "scope": "用原生 HTML、CSS、JavaScript 实现离线单词卡网页：显示当前单词卡，点击翻面按钮或在 document 上按空格键翻面，支持上一张/下一张切换；卡片数据与当前索引通过 localStorage 以 JSON 保存并在刷新后恢复；控件用 Flexbox 排列，并通过媒体查询在手机宽度下改为紧凑布局。不涉及账号、服务器、云同步或前端框架。",
+        "technical_plan": "语义化 HTML 搭建卡片区与控件区；JavaScript 用数组存放少量本地合成单词，document.querySelector 获取元素并用 textContent 渲染；为按钮绑定 click 监听，为 document 绑定 keydown 监听识别空格键并 preventDefault；用当前索引变量管理进度并做首尾边界处理；localStorage 以 JSON 字符串分别保存卡片数组与当前索引，初始化时读取、缺失则写入默认数据后再渲染；CSS 用 Flexbox 排列按钮，@media 在窄屏下调整方向、间距与字号。",
+        "assumptions": [
+          "无明确技术版本要求，采用原生 HTML5/CSS3/ES6+ 浏览器 API。",
+          "卡片数据为少量本地合成单词，首次访问时写入 localStorage。",
+          "手机宽度断点暂定 600px，可修改。",
+          "刷新后恢复的“当前进度”定义为当前卡片索引，翻面状态不恢复（可修改）。"
+        ],
+        "learner_profile": null,
+        "functions": [
+          {
+            "id": "F1",
+            "name": "单词卡展示",
+            "original_requirement": "显示单词卡",
+            "acceptance_criteria": "页面加载后卡片区域显示当前卡片的正面单词文本，内容来自本地数据数组而非写死在 HTML 中。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "F2",
+            "name": "翻面交互",
+            "original_requirement": "点击按钮或按空格翻面",
+            "acceptance_criteria": "点击翻面按钮或在 document 上按空格键，卡片在正面/背面之间切换，空格键不触发页面滚动。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "F3",
+            "name": "上一张/下一张切换",
+            "original_requirement": "支持上一张/下一张",
+            "acceptance_criteria": "点击上一张或下一张按钮切换卡片并显示其正面；在首张或末张继续切换不越界、不报错。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "F4",
+            "name": "localStorage 数据与进度持久化",
+            "original_requirement": "用 localStorage 保存卡片数据与当前进度，刷新后恢复",
+            "acceptance_criteria": "卡片数组与当前索引以 JSON 写入 localStorage；刷新后仍显示刷新前的当前卡片；存储缺失时回退到初始数据。",
+            "no_new_learning_reason": null
+          },
+          {
+            "id": "F5",
+            "name": "Flexbox 控件布局与响应式",
+            "original_requirement": "用 Flexbox 排列控件，并在手机宽度下通过媒体查询改为紧凑布局",
+            "acceptance_criteria": "控件用 Flexbox 排列且间距一致；窄屏媒体查询断点下控件改为紧凑布局且无横向溢出。",
+            "no_new_learning_reason": null
+          }
+        ],
+        "knowledge_points": [
+          {
+            "id": "K1",
+            "name": "DOM元素查询与textContent更新",
+            "description": "使用 document.querySelector 获取卡片与控件元素，通过 textContent 更新显示的单词与释义。",
+            "function_ids": [
+              "F1",
+              "F3"
+            ],
+            "why_needed": "卡片内容需由 JavaScript 渲染到页面元素，而不是写死在 HTML 中。",
+            "learning_goal": "能用选择器获取元素并安全地更新其文本内容，实现数据驱动的卡片显示。",
+            "technology": "JavaScript DOM",
+            "project_task": null,
+            "concepts": [],
+            "learning_skills": [],
+            "practice_check": null,
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 1,
+            "selection": "skip"
+          },
+          {
+            "id": "K2",
+            "name": "addEventListener事件监听与click事件",
+            "description": "使用 element.addEventListener('click', handler) 为翻面与上下张按钮绑定处理函数。",
+            "function_ids": [
+              "F2",
+              "F3"
+            ],
+            "why_needed": "按钮交互依赖事件监听触发状态变化与重渲染。",
+            "learning_goal": "能为多个按钮绑定 click 监听并编写事件处理函数。",
+            "technology": "JavaScript DOM",
+            "project_task": null,
+            "concepts": [],
+            "learning_skills": [],
+            "practice_check": null,
+            "necessity": "required",
+            "prerequisite_ids": [
+              "K1"
+            ],
+            "learning_order": 2,
+            "selection": "skip"
+          },
+          {
+            "id": "K3",
+            "name": "JavaScript键盘事件与KeyboardEvent空格键检测",
+            "description": "监听 document 的 keydown 事件，通过 event.code 或 event.key 判断空格键并调用 preventDefault 阻止默认滚动。",
+            "function_ids": [
+              "F2"
+            ],
+            "why_needed": "需求要求按空格键也能翻面，需要浏览器键盘事件处理。",
+            "learning_goal": "能识别指定按键并在事件处理中调用翻面逻辑、阻止默认行为。",
+            "technology": "JavaScript DOM",
+            "project_task": null,
+            "concepts": [],
+            "learning_skills": [],
+            "practice_check": null,
+            "necessity": "required",
+            "prerequisite_ids": [
+              "K2"
+            ],
+            "learning_order": 3,
+            "selection": "skip"
+          },
+          {
+            "id": "K4",
+            "name": "数组索引与边界处理",
+            "description": "用当前索引变量访问卡片数组，切换时对首尾索引做边界判断或循环处理。",
+            "function_ids": [
+              "F1",
+              "F3"
+            ],
+            "why_needed": "上一张/下一张切换与进度保存都依赖对数组索引的正确管理。",
+            "learning_goal": "能维护当前索引并避免越界访问数组。",
+            "technology": "JavaScript",
+            "project_task": null,
+            "concepts": [],
+            "learning_skills": [],
+            "practice_check": null,
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 4,
+            "selection": "skip"
+          },
+          {
+            "id": "K5",
+            "name": "localStorage读写与JSON序列化",
+            "description": "使用 localStorage.setItem/getItem 存取数据，并用 JSON.stringify/JSON.parse 转换卡片数组与索引。",
+            "function_ids": [
+              "F4"
+            ],
+            "why_needed": "卡片数据与当前进度需持久化，数组与对象必须以字符串形式存储。",
+            "learning_goal": "能把对象/数组序列化写入 localStorage，读取时反序列化并处理空值。",
+            "technology": "JavaScript Web Storage",
+            "project_task": null,
+            "concepts": [],
+            "learning_skills": [],
+            "practice_check": null,
+            "necessity": "required",
+            "prerequisite_ids": [
+              "K4"
+            ],
+            "learning_order": 5,
+            "selection": "learn"
+          },
+          {
+            "id": "K6",
+            "name": "页面初始化与状态恢复流程",
+            "description": "在页面加载时读取 localStorage，若不存在则写入初始数据，然后按恢复的索引渲染卡片。",
+            "function_ids": [
+              "F4",
+              "F1"
+            ],
+            "why_needed": "刷新后恢复进度要求在初始化流程中读取持久化数据并驱动首次渲染。",
+            "learning_goal": "能编写初始化函数，实现“读取—回退默认—渲染”的顺序流程。",
+            "technology": "JavaScript",
+            "project_task": null,
+            "concepts": [],
+            "learning_skills": [],
+            "practice_check": null,
+            "necessity": "required",
+            "prerequisite_ids": [
+              "K5",
+              "K1"
+            ],
+            "learning_order": 6,
+            "selection": "skip"
+          },
+          {
+            "id": "K7",
+            "name": "Flexbox弹性布局",
+            "description": "对控件容器使用 display:flex、gap、justify-content 等属性排列按钮。",
+            "function_ids": [
+              "F5"
+            ],
+            "why_needed": "需求明确要求用 Flexbox 排列控件。",
+            "learning_goal": "能使用 Flexbox 让控件水平排列、间距一致且对齐整齐。",
+            "technology": "CSS",
+            "project_task": null,
+            "concepts": [],
+            "learning_skills": [],
+            "practice_check": null,
+            "necessity": "required",
+            "prerequisite_ids": [],
+            "learning_order": 7,
+            "selection": "skip"
+          },
+          {
+            "id": "K8",
+            "name": "CSS媒体查询响应式布局",
+            "description": "使用 @media 查询在窄屏宽度下调整 Flexbox 方向、间距与字号，形成紧凑布局。",
+            "function_ids": [
+              "F5"
+            ],
+            "why_needed": "需求要求手机宽度下通过媒体查询切换为紧凑布局。",
+            "learning_goal": "能编写媒体查询覆盖桌面样式，使控件在手机宽度下不溢出且更紧凑。",
+            "technology": "CSS",
+            "project_task": null,
+            "concepts": [],
+            "learning_skills": [],
+            "practice_check": null,
+            "necessity": "required",
+            "prerequisite_ids": [
+              "K7"
+            ],
+            "learning_order": 8,
+            "selection": "skip"
+          }
+        ]
+      },
+      "confirmation": {
+        "confirmation_version": 1,
+        "confirmed_at": "2026-10-19T17:25:44.754309+00:00",
+        "search_mode": "professional_terms_v1",
+        "selected_ids": [
+          "K5"
+        ],
+        "selections": {
+          "K1": "skip",
+          "K2": "skip",
+          "K3": "skip",
+          "K4": "skip",
+          "K5": "learn",
+          "K6": "skip",
+          "K7": "skip",
+          "K8": "skip"
+        },
+        "acknowledged_skipped_prerequisites": [],
+        "analysis": {
+          "scope": "用原生 HTML、CSS、JavaScript 实现离线单词卡网页：显示当前单词卡，点击翻面按钮或在 document 上按空格键翻面，支持上一张/下一张切换；卡片数据与当前索引通过 localStorage 以 JSON 保存并在刷新后恢复；控件用 Flexbox 排列，并通过媒体查询在手机宽度下改为紧凑布局。不涉及账号、服务器、云同步或前端框架。",
+          "technical_plan": "语义化 HTML 搭建卡片区与控件区；JavaScript 用数组存放少量本地合成单词，document.querySelector 获取元素并用 textContent 渲染；为按钮绑定 click 监听，为 document 绑定 keydown 监听识别空格键并 preventDefault；用当前索引变量管理进度并做首尾边界处理；localStorage 以 JSON 字符串分别保存卡片数组与当前索引，初始化时读取、缺失则写入默认数据后再渲染；CSS 用 Flexbox 排列按钮，@media 在窄屏下调整方向、间距与字号。",
+          "assumptions": [
+            "无明确技术版本要求，采用原生 HTML5/CSS3/ES6+ 浏览器 API。",
+            "卡片数据为少量本地合成单词，首次访问时写入 localStorage。",
+            "手机宽度断点暂定 600px，可修改。",
+            "刷新后恢复的“当前进度”定义为当前卡片索引，翻面状态不恢复（可修改）。"
+          ],
+          "learner_profile": null,
+          "functions": [
+            {
+              "id": "F1",
+              "name": "单词卡展示",
+              "original_requirement": "显示单词卡",
+              "acceptance_criteria": "页面加载后卡片区域显示当前卡片的正面单词文本，内容来自本地数据数组而非写死在 HTML 中。",
+              "no_new_learning_reason": null
+            },
+            {
+              "id": "F2",
+              "name": "翻面交互",
+              "original_requirement": "点击按钮或按空格翻面",
+              "acceptance_criteria": "点击翻面按钮或在 document 上按空格键，卡片在正面/背面之间切换，空格键不触发页面滚动。",
+              "no_new_learning_reason": null
+            },
+            {
+              "id": "F3",
+              "name": "上一张/下一张切换",
+              "original_requirement": "支持上一张/下一张",
+              "acceptance_criteria": "点击上一张或下一张按钮切换卡片并显示其正面；在首张或末张继续切换不越界、不报错。",
+              "no_new_learning_reason": null
+            },
+            {
+              "id": "F4",
+              "name": "localStorage 数据与进度持久化",
+              "original_requirement": "用 localStorage 保存卡片数据与当前进度，刷新后恢复",
+              "acceptance_criteria": "卡片数组与当前索引以 JSON 写入 localStorage；刷新后仍显示刷新前的当前卡片；存储缺失时回退到初始数据。",
+              "no_new_learning_reason": null
+            },
+            {
+              "id": "F5",
+              "name": "Flexbox 控件布局与响应式",
+              "original_requirement": "用 Flexbox 排列控件，并在手机宽度下通过媒体查询改为紧凑布局",
+              "acceptance_criteria": "控件用 Flexbox 排列且间距一致；窄屏媒体查询断点下控件改为紧凑布局且无横向溢出。",
+              "no_new_learning_reason": null
+            }
+          ],
+          "knowledge_points": [
+            {
+              "id": "K1",
+              "name": "DOM元素查询与textContent更新",
+              "description": "使用 document.querySelector 获取卡片与控件元素，通过 textContent 更新显示的单词与释义。",
+              "function_ids": [
+                "F1",
+                "F3"
+              ],
+              "why_needed": "卡片内容需由 JavaScript 渲染到页面元素，而不是写死在 HTML 中。",
+              "learning_goal": "能用选择器获取元素并安全地更新其文本内容，实现数据驱动的卡片显示。",
+              "technology": "JavaScript DOM",
+              "project_task": null,
+              "concepts": [],
+              "learning_skills": [],
+              "practice_check": null,
+              "necessity": "required",
+              "prerequisite_ids": [],
+              "learning_order": 1,
+              "selection": "skip"
+            },
+            {
+              "id": "K2",
+              "name": "addEventListener事件监听与click事件",
+              "description": "使用 element.addEventListener('click', handler) 为翻面与上下张按钮绑定处理函数。",
+              "function_ids": [
+                "F2",
+                "F3"
+              ],
+              "why_needed": "按钮交互依赖事件监听触发状态变化与重渲染。",
+              "learning_goal": "能为多个按钮绑定 click 监听并编写事件处理函数。",
+              "technology": "JavaScript DOM",
+              "project_task": null,
+              "concepts": [],
+              "learning_skills": [],
+              "practice_check": null,
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K1"
+              ],
+              "learning_order": 2,
+              "selection": "skip"
+            },
+            {
+              "id": "K3",
+              "name": "JavaScript键盘事件与KeyboardEvent空格键检测",
+              "description": "监听 document 的 keydown 事件，通过 event.code 或 event.key 判断空格键并调用 preventDefault 阻止默认滚动。",
+              "function_ids": [
+                "F2"
+              ],
+              "why_needed": "需求要求按空格键也能翻面，需要浏览器键盘事件处理。",
+              "learning_goal": "能识别指定按键并在事件处理中调用翻面逻辑、阻止默认行为。",
+              "technology": "JavaScript DOM",
+              "project_task": null,
+              "concepts": [],
+              "learning_skills": [],
+              "practice_check": null,
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K2"
+              ],
+              "learning_order": 3,
+              "selection": "skip"
+            },
+            {
+              "id": "K4",
+              "name": "数组索引与边界处理",
+              "description": "用当前索引变量访问卡片数组，切换时对首尾索引做边界判断或循环处理。",
+              "function_ids": [
+                "F1",
+                "F3"
+              ],
+              "why_needed": "上一张/下一张切换与进度保存都依赖对数组索引的正确管理。",
+              "learning_goal": "能维护当前索引并避免越界访问数组。",
+              "technology": "JavaScript",
+              "project_task": null,
+              "concepts": [],
+              "learning_skills": [],
+              "practice_check": null,
+              "necessity": "required",
+              "prerequisite_ids": [],
+              "learning_order": 4,
+              "selection": "skip"
+            },
+            {
+              "id": "K5",
+              "name": "localStorage读写与JSON序列化",
+              "description": "使用 localStorage.setItem/getItem 存取数据，并用 JSON.stringify/JSON.parse 转换卡片数组与索引。",
+              "function_ids": [
+                "F4"
+              ],
+              "why_needed": "卡片数据与当前进度需持久化，数组与对象必须以字符串形式存储。",
+              "learning_goal": "能把对象/数组序列化写入 localStorage，读取时反序列化并处理空值。",
+              "technology": "JavaScript Web Storage",
+              "project_task": null,
+              "concepts": [],
+              "learning_skills": [],
+              "practice_check": null,
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K4"
+              ],
+              "learning_order": 5,
+              "selection": "learn"
+            },
+            {
+              "id": "K6",
+              "name": "页面初始化与状态恢复流程",
+              "description": "在页面加载时读取 localStorage，若不存在则写入初始数据，然后按恢复的索引渲染卡片。",
+              "function_ids": [
+                "F4",
+                "F1"
+              ],
+              "why_needed": "刷新后恢复进度要求在初始化流程中读取持久化数据并驱动首次渲染。",
+              "learning_goal": "能编写初始化函数，实现“读取—回退默认—渲染”的顺序流程。",
+              "technology": "JavaScript",
+              "project_task": null,
+              "concepts": [],
+              "learning_skills": [],
+              "practice_check": null,
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K5",
+                "K1"
+              ],
+              "learning_order": 6,
+              "selection": "skip"
+            },
+            {
+              "id": "K7",
+              "name": "Flexbox弹性布局",
+              "description": "对控件容器使用 display:flex、gap、justify-content 等属性排列按钮。",
+              "function_ids": [
+                "F5"
+              ],
+              "why_needed": "需求明确要求用 Flexbox 排列控件。",
+              "learning_goal": "能使用 Flexbox 让控件水平排列、间距一致且对齐整齐。",
+              "technology": "CSS",
+              "project_task": null,
+              "concepts": [],
+              "learning_skills": [],
+              "practice_check": null,
+              "necessity": "required",
+              "prerequisite_ids": [],
+              "learning_order": 7,
+              "selection": "skip"
+            },
+            {
+              "id": "K8",
+              "name": "CSS媒体查询响应式布局",
+              "description": "使用 @media 查询在窄屏宽度下调整 Flexbox 方向、间距与字号，形成紧凑布局。",
+              "function_ids": [
+                "F5"
+              ],
+              "why_needed": "需求要求手机宽度下通过媒体查询切换为紧凑布局。",
+              "learning_goal": "能编写媒体查询覆盖桌面样式，使控件在手机宽度下不溢出且更紧凑。",
+              "technology": "CSS",
+              "project_task": null,
+              "concepts": [],
+              "learning_skills": [],
+              "practice_check": null,
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K7"
+              ],
+              "learning_order": 8,
+              "selection": "skip"
+            }
+          ]
+        },
+        "input": {
+          "name": "离线单词卡网页",
+          "requirements": "只用原生 HTML、CSS、JavaScript 做单词卡网页。显示单词卡，点击按钮或按空格翻面，支持上一张/下一张；用 localStorage 保存卡片数据与当前进度，刷新后恢复；用 Flexbox 排列控件，并在手机宽度下通过媒体查询改为紧凑布局。不做账号、服务器、云同步或框架。",
+          "student_level": "intermediate",
+          "language": "zh",
+          "project_context": "已会HTML基本标签、CSS选择器和JavaScript变量/函数/数组，尚未熟悉DOM事件、localStorage和响应式布局。卡片内容可采用少量本地合成单词。",
+          "technical_version": "",
+          "preferred_platforms": [
+            "bilibili",
+            "icourse163"
+          ]
+        }
+      },
+      "batches": [
+        {
+          "batch_id": "2d40b51c-e36c-4669-8a86-36b9b8956a2c-v1-b1",
+          "ordinal": 1,
+          "project_knowledge_point_ids": [
+            "K5"
+          ],
+          "status": "partial",
+          "job_id": "4ad4c3af-8c56-4d14-bc24-175083c731b1",
+          "mappings": [
+            {
+              "project_knowledge_point_id": "K5",
+              "knowledge_point_id": "f810ead6-19ab-46b8-b0d3-1050315b021e"
+            }
+          ],
+          "error": null,
+          "reused": false,
+          "job_status": "partial",
+          "progress": {
+            "queries_planned": 2,
+            "queries_completed": 2,
+            "search_requests": 2,
+            "search_successes": 2,
+            "search_failures": 0,
+            "candidates_discovered": 24,
+            "resources_discovered": 24,
+            "details_attempted": 3,
+            "details_completed": 3,
+            "details_cached": 0,
+            "cache_hits": 0,
+            "catalog_pages_attempted": 0,
+            "catalog_pages_completed": 0,
+            "platform_search_requests": {
+              "bilibili": 1,
+              "icourse163": 1
+            },
+            "initial_platform_pairs_completed": 2,
+            "followup_platform_pairs_completed": 0
+          },
+          "warnings": [
+            "部分平台搜索未完成，已保留其他平台返回的课程与视频",
+            "达到详情页预算；按知识点轮转补全，未确认类型的候选不会作为课程展示",
+            "24 个候选仅搜索发现，页面详情未核验；不代表可播放或免费",
+            "2 个候选缺少课程或视频类型依据，未作为学习资源展示",
+            "10 个搜索发现的课程候选尚未确认是否包含视频；课程入口发现不等于视频或可播放性核验"
+          ],
+          "errors": []
+        }
+      ],
+      "budgets": {
+        "batch_size": 5,
+        "batch_count": 1,
+        "selected_count": 1,
+        "reserved_search_requests": 2,
+        "reserved_detail_pages": 3,
+        "reserved_task_seconds": 180,
+        "max_batches": 6,
+        "max_search_requests": 2,
+        "max_detail_pages": 3,
+        "deadline_seconds": 210,
+        "per_batch_search_requests": 2,
+        "per_batch_deadline_seconds": 180,
+        "per_batch_detail_pages": 3,
+        "batch_search_requests": [
+          2
+        ],
+        "search_policy": "platform-rounds-v2",
+        "platform_rounds": {
+          "bilibili": 1,
+          "icourse163": 1
+        },
+        "first_pass_before_followups": true,
+        "actual_search_requests": 2,
+        "actual_detail_pages": 3
+      },
+      "error": null,
+      "warnings": [],
+      "created_at": "2026-10-19T17:25:44.545432+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v4.2-numeric-and-namespace-contract",
+      "origin": "retained_real_analysis_for_zero_model_retrieval_acceptance",
+      "search_started_at": "2026-10-19T17:25:44.761630+00:00",
+      "cancel_requested": false,
+      "updated_at": "2026-10-19T17:25:55.907395+00:00"
+    },
+    "points": [
+      {
+        "project_knowledge_point_id": "K1",
+        "name": "DOM元素查询与textContent更新",
+        "selection": "skip",
+        "status": "skip",
+        "batch_id": null,
+        "job_id": null,
+        "knowledge_point_id": null,
+        "result": null
+      },
+      {
+        "project_knowledge_point_id": "K2",
+        "name": "addEventListener事件监听与click事件",
+        "selection": "skip",
+        "status": "skip",
+        "batch_id": null,
+        "job_id": null,
+        "knowledge_point_id": null,
+        "result": null
+      },
+      {
+        "project_knowledge_point_id": "K3",
+        "name": "JavaScript键盘事件与KeyboardEvent空格键检测",
+        "selection": "skip",
+        "status": "skip",
+        "batch_id": null,
+        "job_id": null,
+        "knowledge_point_id": null,
+        "result": null
+      },
+      {
+        "project_knowledge_point_id": "K4",
+        "name": "数组索引与边界处理",
+        "selection": "skip",
+        "status": "skip",
+        "batch_id": null,
+        "job_id": null,
+        "knowledge_point_id": null,
+        "result": null
+      },
+      {
+        "project_knowledge_point_id": "K5",
+        "name": "localStorage读写与JSON序列化",
+        "selection": "learn",
+        "status": "partial",
+        "batch_id": "2d40b51c-e36c-4669-8a86-36b9b8956a2c-v1-b1",
+        "job_id": "4ad4c3af-8c56-4d14-bc24-175083c731b1",
+        "knowledge_point_id": "f810ead6-19ab-46b8-b0d3-1050315b021e",
+        "result": {
+          "knowledge_point_id": "f810ead6-19ab-46b8-b0d3-1050315b021e",
+          "text": "localStorage 读写与JSON序列化",
+          "total_matches": 0,
+          "total_partial_matches": 0,
+          "total_review_matches": 0,
+          "section_limit": 5,
+          "items": [],
+          "platform_items": {},
+          "partial_items": [],
+          "partial_platform_items": {},
+          "review_items": [],
+          "review_platform_items": {},
+          "collection_coverage": {
+            "decomposition_status": "unknown",
+            "shared_context": [],
+            "subtopics": [
+              {
+                "id": "whole_topic",
+                "text": "localStorage 读写与JSON序列化",
+                "status": "unknown",
+                "resource_ids": [],
+                "evidence_ids": []
+              }
+            ],
+            "status": "unknown",
+            "single_resource_full_coverage": false,
+            "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+          },
+          "platform_collection_coverage": {}
+        }
+      },
+      {
+        "project_knowledge_point_id": "K6",
+        "name": "页面初始化与状态恢复流程",
+        "selection": "skip",
+        "status": "skip",
+        "batch_id": null,
+        "job_id": null,
+        "knowledge_point_id": null,
+        "result": null
+      },
+      {
+        "project_knowledge_point_id": "K7",
+        "name": "Flexbox弹性布局",
+        "selection": "skip",
+        "status": "skip",
+        "batch_id": null,
+        "job_id": null,
+        "knowledge_point_id": null,
+        "result": null
+      },
+      {
+        "project_knowledge_point_id": "K8",
+        "name": "CSS媒体查询响应式布局",
+        "selection": "skip",
+        "status": "skip",
+        "batch_id": null,
+        "job_id": null,
+        "knowledge_point_id": null,
+        "result": null
+      }
+    ],
+    "functions": [
+      {
+        "id": "F1",
+        "name": "单词卡展示",
+        "original_requirement": "显示单词卡",
+        "acceptance_criteria": "页面加载后卡片区域显示当前卡片的正面单词文本，内容来自本地数据数组而非写死在 HTML 中。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F2",
+        "name": "翻面交互",
+        "original_requirement": "点击按钮或按空格翻面",
+        "acceptance_criteria": "点击翻面按钮或在 document 上按空格键，卡片在正面/背面之间切换，空格键不触发页面滚动。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F3",
+        "name": "上一张/下一张切换",
+        "original_requirement": "支持上一张/下一张",
+        "acceptance_criteria": "点击上一张或下一张按钮切换卡片并显示其正面；在首张或末张继续切换不越界、不报错。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F4",
+        "name": "localStorage 数据与进度持久化",
+        "original_requirement": "用 localStorage 保存卡片数据与当前进度，刷新后恢复",
+        "acceptance_criteria": "卡片数组与当前索引以 JSON 写入 localStorage；刷新后仍显示刷新前的当前卡片；存储缺失时回退到初始数据。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F5",
+        "name": "Flexbox 控件布局与响应式",
+        "original_requirement": "用 Flexbox 排列控件，并在手机宽度下通过媒体查询改为紧凑布局",
+        "acceptance_criteria": "控件用 Flexbox 排列且间距一致；窄屏媒体查询断点下控件改为紧凑布局且无横向溢出。",
+        "no_new_learning_reason": null
+      }
+    ],
+    "pipeline": {
+      "stage": "complete",
+      "terminal": true,
+      "search_requests": 2,
+      "search_budget": 2,
+      "candidates": 24,
+      "checking": 0,
+      "checked": 3,
+      "displayed": 0,
+      "filtered": 0,
+      "unknown": 0,
+      "source_limited": false,
+      "counts_scope": "candidates per job; displayed unique URLs; filtered and unknown MOOC point-course pairs"
+    }
+  }
+}

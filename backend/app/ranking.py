@@ -5,6 +5,7 @@ from .technical_prefix import canonical_search_name, leading_technical_owner
 from .learning_support import learning_skill_assessment
 
 import re
+import json
 from contextvars import ContextVar
 from urllib.parse import urlsplit
 from .models import SearchRequest, TopicEvidenceAssessment
@@ -224,7 +225,9 @@ def _split_concepts(text: str, *, possessive: bool = False) -> list[str]:
     # the second character in 与及格率 / 和及格率 starts a word, not another
     # conjunction. Preserve common lexical prefixes containing these characters.
     conjunction = r"与(?!门)|及(?!格)|和(?!弦)" + (r"|的" if possessive else "")
-    boundary = rf"(?<=[\u4e00-\u9fff]{{2}})(?<![与及和的])(?:{conjunction})(?=[\u4e00-\u9fff]{{2}}|\s+[A-Za-z][A-Za-z0-9+#.]*)"
+    # Chinese conjunctions need no typographic space before a Latin API/concept.
+    # This only splits the existing literal text; it adds no skill or evidence.
+    boundary = rf"(?<=[\u4e00-\u9fff]{{2}})(?<![与及和的])(?:{conjunction})(?=[\u4e00-\u9fff]{{2}}|\s*[A-Za-z][A-Za-z0-9+#.]*)"
     ascii_conjunction = rf"(?<=[A-Za-z0-9_+#.])(?:{conjunction})(?=[\u4e00-\u9fff]{{2}})"
     return [part.strip() for part in re.split(boundary + "|" + ascii_conjunction + r"|、|\s+and\s+", text, flags=re.I)]
 
@@ -266,6 +269,66 @@ def own_resource_snippet(snippet: str) -> str:
     return RELATED_RESOURCE_TAIL.split(snippet, maxsplit=1)[0]
 
 
+def _advertised_course_duration(text: str) -> tuple[float, float] | None:
+    """Declared seconds and written precision; no short-video cutoff."""
+    units = r"小时|小時|hours?|hrs?|h|分钟|分鐘|分|minutes?|mins?|m|秒|seconds?|secs?|s"
+    found = re.search(r"(?:总?时长|duration)\s*[:：]?\s*("
+                      r"(?:\d+(?:\.\d+)?\s*(?:" + units + r")\s*)+|"
+                      r"\d{1,3}:[0-5]\d(?::[0-5]\d)?)", text, re.I)
+    if not found:
+        return None
+    value = found[1].strip()
+    if ":" in value:
+        parts = [int(part) for part in value.split(":")]
+        total = sum(part * 60 ** index for index, part in enumerate(reversed(parts)))
+        return total, 1
+    total, precision = 0.0, 0.0
+    for item in re.finditer(r"(\d+(?:\.\d+)?)\s*(" + units + r")", value, re.I):
+        unit = item[2].casefold()
+        scale = 3600 if unit.startswith(("小", "h")) else 60 if unit.startswith(("分", "m")) else 1
+        total += float(item[1]) * scale
+        precision = scale / 10 ** (len(item[1].split(".", 1)[1]) if "." in item[1] else 0)
+    return (total, precision) if total > 0 else None
+
+
+def _external_course_description(resource: dict, text: str, duration: float) -> str | None:
+    """Exclude an externally offered whole-course block, not its host video.
+
+    Both external course attribution and a declared duration contradiction are
+    necessary. A source-code link, chapter count or short runtime alone grants
+    no exclusion. The projection stays an exact contiguous source substring.
+    """
+    link = re.compile(r"(?:下载(?:地址|链接)|(?:完整|整套|全套)?(?:课程|教程)(?:下载(?:地址|链接)?|链接|地址)|"
+                      r"(?:full|complete)\s+(?:course|tutorial)\s+(?:download|link)|download\s+(?:link|url))"
+                      r"\s*[:：]?\s*(https?://[^\s<>，。；]+)", re.I)
+    own_scope = re.compile(r"(?:本|此)(?:视频|节|段)|\b(?:this|current)\s+(?:video|lesson|clip)\b", re.I)
+    for marker in link.finditer(text):
+        if re.search(r"(?:源码|源代码|代码|资料|课件|数据集|素材|source\s*code|code|materials?|dataset)\s*$",
+                     text[max(0, marker.start()-24):marker.start()], re.I):
+            continue
+        try:
+            if normalize_url(marker[1]) in {normalize_url(resource[key]) for key in ("url", "canonical_url", "resolved_url") if resource.get(key)}:
+                continue
+        except (UnsafeURL, TypeError, ValueError):
+            continue
+        reset = own_scope.search(text, marker.end())
+        end = reset.start() if reset else len(text)
+        block = text[marker.start():end]
+        count = re.search(r"(?:共|共计|包含|总计)\s*(\d+)\s*(?:个|节)?\s*(?:章节|课时|节课|讲)|"
+                          r"\b(\d+)\s+(?:chapters|lessons|modules)\b", block, re.I)
+        whole_course = re.search(r"完整版|完整(?:课程|教程)|整套|全套|\b(?:full|complete)\s+(?:course|tutorial)\b", block, re.I)
+        if not whole_course and not (count and int(count[1] or count[2]) > 1):
+            continue
+        declared = _advertised_course_duration(block)
+        if not declared or declared[0] - declared[1] <= duration:
+            continue
+        prefix, suffix = text[:marker.start()].strip(), text[end:].strip()
+        # A current-video statement can follow an external advert. Do not join
+        # separate source ranges into one purported exact quote.
+        return prefix if prefix and (own_scope.search(prefix) or not suffix) else suffix
+    return None
+
+
 def own_video_description(resource: dict, text: str) -> str:
     """Project only own prose; do not assign related lessons or a long syllabus.
 
@@ -277,11 +340,14 @@ def own_video_description(resource: dict, text: str) -> str:
     chapters = resource.get("chapters") or []
     if resource.get("resource_type") != "video" or len(chapters) != 1:
         return text
-    marker = re.search(r"课程大纲", text)
-    if not marker or len(re.findall(r"课时\s*\d+", text[marker.start():])) < 3:
-        return text
     duration = resource.get("duration_seconds") or (chapters[0].get("duration_seconds") if isinstance(chapters[0], dict) else None)
     if not isinstance(duration, (int, float)) or isinstance(duration, bool) or duration <= 0:
+        return text
+    external = _external_course_description(resource, text, duration)
+    if external is not None:
+        return external
+    marker = re.search(r"课程大纲", text)
+    if not marker or len(re.findall(r"课时\s*\d+", text[marker.start():])) < 3:
         return text
     times = [int(minutes) * 60 + int(seconds) for minutes, seconds in
              re.findall(r"(?<!\d)(\d{1,3}):([0-5]\d)(?!\d)", text[marker.start():])]
@@ -544,6 +610,66 @@ def pygame_keyboard_movement_match(point: str, observation: str) -> bool | None:
     return False
 
 
+def _instruction_scope_parts(text: str) -> list[str]:
+    """Keep API lists intact; separate an explicit switch of teaching scope."""
+    switch = (r"(?:之后|后续|以后|未来|将来|明天|后天|下周|下个月|不需要|无需|无须|不用|"
+              r"其他课程|其它课程|另一(?:个|节|门)?课|但(?:是)?|不过|然而|不像|不同于)"
+              r"|(?:but|however|unlike|other\s+(?:courses?|lessons?))\b")
+    comma_switch = switch + r"|本课|本节|这节课|this\s+lesson\b"
+    return re.split(r"[。；;!?！？\n]|\.(?=\s|$)|[，,]\s*(?=" + comma_switch
+                    + r")|\s+(?=" + switch + r")", text, flags=re.I)
+
+
+def _teaching_denial(text: str) -> bool:
+    return bool(re.search(
+        r"不(?:讲|教|会讲|涵盖|涉及|使用|包含)|未(?:讲解|教授|涵盖)|"
+        r"\b(?:isn['’]t|aren['’]t|wasn['’]t|weren['’]t|won['’]t|doesn['’]t|don['’]t|"
+        r"(?:is|are|was|were|will|does|do)\s+not|not|never)\s+"
+        r"(?:(?:be|being|explicitly|currently|actually|ever|going\s+to)\s+){0,3}"
+        r"(?:cover(?:ed)?|teach|taught|explain(?:ed)?|include(?:d)?|use(?:d)?)\b", text, re.I))
+
+
+def _future_or_other_lesson(text: str) -> bool:
+    """Exclude explicit future/foreign teaching scope, not this lesson's plan."""
+    return bool(re.search(
+        r"(?:以后|后续|之后|未来|将来|后面|明天|后天|下周|下个月)[^。！？!?；;\n]{0,30}(?:会|将|讲|教|介绍|学习)|"
+        r"(?:其他|其它|别的|另一(?:个|节|门)?)(?:课程|视频|教程|课)|"
+        r"\b(?:other|another|future|next|later)\s+(?:course|video|lesson|tutorial)s?\b|"
+        r"\blater\b.{0,20}\b(?:will\s+)?(?:learn|cover|teach)\b|"
+        r"\b(?:learn|cover(?:ed)?|teach|taught|explain(?:ed)?)\b.{0,30}"
+        r"\b(?:tomorrow|next\s+(?:week|month|time)|later)\b", text, re.I))
+
+
+def _button_debounce_concept_match(concept: str, point: str, observation: str) -> bool | None:
+    """按钮/按键 and 消抖/去抖 name this one concept, not arbitrary jitter.
+
+    The declared technical words and the complete concept must occur in the
+    same own clause. This supplies no board, nonblocking method or project proof.
+    """
+    phrase = r"(?:按钮|按键)(?:的)?(?:消抖|去抖)"
+    state_topic = bool(re.fullmatch(phrase + r"(?:与|及|和)?状态检测", concept))
+    if not re.fullmatch(phrase, concept) and not state_topic:
+        return None
+    owners = {term for term in tokens(point) if re.search(r"[a-z]", term)}
+    clauses = _instruction_scope_parts(own_resource_snippet(observation))
+    if state_topic and any(re.search(phrase, clause) and _teaching_denial(clause)
+                           for clause in clauses):
+        return False  # A heading cannot override an explicit denial of debounce.
+    for clause in clauses:
+        if (PREREQUISITE.search(clause) or PARTIAL_SKILL_NONTEACHING.search(clause) or _teaching_denial(clause)
+                or _future_or_other_lesson(clause)
+                or re.search(r"下(?:一)?(?:节|堂)?课|下一讲|下次|相关(?:视频|课程)|参考资料|参考文档|"
+                             r"\b(?:next\s+lesson|future\s+lesson|todo|api\s+list|references?)\b", clause, re.I)):
+            continue
+        state_detection = (concept in clause or re.search(
+            r"(?:按下|松手|释放)(?:状态)?(?:检测|判断|识别)|"
+            r"(?:检测|判断|识别)(?:按钮|按键)?(?:的)?(?:按下|松手|释放)(?:状态)?", clause))
+        if (owners.issubset(tokens(clause)) and re.search(phrase, clause)
+                and (not state_topic or state_detection)):
+            return True
+    return False
+
+
 def compound_english_match(point: str, observations: list[str], rule_audit: list[str] | None = None) -> bool:
     """Do not substitute a different concept that shares a few English words.
 
@@ -566,6 +692,11 @@ def compound_english_match(point: str, observations: list[str], rule_audit: list
         # Cover the entire concept with observed contiguous terms of >=2 Han
         # characters. Do not require artificial cross-word bigrams (单校),
         # and never stitch individual characters or different observations.
+        debounce = _button_debounce_concept_match(concept, point, observation)
+        if debounce is not None:
+            if debounce and concept not in observation and rule_audit is not None:
+                rule_audit.append("button_key_debounce_terms")
+            return debounce
         bound_action = locally_bound_chinese_action(concept, observation)
         if bound_action is not None:
             return bound_action
@@ -750,6 +881,8 @@ def _subtopic_matches(subtopic: str, text: str, *, whole_topic: str = "") -> boo
     movement = pygame_keyboard_movement_match(scoped_part, text)
     if movement is not None:
         return movement
+    if _json_stringify_serialization(subtopic, text, whole_topic=whole_topic):
+        return True
     if BARE_ACTION.fullmatch(subtopic):
         return bool(whole_topic) and _action_has_requested_object(subtopic, text, whole_topic)
     # Only the complete error-handling concept is interchangeable here; the
@@ -771,6 +904,49 @@ def _subtopic_matches(subtopic: str, text: str, *, whole_topic: str = "") -> boo
     # The complete-concept matcher already allows harmless Chinese word
     # boundaries such as 文件的读写. Do not re-impose cross-boundary bigrams.
     return compound_english_match(subtopic, [text]) and (len(tokens(subtopic)) >= 3 or relevance(subtopic, text) >= .999)
+
+
+def _json_stringify_serialization(subtopic: str, text: str, *, whole_topic: str) -> bool:
+    """One standard JS operation, never storage read/write or JSON parsing.
+
+    MDN JSON.stringify: a JavaScript value is converted to a JSON string.
+    https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+    Only an explicitly named JS/browser-storage context and this exact API
+    spelling can support the serialization subtopic. No inferred curriculum.
+    """
+    if not re.fullmatch(r"JSON\s*(?:序列化|serialization)", subtopic, re.I):
+        return False
+    context = {item.casefold() for item in decompose_topic(whole_topic)["shared_context"]}
+    if not context.intersection({"javascript", "js", "localstorage", "sessionstorage"}):
+        return False
+    clean = EXTERNAL_URL.sub(" ", own_resource_snippet(text))
+    # Instruction cleaning may have removed a contrast word before this call.
+    # Preserve a comma's separate subject; relative/subjectless predicates
+    # still govern the preceding API ("JSON.stringify, which isn't covered").
+    clauses = [part for scope in _instruction_scope_parts(clean) for part in re.split(
+        r"[，,](?!\s*(?:which\b|that\b|is\b|isn['’]t\b|not\b|never\b|它|该方法|该函数|此API))",
+        scope, flags=re.I)]
+    api = r"(?<![A-Za-z0-9_.])JSON\.stringify(?![A-Za-z0-9_.])"
+    # A title cannot override this resource's explicit denial of the same API.
+    if any(re.search(api, clause) and _teaching_denial(clause)
+           for clause in clauses):
+        return False
+    for clause in clauses:
+        if not re.search(api, clause):
+            continue
+        if (PREREQUISITE.search(clause) or PARTIAL_SKILL_NONTEACHING.search(clause)
+                or _future_or_other_lesson(clause)
+                or _confirmed_target_non_teaching("JSON.stringify", "", [{"title": "", "body": clause}])
+                or re.search(r"参考(?:资料|文档|链接|代码)|API\s*列表|\b(?:api\s+list|references?)\b|"
+                             r"下(?:一)?(?:节|堂)?课|下一讲|下次|\b(?:next\s+lesson|todo)\b|"
+                             r"\b(?:java|python|rust|swift|kotlin|csharp)\b", clause, re.I)):
+            continue
+        if re.search(r"(?:后面|后续|以后|之后|未来|将来)[^。！？!?；;\n]{0,40}"
+                     r"(?:会|将|讲解|介绍|学习)[^。！？!?；;\n]{0,40}JSON\.stringify", clause):
+            continue
+        if re.search(api, clause):
+            return True
+    return False
 
 
 def _new_skill_owner_matches(context: list[str], text: str, start: int) -> bool:
@@ -951,6 +1127,22 @@ def _chapter_parent_context(point_text: str, resource: dict, evidence: list[dict
     return "", []
 
 
+def _own_scalar_topic_field(resource: dict, evidence: list[dict], field: str, value: str) -> bool:
+    """A fetched topic field must cite its unchanged, same-page scalar fact."""
+    origin = resource.get("field_provenance", {}).get(field, {})
+    source = next((row for row in evidence if row.get("evidence_id") == origin.get("evidence_id")), {})
+    if (not origin.get("source") or origin.get("source") in {"search", "search_template"}
+            or source.get("kind") != "page" or source.get("field") != field
+            or source.get("text") != value or source.get("source") != origin.get("source")):
+        return False
+    try:
+        own_urls = {normalize_url(resource[key]) for key in ("url", "canonical_url", "resolved_url") if resource.get(key)}
+        return (normalize_url(source.get("url", "")) in own_urls
+                and normalize_url(origin.get("url", "")) in own_urls)
+    except (UnsafeURL, ValueError, TypeError):
+        return False
+
+
 def topic_observations(point: dict, resource: dict, evidence: list[dict]) -> list[dict]:
     """Create scoring copies; persisted search/page evidence is never changed."""
     observations = []
@@ -963,8 +1155,15 @@ def topic_observations(point: dict, resource: dict, evidence: list[dict]) -> lis
     scoped_summary = twt_bound_summary(resource, evidence) if twt_binding else fcc_summary
     if scoped_binding and scoped_summary is None:
         return []  # A damaged binding cannot fall back to article/search prose.
+    own_video_scope = (resource.get("resource_type") in {"video", "playlist"}
+        and resource.get("fetch_status") in {"fetched", "success"}
+        and resource.get("metadata_evidence_level") in {"page", "catalog"}
+        and resource.get("video_evidence_status") == "page_verified")
+    if own_video_scope and (not has_video_evidence(resource, evidence)
+            or is_unconfirmed_fetched_media(resource, evidence)):
+        return []  # Broken own binding cannot be rescued by search excerpts.
     for entry in evidence:
-        if scoped_binding:
+        if scoped_binding or own_video_scope:
             continue  # The public article's search excerpt is not video proof.
         if entry.get("kind") != "search" or entry.get("source") == "official_sitemap" or entry.get("knowledge_point_id") not in {None, point["knowledge_point_id"]}:
             continue
@@ -990,6 +1189,9 @@ def topic_observations(point: dict, resource: dict, evidence: list[dict]) -> lis
         if resource.get("metadata_evidence_level") == "search" and any(row.get("kind") == "search" for row in evidence):
             continue
         value = scoped_summary if scoped_binding and field == "description" else resource.get(field) or ""
+        if (own_video_scope and value
+                and not _own_scalar_topic_field(resource, evidence, source_field, value)):
+            continue
         if value:
             fields[field] = value
             if provenance.get("evidence_id") in {row.get("evidence_id") for row in evidence}:
@@ -1018,7 +1220,7 @@ def topic_observations(point: dict, resource: dict, evidence: list[dict]) -> lis
                 "body": EXTERNAL_URL.sub(" ", own_description), "raw": raw, "evidence_ids": ids,
                 "field_evidence_ids": field_ids})
     if scoped_binding:
-        return observations  # Article outline/navigation is not a video catalog.
+        return _mapped_context_observations(point, resource, evidence, observations)  # Article outline/navigation is not a video catalog.
     # Each chapter is its own observation. Different chapter titles cannot be
     # stitched into one claimed lesson, and an unbacked chapter cannot add support.
     for chapter in resource.get("chapters", []):
@@ -1037,7 +1239,70 @@ def topic_observations(point: dict, resource: dict, evidence: list[dict]) -> lis
             observations.append({"title": EXTERNAL_URL.sub(" ", title), "body": context, "raw": title,
                 "evidence_ids": [source["evidence_id"], *parent_ids],
                 "topic_match_rules": ["chapter_inherits_evidenced_parent_technical_context"] if parent_ids else []})
-    return observations
+    return _mapped_context_observations(point, resource, evidence, observations)
+
+
+def _mapped_context_observations(point: dict, resource: dict, evidence: list[dict], observations: list[dict]) -> list[dict]:
+    """A new explicit stack cannot be supplied by a partial owner token.
+
+    Only unchanged own fields/individual catalog records can bind the complete
+    requested context to the concept. Discovery snippets, prerequisites, future
+    lessons and another chapter cannot donate that binding. Legacy calls without
+    this server-owned detached target keep their original observation contract.
+    """
+    technology = point.get("_mapped_topic_technology")
+    if not technology:
+        return observations
+    own_fields = _own_stack_fields(resource, evidence)
+    owner = re.compile(r"(?<![A-Za-z0-9_.+#:-])" + r"\s+".join(map(re.escape, technology.split()))
+                       + r"(?![A-Za-z0-9_.+#:-])", re.I)
+    future = re.compile(r"下一(?:课|节|讲|堂)|下节课|下次|未来|后续|以后|待(?:讲解|实现)|留作(?:作业|练习)|"
+                        r"\b(?:next\s+lesson|future\s+lesson|coming\s+soon|todo)\b", re.I)
+    scope_heading = re.compile(r"\s*(?:先修(?:要求|课程|知识)?|预备知识|前置知识|下一(?:课|节|讲|堂)|下节课|"
+                               r"prerequisites?|next\s+lesson|future\s+lesson)\s*[:：]?\s*", re.I)
+    eligible, parent_context = set(), set()
+    own_text = dict((identifier, text) for text, identifier in own_fields)
+    own_page_ids = {row.get("evidence_id") for row in evidence if row.get("kind") == "page"}
+    for text, identifier in own_fields:
+        blocked_section = False
+        for clause in CLAUSE_BOUNDARY.split(text):
+            if scope_heading.fullmatch(clause):
+                blocked_section = True
+                continue
+            if blocked_section:
+                continue  # Do not guess where an unstructured section ends.
+            if (PREREQUISITE.search(clause) or future.search(clause)
+                    or PARTIAL_SKILL_NONTEACHING.search(clause)
+                    or _weak_observation_reasons(point["text"], "", clause, clause)):
+                continue
+            # Reuse only existing explicit API/JS ownership normalization; this
+            # adds no aliases for arbitrary hardware/framework names.
+            if owner.search(_technical_text(clause)):
+                if identifier in own_page_ids:
+                    parent_context.add(identifier)
+                if compound_english_match(point["text"], [clause]):
+                    eligible.add(identifier)
+    admitted = []
+    for row in observations:
+        own_ids = row["evidence_ids"] if row.get("field_evidence_ids") is not None else row["evidence_ids"][:1]
+        if eligible.intersection(own_ids):
+            admitted.append(row)
+            continue
+        # Restore only the existing verified parent/current-chapter chain. The
+        # original helper supplies parent IDs after same-page scalar validation
+        # and competing-owner checks; no sibling record or search can supply it.
+        identifiers = row["evidence_ids"]
+        chapter = row["title"]
+        if ("chapter_inherits_evidenced_parent_technical_context" not in row.get("topic_match_rules", [])
+                or not identifiers or own_text.get(identifiers[0]) != chapter
+                or not parent_context.intersection(identifiers[1:])
+                or PREREQUISITE.search(chapter) or future.search(chapter)
+                or PARTIAL_SKILL_NONTEACHING.search(chapter)
+                or _weak_observation_reasons(point["text"], chapter, "", chapter)):
+            continue
+        if compound_english_match(point["text"], [chapter + " " + row["body"]]):
+            admitted.append(row)
+    return admitted
 
 
 def _supplementary_skill_coverage(point: dict, plan: dict, good: list[dict], coverage: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -1154,6 +1419,70 @@ def _supplementary_skill_coverage(point: dict, plan: dict, good: list[dict], cov
     return rows, reasons
 
 
+def _independent_json_serialization_rows(plan: dict, subtopic: str, rows: list[dict],
+                                          resource: dict, evidence: list[dict]) -> list[dict]:
+    """JSON has its own identifier; its JS lesson need not also teach storage IO.
+
+    This admits only a literal independently named subtopic in bound own data.
+    It neither infers stringify from JSON mentions nor supplies read/write.
+    """
+    if ({part.casefold() for part in plan["shared_context"]} != {"localstorage"}
+            or not re.fullmatch(r"JSON\s*(?:序列化|serialization)", subtopic, re.I)):
+        return []
+    bound_ids = {identifier for _, identifier in _own_stack_fields(resource, evidence)}
+    own = [row for row in rows if row.get("evidence_ids") and set(row["evidence_ids"]) <= bound_ids]
+    target = r"(?<![A-Za-z0-9_.])JSON\s*(?:序列化|serialization)(?![A-Za-z0-9_])"
+    js = r"(?<![A-Za-z0-9_.])(?:JavaScript|JS)(?![A-Za-z0-9_])"
+    foreign = r"(?<![A-Za-z0-9_])(?:Java|Python|CSharp|WinForms|Rust|Swift|Kotlin|Golang)(?![A-Za-z0-9_])|\.NET\b"
+    def text_clauses(text):
+        raw = EXTERNAL_URL.sub(" ", own_resource_snippet(text))
+        return [part for scope in _instruction_scope_parts(raw) for part in re.split(
+            r"[，,](?!\s*(?:which\b|that\b|is\b|isn['’]t\b|not\b|never\b|它|该主题|该方法|仅作|仅供|作为))", scope, flags=re.I)]
+    def excluded(part):
+        bare_prior = re.search(r"先修\s*[:：]", part)
+        return ((bare_prior and not NEGATED_REQUIREMENT.search(part[:bare_prior.start()]))
+            or re.search(r"下(?:一)?(?:节|堂)课(?:会|将)?(?:讲|教|介绍|学习)|下一讲", part)
+            or _teaching_denial(part) or PREREQUISITE.search(part) or PARTIAL_SKILL_NONTEACHING.search(part)
+            or _future_or_other_lesson(part)
+            or re.search(r"参考(?:资料|文档|链接|清单)|(?:仅作|仅供|作为)参考|(?<!不)(?:是|作为|仅为)(?:先修|前置)|"
+                         r"API\s*(?:列表|索引)|(?:函数|方法|符号|速查)(?:清单|列表|索引)|"
+                         r"\b(?:api\s+(?:list|index)|references?|todo)\b", part, re.I))
+    # Explicit scalar scope governs this video's catalogue too. A reference
+    # chapter cannot rescue a title/description saying this is not taught yet.
+    if any(row.get("field_evidence_ids") and re.search(target, part) and excluded(part)
+           for row in own for part in text_clauses(row["raw"])):
+        return []
+    result = []
+    parent_title = resource.get("title") or ""
+    parent_js = (_own_scalar_topic_field(resource, evidence, "title", parent_title)
+        and any(_asserted_stack(part, js) and not excluded(part) and not re.search(foreign, part, re.I)
+                for part in text_clauses(parent_title)))
+    for row in own:
+        parts = text_clauses(row["raw"])
+        for part in parts:
+            if (not re.search(target, part) or excluded(part)
+                    or re.search(foreign, part, re.I)):
+                continue
+            # Positive current teaching scope, not merely the absence of a
+            # recognised denial. A bound lesson heading names a current unit;
+            # an isolated description mention has no such role guarantee.
+            heading = row["title"]
+            current_heading = any(re.search(target, piece) and not excluded(piece)
+                and (re.search(js, piece) or (not row.get("field_evidence_ids") and parent_js))
+                for piece in text_clauses(heading))
+            current_statement = bool(re.search(js, part) and re.search(
+                r"(?:本课|本节|这节课|\bthis\s+lesson)\s*(?:会|将)?\s*"
+                r"(?:讲解|讲授|演示|介绍|学习|(?:will\s+)?(?:teach|cover|demonstrate|explain))", part, re.I))
+            if not (current_heading or current_statement):
+                continue
+            if current_heading and not row.get("field_evidence_ids") and parent_js:
+                parent_id = resource["field_provenance"]["title"]["evidence_id"]
+                row = {**row, "evidence_ids": list(dict.fromkeys([*row["evidence_ids"], parent_id]))}
+            result.append(row)
+            break
+    return result
+
+
 def assess_topic_evidence(point: dict, resource: dict, evidence: list[dict]) -> dict | None:
     if point.get("learning_targets"):
         return _assess_confirmed_targets(point, resource, evidence)
@@ -1179,10 +1508,12 @@ def assess_topic_evidence(point: dict, resource: dict, evidence: list[dict]) -> 
             teaching_rows.append({**row, "text": teaching, "prerequisite_text": prerequisite})
         contextual = [row for row in teaching_rows if _context_matches(plan["shared_context"], row["text"])]
         for subtopic in plan["subtopics"]:
-            ids = list(dict.fromkeys(identifier for row in contextual if _subtopic_matches(subtopic["text"], row["text"], whole_topic=point["text"]) for identifier in row["evidence_ids"]))
+            independent = _independent_json_serialization_rows(plan, subtopic["text"], teaching_rows, resource, evidence)
+            eligible = [*contextual, *independent]
+            ids = list(dict.fromkeys(identifier for row in eligible if _subtopic_matches(subtopic["text"], row["text"], whole_topic=point["text"]) for identifier in row["evidence_ids"]))
             prior_only = not ids and any(_subtopic_matches(subtopic["text"], row["prerequisite_text"], whole_topic=point["text"]) for row in teaching_rows)
             coverage.append({**subtopic, "status": "supported" if ids else "unknown", "evidence_ids": ids,
-                "reason": "同一条观察明确包含共同技术上下文和该子项。" if ids else "这一子项仅在先修说明中出现，尚未明确证明会讲授。" if prior_only else "这一子项是泛动作；当前观察未把原知识点中的明确对象与该动作绑定，不能仅凭动作词确认。" if BARE_ACTION.fullmatch(subtopic["text"]) else "当前资源自身的观察未同时证明共同技术上下文和这一子项。"})
+                "reason": "本资源自身的JavaScript观察明确列出JSON序列化，仅支持此独立子项，不证明localStorage读写。" if ids and independent and not any(row in contextual for row in independent) else "同一条观察明确包含共同技术上下文和该子项。" if ids else "这一子项仅在先修说明中出现，尚未明确证明会讲授。" if prior_only else "这一子项是泛动作；当前观察未把原知识点中的明确对象与该动作绑定，不能仅凭动作词确认。" if BARE_ACTION.fullmatch(subtopic["text"]) else "当前资源自身的观察未同时证明共同技术上下文和这一子项。"})
         whole = [row for row in contextual if all(_subtopic_matches(part["text"], row["text"], whole_topic=point["text"]) for part in plan["subtopics"])]
     else:
         whole = [row for row in good if compound_english_match(point["text"], [row["text"]]) and relevance(point["text"], row["text"]) >= .4]
@@ -1206,6 +1537,12 @@ def assess_topic_evidence(point: dict, resource: dict, evidence: list[dict]) -> 
         instructional = []
         for row in good:
             teaching, _ = _instructional_parts(own_resource_snippet(row["title"]), own_resource_snippet(row["body"]))
+            if row.get("field_evidence_ids"):
+                # Keep owned scalar field boundaries for operation direction.
+                # Global denial checks still see both fields; a description
+                # suffix cannot erase a complete read/write title.
+                teaching = "\n".join(_instructional_parts(own_resource_snippet(row[field]), "")[0]
+                                     for field in ("title", "body"))
             instructional.append({**row, "text": teaching})
         fallback = assess_operation_fallback(point["text"], instructional)
         return _target_assessment(point["text"], fallback) if fallback else None
@@ -1678,8 +2015,154 @@ def learner_fit(student_level: str, title: str, description: str) -> tuple[int, 
         return -8, " 来源标注为入门；首次使用该技术可补基础，已掌握可跳过。"
     return -4, f" 来源标注为{labels[actual]}，请结合已有基础选择。"
 
+def _own_stack_fields(resource: dict, evidence: list[dict]) -> list[tuple[str, str]]:
+    """Read same-page facts, never discovery text or an article's foreign outline."""
+    fields = []
+    scoped = bool(course_announcement_url(resource.get("url", "")) or lesson_page_url(resource.get("url", "")))
+    for field in ("title", "description"):
+        value = resource.get(field) or ""
+        if scoped and field == "description":
+            field = "video_topic_summary"
+            value = (twt_bound_summary(resource, evidence) if lesson_page_url(resource.get("url", ""))
+                     else bound_video_topic_summary(resource, evidence)) or ""
+        if value and _own_scalar_topic_field(resource, evidence, field, value):
+            clean = own_resource_snippet(value) if field == "title" else own_video_description(resource, value)
+            fields.append((EXTERNAL_URL.sub(" ", clean), resource["field_provenance"][field]["evidence_id"]))
+    if scoped:
+        return fields
+    try:
+        own_urls = {normalize_url(resource[key]) for key in ("url", "canonical_url", "resolved_url") if resource.get(key)}
+    except (UnsafeURL, ValueError, TypeError):
+        return fields
+    for chapter in resource.get("chapters", []):
+        if not isinstance(chapter, dict):
+            continue
+        row = next((entry for entry in evidence if entry.get("evidence_id") == chapter.get("evidence_id")), {})
+        title = chapter.get("title") or chapter.get("name") or ""
+        if (row.get("kind") != "catalog" or not row.get("source")
+                or row.get("source") in {"search", "search_template"}
+                or row.get("source") != chapter.get("source")):
+            continue
+        try:
+            if normalize_url(row.get("url", "")) not in own_urls:
+                continue
+        except (UnsafeURL, ValueError, TypeError):
+            continue
+        raw = row.get("text") or ""
+        # Public adapters retain either the literal heading or its JSON record.
+        # Parsing a bounded record is data reading; no JavaScript is executed.
+        if raw != title:
+            try:
+                record = json.loads(raw) if len(raw) <= 16384 else None
+            except (ValueError, TypeError):
+                continue
+            if not isinstance(record, dict) or (record.get("title") or record.get("name")) != title:
+                continue
+        fields.append((EXTERNAL_URL.sub(" ", own_resource_snippet(title)), row["evidence_id"]))
+    return fields
+
+
+def _asserted_stack(text: str, pattern: str) -> bool:
+    """A named tool is a fact only in its local, affirmative teaching scope."""
+    for part in _instruction_scope_parts(text):
+        if _future_or_other_lesson(part):
+            continue
+        for match in re.finditer(pattern, part, re.I):
+            before, after = part[:match.start()], part[match.end():]
+            if re.search(r"(?:不(?:用|需要|使用|涉及|讲|教|涵盖|适用|兼容|支持)|不能用于|无需|无须|不用|不是|而非|"
+                         r"without|not\s+(?:using|covering|for|compatible\s+with)|no)\s*(?:学习|安装|使用|于)?\s*$", before, re.I):
+                continue
+            if re.search(r"(?:先修|前置|需(?:要)?先|已会|已掌握|prerequisit|already\s+know)", before, re.I):
+                continue
+            # Postposed roles describe background/reference, not this lesson's
+            # implementation owner ("Arduino Core is a prerequisite").
+            if re.match(r"\s*(?:(?:是|为|仅为|作为|仅作|仅是)|(?:is|as)\s+(?:(?:only\s+)?a\s+)?)?"
+                        r"(?:先修|前置|接口对照|对照|参考|prerequisit\w*|reference\b)", after, re.I):
+                continue
+            if re.match(r"\s*(?:不是本课|不(?:是|讲|教|使用|适用|兼容)|(?:is|are)\s+not\s+(?:used|covered|compatible)|"
+                        r"isn['’]t\s+(?:used|covered))", after, re.I):
+                continue
+            return True
+    return False
+
+
+def project_stack_conflict(resource: dict, evidence: list[dict], request: SearchRequest, *,
+                           topic_evidence_ids: list[str] | None = None) -> dict | None:
+    """Quarantine proven implementation conflicts; absence of fit is not conflict.
+
+    These are compatibility declarations, not new teaching goals. A general
+    algorithm, an unknown board, or an Arduino-compatible tool stays unknown.
+    """
+    context = request.project_context + " " + request.technical_version
+    uno = _asserted_stack(context, r"(?<![A-Za-z0-9_])(?:Arduino\s+)?Uno(?:\s*R[34])?(?![A-Za-z0-9_])")
+    native_web = bool(re.search(r"(?:只|仅)(?:用|使用)原生|\b(?:only|vanilla)\s+(?:native\s+)?(?:HTML|JavaScript)", context, re.I)
+        or (re.search(r"原生|\bvanilla\b", context, re.I)
+            and re.search(r"不(?:用|使用|做)[^。；;\n]{0,24}框架|\bno\s+frameworks?\b", context, re.I)))
+    if not (uno or native_web) or resource.get("metadata_evidence_level") not in {"page", "catalog"}:
+        return None
+    fields = _own_stack_fields(resource, evidence)
+    patterns = []
+    if uno:
+        patterns += [("CubeMX/STM32", r"(?<![A-Za-z0-9_])(?:STM32CubeMX|CubeMX|STM32[A-Za-z0-9]*)(?![A-Za-z0-9_])"),
+                     ("ESP32", r"(?<![A-Za-z0-9_])ESP32[A-Za-z0-9]*(?![A-Za-z0-9_])"), ("C51/8051", r"(?<![A-Za-z0-9_])(?:C51|8051)(?![A-Za-z0-9_])|51单片机"),
+                     ("FPGA/Verilog", r"(?<![A-Za-z0-9_])(?:FPGA|Verilog|VHDL)(?![A-Za-z0-9_])")]
+    if native_web:
+        # An explicitly independent native lesson can coexist with a larger
+        # framework course. A mere JavaScript chapter name is not such proof.
+        independent = any(identifier in (topic_evidence_ids or []) and re.search(
+            r"(?:本(?:课|节)|this\s+lesson)[^。；;\n]{0,30}(?:只用原生|不依赖[^。；;\n]{0,12}框架|vanilla|framework.independent)", text, re.I)
+            for text, identifier in fields)
+        if not independent:
+            patterns += [("Vue", r"(?<![A-Za-z0-9_])Vue(?:\.?(?:js|[234]))?(?:\.\d+)*(?![A-Za-z0-9_])"),
+                         ("React", r"(?<![A-Za-z0-9_])React(?:\.js)?(?![A-Za-z0-9_])"), ("Angular", r"(?<![A-Za-z0-9_])Angular(?:JS)?(?![A-Za-z0-9_])"),
+                         ("Svelte", r"(?<![A-Za-z0-9_])Svelte(?![A-Za-z0-9_])")]
+    for label, pattern in patterns:
+        ids = []
+        for text, identifier in fields:
+            # Do not let an interface comparison or another chapter donate an
+            # implementation owner. Applicability must concern this same local
+            # implementation scope, not any occurrence of Uno in a course.
+            for part in _instruction_scope_parts(text):
+                for clause in re.split(r"[，,]", part):
+                    if not _asserted_stack(clause, pattern):
+                        continue
+                    match = re.search(pattern, clause, re.I)
+                    before, after = clause[:match.start()], clause[match.end():]
+                    if re.search(r"(?:另有|仅作|对照|比较|对比)\s*$", before) or re.match(r"\s*(?:仅作|接口|兼容连接器|对照)", after):
+                        continue
+                    applicable_uno = (_asserted_stack(clause, r"(?<![A-Za-z0-9_])(?:Arduino\s+)?Uno(?:\s*R[34])?(?![A-Za-z0-9_])")
+                        and bool(re.search(r"(?:适用(?:于)?|支持|可用于|可运行于|\bfor)\s*(?:Arduino\s+)?Uno(?:\s*R[34])?(?![A-Za-z0-9_])"
+                            r"(?!\s*(?:接口|连接器|兼容|对照))", clause, re.I)))
+                    # A shared language/Core alone does not resolve an explicit
+                    # different-board implementation. Require applicability to
+                    # the selected board in this same implementation clause.
+                    if uno and label not in {"Vue", "React", "Angular", "Svelte"} and applicable_uno:
+                        continue
+                    ids.append(identifier)
+        if ids:
+            expected = "Arduino Uno" if uno and label not in {"Vue", "React", "Angular", "Svelte"} else "原生 HTML/CSS/JavaScript（不用框架）"
+            return {"code": "project_stack_mismatch", "evidence_ids": list(dict.fromkeys(ids)),
+                "message": f"本课自身资料明确使用{label}，与项目指定的{expected}不同。内容主题相关，但需跨技术栈迁移；仅作待核参考，不计入主要推荐或目标覆盖。"}
+    return None
+
+
 def _rank_resource_uncached(point: dict, resource: dict, evidence: list[dict], request: SearchRequest, *, require_type: bool = True,
                   eligibility_evidence: list[dict] | None = None) -> dict | None:
+    # Only the current point's explicit context participates. It changes the
+    # detached evidence target, never the stored/displayed canonical name.
+    requested_technology = request.topic_technologies.get(point["text"])
+    if (requested_technology and point.get("technology")
+            and requested_technology.casefold() != point["technology"].casefold()):
+        return None  # A stored point cannot override the current exact request.
+    technology = requested_technology or point.get("technology")
+    if technology:
+        from .professional_concepts import contextual_concept_name
+        try:
+            point = {**point, "text": contextual_concept_name(point["text"], technology)}
+            if requested_technology:
+                point["_mapped_topic_technology"] = technology
+        except ValueError:
+            return None
     resource = unavailable_video_projection(resource, evidence)
     resource = project_unconfirmed_video_shell(resource, evidence)
     resource = project_unconfirmed_fetched_media(resource, evidence)
@@ -1832,12 +2315,34 @@ def _rank_resource_uncached(point: dict, resource: dict, evidence: list[dict], r
     actual_language = (resource.get("language") or "").lower()
     if request.language != "any" and actual_language:
         score += 4 if actual_language.startswith(request.language) else -6
-    level_score, level_reason = learner_fit(request.student_level, title, " ".join((description, snippets)))
+    own_topic_support = bool(resource.get("video_evidence_status") == "page_verified" and assessment
+        and assessment.get("supporting_evidence_ids") and all(
+            any(row.get("evidence_id") == identifier and row.get("kind") in {"page", "catalog"}
+                for row in scoped_evidence) for identifier in assessment["supporting_evidence_ids"]))
+    fit_title, fit_description = title, " ".join((description, snippets))
+    if own_topic_support:
+        own_title = resource.get("title") or ""
+        own_description = resource.get("description") or ""
+        fit_title = own_resource_snippet(own_title) if _own_scalar_topic_field(resource, scoped_evidence, "title", own_title) else ""
+        fit_description = own_video_description(resource, own_description) if _own_scalar_topic_field(resource, scoped_evidence, "description", own_description) else ""
+    stack_conflict = (project_stack_conflict(resource, scoped_evidence, request,
+                      topic_evidence_ids=assessment["supporting_evidence_ids"]) if require_type and assessment
+                      and assessment["topic_evidence_status"] in {"supported", "partial"} else None)
+    if stack_conflict:
+        # Preserve the actual topic proof, but never count a cross-stack
+        # reference as project fit or as collection/skill teaching coverage.
+        assessment = {**assessment, "topic_evidence_status": "needs_review",
+                      "topic_evidence_reasons": [stack_conflict, *assessment["topic_evidence_reasons"]]}
+        level_score, level_reason = 0, " 项目技术栈适配待核；不能由通用阶段标签推断零先修。"
+    else:
+        level_score, level_reason = learner_fit(request.student_level, fit_title, fit_description)
     score += level_score
     if request.technical_version:
         score += 4 if request.technical_version.lower() in combined.lower() else -3
     if "catalog" in basis:
         reason = "公开目录包含与该知识点相关的文字；未核验完整教学覆盖。"
+    elif own_topic_support:
+        reason = "根据本视频自身标题、简介或目录匹配该主题；具体步骤、教学深度与播放仍需到平台核对。"
     elif resource.get("metadata_evidence_level") in {"page", "catalog"} and "description" in basis:
         reason = "根据公开页面标题或简介匹配，可能涉及该知识点；未核验完整教学覆盖。"
     elif resource.get("metadata_evidence_level") in {"page", "catalog"}:
@@ -1865,6 +2370,10 @@ def _rank_resource_uncached(point: dict, resource: dict, evidence: list[dict], r
         reason += "项目中的数据、常量和验收由你完成练习。" + level_reason + source_language_notice(resource, scoped_evidence, request.language) + source_scope_notice(resource, scoped_evidence)
     else:
         reason = f"与“{text}”相关：" + reason + level_reason + source_language_notice(resource, scoped_evidence, request.language) + source_scope_notice(resource, scoped_evidence)
+    if stack_conflict:
+        if stack_conflict["message"] not in reason:
+            reason = stack_conflict["message"] + " " + reason
+        topic_rules.append("project_stack_mismatch")
     if normal_forms_support:
         topic_rules.append("database_standard_normal_forms_context")
     if assessment and any(row["code"] == "bounded_operation_partial" for row in assessment["topic_evidence_reasons"]):

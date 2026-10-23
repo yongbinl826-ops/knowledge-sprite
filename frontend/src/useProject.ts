@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from './api';
 import { openSnapshotStream } from './snapshotStream';
 import type { ProjectAnalysis, ProjectInput, ProjectSummary, ProjectView } from './projectTypes';
+import { reviewedTopicTechnologies } from './reviewedTopicTechnologies';
 
 const pointerKey = 'knowledge-guide-project-v1';
 const activeStatuses = new Set(['analyzing', 'running']);
@@ -44,6 +45,7 @@ export function useProject() {
   useEffect(() => { const controller = new AbortController(); void refreshList(controller.signal); return () => controller.abort(); }, [refreshList]);
 
   useEffect(() => {
+    if (busy) return;
     if (!pointer.id) { setLoading(false); return; }
     const controller = new AbortController();
     watchController.current = controller;
@@ -87,7 +89,7 @@ export function useProject() {
     };
     void poll();
     return () => { controller.abort(); closeStream(); window.clearTimeout(timer); };
-  }, [pointer.id, pointer.version, revision]);
+  }, [pointer.id, pointer.version, revision, busy]);
 
   const selectProject = (id: string, version?: number) => {
     if (lock.current) return;
@@ -131,11 +133,11 @@ export function useProject() {
     if (!view?.version) throw new Error('请先完成项目分析。');
     return post(view.project_id, 'edit', { expected_version: view.version.version, analysis }, signal);
   }, '修改已保存为新版本，需要重新确认。');
-  const confirmAndSearch = (analysis: ProjectAnalysis, dirty: boolean, acknowledgements: string[]) => perform(async signal => {
+  const confirmAndSearch = (analysis: ProjectAnalysis, dirty: boolean) => perform(async signal => {
     if (!view?.version) throw new Error('请先完成项目分析。');
     let current = view;
     if (dirty) current = keepMutation(await post(current.project_id, 'edit', { expected_version: current.version!.version, analysis }, signal), signal);
-    current = keepMutation(await post(current.project_id, 'confirm', { version: current.version!.version, acknowledged_skipped_prerequisites: acknowledgements }, signal), signal);
+    current = keepMutation(await post(current.project_id, 'confirm', { version: current.version!.version, reviewed_topic_technologies: reviewedTopicTechnologies(analysis) }, signal), signal);
     if (analysis.knowledge_points.some(point => point.selection === 'learn')) current = await post(current.project_id, 'search', { version: current.version!.version }, signal);
     return current;
   }, analysis.knowledge_points.some(point => point.selection === 'learn') ? '已确认，按勾选的知识点分批查找推荐视频。' : '已保存选择；没有勾选知识点，未创建检索任务。');
@@ -149,7 +151,7 @@ export function useProject() {
     if (view.version.version !== view.current_version) throw new Error('历史版本仅供查看，请返回最新版本重新检索。');
     // A retry gets a fresh version and budget; the previous evidence stays intact.
     let next = keepMutation(await post(view.project_id, 'edit', { expected_version: view.version.version, analysis: view.version.analysis }, signal), signal);
-    next = keepMutation(await post(next.project_id, 'confirm', { version: next.version!.version, acknowledged_skipped_prerequisites: [] }, signal), signal);
+    next = keepMutation(await post(next.project_id, 'confirm', { version: next.version!.version, reviewed_topic_technologies: reviewedTopicTechnologies(next.version!.analysis!) }, signal), signal);
     return post(next.project_id, 'search', { version: next.version!.version }, signal);
   }, '已创建新的检索版本；上次结果继续保留。');
 

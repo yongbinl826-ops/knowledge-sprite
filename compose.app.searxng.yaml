@@ -1,0 +1,9 @@
+# Optional overlay, used with existing compose.yaml + compose.app.yaml.
+# It does not create, copy or alter deploy/searxng/settings.yml.
+services:
+  app:
+    environment:
+      SEARXNG_URL: http://127.0.0.1:18780
+    depends_on:
+      searxng:
+        condition: service_started

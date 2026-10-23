@@ -22,7 +22,7 @@ from backend.app.ranking import (
 from backend.app.resource_identity import derive_course_identity, summarize_course_identities
 
 
-CAPTURES = Path(__file__).resolve().parents[1] / "reports/platform-catalog-20261017/browser"
+CAPTURES = Path(__file__).resolve().parents[1] / "tests/fixtures/public_catalog_replays/platform-catalog-20261017/browser"
 MOOC = "https://www.icourse163.org/course/PKU-1003479006"
 BILIBILI = "https://www.bilibili.com/video/BV1VZ4y1G7YB/"
 # Fixed replay clock, not a claim that these unit tests made a live request.

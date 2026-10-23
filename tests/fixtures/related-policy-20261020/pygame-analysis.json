@@ -1,0 +1,293 @@
+{
+  "input": {
+    "name": "用 Python pygame 做接金币小游戏",
+    "requirements": "用 Python 和 pygame 做一个单机二维小游戏：左右方向键移动挡板，金币从屏幕上方随机位置下落；接住加 1 分，漏接 3 次后显示结束画面；按 R 键重置分数和漏接次数并重新开始。需要显示当前分数与漏接次数。不需要账号、联网、存档、音效或关卡。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "已经学过 Python 变量、条件、循环、列表和函数，第一次接触 pygame。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili"
+    ]
+  },
+  "analysis": {
+    "scope": "用 Python 与 pygame 做一个单机二维接金币小游戏：左右方向键移动挡板，金币从屏幕上方随机横向位置生成后竖直下落；接住加 1 分，累计漏接 3 次后显示结束画面；按 R 键清零分数和漏接次数并重新开始；画面持续显示分数与漏接次数。不含账号、联网、存档、音效与关卡。",
+    "technical_plan": "使用 pygame 创建固定尺寸窗口，并运行主循环，按“事件处理—状态更新—绘制—刷新”的顺序执行，用 Clock.tick 限制帧率上限。通过事件循环处理窗口关闭和 R 键按下，通过查询按键状态读取左右方向键，持续移动挡板，并用坐标限幅把挡板限制在屏幕内。用一个列表保存金币对象（矩形与下落速度）；金币在生成或重生时用 random 选取一次横向坐标，之后每帧只更新纵向位置。用 Rect.colliderect 判断接住：命中则分数加 1、移除该金币并生成新金币；金币越过屏幕底部则漏接数加 1 并移除，列表为空时生成新金币。漏接数达到 3 时把状态变量切到结束状态并停止更新。分数、漏接次数和结束提示由 pygame.font 渲染为文本，每帧绘制。结束画面按 R 键时把分数、漏接数和金币列表重置，并回到进行中状态。",
+    "assumptions": [
+      "默认使用 Python 3 与 pygame 2.x，窗口尺寸、挡板速度、金币速度为常量，可后续调整。",
+      "仅用 Clock.tick 限制帧率上限，不做基于 delta 时间的位移换算。",
+      "同一时刻只存在一个金币，上一个被接住或漏接后再生成下一个。"
+    ],
+    "learner_profile": null,
+    "functions": [
+      {
+        "id": "F1",
+        "name": "窗口与主循环",
+        "original_requirement": "用 Python 和 pygame 做一个单机二维小游戏",
+        "acceptance_criteria": "程序启动后出现固定尺寸的 pygame 窗口，主循环持续运行，关闭窗口可正常退出。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F2",
+        "name": "方向键移动挡板",
+        "original_requirement": "左右方向键移动挡板",
+        "acceptance_criteria": "按住左/右方向键时挡板沿水平方向连续移动，且不会越出屏幕左右边界。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F3",
+        "name": "金币随机生成与下落",
+        "original_requirement": "金币从屏幕上方随机位置下落",
+        "acceptance_criteria": "金币在屏幕上方以随机横向位置出现，随后沿竖直方向匀速向下移动。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F4",
+        "name": "接住金币计分",
+        "original_requirement": "接住加 1 分",
+        "acceptance_criteria": "挡板矩形与金币矩形相交时该金币被移除，分数精确增加 1。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F5",
+        "name": "漏接计数与结束",
+        "original_requirement": "漏接 3 次后显示结束画面",
+        "acceptance_criteria": "金币越过屏幕底部时漏接次数加 1；累计达到 3 次时停止游戏更新并显示结束画面。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F6",
+        "name": "分数与漏接次数显示",
+        "original_requirement": "需要显示当前分数与漏接次数",
+        "acceptance_criteria": "游戏画面中持续显示当前分数和当前漏接次数，数值随游戏进程实时更新。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "F7",
+        "name": "R 键重置重开",
+        "original_requirement": "按 R 键重置分数和漏接次数并重新开始",
+        "acceptance_criteria": "在结束画面按 R 键后分数回到 0、漏接次数回到 0、金币重新生成，游戏回到进行中状态。",
+        "no_new_learning_reason": null
+      }
+    ],
+    "knowledge_points": [
+      {
+        "id": "K1",
+        "name": "游戏主循环",
+        "description": "pygame 程序由初始化、事件处理、状态更新、绘制与屏幕刷新组成的主循环驱动，并用 Clock.tick 限制每帧时长以控制帧率上限。",
+        "function_ids": [
+          "F1"
+        ],
+        "why_needed": "没有主循环，窗口无法持续响应输入和刷新画面，移动、下落与计分都无法运行。",
+        "learning_goal": "能写出包含事件处理、状态更新、绘制与刷新步骤的 pygame 主循环，并用 Clock 限制帧率上限。",
+        "technology": "pygame",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 1,
+        "selection": "learn"
+      },
+      {
+        "id": "K2",
+        "name": "矩形区域表示",
+        "description": "用 pygame.Rect 表示挡板与金币的位置和尺寸，屏幕左上角为原点，x 向右、y 向下增长；矩形对象可用于移动与边界判断。",
+        "function_ids": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "why_needed": "挡板位置、金币位置与屏幕边界判断都需要统一的坐标与矩形表示。",
+        "learning_goal": "能用 Rect 表示游戏对象的位置与尺寸，并根据 x/y 方向计算移动与边界。",
+        "technology": "pygame",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 2,
+        "selection": "learn"
+      },
+      {
+        "id": "K3",
+        "name": "键盘输入处理",
+        "description": "通过 pygame.event 获取 KEYDOWN 等一次性事件处理 R 键重开，通过 pygame.key.get_pressed 查询方向键当前按下状态实现挡板持续移动。",
+        "function_ids": [
+          "F2",
+          "F7"
+        ],
+        "why_needed": "挡板移动与 R 键重开都依赖正确读取键盘输入，且需区分持续按住与单次按下。",
+        "learning_goal": "能用按键状态实现持续移动，用按键事件实现单次触发。",
+        "technology": "pygame",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1"
+        ],
+        "learning_order": 3,
+        "selection": "learn"
+      },
+      {
+        "id": "K4",
+        "name": "边界限制",
+        "description": "在更新挡板位置后，用条件判断把其横坐标约束在屏幕左右边界之内，避免对象移出可视区域。",
+        "function_ids": [
+          "F2"
+        ],
+        "why_needed": "否则挡板会移出窗口，导致无法正常接金币。",
+        "learning_goal": "能把对象坐标限制在合法范围内并能说明上下界的计算方式。",
+        "technology": "pygame",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K2",
+          "K3"
+        ],
+        "learning_order": 4,
+        "selection": "learn"
+      },
+      {
+        "id": "K5",
+        "name": "随机数生成",
+        "description": "用 random 模块在金币生成或重生时选取一次横向坐标，使其落在屏幕宽度范围内；之后每帧只更新纵向位置。",
+        "function_ids": [
+          "F3"
+        ],
+        "why_needed": "金币需要从屏幕上方随机横向位置下落，随机坐标由随机数实现。",
+        "learning_goal": "能用 random 生成指定区间内的整数，并区分“生成时随机”与“每帧更新”的差别。",
+        "technology": "Python",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K2"
+        ],
+        "learning_order": 5,
+        "selection": "learn"
+      },
+      {
+        "id": "K6",
+        "name": "矩形碰撞检测",
+        "description": "用 Rect.colliderect 判断挡板矩形与金币矩形是否相交，以判定是否接住金币。",
+        "function_ids": [
+          "F4"
+        ],
+        "why_needed": "接住金币计分与移除该金币都依赖准确的接触判定。",
+        "learning_goal": "能用矩形相交判断两个游戏对象是否碰撞，并在碰撞后执行相应处理。",
+        "technology": "pygame",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K2"
+        ],
+        "learning_order": 6,
+        "selection": "learn"
+      },
+      {
+        "id": "K7",
+        "name": "列表增删遍历",
+        "description": "用列表保存当前下落金币对象，在主循环中遍历更新与绘制，在接住或漏接后从列表移除，并在列表为空时生成新金币。",
+        "function_ids": [
+          "F3",
+          "F4",
+          "F5"
+        ],
+        "why_needed": "金币的生成、更新与移除需要统一的数据结构来管理。",
+        "learning_goal": "能在列表中增删游戏对象，并在主循环中安全遍历更新与绘制。",
+        "technology": "Python",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1",
+          "K5"
+        ],
+        "learning_order": 7,
+        "selection": "learn"
+      },
+      {
+        "id": "K8",
+        "name": "有限状态机",
+        "description": "用状态变量区进行中与结束两种游戏状态：漏接达到 3 次切换到结束状态并停止更新，按 R 键重置数据后回到进行中状态。",
+        "function_ids": [
+          "F5",
+          "F7"
+        ],
+        "why_needed": "结束画面与重新开始需要明确的状态切换逻辑，避免结束后仍在更新与计分。",
+        "learning_goal": "能用状态变量控制游戏不同阶段的行为与画面切换。",
+        "technology": "pygame",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1"
+        ],
+        "learning_order": 8,
+        "selection": "learn"
+      },
+      {
+        "id": "K9",
+        "name": "文本渲染",
+        "description": "用 pygame.font 创建字体对象，将分数与漏接次数的字符串渲染为 Surface 并 blit 到屏幕指定位置；结束画面用同样方式显示提示文字。",
+        "function_ids": [
+          "F5",
+          "F6"
+        ],
+        "why_needed": "分数、漏接次数和结束提示都必须以文字形式显示在画面上。",
+        "learning_goal": "能用字体渲染动态文本并在画面指定位置绘制。",
+        "technology": "pygame",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "K1"
+        ],
+        "learning_order": 9,
+        "selection": "learn"
+      },
+      {
+        "id": "K10",
+        "name": "游戏计数变量",
+        "description": "用整型变量维护分数与漏接次数，在接住或漏接时更新，判定达到阈值时切换状态，重开时清零。",
+        "function_ids": [
+          "F4",
+          "F5",
+          "F6",
+          "F7"
+        ],
+        "why_needed": "计分、漏接判定、显示与重置都依赖统一的计数变量。",
+        "learning_goal": "能用变量维护游戏数值，并在事件发生时正确增减与重置。",
+        "technology": "Python",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 10,
+        "selection": "learn"
+      }
+    ]
+  },
+  "prompt_version": "project-analysis-v5.2-professional-concepts"
+}

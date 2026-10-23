@@ -23,6 +23,7 @@ def config(tmp_path, **changes):
         searxng_url="http://search.test", searxng_engines=("web",),
         searxng_video_engines=("video",), tavily_api_key="synthetic-key",
         mooc_search_provider="tavily", parallel_platform_search=True,
+        open_web_search_enabled=False,  # Isolate the two explicitly scoped provider lanes.
         teaching_match_enabled=False, max_search_requests=20, max_detail_pages=0,
         search_min_interval_seconds=0, search_max_retries=0, deadline_seconds=10), **changes)
 

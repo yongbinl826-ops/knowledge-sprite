@@ -179,6 +179,67 @@ def _teaching(text):
     return bool(text.strip()) and not PREREQUISITE.search(text) and not _NON_TEACHING.search(text)
 
 
+def teaching_probe_eligible(point: dict, resource: dict, evidence: list[dict]) -> bool:
+    """Admit an own public course page for inspection, never a teaching claim.
+
+    Strict mode still needs to inspect a broad course before its outline can
+    establish a specific topic. A compatible expansion-board/reference mention
+    is insufficient: the requested owner must occur in this course's title or
+    a local, affirmative instructional clause. Existing URL/point/negative and
+    prerequisite checks remain in the source-bound discovery assessment.
+    """
+    assessment = assess_mooc_relevance(point, resource, evidence)
+    if not assessment["probe_eligible"]:
+        return False
+    context, _ = _parts(point)
+    if not context:
+        return False
+    own_url = _public_course(resource.get("canonical_url") or resource.get("url"))
+    instruction = re.compile(r"讲解|讲授|教授|教学|学习|掌握|介绍|演示|\b(?:teach\w*|learn\w*|cover\w*|explain\w*|demonstrat\w*)\b", re.I)
+    future = re.compile(r"下(?:一)?(?:节|堂)?课|下一讲|下次|未来课程|后续课程|待讲解|\b(?:next\s+(?:lesson|course|session)|todo)\b", re.I)
+    reference_subject = re.compile(r"兼容|适配|接口|扩展板|参考|参见|另见|比较|对比|\b(?:compatib\w*|references?|compared?|comparison|versus)\b", re.I)
+    title_relation = re.compile(r"兼容|适配|参考|参见|另见|比较|对比|\b(?:compatib\w*|references?|compared?|comparison|versus)\b", re.I)
+    for row in evidence:
+        if (row.get("kind") != "search" or not row.get("evidence_id")
+                or row.get("knowledge_point_id") != point.get("knowledge_point_id")
+                or _public_course(row.get("url")) != own_url):
+            continue
+        title = _clean(row.get("title") or "")
+        if future.search(title):
+            continue
+        if _teaching(title) and not title_relation.search(title) and all(_has(owner, title) for owner in context):
+            return True
+        for field in _search_instructional_fields(str(row.get("snippet") or "")):
+            for clause in re.split(r"[。；;\n]|\.(?=\s|$)", field):
+                if not _teaching(clause) or future.search(clause):
+                    continue
+                previous = ""
+                for piece in re.split(r"[，,]", clause):
+                    # An instructional verb in one comma clause cannot donate
+                    # its object to a following compatibility/reference clause.
+                    if not _teaching(piece):
+                        previous = piece
+                        continue
+                    for match in instruction.finditer(piece):
+                        local = piece[max(0, match.start() - 60):match.end() + 60]
+                        if all(_has(owner, local) for owner in context):
+                            return True
+                        # Explicit subject then instructional predicate, e.g.
+                        # "Pygame，讲解...". Do not bridge a sentence, negation,
+                        # foreign subject or an owner merely inside a reference.
+                        direct = re.match(r"\s*(?:(?:使用|基于|用)\s*)?([A-Za-z][A-Za-z0-9_+#.-]*)", piece[match.end():])
+                        object_name = direct[1] if direct else ""
+                        foreign_object = (object_name and not any(object_name.casefold() == owner.casefold() for owner in context)
+                            and (object_name.casefold() in _TECHNOLOGIES or re.search(r"[0-9_]|[a-z][A-Z]", object_name)))
+                        if (not piece[:match.start()].strip() and _teaching(previous)
+                                and not reference_subject.search(previous) and not foreign_object
+                                and all(_has(owner, previous) for owner in context)
+                                and re.search(re.escape(context[-1]) + r"\s*[）)]?\s*$", previous, re.I)):
+                            return True
+                    previous = piece
+    return False
+
+
 def _stale(value):
     return isinstance(value.get("cache"), dict) and bool(value["cache"].get("stale"))
 

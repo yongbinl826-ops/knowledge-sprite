@@ -26,7 +26,7 @@ test.describe('真实本地服务：只读前端联调', () => {
       await page.goto(base);
       expect((await capabilitiesResponse).status()).toBe(200);
       expect((await projectsResponse).status()).toBe(200);
-      await expect(page).toHaveTitle('项目制知识引导小精灵 · 课程与视频发现');
+      await expect(page).toHaveTitle('项目制学习引导小精灵 · 课程与视频发现');
       await expect(page.getByLabel('项目名称', { exact: true })).toBeVisible();
       await expect(page.getByRole('button', { name: '分析项目' })).toBeVisible();
       await expect(page.locator('vite-error-overlay')).toHaveCount(0);
@@ -38,10 +38,24 @@ test.describe('真实本地服务：只读前端联调', () => {
         const lines = [...heading.childNodes].filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()).flatMap(node => {
           const range = document.createRange(); range.selectNodeContents(node); return [...range.getClientRects()].map(rect => ({ top: rect.top, width: rect.width }));
         });
-        return { viewport: innerWidth, scrollWidth: document.documentElement.scrollWidth, headingLines: lines.length, heading: heading.textContent };
+        const headingBox = heading.getBoundingClientRect();
+        return { viewport: innerWidth, scrollWidth: document.documentElement.scrollWidth, headingLines: lines.length, heading: heading.textContent, headingWidth: headingBox.width, headingHeight: headingBox.height, headingClip: getComputedStyle(heading).clipPath };
       });
       expect(layout.scrollWidth).toBeLessThanOrEqual(layout.viewport);
-      expect(layout.headingLines).toBe(2);
+      if (viewport.width <= 640) {
+        await expect(page.locator('.stage-intro .section-index')).toBeHidden();
+        await expect(page.locator('.stage-intro .outline-number')).toBeHidden();
+        expect(layout.headingWidth).toBeLessThanOrEqual(1);
+        expect(layout.headingHeight).toBeLessThanOrEqual(1);
+        expect(layout.headingClip).toBe('inset(50%)');
+        await expect(page.getByLabel('项目名称', { exact: true })).toBeInViewport();
+        await expect(page.getByLabel('功能需求', { exact: true })).toBeInViewport();
+        await expect(page.getByRole('button', { name: '分析项目', exact: true })).toBeInViewport();
+      } else {
+        expect(layout.headingLines).toBe(2);
+        await expect(page.locator('.stage-intro .section-index')).toBeVisible();
+        await expect(page.locator('.stage-intro .outline-number')).toBeVisible();
+      }
       expect(mutations).toEqual([]); expect(runtime).toEqual([]); expect(consoleErrors).toEqual([]);
       const folder = resolve(process.env.QA_LIVE_OUTPUT_DIR || resolve(process.cwd(), '../evidence/browser/live'));
       await mkdir(folder, { recursive: true });

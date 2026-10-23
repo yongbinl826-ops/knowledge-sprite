@@ -98,8 +98,8 @@ def _read_paragraphs(result: SourceFacts, paragraphs: list, page_url: str, sourc
     return True
 
 
-def _inline_objects(script: str) -> dict | None:
-    """Read two literal assignments in the returned HTML, without running JS.
+def _inline_objects(script: str, *, names=frozenset({"termDto", "courseDto"}), single_quotes=False, allow_eof=False) -> dict | None:
+    """Read bounded literal assignments, defaulting to the main-site pair.
 
     This intentionally accepts only JSON-like literal data (including unquoted
     keys, comments and trailing commas seen on the public course page). Calls,
@@ -119,6 +119,12 @@ def _inline_objects(script: str) -> dict | None:
         token = tokens[index]
         if token.startswith('"'):
             return json.loads(token), index + 1
+        if single_quotes and token.startswith("'"):
+            import ast
+            value = ast.literal_eval(token)
+            if not isinstance(value, str):
+                raise ValueError("non-string literal")
+            return value, index + 1
         if token == "{":
             value = {}
             index += 1
@@ -162,11 +168,17 @@ def _inline_objects(script: str) -> dict | None:
     try:
         while index < len(tokens):
             if (depth == 0 and (index == 0 or tokens[index - 1] == ";") and tokens[index:index + 2] == ["window", "."]
-                    and index + 3 < len(tokens) and tokens[index + 2] in {"termDto", "courseDto"}
+                    and index + 3 < len(tokens) and tokens[index + 2] in names
                     and tokens[index + 3] == "="):
                 name = tokens[index + 2]
                 value, end = literal(index + 4)
-                if name in found or not isinstance(value, dict) or end >= len(tokens) or tokens[end] != ";":
+                if name in found or not isinstance(value, dict):
+                    return None
+                if end == len(tokens) and allow_eof:
+                    found[name] = value
+                    index = end
+                    continue
+                if end >= len(tokens) or tokens[end] != ";":
                     return None
                 found[name] = value
                 index = end + 1
@@ -181,9 +193,9 @@ def _inline_objects(script: str) -> dict | None:
             elif tokens[index] in {"`", "/"}:
                 return None
             index += 1
-    except (ValueError, TypeError, RecursionError):
+    except (ValueError, TypeError, SyntaxError, RecursionError):
         return None
-    return found if depth == 0 and set(found) == {"termDto", "courseDto"} else None
+    return found if depth == 0 and set(found) == set(names) else None
 
 
 def extract_embedded_course_facts(soup: BeautifulSoup, url: str) -> SourceFacts:

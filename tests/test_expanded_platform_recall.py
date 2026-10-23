@@ -58,12 +58,25 @@ def test_round_configuration_rejects_invalid_limits(field, value):
 def test_supplementary_queries_are_distinct_and_keep_original_technical_owner(language, name, source):
     point = {"knowledge_point_id": "point", "text": name}
     search = SearchRequest(knowledge_points=[name], preferred_platforms=[source], language=language)
+    original_request = search.model_dump(mode="json")
     queries = [platform_query(point, source, search, round_index=index) for index in range(6)]
+    assert len(queries) == 6
     assert len({query.query.casefold() for query in queries}) == 6
+    assert name in queries[0].query
+    expected_domain = "bilibili.com" if source == "bilibili" else "icourse163.org"
+    assert all(query.domain_filters == [expected_domain] for query in queries)
+    assert search.model_dump(mode="json") == original_request
+    assert point == {"knowledge_point_id": "point", "text": name}
     assert all(name.split()[0] in query.query for query in queries)
     assert all(query.knowledge_point_id == "point" for query in queries)
     if name == "Python 列表与字典":
-        assert "Python 列表 " in queries[2].query and "Python 字典 " in queries[3].query
+        # Bili's two existing supplementary slots now cover the two literal
+        # components independently; a dictionary query must not inherit list.
+        first_part, second_part = (1, 2) if source == "bilibili" else (2, 3)
+        assert "Python 列表 " in queries[first_part].query
+        assert "Python 字典 " in queries[second_part].query
+        assert "字典" not in queries[first_part].query
+        assert "列表" not in queries[second_part].query
 
 
 def test_confirmed_targets_diversify_recall_without_donating_operators_or_new_owner():
@@ -205,8 +218,8 @@ async def test_project_confirmation_reserves_larger_batches_without_losing_point
         confirmed = projects.confirm(view["project_id"], 1, [])
         budget = confirmed["version"]["budgets"]
         assert budget["selected_count"] == 7
-        assert budget["batch_search_requests"] == [40, 16]
-        assert budget["reserved_search_requests"] == 56
+        assert budget["batch_search_requests"] == [45, 18]
+        assert budget["reserved_search_requests"] == 63
         assert budget["reserved_detail_pages"] == 120
     finally:
         await projects.stop()
@@ -265,7 +278,7 @@ async def test_project_respects_confirmed_per_source_allowance_even_when_total_d
             assert not batch.get("job_id") and store.job_counts() == {}
         else:
             assert batch["job_id"]
-            assert store.get_job(batch["job_id"])["budgets"]["max_search_requests"] == 12
+            assert store.get_job(batch["job_id"])["budgets"]["max_search_requests"] == 14
     finally:
         await projects.stop()
         await jobs.stop()

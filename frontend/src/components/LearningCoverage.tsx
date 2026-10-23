@@ -6,7 +6,7 @@ import { SkillLearningRoute } from './SkillLearningRoute';
 
 export function LearningCoverage(props: {
   planned: ProjectKnowledgePoint; result: ResultGroup | null | undefined; rows: VisibleItem[];
-  filtered: boolean; searching: boolean; prerequisites?: string[];
+  filtered: boolean; searching: boolean;
 }) {
   return <SkillLearningRoute {...props} legacy={<details className="legacy-requirements">
     <summary>原项目要求来源核对 <span>旧口径明细</span></summary>

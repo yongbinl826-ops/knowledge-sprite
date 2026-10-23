@@ -59,7 +59,7 @@ export function LegacyLearningCoverage({ planned, result, rows, filtered, search
     {parts.length ? <div className="unit-coverage-columns">
       <div className="unit-coverage-supported"><h6>已有来源依据</h6>{supported.length ? <ul>{supported.map(({ key, text, memberIds, sources }) => <li key={key} data-requirement-ids={JSON.stringify(memberIds)}><span>{text}</span><small>{sources.length} 个当前视频有正文或目录依据</small></li>)}</ul> : <p>这些原项目要求尚无足够的本课正文或目录依据；请结合主路线区分补学与实践。</p>}</div>
       <div className="unit-coverage-missing"><h6>原要求仍待核对</h6>{missing.length ? <ul>{missing.map(({ key, text, memberIds }) => <li key={key} data-requirement-ids={JSON.stringify(memberIds)}>{text}</li>)}</ul> : <p>已列子技能均找到内容依据，仍需核对深度与完整性。</p>}</div>
-    </div> : <p className="unit-coverage-unknown">现有信息尚不足以逐项确认教学内容。{unchecked.length ? `学习时请核对：${unchecked.join('、')}。` : `请对照学习目标「${planned.learning_goal}」核对视频简介或目录。`}</p>}
+    </div> : <p className="unit-coverage-unknown">现有信息尚不足以逐项确认教学内容。{unchecked.length ? `学习时请核对：${unchecked.join('、')}。` : planned.learning_goal ? `请对照学习目标「${planned.learning_goal}」核对视频简介或目录。` : '请结合知识点说明核对视频简介或目录。'}</p>}
     <div className="unit-coverage-next"><strong>如何使用这份明细</strong><p>这里保留旧口径的来源逐项核对。参数教学仍需证据，项目应用则需要自己实践；两者不能自动相互代替。</p>
       {firstUrl && <a href={firstUrl} target="_blank" rel="noopener noreferrer">查看已有要求依据 <span aria-hidden="true">↗</span><span className="sr-only">：{first.item.resource.title}（在新窗口打开）</span></a>}
     </div>

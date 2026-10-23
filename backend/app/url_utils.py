@@ -39,7 +39,7 @@ def assert_public_ip(value: str) -> str:
     return str(address)
 
 
-def normalize_url(url: str) -> str:
+def normalize_url(url: str, *, preserve_bilibili_locale: bool = False) -> str:
     if not isinstance(url, str) or not url or len(url) > 8192:
         raise UnsafeURL("URL 为空或过长")
     if any(ord(char) < 32 or ord(char) == 127 for char in url) or "\\" in url:
@@ -77,16 +77,27 @@ def normalize_url(url: str) -> str:
         netloc = f"[{hostname}]" if ":" in hostname else hostname
         if port is not None and not (parts.scheme.lower() == "https" and port == 443 or parts.scheme.lower() == "http" and port == 80):
             netloc += f":{port}"
+        # Observed public localized route has the same BV and exact query part.
+        # Transport must retain the route actually returned by Location so a
+        # canonical -> localized redirect does not normalize into a loop.
+        path = parts.path
+        localized_video = re.fullmatch(r"/zh-Hans(/video/BV[0-9A-Za-z]{10}/?)", path)
+        if hostname in {"bilibili.com", "www.bilibili.com"} and localized_video:
+            canonical_path = localized_video.group(1)
+        else:
+            canonical_path = path
+        if not preserve_bilibili_locale:
+            path = canonical_path
         # Search/share links can append uid without changing the BVID or part.
         # Keep it on original links/evidence, not the recognized video's identity.
         bilibili_video = host_matches(hostname, "bilibili.com") and re.fullmatch(
-            r"/video/(?:BV[0-9A-Za-z]{10}|av\d+)/?", parts.path
+            r"/video/(?:BV[0-9A-Za-z]{10}|av\d+)/?", canonical_path
         ) is not None
         # Never drop p/course/chapter/term/version or other unknown query parameters.
         query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True)
                  if not key.lower().startswith("utm_") and key.lower() not in TRACKING_PARAMS
                  and not (bilibili_video and key.lower() == "uid")]
-        return urlunsplit((parts.scheme.lower(), netloc, parts.path or "/", urlencode(query), parts.fragment))
+        return urlunsplit((parts.scheme.lower(), netloc, path or "/", urlencode(query), parts.fragment))
     except (UnicodeError, ValueError) as exc:
         if isinstance(exc, UnsafeURL):
             raise

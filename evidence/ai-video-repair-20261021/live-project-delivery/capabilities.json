@@ -1,0 +1,329 @@
+{
+  "mode": "live",
+  "search": {
+    "name": "searxng",
+    "status": "configured",
+    "message": "已配置，尚未验证真实搜索",
+    "configured": true,
+    "selected_provider": "searxng",
+    "providers": [
+      {
+        "name": "searxng",
+        "status": "configured",
+        "message": "已配置，尚未验证真实搜索",
+        "configured": true
+      },
+      {
+        "name": "tavily",
+        "status": "configured",
+        "message": "已配置，尚未验证真实搜索",
+        "configured": true,
+        "auth_mode": "api_key"
+      },
+      {
+        "name": "serper",
+        "status": "configured",
+        "message": "已配置，尚未验证真实搜索",
+        "configured": true
+      },
+      {
+        "name": "official_sitemap",
+        "status": "configured",
+        "message": "已配置，尚未验证真实搜索；仅 MIT 官方站点地图，其他平台不在此模式的发现范围",
+        "configured": true
+      }
+    ],
+    "platform_providers": {
+      "bilibili": {
+        "name": "searxng",
+        "status": "configured",
+        "message": "已配置，尚未验证真实搜索",
+        "configured": true
+      },
+      "icourse163": {
+        "name": "tavily",
+        "status": "configured",
+        "message": "已配置，尚未验证真实搜索",
+        "configured": true,
+        "auth_mode": "api_key"
+      }
+    }
+  },
+  "teaching_match_enabled": true,
+  "ai_video_fallback": {
+    "enabled": true,
+    "policy_version": "grounded-video-v2",
+    "search_provider": "auto",
+    "retained_candidate_probes_per_point": 3,
+    "max_recovery_attempts_per_query": 2,
+    "model_configured": true,
+    "max_calls_per_job": 1,
+    "max_urls_per_point": 3,
+    "requires_verified_page": true,
+    "read_time_model_calls": 0
+  },
+  "shared_course_library": {
+    "enabled": true,
+    "persistent_public_reuse_enabled": false,
+    "ttl_seconds": 604800,
+    "scope": "public MOOC own-page and outline evidence only; rematched for each knowledge point",
+    "stats": {
+      "total": 15,
+      "fresh": 15,
+      "expired": 0,
+      "revoked": 0
+    }
+  },
+  "mooc_gap_search": {
+    "enabled": true,
+    "query_refresh_enabled": true,
+    "query_refresh_interval_seconds": 86400,
+    "target_courses_per_point": 3,
+    "check_wait_seconds": 20
+  },
+  "mooc_relevance": {
+    "schema_version": "mooc-outline-v1",
+    "enabled": true,
+    "policy": "outline_required",
+    "scope": "icourse163 public course outline; every selected subtopic must have bound catalog evidence",
+    "model_calls": 0,
+    "playback_verified": false
+  },
+  "platform_search": {
+    "parallel": true,
+    "open_web_enabled": true,
+    "open_web_scope": "one unrestricted initial query per point within the same hard request budget",
+    "searxng_failover": {
+      "provider": null,
+      "configured": false,
+      "cooldown_seconds": 300,
+      "extra_requests_per_slot": 0
+    },
+    "providers": {
+      "bilibili": {
+        "name": "searxng",
+        "status": "configured",
+        "message": "已配置，尚未验证真实搜索",
+        "configured": true
+      },
+      "icourse163": {
+        "name": "tavily",
+        "status": "configured",
+        "message": "已配置，尚未验证真实搜索",
+        "configured": true,
+        "auth_mode": "api_key"
+      }
+    },
+    "initial_requests_per_point_per_platform": 1,
+    "followup_requests_per_point_per_platform": 9,
+    "rounds_per_point": {
+      "bilibili": 3,
+      "icourse163": 10
+    },
+    "initial_pass_before_followups": true
+  },
+  "llm": {
+    "status": "configured",
+    "message": "模型已配置，尚未实际验证"
+  },
+  "fetch": {
+    "status": "available",
+    "message": "公开元信息；独立站点策略与 robots 检查，受限时仅保留搜索证据",
+    "browser_fallback": false,
+    "stopped_hosts": [
+      "open.edu"
+    ],
+    "transport": {
+      "version": 3,
+      "phased_timeouts": true,
+      "bounded_content_encodings": [
+        "identity",
+        "gzip",
+        "deflate"
+      ],
+      "initial_timeout_seconds": 10,
+      "body_idle_timeout_seconds": 5,
+      "body_min_bytes_per_second": 16384,
+      "body_timeout_cap_seconds": 30
+    }
+  },
+  "js_render": {
+    "enabled": true,
+    "allowed_hosts": [
+      "microsoft.github.io"
+    ],
+    "allowed_entries": [
+      "https://microsoft.github.io/AI-For-Beginners/"
+    ],
+    "asset_hosts": [
+      "cdn.jsdelivr.net"
+    ],
+    "timeout_seconds": 90,
+    "max_resources": 6,
+    "max_target_requests": 10,
+    "max_doh_requests": 20,
+    "max_total_bytes": 2000000,
+    "max_dom_bytes": 1000000,
+    "settle_ms": 500,
+    "max_observed_data_resources": 2,
+    "status": "configured",
+    "profile_version": 6,
+    "mode": "anonymous_offline_manifest_fulfill",
+    "message": "仅显式允许来源；资源经安全采集后离线执行，配置不证明真实动态字段已取得",
+    "policy_and_robots_required": true,
+    "online_browser_fallback": false,
+    "process_network_egress": "unknown",
+    "playback_verified": false
+  },
+  "official_discovery": {
+    "selected": false,
+    "fallback_enabled": true,
+    "scope": "MIT official robots-declared sitemap links; page evidence required",
+    "children_per_query": 1,
+    "cache_ttl_seconds": 21600,
+    "dns_counter_scope": "discovery_dns_requests counts official discovery DoH HTTP only"
+  },
+  "public_catalog_discovery": {
+    "enabled": false,
+    "scope": "freeCodeCamp public tag cards and Tech With Tim category/series lesson links; independent video and topic page evidence required",
+    "max_indexes_per_query": 3,
+    "max_indexes_by_source": {
+      "freecodecamp": 2,
+      "techwithtim": 3
+    },
+    "max_series_per_query": 2,
+    "max_detail_probes_per_point": 2,
+    "cache_ttl_seconds": 21600,
+    "status": "disabled"
+  },
+  "learning_skill_matching": {
+    "judge_max_calls_per_job": 2,
+    "positive_claim_review_max_calls_per_job": 1,
+    "max_pairs_per_job": 20,
+    "max_candidates_per_point": 4,
+    "read_time_model_calls": 0,
+    "judge_timeout_seconds": 15,
+    "review_timeout_seconds": 15,
+    "judge_max_output_tokens": 3000,
+    "review_max_output_tokens": 1500,
+    "total_deadline_extended": false,
+    "decision_cache_ttl_seconds": 3600
+  },
+  "platforms": [
+    {
+      "id": "bilibili",
+      "name": "B站",
+      "discovery": "search",
+      "metadata": "public_video_metadata_only",
+      "search_provider": "searxng",
+      "metadata_max_bytes": 8000000,
+      "metadata_max_state_chars": 4000000,
+      "search_status": "configured",
+      "playback": "unknown",
+      "policy_status": "explicit_permission_required",
+      "source_url": "https://www.bilibili.com/blackboard/protocal/licence.html",
+      "reviewed_at": "2026-10-17",
+      "policy_basis": "本地自用模式已开启：读取匿名公开视频HTML中的元信息和分P目录，不因许可状态预先停止；实际登录、验证码、访问拒绝和robots规则仍独立检查。平台条款记录保留作来源说明。",
+      "policy_section": "5.6(3)、1.5",
+      "terms_date": "2025-04-30",
+      "effective_at": "2025-05-07",
+      "review_method": "browser_visible_terms"
+    },
+    {
+      "id": "icourse163",
+      "name": "中国大学 MOOC",
+      "discovery": "search",
+      "metadata": "public_course_metadata_only",
+      "search_provider": "tavily",
+      "search_status": "configured",
+      "playback": "unknown",
+      "policy_status": "public_course_metadata_only",
+      "source_url": "https://www.icourse163.org/topics/mooc_privacy_service/",
+      "reviewed_at": "2026-10-17",
+      "policy_basis": "协议3.1允许浏览课程信息；5.2.7涉及第三方工具、服务接入，未明确列出匿名公开课程HTML读取。当前仅读取公开/course/课程页响应自带的介绍与大纲，逐次检查robots和访问限制；不接入登录学习、选课、播放或私有API，不代表取得平台自动聚合的广泛许可。",
+      "policy_section": "3.1、5.2.7",
+      "terms_date": "2021-07-16",
+      "effective_at": "2021-07-16",
+      "review_method": "browser_visible_terms"
+    },
+    {
+      "id": "xuetangx",
+      "name": "学堂在线",
+      "discovery": "search",
+      "metadata": "site_policy_blocked",
+      "search_provider": "searxng",
+      "search_status": "configured",
+      "playback": "unknown",
+      "policy_status": "explicit_scraping_prohibition",
+      "source_url": "https://www.xuetangx.com/app/protocol",
+      "reviewed_at": "2026-10-13",
+      "policy_basis": "官方用户协议“网络行为准则”明确约定不抓取和批量下载本产品内容；当前停止自动页面采集，保留搜索发现证据。公开课程可供用户访问不等于许可自动抓取。",
+      "policy_section": "网络行为准则",
+      "terms_date": "2021-01-05",
+      "effective_at": null,
+      "review_method": null
+    },
+    {
+      "id": "other",
+      "name": "其他公开网站",
+      "discovery": "search",
+      "metadata": "public_metadata_when_allowed",
+      "search_provider": "searxng",
+      "search_status": "configured",
+      "playback": "unknown",
+      "policy_status": "per_site_check_required",
+      "source_url": null,
+      "reviewed_at": null,
+      "policy_basis": null,
+      "policy_section": null,
+      "terms_date": null,
+      "effective_at": null,
+      "review_method": null
+    }
+  ],
+  "limits": {
+    "max_knowledge_points": 5,
+    "max_results_per_point": 5,
+    "max_search_requests": 80,
+    "max_detail_pages": 60,
+    "global_concurrency": 2,
+    "per_host_concurrency": 1
+  },
+  "deployment": {
+    "local_only": true,
+    "authentication": false,
+    "single_process": true,
+    "external_access_requires_authenticated_proxy": true
+  },
+  "project_analysis": {
+    "status": "configured",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v5.5-auditable-concept-validation",
+    "max_functions": 12,
+    "max_knowledge_points": 24,
+    "mode": "professional_knowledge_points",
+    "semantic_review_enabled": false,
+    "max_model_calls": 2,
+    "review_max_calls": 0,
+    "review_max_output_tokens": 0,
+    "message": "项目分析使用独立提示词；内容需学生检查确认"
+  },
+  "project_search": {
+    "max_batches": 6,
+    "max_search_requests": 480,
+    "max_detail_pages": 360,
+    "deadline_seconds": 2160,
+    "batch_size": 5,
+    "mode": "professional_terms_v1",
+    "budget_policy": "按每批完整单任务上限预留；超预算整体拒绝，不截断知识点",
+    "deadline_policy": "预留各批完整执行时限之和；墙钟时限控制新批次启动，已提交共享任务继续至原任务时限",
+    "cancel_policy": "停止未提交批次并取消仅本项目使用的任务；共享或历史归属未知的任务继续，保留其结果"
+  },
+  "http_limits": {
+    "max_request_body_bytes": 512000,
+    "write_limit_per_minute": 60,
+    "max_pending_analyses": 8,
+    "max_pending_project_searches": 20,
+    "max_event_streams": 16
+  }
+}

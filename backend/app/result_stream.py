@@ -25,6 +25,11 @@ def pipeline(groups, jobs, *, terminal, status=None):
     assessments = Counter()
     for group in groups:
         rows = group.get("discovery_items", []) if group.get("discovery_only") else group.get("items", [])
+        if group.get("recommendation_policy") == "related-reference-v1":
+            # Recommendation counts include qualified related references;
+            # teaching-support counts and their source claims remain separate.
+            rows = [*group.get("items", []), *group.get("partial_items", []),
+                    *group.get("related_recommendations", [])]
         for row in rows:
             resource = row.get("resource", {})
             key = resource.get("canonical_url") or resource.get("resource_id")

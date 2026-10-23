@@ -60,7 +60,7 @@ def test_embedded_parts_preserve_explicit_page_numbers_not_cid_or_array_index():
 
 def test_fresh_real_http_response_ignores_later_player_reads_and_preserves_fifteen_parts():
     # Immutable HTTP body from this turn's real anonymous GET, not rendered DOM.
-    path = Path(__file__).resolve().parents[1] / "reports/bilibili-local-use-20261017/probe-after-decompression/page.html"
+    path = Path(__file__).resolve().parents[1] / "tests/fixtures/public_catalog_replays/bilibili-local-use-20261017/probe-after-decompression/page.html"
     raw = path.read_bytes()
     assert hashlib.sha256(raw).hexdigest() == "163d94189805bfe6c25bc2e2b8bca301c30860cbb83870336757093e377fb388"
     html = raw.decode("utf-8")
@@ -158,7 +158,7 @@ def test_untrusted_or_ambiguous_script_does_not_become_metadata(damage):
     elif damage == "missing_semicolon":
         html = markup(script=script[:-1])
     elif damage == "too_large":
-        html = markup(script=" " * 2_000_001 + script)
+        html = markup(script=" " * 4_000_001 + script)
     elif damage == "nan":
         html = markup(script=script.replace('"duration": 155', '"duration": NaN'))
     elif damage == "missing_bvid":
@@ -251,14 +251,14 @@ UNAVAILABLE_URL = "https://www.bilibili.com/video/BV1Dit1zYEJQ/"
 
 
 def unavailable_html():
-    path = Path(__file__).resolve().parents[1] / "reports/bilibili-local-use-20261017/unavailable-page/page.html"
+    path = Path(__file__).resolve().parents[1] / "tests/fixtures/public_catalog_replays/bilibili-local-use-20261017/unavailable-page/page.html"
     raw = path.read_bytes()
     assert hashlib.sha256(raw).hexdigest() == "8da75a630f4dc35ae99e756e62f31976bc52f98f8eb29815ca25d76d7cea6d9e"
     return raw.decode("utf-8")
 
 
 def test_fresh_real_soft_404_is_content_not_found_despite_http_200():
-    root = Path(__file__).resolve().parents[1] / "reports/bilibili-local-use-20261017/unavailable-page"
+    root = Path(__file__).resolve().parents[1] / "tests/fixtures/public_catalog_replays/bilibili-local-use-20261017/unavailable-page"
     response = json.loads((root / "page-response.json").read_text(encoding="utf-8"))
     assert response["status"] == 200
     result = extract(unavailable_html(), UNAVAILABLE_URL)

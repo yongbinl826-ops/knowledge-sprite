@@ -1,0 +1,1443 @@
+{
+  "job_id": "b46423b0-0c8e-408b-8f78-3e25299eb031",
+  "status": "completed",
+  "groups": [
+    {
+      "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+      "text": "游戏主循环",
+      "technology": "pygame",
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0,
+      "section_limit": 5,
+      "items": [],
+      "platform_items": {},
+      "partial_items": [],
+      "partial_platform_items": {},
+      "review_items": [],
+      "review_platform_items": {},
+      "collection_coverage": {
+        "decomposition_status": "not_applicable",
+        "shared_context": [],
+        "subtopics": [
+          {
+            "id": "whole_topic",
+            "text": "游戏主循环",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "platform_collection_coverage": {},
+      "related_recommendations": [
+        {
+          "resource": {
+            "resource_id": "replay_res_26e4bcd3fbfecab963d9e26b",
+            "title": "Jumping & Boundaries",
+            "platform": "other",
+            "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/jump_graph1_3c07ea6a7c.png",
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "evidence_id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "field": "description",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space ",
+              "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+            },
+            {
+              "id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+              "evidence_id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space bar. If they do we will change isJump to True and start jumping.\n# Goes inside the while loop, under event for moving down if keys[pygame.K_SPACE]: isJump = True\nNow when we are jumping we do not want to allow the user to jump again or to be able to move up and down. To disallow the user from doing this we will add another if/else statement.\nWe are now going to start writing the code for making the character jump. We are going to implement a quadratic formula for our jumping. This is because ideally we would like our jump to be smooth and look something like this:\nInside of the else we will paste the following.\nif jumpCount >= -10: y -= (jumpCount * abs(jumpCount)) * 0.5 jumpCount -= 1 else: # This will execute if our jump is finished jumpCount = 10 isJump = False # Resetting our Variables\nAnd now our character can jump!\nIf you are confused by this please refer to the video starting at 11:00.\nNote: I use abs() use instead of ** just to eliminate the need for the neg variable seen in the video. Both versions of this code work the same.",
+              "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+            }
+          ]
+        },
+        {
+          "resource": {
+            "resource_id": "replay_res_be54ce66bc01be1b70f3a421",
+            "title": "Character Animation & Sprites",
+            "platform": "other",
+            "thumbnail_url": null,
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_4f01b151ff61aa603790e7ec93e13363",
+              "ev_replay_c2aaa6b914db7dc0c656a4d778190c14"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_4f01b151ff61aa603790e7ec93e13363",
+              "evidence_id": "ev_replay_4f01b151ff61aa603790e7ec93e13363",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation",
+              "field": "description",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Character Animation & Sprites\nIMPORTANT Please download the images for this tutorial from my GitHub or the download button below.\nGitHub: Click Here!\nDownload Zip:\nPlease place all of these images in the same directory as your python script.\nCharacter Animation\nAfter we've downloaded our images we can start getting ready to anime our character.\nThe first step is to create a few variables which will be used to determine which way we are facing and keep track of the current image we are showing.\n# This goes outside the while loop, near the top of our program left = False right = False walkCount = 0\nNow we need to load our images. To load an image in pygame we use pygame.image.load(path). Since we need to load so many images we will be storing some of them in lists for easier accessing later on.\nThis is the code to load all of our images (I recommend you copy and paste).\nIt is often good practice to do all of our drawing from within a function. This means we are going to move our old drawing code that is inside the main loop into a function and make a few modifications.\nNow we are going to set our left and right variables appropriately from inside the main loop.\nAnd finally we can start working on drawing our character to the screen.\nNOTE: This is very complex, please refer to the video for more in depth explanations.\nThe last thing we need to do is change our framerate.\nTo do this we are going to create a clock object using clock = pygame.time.Clock() outside of our main loop and write clock.tick(27) inside our main loop.\nYou may notice when running the program that the background does not cover the entire screen, to fix this simply change there screen height to 480.\npygame.display.set_mode((500, 480))",
+              "fetched_at": "2026-10-20T09:16:48.146091+00:00"
+            },
+            {
+              "id": "ev_replay_c2aaa6b914db7dc0c656a4d778190c14",
+              "evidence_id": "ev_replay_c2aaa6b914db7dc0c656a4d778190c14",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Character Animation & Sprites\nIMPORTANT Please download the images for this tutorial from my GitHub or the download button below.\nGitHub: Click Here!\nDownload Zip:\nPlease place all of these images in the same directory as your python script.\nCharacter Animation\nAfter we've downloaded our images we can start getting ready to anime our character.\nThe first step is to create a few variables which will be used to determine which way we are facing and keep track of the current image we are showing.\n# This goes outside the while loop, near the top of our program left = False right = False walkCount = 0\nNow we need to load our images. To load an image in pygame we use pygame.image.load(path). Since we need to load so many images we will be storing some of them in lists for easier accessing later on.\nThis is the code to load all of our images (I recommend you copy and paste).\nIt is often good practice to do all of our drawing from within a function. This means we are going to move our old drawing code that is inside the main loop into a function and make a few modifications.\nNow we are going to set our left and right variables appropriately from inside the main loop.\nAnd finally we can start working on drawing our character to the screen.\nNOTE: This is very complex, please refer to the video for more in depth explanations.\nThe last thing we need to do is change our framerate.\nTo do this we are going to create a clock object using clock = pygame.time.Clock() outside of our main loop and write clock.tick(27) inside our main loop.\nYou may notice when running the program that the background does not cover the entire screen, to fix this simply change there screen height to 480.\npygame.display.set_mode((500, 480))",
+              "fetched_at": "2026-10-20T09:16:48.146091+00:00"
+            }
+          ]
+        },
+        {
+          "resource": {
+            "resource_id": "replay_res_75865a884af31279cf83e9db",
+            "title": "Basic Movement & Key Presses",
+            "platform": "other",
+            "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/pygame_window_tutorial_1_01af2f97bd.png",
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_9d4a05265eb2969146cbd61ef5220d5e"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+              "evidence_id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+              "fetched_at": "2026-10-20T09:16:42.470384+00:00"
+            }
+          ]
+        },
+        {
+          "resource": {
+            "resource_id": "offline-replay-twt-scoring",
+            "title": "Scoring & Health Bars",
+            "platform": "general",
+            "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/health_bar_pygame_c333c7bfb7.png",
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+              "ev_replay_a9605dbf8038618b400fd2b359331d52"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+              "evidence_id": "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+              "field": "description",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit.",
+              "fetched_at": "2026-10-18T16:59:05.733936+00:00"
+            },
+            {
+              "id": "ev_replay_a9605dbf8038618b400fd2b359331d52",
+              "evidence_id": "ev_replay_a9605dbf8038618b400fd2b359331d52",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit.",
+              "fetched_at": "2026-10-18T16:59:05.733936+00:00"
+            }
+          ]
+        },
+        {
+          "resource": {
+            "resource_id": "offline-replay-twt-snake1",
+            "title": "Tutorial #1",
+            "platform": "general",
+            "thumbnail_url": null,
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_34c55a78309f21ea0a208ba3ac7a758c",
+              "ev_replay_ce4a81f658efc3f90b1f909a352ee9cb"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_34c55a78309f21ea0a208ba3ac7a758c",
+              "evidence_id": "ev_replay_34c55a78309f21ea0a208ba3ac7a758c",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+              "field": "description",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Tutorial #1\nIn this tutorial series we will be working to create the famous snake game in python with the module pygame. If you are more interested in a general pygame tutorial series click here\nStarter Code\nTo make our lives a bit easier I've set up the main structure for our game already. We are going to be using two main classes (snake and cube).\nCreating our Game Loop\nIn all games we have a loop called a \"main loop\" or \"game loop\". This loop will continuously run until the game is exited. It is mainly responsible for checking for events and calling functions and methods based on those events.\nWe are going to be coding our game loop inside the main() function. We will declare some variables at the top of the function then move into our while loop which will represent our game loop.\n```python\ndef main(): \n    global width, rows, s\n    width = 500  # Width of our screen\n    height = 500  # Height of our screen\n    rows = 20  # Amount of rows\n\n    win = pygame.display.set_mode((width, height))  # Creates our screen object\n\n    s = snake((255,0,0), (10,10))  # Creates a snake object which we will code later\n\n    clock = pygame.time.Clock() # creating a clock object\n\n    flag = True\n    # STARTING MAIN LOOP\n    while flag:\n        pygame.time.delay(50)  # This will delay the game so it doesn't run too quickly\n        clock.tick(10)  # Will ensure our game runs at 10 FPS\n        redrawWindow(win)  # This will refresh our screen\n```\nUpdating the Screen\nIt is usually good practice to do all of our drawing of objects from within one function or method. We will be using the redrawWindow function to update the display. We call this function once a frame from our game loop.\nWe will be adding more to this function later. However, for now we will simply draw the grid lines.\nDrawing the Grid\nWe are now going to work on drawing the lines to represent the 20x20 grid. We will do this in the drawGrid function.\n```python\ndef drawGrid(w, rows, surface):\n    sizeBtwn = w // rows  # Gi",
+              "fetched_at": "2026-10-18T18:04:01.835297+00:00"
+            },
+            {
+              "id": "ev_replay_ce4a81f658efc3f90b1f909a352ee9cb",
+              "evidence_id": "ev_replay_ce4a81f658efc3f90b1f909a352ee9cb",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Tutorial #1\nIn this tutorial series we will be working to create the famous snake game in python with the module pygame. If you are more interested in a general pygame tutorial series click here\nStarter Code\nTo make our lives a bit easier I've set up the main structure for our game already. We are going to be using two main classes (snake and cube).\nCreating our Game Loop\nIn all games we have a loop called a \"main loop\" or \"game loop\". This loop will continuously run until the game is exited. It is mainly responsible for checking for events and calling functions and methods based on those events.\nWe are going to be coding our game loop inside the main() function. We will declare some variables at the top of the function then move into our while loop which will represent our game loop.\n```python\ndef main(): \n    global width, rows, s\n    width = 500  # Width of our screen\n    height = 500  # Height of our screen\n    rows = 20  # Amount of rows\n\n    win = pygame.display.set_mode((width, height))  # Creates our screen object\n\n    s = snake((255,0,0), (10,10))  # Creates a snake object which we will code later\n\n    clock = pygame.time.Clock() # creating a clock object\n\n    flag = True\n    # STARTING MAIN LOOP\n    while flag:\n        pygame.time.delay(50)  # This will delay the game so it doesn't run too quickly\n        clock.tick(10)  # Will ensure our game runs at 10 FPS\n        redrawWindow(win)  # This will refresh our screen\n```\nUpdating the Screen\nIt is usually good practice to do all of our drawing of objects from within one function or method. We will be using the redrawWindow function to update the display. We call this function once a frame from our game loop.\nWe will be adding more to this function later. However, for now we will simply draw the grid lines.\nDrawing the Grid\nWe are now going to work on drawing the lines to represent the 20x20 grid. We will do this in the drawGrid function.\n```python\ndef drawGrid(w, rows, surface):\n    sizeBtwn = w // rows  # Gives us the distance between the lines\n\n    x = 0  # Keeps track of the current x\n    y = 0  # Keeps track of the current y\n    for l in range(rows):  # We will draw one vertical and one horizontal line each loop\n        x = x + sizeBtwn\n        y = y + sizeBtwn\n\n        pygame.draw.line(surface, (255,255,255), (x,0),(x,w))\n        pygame.draw.line(surface, (255,255,255), (0,y),(w,y))\n```\nNow when we run the program we can see the grid lines being drawn.\nStarting the Snake Class\nOur snake object is going to contain a list of cubes which will represent the snake body. We are going to store these cubes in a list called body which will be a class variable. We will also have a class variable called turns.\nTo start our Snake class we will code the init() method and add the class variables.",
+              "fetched_at": "2026-10-18T18:04:01.835297+00:00"
+            }
+          ]
+        }
+      ],
+      "related_platform_recommendations": {
+        "general": [
+          {
+            "resource": {
+              "resource_id": "offline-replay-twt-scoring",
+              "title": "Scoring & Health Bars",
+              "platform": "general",
+              "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/health_bar_pygame_c333c7bfb7.png",
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+                "ev_replay_a9605dbf8038618b400fd2b359331d52"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+                "evidence_id": "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+                "field": "description",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit.",
+                "fetched_at": "2026-10-18T16:59:05.733936+00:00"
+              },
+              {
+                "id": "ev_replay_a9605dbf8038618b400fd2b359331d52",
+                "evidence_id": "ev_replay_a9605dbf8038618b400fd2b359331d52",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit.",
+                "fetched_at": "2026-10-18T16:59:05.733936+00:00"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "offline-replay-twt-snake1",
+              "title": "Tutorial #1",
+              "platform": "general",
+              "thumbnail_url": null,
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_34c55a78309f21ea0a208ba3ac7a758c",
+                "ev_replay_ce4a81f658efc3f90b1f909a352ee9cb"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_34c55a78309f21ea0a208ba3ac7a758c",
+                "evidence_id": "ev_replay_34c55a78309f21ea0a208ba3ac7a758c",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+                "field": "description",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Tutorial #1\nIn this tutorial series we will be working to create the famous snake game in python with the module pygame. If you are more interested in a general pygame tutorial series click here\nStarter Code\nTo make our lives a bit easier I've set up the main structure for our game already. We are going to be using two main classes (snake and cube).\nCreating our Game Loop\nIn all games we have a loop called a \"main loop\" or \"game loop\". This loop will continuously run until the game is exited. It is mainly responsible for checking for events and calling functions and methods based on those events.\nWe are going to be coding our game loop inside the main() function. We will declare some variables at the top of the function then move into our while loop which will represent our game loop.\n```python\ndef main(): \n    global width, rows, s\n    width = 500  # Width of our screen\n    height = 500  # Height of our screen\n    rows = 20  # Amount of rows\n\n    win = pygame.display.set_mode((width, height))  # Creates our screen object\n\n    s = snake((255,0,0), (10,10))  # Creates a snake object which we will code later\n\n    clock = pygame.time.Clock() # creating a clock object\n\n    flag = True\n    # STARTING MAIN LOOP\n    while flag:\n        pygame.time.delay(50)  # This will delay the game so it doesn't run too quickly\n        clock.tick(10)  # Will ensure our game runs at 10 FPS\n        redrawWindow(win)  # This will refresh our screen\n```\nUpdating the Screen\nIt is usually good practice to do all of our drawing of objects from within one function or method. We will be using the redrawWindow function to update the display. We call this function once a frame from our game loop.\nWe will be adding more to this function later. However, for now we will simply draw the grid lines.\nDrawing the Grid\nWe are now going to work on drawing the lines to represent the 20x20 grid. We will do this in the drawGrid function.\n```python\ndef drawGrid(w, rows, surface):\n    sizeBtwn = w // rows  # Gi",
+                "fetched_at": "2026-10-18T18:04:01.835297+00:00"
+              },
+              {
+                "id": "ev_replay_ce4a81f658efc3f90b1f909a352ee9cb",
+                "evidence_id": "ev_replay_ce4a81f658efc3f90b1f909a352ee9cb",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/snake-pygame/snake-tutorial-1",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Tutorial #1\nIn this tutorial series we will be working to create the famous snake game in python with the module pygame. If you are more interested in a general pygame tutorial series click here\nStarter Code\nTo make our lives a bit easier I've set up the main structure for our game already. We are going to be using two main classes (snake and cube).\nCreating our Game Loop\nIn all games we have a loop called a \"main loop\" or \"game loop\". This loop will continuously run until the game is exited. It is mainly responsible for checking for events and calling functions and methods based on those events.\nWe are going to be coding our game loop inside the main() function. We will declare some variables at the top of the function then move into our while loop which will represent our game loop.\n```python\ndef main(): \n    global width, rows, s\n    width = 500  # Width of our screen\n    height = 500  # Height of our screen\n    rows = 20  # Amount of rows\n\n    win = pygame.display.set_mode((width, height))  # Creates our screen object\n\n    s = snake((255,0,0), (10,10))  # Creates a snake object which we will code later\n\n    clock = pygame.time.Clock() # creating a clock object\n\n    flag = True\n    # STARTING MAIN LOOP\n    while flag:\n        pygame.time.delay(50)  # This will delay the game so it doesn't run too quickly\n        clock.tick(10)  # Will ensure our game runs at 10 FPS\n        redrawWindow(win)  # This will refresh our screen\n```\nUpdating the Screen\nIt is usually good practice to do all of our drawing of objects from within one function or method. We will be using the redrawWindow function to update the display. We call this function once a frame from our game loop.\nWe will be adding more to this function later. However, for now we will simply draw the grid lines.\nDrawing the Grid\nWe are now going to work on drawing the lines to represent the 20x20 grid. We will do this in the drawGrid function.\n```python\ndef drawGrid(w, rows, surface):\n    sizeBtwn = w // rows  # Gives us the distance between the lines\n\n    x = 0  # Keeps track of the current x\n    y = 0  # Keeps track of the current y\n    for l in range(rows):  # We will draw one vertical and one horizontal line each loop\n        x = x + sizeBtwn\n        y = y + sizeBtwn\n\n        pygame.draw.line(surface, (255,255,255), (x,0),(x,w))\n        pygame.draw.line(surface, (255,255,255), (0,y),(w,y))\n```\nNow when we run the program we can see the grid lines being drawn.\nStarting the Snake Class\nOur snake object is going to contain a list of cubes which will represent the snake body. We are going to store these cubes in a list called body which will be a class variable. We will also have a class variable called turns.\nTo start our Snake class we will code the init() method and add the class variables.",
+                "fetched_at": "2026-10-18T18:04:01.835297+00:00"
+              }
+            ]
+          }
+        ],
+        "other": [
+          {
+            "resource": {
+              "resource_id": "replay_res_26e4bcd3fbfecab963d9e26b",
+              "title": "Jumping & Boundaries",
+              "platform": "other",
+              "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/jump_graph1_3c07ea6a7c.png",
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "evidence_id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+                "field": "description",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space ",
+                "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+              },
+              {
+                "id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+                "evidence_id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space bar. If they do we will change isJump to True and start jumping.\n# Goes inside the while loop, under event for moving down if keys[pygame.K_SPACE]: isJump = True\nNow when we are jumping we do not want to allow the user to jump again or to be able to move up and down. To disallow the user from doing this we will add another if/else statement.\nWe are now going to start writing the code for making the character jump. We are going to implement a quadratic formula for our jumping. This is because ideally we would like our jump to be smooth and look something like this:\nInside of the else we will paste the following.\nif jumpCount >= -10: y -= (jumpCount * abs(jumpCount)) * 0.5 jumpCount -= 1 else: # This will execute if our jump is finished jumpCount = 10 isJump = False # Resetting our Variables\nAnd now our character can jump!\nIf you are confused by this please refer to the video starting at 11:00.\nNote: I use abs() use instead of ** just to eliminate the need for the neg variable seen in the video. Both versions of this code work the same.",
+                "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "replay_res_be54ce66bc01be1b70f3a421",
+              "title": "Character Animation & Sprites",
+              "platform": "other",
+              "thumbnail_url": null,
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_4f01b151ff61aa603790e7ec93e13363",
+                "ev_replay_c2aaa6b914db7dc0c656a4d778190c14"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_4f01b151ff61aa603790e7ec93e13363",
+                "evidence_id": "ev_replay_4f01b151ff61aa603790e7ec93e13363",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation",
+                "field": "description",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Character Animation & Sprites\nIMPORTANT Please download the images for this tutorial from my GitHub or the download button below.\nGitHub: Click Here!\nDownload Zip:\nPlease place all of these images in the same directory as your python script.\nCharacter Animation\nAfter we've downloaded our images we can start getting ready to anime our character.\nThe first step is to create a few variables which will be used to determine which way we are facing and keep track of the current image we are showing.\n# This goes outside the while loop, near the top of our program left = False right = False walkCount = 0\nNow we need to load our images. To load an image in pygame we use pygame.image.load(path). Since we need to load so many images we will be storing some of them in lists for easier accessing later on.\nThis is the code to load all of our images (I recommend you copy and paste).\nIt is often good practice to do all of our drawing from within a function. This means we are going to move our old drawing code that is inside the main loop into a function and make a few modifications.\nNow we are going to set our left and right variables appropriately from inside the main loop.\nAnd finally we can start working on drawing our character to the screen.\nNOTE: This is very complex, please refer to the video for more in depth explanations.\nThe last thing we need to do is change our framerate.\nTo do this we are going to create a clock object using clock = pygame.time.Clock() outside of our main loop and write clock.tick(27) inside our main loop.\nYou may notice when running the program that the background does not cover the entire screen, to fix this simply change there screen height to 480.\npygame.display.set_mode((500, 480))",
+                "fetched_at": "2026-10-20T09:16:48.146091+00:00"
+              },
+              {
+                "id": "ev_replay_c2aaa6b914db7dc0c656a4d778190c14",
+                "evidence_id": "ev_replay_c2aaa6b914db7dc0c656a4d778190c14",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Character Animation & Sprites\nIMPORTANT Please download the images for this tutorial from my GitHub or the download button below.\nGitHub: Click Here!\nDownload Zip:\nPlease place all of these images in the same directory as your python script.\nCharacter Animation\nAfter we've downloaded our images we can start getting ready to anime our character.\nThe first step is to create a few variables which will be used to determine which way we are facing and keep track of the current image we are showing.\n# This goes outside the while loop, near the top of our program left = False right = False walkCount = 0\nNow we need to load our images. To load an image in pygame we use pygame.image.load(path). Since we need to load so many images we will be storing some of them in lists for easier accessing later on.\nThis is the code to load all of our images (I recommend you copy and paste).\nIt is often good practice to do all of our drawing from within a function. This means we are going to move our old drawing code that is inside the main loop into a function and make a few modifications.\nNow we are going to set our left and right variables appropriately from inside the main loop.\nAnd finally we can start working on drawing our character to the screen.\nNOTE: This is very complex, please refer to the video for more in depth explanations.\nThe last thing we need to do is change our framerate.\nTo do this we are going to create a clock object using clock = pygame.time.Clock() outside of our main loop and write clock.tick(27) inside our main loop.\nYou may notice when running the program that the background does not cover the entire screen, to fix this simply change there screen height to 480.\npygame.display.set_mode((500, 480))",
+                "fetched_at": "2026-10-20T09:16:48.146091+00:00"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "replay_res_75865a884af31279cf83e9db",
+              "title": "Basic Movement & Key Presses",
+              "platform": "other",
+              "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/pygame_window_tutorial_1_01af2f97bd.png",
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：游戏循环。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_9d4a05265eb2969146cbd61ef5220d5e"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+                "evidence_id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+                "fetched_at": "2026-10-20T09:16:42.470384+00:00"
+              }
+            ]
+          }
+        ]
+      },
+      "recommendation_policy": "related-reference-v1",
+      "total_related_recommendations": 5
+    },
+    {
+      "knowledge_point_id": "e70fe8fe-43e3-4f5d-902b-5bd25d39b97e",
+      "text": "矩形区域表示",
+      "technology": "pygame",
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0,
+      "section_limit": 5,
+      "items": [],
+      "platform_items": {},
+      "partial_items": [],
+      "partial_platform_items": {},
+      "review_items": [],
+      "review_platform_items": {},
+      "collection_coverage": {
+        "decomposition_status": "not_applicable",
+        "shared_context": [],
+        "subtopics": [
+          {
+            "id": "whole_topic",
+            "text": "矩形区域表示",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "platform_collection_coverage": {},
+      "related_recommendations": [
+        {
+          "resource": {
+            "resource_id": "replay_res_26e4bcd3fbfecab963d9e26b",
+            "title": "Jumping & Boundaries",
+            "platform": "other",
+            "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/jump_graph1_3c07ea6a7c.png",
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "e70fe8fe-43e3-4f5d-902b-5bd25d39b97e",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：矩形对象。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "evidence_id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "field": "description",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space ",
+              "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+            },
+            {
+              "id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+              "evidence_id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space bar. If they do we will change isJump to True and start jumping.\n# Goes inside the while loop, under event for moving down if keys[pygame.K_SPACE]: isJump = True\nNow when we are jumping we do not want to allow the user to jump again or to be able to move up and down. To disallow the user from doing this we will add another if/else statement.\nWe are now going to start writing the code for making the character jump. We are going to implement a quadratic formula for our jumping. This is because ideally we would like our jump to be smooth and look something like this:\nInside of the else we will paste the following.\nif jumpCount >= -10: y -= (jumpCount * abs(jumpCount)) * 0.5 jumpCount -= 1 else: # This will execute if our jump is finished jumpCount = 10 isJump = False # Resetting our Variables\nAnd now our character can jump!\nIf you are confused by this please refer to the video starting at 11:00.\nNote: I use abs() use instead of ** just to eliminate the need for the neg variable seen in the video. Both versions of this code work the same.",
+              "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+            }
+          ]
+        },
+        {
+          "resource": {
+            "resource_id": "replay_res_75865a884af31279cf83e9db",
+            "title": "Basic Movement & Key Presses",
+            "platform": "other",
+            "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/pygame_window_tutorial_1_01af2f97bd.png",
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "e70fe8fe-43e3-4f5d-902b-5bd25d39b97e",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：矩形对象。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_9d4a05265eb2969146cbd61ef5220d5e"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+              "evidence_id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+              "fetched_at": "2026-10-20T09:16:42.470384+00:00"
+            }
+          ]
+        },
+        {
+          "resource": {
+            "resource_id": "offline-replay-twt-scoring",
+            "title": "Scoring & Health Bars",
+            "platform": "general",
+            "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/health_bar_pygame_c333c7bfb7.png",
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "e70fe8fe-43e3-4f5d-902b-5bd25d39b97e",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：矩形对象。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+              "ev_replay_a9605dbf8038618b400fd2b359331d52"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+              "evidence_id": "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+              "field": "description",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit.",
+              "fetched_at": "2026-10-18T16:59:05.733936+00:00"
+            },
+            {
+              "id": "ev_replay_a9605dbf8038618b400fd2b359331d52",
+              "evidence_id": "ev_replay_a9605dbf8038618b400fd2b359331d52",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit.",
+              "fetched_at": "2026-10-18T16:59:05.733936+00:00"
+            }
+          ]
+        }
+      ],
+      "related_platform_recommendations": {
+        "general": [
+          {
+            "resource": {
+              "resource_id": "offline-replay-twt-scoring",
+              "title": "Scoring & Health Bars",
+              "platform": "general",
+              "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/health_bar_pygame_c333c7bfb7.png",
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "e70fe8fe-43e3-4f5d-902b-5bd25d39b97e",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：矩形对象。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+                "ev_replay_a9605dbf8038618b400fd2b359331d52"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+                "evidence_id": "ev_replay_5211e59e4f6c27eac418b9e31200166a",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+                "field": "description",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit.",
+                "fetched_at": "2026-10-18T16:59:05.733936+00:00"
+              },
+              {
+                "id": "ev_replay_a9605dbf8038618b400fd2b359331d52",
+                "evidence_id": "ev_replay_a9605dbf8038618b400fd2b359331d52",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/scoring-health-bars",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Scoring & Health Bars\nScore\nFor simplicity we are simply going to be increasing the score each time a bullet hits our goblin/enemy.\nWe are going to start by creating a variable at the top of our program called score.\nscore = 0\nNext we are going to increment the score from our main loop where we check if the goblin is hit.\nWe would like to display this score to the screen. To do this we must first create a font object.\n```python\nfont = pygame.font.SysFont(\"comicsans\", 30, True)\n# The first argument is the font, next is size \n# and then True to make our font bold\n```\nAfter we create our font we need to render some text and blit it to the screen.\n# This should go inside the redrawGameWindow function text = font.render(\"Score: \" + str(score), 1, (0,0,0)) # Arguments are: text, anti-aliasing, color win.blit(text, (390, 10))\nHealth Bar\nWhat we are going to do now is give our enemy health and a health bar. This way we can see when we should remove it from the screen. To create the health bar we are going to draw two rectangles. One green and one red. We will change the width of the green rectangle (which will overlay the red one) each time the enemy is hit.\nTo do this we must modify the enemy class like so.\nNow we have a health bar that will move down as our goblin is hit.",
+                "fetched_at": "2026-10-18T16:59:05.733936+00:00"
+              }
+            ]
+          }
+        ],
+        "other": [
+          {
+            "resource": {
+              "resource_id": "replay_res_26e4bcd3fbfecab963d9e26b",
+              "title": "Jumping & Boundaries",
+              "platform": "other",
+              "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/jump_graph1_3c07ea6a7c.png",
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "e70fe8fe-43e3-4f5d-902b-5bd25d39b97e",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：矩形对象。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "evidence_id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+                "field": "description",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space ",
+                "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+              },
+              {
+                "id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+                "evidence_id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space bar. If they do we will change isJump to True and start jumping.\n# Goes inside the while loop, under event for moving down if keys[pygame.K_SPACE]: isJump = True\nNow when we are jumping we do not want to allow the user to jump again or to be able to move up and down. To disallow the user from doing this we will add another if/else statement.\nWe are now going to start writing the code for making the character jump. We are going to implement a quadratic formula for our jumping. This is because ideally we would like our jump to be smooth and look something like this:\nInside of the else we will paste the following.\nif jumpCount >= -10: y -= (jumpCount * abs(jumpCount)) * 0.5 jumpCount -= 1 else: # This will execute if our jump is finished jumpCount = 10 isJump = False # Resetting our Variables\nAnd now our character can jump!\nIf you are confused by this please refer to the video starting at 11:00.\nNote: I use abs() use instead of ** just to eliminate the need for the neg variable seen in the video. Both versions of this code work the same.",
+                "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "replay_res_75865a884af31279cf83e9db",
+              "title": "Basic Movement & Key Presses",
+              "platform": "other",
+              "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/pygame_window_tutorial_1_01af2f97bd.png",
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "e70fe8fe-43e3-4f5d-902b-5bd25d39b97e",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：矩形对象。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_9d4a05265eb2969146cbd61ef5220d5e"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+                "evidence_id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+                "fetched_at": "2026-10-20T09:16:42.470384+00:00"
+              }
+            ]
+          }
+        ]
+      },
+      "recommendation_policy": "related-reference-v1",
+      "total_related_recommendations": 3
+    },
+    {
+      "knowledge_point_id": "886a8c15-1a1a-4151-a513-1a55e4e9743b",
+      "text": "键盘输入处理",
+      "technology": "pygame",
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0,
+      "section_limit": 5,
+      "items": [],
+      "platform_items": {},
+      "partial_items": [],
+      "partial_platform_items": {},
+      "review_items": [],
+      "review_platform_items": {},
+      "collection_coverage": {
+        "decomposition_status": "not_applicable",
+        "shared_context": [],
+        "subtopics": [
+          {
+            "id": "whole_topic",
+            "text": "键盘输入处理",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "platform_collection_coverage": {},
+      "related_recommendations": [
+        {
+          "resource": {
+            "resource_id": "replay_res_26e4bcd3fbfecab963d9e26b",
+            "title": "Jumping & Boundaries",
+            "platform": "other",
+            "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/jump_graph1_3c07ea6a7c.png",
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "886a8c15-1a1a-4151-a513-1a55e4e9743b",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：键盘输入。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "evidence_id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "field": "description",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space ",
+              "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+            },
+            {
+              "id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+              "evidence_id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space bar. If they do we will change isJump to True and start jumping.\n# Goes inside the while loop, under event for moving down if keys[pygame.K_SPACE]: isJump = True\nNow when we are jumping we do not want to allow the user to jump again or to be able to move up and down. To disallow the user from doing this we will add another if/else statement.\nWe are now going to start writing the code for making the character jump. We are going to implement a quadratic formula for our jumping. This is because ideally we would like our jump to be smooth and look something like this:\nInside of the else we will paste the following.\nif jumpCount >= -10: y -= (jumpCount * abs(jumpCount)) * 0.5 jumpCount -= 1 else: # This will execute if our jump is finished jumpCount = 10 isJump = False # Resetting our Variables\nAnd now our character can jump!\nIf you are confused by this please refer to the video starting at 11:00.\nNote: I use abs() use instead of ** just to eliminate the need for the neg variable seen in the video. Both versions of this code work the same.",
+              "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+            }
+          ]
+        },
+        {
+          "resource": {
+            "resource_id": "replay_res_75865a884af31279cf83e9db",
+            "title": "Basic Movement & Key Presses",
+            "platform": "other",
+            "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/pygame_window_tutorial_1_01af2f97bd.png",
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "886a8c15-1a1a-4151-a513-1a55e4e9743b",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：键盘输入。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_0b6126b4108390b661c8c48185e7730f",
+              "ev_replay_9d4a05265eb2969146cbd61ef5220d5e"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_0b6126b4108390b661c8c48185e7730f",
+              "evidence_id": "ev_replay_0b6126b4108390b661c8c48185e7730f",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+              "field": "description",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\n",
+              "fetched_at": "2026-10-20T09:16:42.470384+00:00"
+            },
+            {
+              "id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+              "evidence_id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+              "fetched_at": "2026-10-20T09:16:42.470384+00:00"
+            }
+          ]
+        }
+      ],
+      "related_platform_recommendations": {
+        "other": [
+          {
+            "resource": {
+              "resource_id": "replay_res_26e4bcd3fbfecab963d9e26b",
+              "title": "Jumping & Boundaries",
+              "platform": "other",
+              "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/jump_graph1_3c07ea6a7c.png",
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "886a8c15-1a1a-4151-a513-1a55e4e9743b",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：键盘输入。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "evidence_id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+                "field": "description",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space ",
+                "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+              },
+              {
+                "id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+                "evidence_id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space bar. If they do we will change isJump to True and start jumping.\n# Goes inside the while loop, under event for moving down if keys[pygame.K_SPACE]: isJump = True\nNow when we are jumping we do not want to allow the user to jump again or to be able to move up and down. To disallow the user from doing this we will add another if/else statement.\nWe are now going to start writing the code for making the character jump. We are going to implement a quadratic formula for our jumping. This is because ideally we would like our jump to be smooth and look something like this:\nInside of the else we will paste the following.\nif jumpCount >= -10: y -= (jumpCount * abs(jumpCount)) * 0.5 jumpCount -= 1 else: # This will execute if our jump is finished jumpCount = 10 isJump = False # Resetting our Variables\nAnd now our character can jump!\nIf you are confused by this please refer to the video starting at 11:00.\nNote: I use abs() use instead of ** just to eliminate the need for the neg variable seen in the video. Both versions of this code work the same.",
+                "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+              }
+            ]
+          },
+          {
+            "resource": {
+              "resource_id": "replay_res_75865a884af31279cf83e9db",
+              "title": "Basic Movement & Key Presses",
+              "platform": "other",
+              "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/pygame_window_tutorial_1_01af2f97bd.png",
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "886a8c15-1a1a-4151-a513-1a55e4e9743b",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：键盘输入。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_0b6126b4108390b661c8c48185e7730f",
+                "ev_replay_9d4a05265eb2969146cbd61ef5220d5e"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_0b6126b4108390b661c8c48185e7730f",
+                "evidence_id": "ev_replay_0b6126b4108390b661c8c48185e7730f",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+                "field": "description",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\n",
+                "fetched_at": "2026-10-20T09:16:42.470384+00:00"
+              },
+              {
+                "id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+                "evidence_id": "ev_replay_9d4a05265eb2969146cbd61ef5220d5e",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-tutorial-movement",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Basic Movement & Key Presses\nWhat is Pygame?\nPygame is a third party module designed for creating 2D games with python. It has very simple and intuitive syntax that can allows us to create powerful games quickly. Pygame uses surfaces for drawing. This means whenever we want to draw something to the screen it must be converted to a surface. There are many methods and functions within pygame that can do this easily for us.\nInstalling Pygame\nInstalling pygame can be as easy as:\nOpening your command prompt Typing pip install pygame\nHowever, in many cases this will not work. Below are guides for installing pygame on both windows and mac.\nWindows: How to Install Pygame on Windows\nMac OS: How to Install Pygame on Mac\nLinux: refer to the Mac OS Guide.\nCreating a Window\nAfter we import pygame it is a good idea to initialize it, like so:\n```python\nimport pygame\npygame.init()\n```\nOnce we've done that we need to setup a windows that will represent our game.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500, 500))\n# This line creates a window of 500 width, 500 height\n```\nNow when we run the program we get something that looks like this.\nThis is great but we'd like to give our game a more creative name than \"pygame window\". To do this we can can type the following.\n```python\npygame.display.set_caption(\"First Game\")\n```\nThat's better!\nMoving a Character\nWe are going to start by defining a few variables to represent our character.\nx = 50 y = 50 width = 40 height = 60 vel = 5\nNow we are going to setup our Main-loop or game-loop. All games have some sort of loop that executes constantly. This loop is responsible for tasks such as checking for events (such as keyboard events or collision), moving objects, updating the display and eventually ending the game. In our game we will use a while loop.\nInside the loop we will implement a time delay so we can control the speed of the game. We will also start by checking for some specific events.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100) # This will delay the game the given amount of milliseconds. In our casee 0.1 seconds will be the delay\n\n    for event in pygame.event.get():  # This will loop through a list of any keyboard or mouse events.\n        if event.type == pygame.QUIT: # Checks if the red button in the corner of the window is clicked\n            run = False  # Ends the game loop\n\npygame.quit()  # If we exit the loop this will execute and close our game\n```\nNow we can draw a rectangle to the screen to represent our character. We will draw the rectangle in the main loop so that it is constantly redrawn each time we loop.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))  #This takes: window/surface, color, rect \n    pygame.display.update() # This updates the screen so we can see our rectangle\n\npygame.quit()\n```\nNow we can start checking for events so that we can move our character.\nInside the if statements we will change the value of the variables x and y to move the character. This brings me to the coordinate system. In pygame the top left corner of the screen is (0,0) and the bottom right is (width, height). This means to move up we subtract from the y of our character and to move down we add to the y.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow when we run the program and start moving our rectangle we can still see all of the previous rectangles.\nTo fix this we simply have to draw over the previous shape before redrawing another one. We can use window.fill(color) to do this.\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT]:\n        x -= vel\n\n    if keys[pygame.K_RIGHT]:\n        x += vel\n\n    if keys[pygame.K_UP]:\n        y -= vel\n\n    if keys[pygame.K_DOWN]:\n        y += vel\n\n    win.fill((0,0,0))  # Fills the screen with black\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nAnd now we can move our character around!",
+                "fetched_at": "2026-10-20T09:16:42.470384+00:00"
+              }
+            ]
+          }
+        ]
+      },
+      "recommendation_policy": "related-reference-v1",
+      "total_related_recommendations": 2
+    },
+    {
+      "knowledge_point_id": "ba4d95c2-a89d-457c-afdf-00cb2bad62cc",
+      "text": "边界限制",
+      "technology": "pygame",
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0,
+      "section_limit": 5,
+      "items": [],
+      "platform_items": {},
+      "partial_items": [],
+      "partial_platform_items": {},
+      "review_items": [],
+      "review_platform_items": {},
+      "collection_coverage": {
+        "decomposition_status": "not_applicable",
+        "shared_context": [],
+        "subtopics": [
+          {
+            "id": "whole_topic",
+            "text": "边界限制",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "platform_collection_coverage": {},
+      "related_recommendations": [
+        {
+          "resource": {
+            "resource_id": "replay_res_26e4bcd3fbfecab963d9e26b",
+            "title": "Jumping & Boundaries",
+            "platform": "other",
+            "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/jump_graph1_3c07ea6a7c.png",
+            "fetch_status": "fetched",
+            "video_evidence_status": "page_verified",
+            "resource_type": "video",
+            "access_notice": null,
+            "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+            "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping"
+          },
+          "reference": {
+            "policy": "related-reference-v1",
+            "kind": "related_reference",
+            "knowledge_point_id": "ba4d95c2-a89d-457c-afdf-00cb2bad62cc",
+            "ranking_score": 64.0,
+            "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：边界限制。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+            "exact_teaching_verified": false,
+            "basis": [
+              "page"
+            ],
+            "evidence_ids": [
+              "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a"
+            ],
+            "technical_context": "observed"
+          },
+          "evidence": [
+            {
+              "id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "evidence_id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "field": "description",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space ",
+              "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+            },
+            {
+              "id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+              "evidence_id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+              "kind": "page",
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "field": "video_topic_summary",
+              "source": "html.techwithtim.lesson.summary",
+              "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space bar. If they do we will change isJump to True and start jumping.\n# Goes inside the while loop, under event for moving down if keys[pygame.K_SPACE]: isJump = True\nNow when we are jumping we do not want to allow the user to jump again or to be able to move up and down. To disallow the user from doing this we will add another if/else statement.\nWe are now going to start writing the code for making the character jump. We are going to implement a quadratic formula for our jumping. This is because ideally we would like our jump to be smooth and look something like this:\nInside of the else we will paste the following.\nif jumpCount >= -10: y -= (jumpCount * abs(jumpCount)) * 0.5 jumpCount -= 1 else: # This will execute if our jump is finished jumpCount = 10 isJump = False # Resetting our Variables\nAnd now our character can jump!\nIf you are confused by this please refer to the video starting at 11:00.\nNote: I use abs() use instead of ** just to eliminate the need for the neg variable seen in the video. Both versions of this code work the same.",
+              "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+            }
+          ]
+        }
+      ],
+      "related_platform_recommendations": {
+        "other": [
+          {
+            "resource": {
+              "resource_id": "replay_res_26e4bcd3fbfecab963d9e26b",
+              "title": "Jumping & Boundaries",
+              "platform": "other",
+              "thumbnail_url": "https://dev-cms.us-east-1.linodeobjects.com/jump_graph1_3c07ea6a7c.png",
+              "fetch_status": "fetched",
+              "video_evidence_status": "page_verified",
+              "resource_type": "video",
+              "access_notice": null,
+              "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+              "canonical_url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping"
+            },
+            "reference": {
+              "policy": "related-reference-v1",
+              "kind": "related_reference",
+              "knowledge_point_id": "ba4d95c2-a89d-457c-afdf-00cb2bad62cc",
+              "ranking_score": 64.0,
+              "reason": "本视频/课程的标题、简介或目录与该知识点相关。相关性采用常见中英文术语或API提示：边界限制。作为相关参考推荐，未验证精确讲授或完整覆盖；登录、付费、地区及播放条件以原平台为准。",
+              "exact_teaching_verified": false,
+              "basis": [
+                "page"
+              ],
+              "evidence_ids": [
+                "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a"
+              ],
+              "technical_context": "observed"
+            },
+            "evidence": [
+              {
+                "id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "evidence_id": "ev_replay_edb88e3de96e4c7f16a7f4790ef33d06",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+                "field": "description",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space ",
+                "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+              },
+              {
+                "id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+                "evidence_id": "ev_replay_903f7f616ff9191c0b6d02f2bead3e2a",
+                "kind": "page",
+                "url": "https://www.techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/jumping",
+                "field": "video_topic_summary",
+                "source": "html.techwithtim.lesson.summary",
+                "text": "Jumping & Boundaries\nSetting Boundaries\nIn the last tutorial we created a rectangle that we could move around the screen using the arrow keys. However, when we reach the end of the screen the rectangle is still allowed to continue to move. To stop this we need to set up some boundaries and check that our rectangle is within them before moving it again.\nTo do this we can simply check the x and y coordinates of the rectangle against the dimensions of the screen. When we do this we need to remember that when we draw something in pygame we draw from the top left hand corner of the object. This means the top left corner will be our x and y values while the top right corner will be (x + width, y) and the bottom left will be (x, y + height).\n```python\nimport pygame\npygame.init()\n\nwin = pygame.display.set_mode((500,500))\npygame.display.set_caption(\"First Game\")\n\nx = 50\ny = 50\nwidth = 40\nheight = 60\nvel = 5\n\nrun = True\n\nwhile run:\n    pygame.time.delay(100)\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            run = False\n\n    keys = pygame.key.get_pressed()\n\n    if keys[pygame.K_LEFT] and x > vel:  # Making sure the top left position of our character is greater than our vel so we never move off the screen.\n        x -= vel\n\n    if keys[pygame.K_RIGHT] and x < 500 - vel - width:  # Making sure the top right corner of our character is less than the screen width - its width \n        x += vel\n\n    if keys[pygame.K_UP] and y > vel:  # Same principles apply for the y coordinate\n        y -= vel\n\n    if keys[pygame.K_DOWN] and y < 500 - height - vel:\n        y += vel\n\n\n    win.fill((0,0,0))\n    pygame.draw.rect(win, (255,0,0), (x, y, width, height))   \n    pygame.display.update() \n\npygame.quit()\n```\nNow our character can not move off the screen!\nJumping\nTo jump we need to set up a few variables.\n# These go near the top of your program, outside the while loop isJump = False jumpCount = 10\nNow we are going to check to see if the user hits the space bar. If they do we will change isJump to True and start jumping.\n# Goes inside the while loop, under event for moving down if keys[pygame.K_SPACE]: isJump = True\nNow when we are jumping we do not want to allow the user to jump again or to be able to move up and down. To disallow the user from doing this we will add another if/else statement.\nWe are now going to start writing the code for making the character jump. We are going to implement a quadratic formula for our jumping. This is because ideally we would like our jump to be smooth and look something like this:\nInside of the else we will paste the following.\nif jumpCount >= -10: y -= (jumpCount * abs(jumpCount)) * 0.5 jumpCount -= 1 else: # This will execute if our jump is finished jumpCount = 10 isJump = False # Resetting our Variables\nAnd now our character can jump!\nIf you are confused by this please refer to the video starting at 11:00.\nNote: I use abs() use instead of ** just to eliminate the need for the neg variable seen in the video. Both versions of this code work the same.",
+                "fetched_at": "2026-10-20T09:16:31.810443+00:00"
+              }
+            ]
+          }
+        ]
+      },
+      "recommendation_policy": "related-reference-v1",
+      "total_related_recommendations": 1
+    },
+    {
+      "knowledge_point_id": "95d534d4-99e0-4a9a-80dc-dac2ee96163e",
+      "text": "随机数生成",
+      "technology": "Python",
+      "total_matches": 0,
+      "total_partial_matches": 0,
+      "total_review_matches": 0,
+      "section_limit": 5,
+      "items": [],
+      "platform_items": {},
+      "partial_items": [],
+      "partial_platform_items": {},
+      "review_items": [],
+      "review_platform_items": {},
+      "collection_coverage": {
+        "decomposition_status": "not_applicable",
+        "shared_context": [],
+        "subtopics": [
+          {
+            "id": "whole_topic",
+            "text": "随机数生成",
+            "status": "unknown",
+            "resource_ids": [],
+            "evidence_ids": []
+          }
+        ],
+        "status": "unknown",
+        "single_resource_full_coverage": false,
+        "disclaimer": "候选之间的互补证据不代表任何单条覆盖全部，也不代表完整教学已核验；仅统计当前展示的资源。"
+      },
+      "platform_collection_coverage": {},
+      "related_recommendations": [],
+      "related_platform_recommendations": {},
+      "recommendation_policy": "related-reference-v1",
+      "total_related_recommendations": 0
+    }
+  ],
+  "warnings": [
+    "Offline retained-source replay: no new search, native HTTP or model; source observation times retained."
+  ],
+  "recommendation_policy": "related-reference-v1",
+  "search_attempts": [],
+  "identity_summary": {
+    "resource_records": 0,
+    "identified_course_families": 0,
+    "identified_course_offerings": 0,
+    "identified_lessons": 0,
+    "unknown_course_family_resources": 0,
+    "unknown_offering_resources": 0,
+    "unknown_identity_resources": 0,
+    "scope": "observed_source_scoped_identities_not_global_course_deduplication"
+  },
+  "job": {
+    "job_id": "b46423b0-0c8e-408b-8f78-3e25299eb031",
+    "status": "completed",
+    "phase": "done",
+    "created_at": "2026-10-20T09:36:56.523086+00:00",
+    "updated_at": "2026-10-20T09:36:56.523086+00:00",
+    "request": {
+      "knowledge_points": [
+        "游戏主循环",
+        "矩形区域表示",
+        "键盘输入处理",
+        "边界限制",
+        "随机数生成"
+      ],
+      "student_level": "beginner",
+      "language": "zh",
+      "project_context": "用 Python pygame 做接金币小游戏 用 Python 和 pygame 做一个单机二维小游戏：左右方向键移动挡板，金币从屏幕上方随机位置下落；接住加 1 分，漏接 3 次后显示结束画面；按 R 键重置分数和漏接次数并重新开始。需要显示当前分数与漏接次数。不需要账号、联网、存档、音效或关卡。 已经学过 Python 变量、条件、循环、列表和函数，第一次接触 pygame。",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili"
+      ],
+      "topic_technologies": {
+        "游戏主循环": "pygame",
+        "矩形区域表示": "pygame",
+        "键盘输入处理": "pygame",
+        "边界限制": "pygame",
+        "随机数生成": "Python"
+      }
+    },
+    "knowledge_points": [
+      {
+        "knowledge_point_id": "041e4d48-7349-4d09-b29f-c92b4e31b60a",
+        "text": "游戏主循环",
+        "technology": "pygame"
+      },
+      {
+        "knowledge_point_id": "e70fe8fe-43e3-4f5d-902b-5bd25d39b97e",
+        "text": "矩形区域表示",
+        "technology": "pygame"
+      },
+      {
+        "knowledge_point_id": "886a8c15-1a1a-4151-a513-1a55e4e9743b",
+        "text": "键盘输入处理",
+        "technology": "pygame"
+      },
+      {
+        "knowledge_point_id": "ba4d95c2-a89d-457c-afdf-00cb2bad62cc",
+        "text": "边界限制",
+        "technology": "pygame"
+      },
+      {
+        "knowledge_point_id": "95d534d4-99e0-4a9a-80dc-dac2ee96163e",
+        "text": "随机数生成",
+        "technology": "Python"
+      }
+    ],
+    "progress": {
+      "queries_planned": 0,
+      "queries_completed": 0,
+      "search_requests": 0,
+      "search_successes": 0,
+      "search_failures": 0,
+      "candidates_discovered": 0,
+      "resources_discovered": 20,
+      "details_attempted": 0,
+      "details_completed": 0,
+      "details_cached": 0,
+      "cache_hits": 0,
+      "catalog_pages_attempted": 0,
+      "catalog_pages_completed": 0
+    },
+    "budgets": {
+      "max_search_requests": 5,
+      "max_detail_pages": 40,
+      "deadline_seconds": 180,
+      "platforms": [
+        "bilibili"
+      ],
+      "platform_rounds": {
+        "bilibili": 1
+      },
+      "initial_search_requests": 5,
+      "followup_search_requests": 0,
+      "platform_request_limits": {
+        "bilibili": 5
+      }
+    },
+    "warnings": [
+      "Offline retained-source replay: no new search, native HTTP or model; source observation times retained."
+    ],
+    "errors": [],
+    "platform_search": {
+      "policy": "platform-rounds-v2",
+      "platforms": [
+        "bilibili"
+      ],
+      "platform_rounds": {
+        "bilibili": 1
+      },
+      "initial_search_requests": 5,
+      "followup_search_requests": 0,
+      "max_search_requests": 5,
+      "platform_request_limits": {
+        "bilibili": 5
+      },
+      "defer_followups": false
+    }
+  },
+  "pipeline": {
+    "stage": "complete",
+    "terminal": true,
+    "search_requests": 0,
+    "search_budget": 5,
+    "candidates": 20,
+    "checking": 0,
+    "checked": 0,
+    "displayed": 5,
+    "filtered": 0,
+    "unknown": 0,
+    "source_limited": false,
+    "counts_scope": "candidates per job; displayed unique URLs; filtered and unknown MOOC point-course pairs"
+  }
+}

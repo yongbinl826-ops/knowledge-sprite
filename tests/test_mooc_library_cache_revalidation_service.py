@@ -67,6 +67,7 @@ def settings(tmp_path, **changes):
     return replace(Settings(database_path=str(tmp_path / "revalidation.sqlite3"),
         parallel_platform_search=True, teaching_match_enabled=False,
         shared_course_library_enabled=True, mooc_gap_search_enabled=True,
+        open_web_search_enabled=False, mooc_refresh_enabled=False,
         mooc_target_courses_per_point=1, bilibili_search_rounds=2,
         mooc_search_rounds=2, max_search_requests=8, max_detail_pages=4,
         search_min_interval_seconds=0, search_max_retries=0, deadline_seconds=10),

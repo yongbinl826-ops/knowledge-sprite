@@ -92,6 +92,26 @@ def render_entries(value: str) -> tuple[str, ...]:
 
 @dataclass(frozen=True)
 class Settings:
+    app_mode: str = "legacy"
+    mobile_public_database_path: str = "data/mobile-public.sqlite3"
+    mobile_origins: tuple[str, ...] = ("https://localhost", "capacitor://localhost")
+    mobile_task_ttl_seconds: int = 7200
+    mobile_cleanup_interval_seconds: int = 5
+    mobile_max_tasks: int = 64
+    mobile_max_active_tasks: int = 8
+    mobile_per_ip_tasks_per_minute: int = 6
+    mobile_per_ip_requests_per_minute: int = 120
+    mobile_max_ip_buckets: int = 1024
+    mobile_max_tombstones: int = 10000
+    mobile_daily_tasks: int = 200
+    mobile_daily_analysis_calls: int = 40
+    mobile_daily_model_calls: int = 200
+    mobile_daily_search_requests: int = 1000
+    mobile_daily_detail_pages: int = 500
+    mobile_daily_detail_http: int = 20000
+    mobile_public_ttl_seconds: int = 604800
+    mobile_public_max_courses: int = 10000
+    mobile_budget_retention_days: int = 31
     database_path: str = "data/discovery.sqlite3"
     search_provider: str = "searxng"
     bilibili_search_provider: str = ""
@@ -100,6 +120,7 @@ class Settings:
     searxng_engines: tuple[str, ...] = ()
     searxng_video_engines: tuple[str, ...] = ()
     searxng_fallback_engines: tuple[str, ...] = ()
+    searxng_failover_provider: str = ""
     open_course_domains: tuple[str, ...] = ()
     official_sitemap_fallback: bool = False
     public_catalog_fallback: bool = False
@@ -108,13 +129,13 @@ class Settings:
     tavily_api_key: str = ""
     tavily_allow_keyless: bool = False
     serper_api_key: str = ""
-    shared_course_library_enabled: bool = False
+    shared_course_library_enabled: bool = True
     shared_course_library_ttl_seconds: int = 604800
     shared_course_library_max_candidates: int = 100
-    mooc_gap_search_enabled: bool = False
+    mooc_gap_search_enabled: bool = True
     mooc_target_courses_per_point: int = 3
     mooc_gap_check_wait_seconds: int = 20
-    mooc_refresh_enabled: bool = False
+    mooc_refresh_enabled: bool = True
     mooc_refresh_interval_seconds: int = 86400
     llm_provider: str = "none"
     llm_base_url: str = "https://api.openai.com/v1"
@@ -123,9 +144,12 @@ class Settings:
     llm_max_output_tokens: int = 6000
     llm_reasoning_effort: str = "auto"
     llm_thinking_mode: str = "auto"
+    ai_video_fallback_enabled: bool = True
+    ai_video_search_provider: str = "auto"
     teaching_match_max_calls_per_job: int = 2
     teaching_match_enabled: bool = True
     parallel_platform_search: bool = False
+    open_web_search_enabled: bool = True
     bilibili_search_rounds: int = 2
     mooc_search_rounds: int = 2
     max_search_requests: int = 30
@@ -143,6 +167,7 @@ class Settings:
     project_deadline_seconds: int = 1800
     project_analysis_timeout_seconds: int = 90
     project_analysis_total_timeout_seconds: int = 120
+    project_analysis_normalization_max_output_tokens: int = 12000
     project_semantic_review_enabled: bool = True
     search_timeout_seconds: int = 12
     search_max_retries: int = 1
@@ -173,6 +198,7 @@ class Settings:
     dns_resolver: str = "system"
     allowed_restricted_hosts: tuple[str, ...] = ()
     bilibili_public_metadata: bool = False
+    bilibili_public_metadata_max_bytes: int = 8_000_000
     denied_fetch_hosts: tuple[str, ...] = ()
     cors_origins: tuple[str, ...] = ("http://localhost:5173", "http://127.0.0.1:5173")
     local_only: bool = True
@@ -182,6 +208,7 @@ class Settings:
     api_write_limit_per_minute: int = 60
     max_pending_analyses: int = 8
     max_pending_project_searches: int = 20
+    max_event_streams: int = 16
 
     def search_provider_for(self, platform: str) -> str:
         override = {"bilibili": self.bilibili_search_provider,
@@ -198,10 +225,54 @@ class Settings:
             return False
 
     def validate(self) -> "Settings":
+        if not isinstance(self.app_mode, str) or self.app_mode not in {"legacy", "mobile"}:
+            raise ValueError("APP_MODE must be legacy or mobile")
+        if (not isinstance(self.mobile_public_database_path, str) or not self.mobile_public_database_path.strip()
+                or "\x00" in self.mobile_public_database_path or self.mobile_public_database_path == ":memory:"
+                or Path(self.mobile_public_database_path).suffix != ".sqlite3"):
+            raise ValueError("MOBILE_PUBLIC_DATABASE_PATH must be a separate sqlite3 file")
+        if (not isinstance(self.mobile_origins, tuple) or len(self.mobile_origins) > 3 or any(
+                not isinstance(origin, str) or origin not in {"https://localhost", "capacitor://localhost", "http://localhost"} for origin in self.mobile_origins)):
+            raise ValueError("MOBILE_ORIGINS requires exact supported native localhost origins")
+        if self.app_mode == "mobile":
+            if not self.teaching_match_enabled or not self.parallel_platform_search:
+                raise ValueError("Mobile mode requires TEACHING_MATCH_ENABLED and PARALLEL_PLATFORM_SEARCH")
+            if Path(self.mobile_public_database_path).resolve() == Path(self.database_path).resolve():
+                raise ValueError("Mobile public database must be separate from the legacy database")
+        for name, value, low, high in (
+            ("BILIBILI_PUBLIC_METADATA_MAX_BYTES", self.bilibili_public_metadata_max_bytes, 4096, 16_000_000),
+            ("MOBILE_TASK_TTL_SECONDS", self.mobile_task_ttl_seconds, 60, 7200),
+            ("MOBILE_CLEANUP_INTERVAL_SECONDS", self.mobile_cleanup_interval_seconds, 1, 30),
+            ("MOBILE_MAX_TASKS", self.mobile_max_tasks, 1, 256),
+            ("MOBILE_MAX_ACTIVE_TASKS", self.mobile_max_active_tasks, 1, 32),
+            ("MOBILE_PER_IP_TASKS_PER_MINUTE", self.mobile_per_ip_tasks_per_minute, 1, 60),
+            ("MOBILE_PER_IP_REQUESTS_PER_MINUTE", self.mobile_per_ip_requests_per_minute, 10, 600),
+            ("MOBILE_MAX_IP_BUCKETS", self.mobile_max_ip_buckets, 16, 4096),
+            ("MOBILE_MAX_TOMBSTONES", self.mobile_max_tombstones, 100, 100000),
+            ("MOBILE_DAILY_TASKS", self.mobile_daily_tasks, 1, 10000),
+            ("MOBILE_DAILY_ANALYSIS_CALLS", self.mobile_daily_analysis_calls, 1, 10000),
+            ("MOBILE_DAILY_MODEL_CALLS", self.mobile_daily_model_calls, 1, 100000),
+            ("MOBILE_DAILY_SEARCH_REQUESTS", self.mobile_daily_search_requests, 1, 100000),
+            ("MOBILE_DAILY_DETAIL_PAGES", self.mobile_daily_detail_pages, 1, 100000),
+            ("MOBILE_DAILY_DETAIL_HTTP", self.mobile_daily_detail_http, 1, 4000000),
+            ("MOBILE_PUBLIC_TTL_SECONDS", self.mobile_public_ttl_seconds, 60, 2592000),
+            ("MOBILE_PUBLIC_MAX_COURSES", self.mobile_public_max_courses, 1, 100000),
+            ("MOBILE_BUDGET_RETENTION_DAYS", self.mobile_budget_retention_days, 1, 365),
+        ):
+            if not isinstance(value, int) or isinstance(value, bool) or not low <= value <= high:
+                raise ValueError(f"{name} must be an integer between {low} and {high}")
+        if self.mobile_max_active_tasks > self.mobile_max_tasks:
+            raise ValueError("MOBILE_MAX_ACTIVE_TASKS must not exceed MOBILE_MAX_TASKS")
         if not isinstance(self.parallel_platform_search, bool):
             raise ValueError("PARALLEL_PLATFORM_SEARCH must be true or false")
+        if not isinstance(self.open_web_search_enabled, bool):
+            raise ValueError("OPEN_WEB_SEARCH_ENABLED must be true or false")
         if not isinstance(self.teaching_match_enabled, bool):
             raise ValueError("TEACHING_MATCH_ENABLED must be true or false")
+        if not isinstance(self.ai_video_fallback_enabled, bool):
+            raise ValueError("AI_VIDEO_FALLBACK_ENABLED must be true or false")
+        if self.ai_video_search_provider not in {"auto", "default", "serper", "tavily"}:
+            raise ValueError("AI_VIDEO_SEARCH_PROVIDER must be auto, default, serper or tavily")
         if not isinstance(self.local_only, bool):
             raise ValueError("LOCAL_ONLY must be true or false")
         if not isinstance(self.public_catalog_fallback, bool):
@@ -220,6 +291,8 @@ class Settings:
                 raise ValueError(f"{name} cannot override the MIT-only official_sitemap mode")
         if not isinstance(self.tavily_allow_keyless, bool):
             raise ValueError("TAVILY_ALLOW_KEYLESS must be true or false")
+        if not isinstance(self.searxng_failover_provider, str) or self.searxng_failover_provider not in {"", "tavily"}:
+            raise ValueError("SEARXNG_FAILOVER_PROVIDER must be empty or tavily")
         if not isinstance(self.shared_course_library_enabled, bool) or not isinstance(self.mooc_gap_search_enabled, bool):
             raise ValueError("Library and gap search flags must be boolean")
         if not isinstance(self.mooc_refresh_enabled, bool):
@@ -268,8 +341,10 @@ class Settings:
             ("API_WRITE_LIMIT_PER_MINUTE", self.api_write_limit_per_minute, 1, 300),
             ("MAX_PENDING_ANALYSES", self.max_pending_analyses, 1, 32),
             ("MAX_PENDING_PROJECT_SEARCHES", self.max_pending_project_searches, 1, 100),
+            ("MAX_EVENT_STREAMS", self.max_event_streams, 1, 128),
             ("PROJECT_ANALYSIS_TIMEOUT_SECONDS", self.project_analysis_timeout_seconds, 1, 120),
             ("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", self.project_analysis_total_timeout_seconds, 1, 180),
+            ("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", self.project_analysis_normalization_max_output_tokens, 256, 16000),
             ("LLM_MAX_OUTPUT_TOKENS", self.llm_max_output_tokens, 256, 16000),
             ("TEACHING_MATCH_MAX_CALLS_PER_JOB", self.teaching_match_max_calls_per_job, 0, 2),
             ("BILIBILI_SEARCH_ROUNDS", self.bilibili_search_rounds, 1, 6),
@@ -285,6 +360,26 @@ class Settings:
     def from_env(cls) -> "Settings":
         load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
         return cls(
+            app_mode=os.getenv("APP_MODE", "legacy").strip().lower(),
+            mobile_public_database_path=os.getenv("MOBILE_PUBLIC_DATABASE_PATH", "data/mobile-public.sqlite3"),
+            mobile_origins=tuple(x.strip() for x in os.getenv("MOBILE_ORIGINS", "https://localhost,capacitor://localhost").split(",") if x.strip()),
+            mobile_task_ttl_seconds=security_number("MOBILE_TASK_TTL_SECONDS", 7200, 60, 7200),
+            mobile_cleanup_interval_seconds=security_number("MOBILE_CLEANUP_INTERVAL_SECONDS", 5, 1, 30),
+            mobile_max_tasks=security_number("MOBILE_MAX_TASKS", 64, 1, 256),
+            mobile_max_active_tasks=security_number("MOBILE_MAX_ACTIVE_TASKS", 8, 1, 32),
+            mobile_per_ip_tasks_per_minute=security_number("MOBILE_PER_IP_TASKS_PER_MINUTE", 6, 1, 60),
+            mobile_per_ip_requests_per_minute=security_number("MOBILE_PER_IP_REQUESTS_PER_MINUTE", 120, 10, 600),
+            mobile_max_ip_buckets=security_number("MOBILE_MAX_IP_BUCKETS", 1024, 16, 4096),
+            mobile_max_tombstones=security_number("MOBILE_MAX_TOMBSTONES", 10000, 100, 100000),
+            mobile_daily_tasks=security_number("MOBILE_DAILY_TASKS", 200, 1, 10000),
+            mobile_daily_analysis_calls=security_number("MOBILE_DAILY_ANALYSIS_CALLS", 40, 1, 10000),
+            mobile_daily_model_calls=security_number("MOBILE_DAILY_MODEL_CALLS", 200, 1, 100000),
+            mobile_daily_search_requests=security_number("MOBILE_DAILY_SEARCH_REQUESTS", 1000, 1, 100000),
+            mobile_daily_detail_pages=security_number("MOBILE_DAILY_DETAIL_PAGES", 500, 1, 100000),
+            mobile_daily_detail_http=security_number("MOBILE_DAILY_DETAIL_HTTP", 20000, 1, 4000000),
+            mobile_public_ttl_seconds=security_number("MOBILE_PUBLIC_TTL_SECONDS", 604800, 60, 2592000),
+            mobile_public_max_courses=security_number("MOBILE_PUBLIC_MAX_COURSES", 10000, 1, 100000),
+            mobile_budget_retention_days=security_number("MOBILE_BUDGET_RETENTION_DAYS", 31, 1, 365),
             database_path=os.getenv("DATABASE_PATH", "data/discovery.sqlite3"),
             search_provider=os.getenv("SEARCH_PROVIDER", "searxng").lower(),
             bilibili_search_provider=os.getenv("BILIBILI_SEARCH_PROVIDER", "").strip().lower(),
@@ -293,6 +388,7 @@ class Settings:
             searxng_engines=tuple(x.strip() for x in os.getenv("SEARXNG_ENGINES", "").split(",") if x.strip()),
             searxng_video_engines=tuple(x.strip() for x in os.getenv("SEARXNG_VIDEO_ENGINES", "").split(",") if x.strip()),
             searxng_fallback_engines=tuple(x.strip() for x in os.getenv("SEARXNG_FALLBACK_ENGINES", "").split(",") if x.strip()),
+            searxng_failover_provider=os.getenv("SEARXNG_FAILOVER_PROVIDER", "").strip().lower(),
             open_course_domains=course_domains(os.getenv("OPEN_COURSE_DOMAINS", "")),
             official_sitemap_fallback=boolean("OFFICIAL_SITEMAP_FALLBACK"),
             public_catalog_fallback=boolean("PUBLIC_CATALOG_FALLBACK"),
@@ -301,13 +397,13 @@ class Settings:
             tavily_api_key=os.getenv("TAVILY_API_KEY", ""),
             tavily_allow_keyless=boolean("TAVILY_ALLOW_KEYLESS"),
             serper_api_key=os.getenv("SERPER_API_KEY", ""),
-            shared_course_library_enabled=boolean("SHARED_COURSE_LIBRARY_ENABLED"),
+            shared_course_library_enabled=boolean("SHARED_COURSE_LIBRARY_ENABLED", True),
             shared_course_library_ttl_seconds=security_number("SHARED_COURSE_LIBRARY_TTL_SECONDS", 604800, 60, 2592000),
             shared_course_library_max_candidates=security_number("SHARED_COURSE_LIBRARY_MAX_CANDIDATES", 100, 1, 500),
-            mooc_gap_search_enabled=boolean("MOOC_GAP_SEARCH_ENABLED"),
+            mooc_gap_search_enabled=boolean("MOOC_GAP_SEARCH_ENABLED", True),
             mooc_target_courses_per_point=security_number("MOOC_TARGET_COURSES_PER_POINT", 3, 1, 10),
             mooc_gap_check_wait_seconds=security_number("MOOC_GAP_CHECK_WAIT_SECONDS", 20, 1, 60),
-            mooc_refresh_enabled=boolean("MOOC_REFRESH_ENABLED"),
+            mooc_refresh_enabled=boolean("MOOC_REFRESH_ENABLED", True),
             mooc_refresh_interval_seconds=security_number("MOOC_REFRESH_INTERVAL_SECONDS", 86400, 300, 2592000),
             llm_provider=os.getenv("LLM_PROVIDER", "none"),
             llm_base_url=os.getenv("LLM_BASE_URL", "https://api.openai.com/v1").rstrip("/"),
@@ -315,9 +411,12 @@ class Settings:
             llm_max_output_tokens=security_number("LLM_MAX_OUTPUT_TOKENS", 6000, 256, 16000),
             llm_reasoning_effort=os.getenv("LLM_REASONING_EFFORT", "auto").strip().lower(),
             llm_thinking_mode=os.getenv("LLM_THINKING_MODE", "auto").strip().lower(),
+            ai_video_fallback_enabled=boolean("AI_VIDEO_FALLBACK_ENABLED", True),
+            ai_video_search_provider=os.getenv("AI_VIDEO_SEARCH_PROVIDER", "auto").strip().lower(),
             teaching_match_max_calls_per_job=security_number("TEACHING_MATCH_MAX_CALLS_PER_JOB", 2, 0, 2),
             teaching_match_enabled=boolean("TEACHING_MATCH_ENABLED", True),
-            parallel_platform_search=boolean("PARALLEL_PLATFORM_SEARCH"),
+            parallel_platform_search=boolean("PARALLEL_PLATFORM_SEARCH", True),
+            open_web_search_enabled=boolean("OPEN_WEB_SEARCH_ENABLED", True),
             bilibili_search_rounds=security_number("BILIBILI_SEARCH_ROUNDS", 2, 1, 6),
             mooc_search_rounds=security_number("MOOC_SEARCH_ROUNDS", 2, 1, 10),
             max_search_requests=number("MAX_SEARCH_REQUESTS", 30, 1, 120),
@@ -335,6 +434,7 @@ class Settings:
             project_deadline_seconds=number("PROJECT_DEADLINE_SECONDS", 1800, 5, 14400),
             project_analysis_timeout_seconds=security_number("PROJECT_ANALYSIS_TIMEOUT_SECONDS", 90, 1, 120),
             project_analysis_total_timeout_seconds=security_number("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", 120, 1, 180),
+            project_analysis_normalization_max_output_tokens=security_number("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", 12000, 256, 16000),
             project_semantic_review_enabled=semantic_review_setting(),
             search_timeout_seconds=number("SEARCH_TIMEOUT_SECONDS", 12, 1, 30),
             search_max_retries=number("SEARCH_MAX_RETRIES", 1, 0, 1),
@@ -364,6 +464,7 @@ class Settings:
             dns_resolver=os.getenv("DNS_RESOLVER", "system"),
             allowed_restricted_hosts=tuple(x.strip() for x in os.getenv("ALLOWED_RESTRICTED_HOSTS", "").split(",") if x.strip()),
             bilibili_public_metadata=boolean("BILIBILI_PUBLIC_METADATA", False),
+            bilibili_public_metadata_max_bytes=security_number("BILIBILI_PUBLIC_METADATA_MAX_BYTES", 8_000_000, 4096, 16_000_000),
             denied_fetch_hosts=tuple(x.strip().lower() for x in os.getenv("DENIED_FETCH_HOSTS", "").split(",") if x.strip()),
             cors_origins=tuple(x.strip() for x in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if x.strip()),
             local_only=local_only_setting(),
@@ -373,4 +474,5 @@ class Settings:
             api_write_limit_per_minute=security_number("API_WRITE_LIMIT_PER_MINUTE", 60, 1, 300),
             max_pending_analyses=security_number("MAX_PENDING_ANALYSES", 8, 1, 32),
             max_pending_project_searches=security_number("MAX_PENDING_PROJECT_SEARCHES", 20, 1, 100),
+            max_event_streams=security_number("MAX_EVENT_STREAMS", 16, 1, 128),
         ).validate()

@@ -16,10 +16,11 @@ from .db import Store
 from .models import SearchRequest, now
 from .project_db import ProjectStore
 from .project_models import AnalysisDocument, ProjectInput
-from .project_analysis import ANALYSIS_PROMPT_VERSION, AnalysisError, ProjectAnalyzer
+from .project_analysis import ANALYSIS_PROMPT_VERSION, AnalysisError, ProjectAnalyzer, concept_normalization_settings
 from .project_search import searchable_unit_name
 from .service import AdmissionRejected, JobService
 from .technical_prefix import canonical_search_name, leading_technical_owner
+from .professional_concepts import generated_context, bound_generated_context, reviewed_technologies
 from .ranking import summarize_collection_coverage
 
 
@@ -40,7 +41,43 @@ class ProjectService:
     def start(self):
         self.db.recover_analysis()
         for project_id, version in self.db.running():
-            self._schedule(project_id, version)
+            # Recovery is a persistence transition, never new paid source work.
+            # JobService has interrupted old queued/running jobs already. Do not
+            # submit pending batches or resume deferred source followups here.
+            _, data = self._version(project_id, version)
+            for batch in data["batches"]:
+                self._recover_batch_mapping(data, batch)
+            self._refresh_batches(data)
+            error = {"code": "process_restarted", "message": "服务重启已停止本轮检索，已取得的结果和预算记录保留；可手动重新检索这些知识点。"}
+            for batch in data["batches"]:
+                if batch["status"] == "pending":
+                    batch.update(status="interrupted", error=error)
+            data.update(status="interrupted", error=error)
+            if error["message"] not in data["warnings"]:
+                data["warnings"].append(error["message"])
+            self.db.save(project_id, data)
+
+    def _recover_batch_mapping(self, data, batch):
+        """Reconnect a previously committed job; never create or resume one."""
+        if batch.get("job_id") or batch["status"] != "pending":
+            return
+        prior = self.store.idempotent_request(f"project:{batch['batch_id']}")
+        job = self.store.get_job(prior["job_id"]) if prior else None
+        snapshot = data.get("confirmation") or {}
+        if (not job or snapshot.get("search_mode") != "professional_terms_v1" or
+                not self.store.has_job_consumer(job["job_id"], f"project:{batch['batch_id']}")):
+            return
+        points = {point["id"]: point for point in snapshot["analysis"]["knowledge_points"]}
+        try:
+            names = self._professional_search_names([points[key] for key in batch["project_knowledge_point_ids"]])
+        except (ValueError, KeyError):
+            return
+        stored = {point["text"]: point["knowledge_point_id"] for point in job["knowledge_points"]}
+        if set(stored) != set(names.values()):
+            return
+        batch.update(job_id=job["job_id"], reused=True, status="submitted", error=None,
+                     mappings=[{"project_knowledge_point_id": key, "knowledge_point_id": stored[name]}
+                               for key, name in names.items()])
 
     async def stop(self):
         tasks = [*self.tasks.values(), *self.analysis_tasks.values()]
@@ -53,11 +90,22 @@ class ProjectService:
 
     def capabilities(self) -> dict:
         configured = bool(getattr(self.analyzer, "available", False))
+        normalization = concept_normalization_settings(self.settings)
         return {"project_analysis": {"status": "configured" if configured else "unconfigured",
                     "model": self.settings.llm_model or None, "prompt_version": ANALYSIS_PROMPT_VERSION,
                     "max_functions": 12, "max_knowledge_points": 24,
                     "mode": "professional_knowledge_points",
+                    "analysis_format": "concept_list_v1",
+                    "knowledge_point_fields": ["name", "description", "technology"],
+                    "prerequisites_generated": False,
+                    "learning_order_generated": False,
                     "semantic_review_enabled": False,
+                    "concept_normalization_enabled": True,
+                    "normalization_max_calls": 1,
+                    "normalization_thinking_mode": normalization.llm_thinking_mode,
+                    "normalization_reasoning_effort": normalization.llm_reasoning_effort,
+                    "normalization_max_output_tokens": normalization.llm_max_output_tokens,
+                    "generation_stages": ["generation", "normalization"],
                     "max_model_calls": 2,
                     "review_max_calls": 0,
                     "review_max_output_tokens": 0,
@@ -129,12 +177,31 @@ class ProjectService:
 
     async def _analyze(self, project_id: str, version: int):
         _, data = self._version(project_id, version)
+
+        def retain_rejection(entry: dict):
+            # Version-private untrusted proposals, separate from usable analysis
+            # and its normalized rows. Mobile uses its existing RAM store here;
+            # these drafts must never be promoted into shared course facts.
+            data.setdefault("rejected_analysis_attempts", []).append(
+                {**deepcopy(entry), "project_id": project_id, "version": version})
+            self.db.save(project_id, data)
+
+        def retain_attempt(entry: dict):
+            # Keep both model responses for diagnosis, including the draft that
+            # passed local checks but was not yet normalized or delivered.
+            data.setdefault("analysis_attempts", []).append(
+                {**deepcopy(entry), "project_id": project_id, "version": version})
+            self.db.save(project_id, data)
+
         try:
             async with self.analysis_slots:
-                analysis = await self.analyzer.analyze(ProjectInput.model_validate(data["input"]))
+                audit_options = ({"on_rejected_attempt": retain_rejection, "on_analysis_attempt": retain_attempt}
+                                 if isinstance(self.analyzer, ProjectAnalyzer) else {})
+                analysis = await self.analyzer.analyze(ProjectInput.model_validate(data["input"]), **audit_options)
             # Validate again at the persistence boundary, including injected test analyzers.
             document = AnalysisDocument.model_validate(analysis.model_dump() if hasattr(analysis, "model_dump") else analysis)
             data.update(status="analyzed", analysis=document.model_dump(), error=None)
+            data["validated_concept_context"] = generated_context(document.model_dump())
         except asyncio.CancelledError:
             raise
         except AnalysisError as exc:
@@ -156,6 +223,8 @@ class ProjectService:
             raise ProjectError("analysis_required", "请先成功分析，再修改知识点", 409)
         data = self._new_version(project, source, status="analyzed", analysis=analysis.model_dump(), origin="student_edit")
         data.update(model=prior.get("model"), prompt_version=prior.get("prompt_version"), parent_version=expected_version)
+        if bound_generated_context(prior) is not None:
+            data["validated_concept_context"] = generated_context(analysis.model_dump())
         self.db.save(project_id, data, new=True)
         return self.view(project_id)
 
@@ -213,46 +282,49 @@ class ProjectService:
             raise ProjectError("invalid_knowledge_points", "知识点名称不符合检索输入限制，请修改名称后重新确认；原分析已保留。") from None
         return names
 
-    def confirm(self, project_id: str, version: int, acknowledged: list[str]):
+    def confirm(self, project_id: str, version: int, acknowledged: list[str], *, reviewed_topic_technologies=None):
         project, data = self._version(project_id, version)
         self._expect_current(project, version)
         if data.get("confirmation"):
+            if reviewed_topic_technologies is not None:
+                try:
+                    reviewed = reviewed_technologies(reviewed_topic_technologies, data["analysis"]["knowledge_points"])
+                except ValueError:
+                    raise ProjectError("invalid_topic_technologies", "检索技术语境必须绑定当前专业概念。") from None
+                selected = set(data["confirmation"]["selected_ids"])
+                names = self._professional_search_names([p for p in data["analysis"]["knowledge_points"] if p["id"] in selected])
+                reviewed = {key: value for key, value in reviewed.items() if key in names.values()}
+                if reviewed != data["confirmation"].get("topic_technologies", {}):
+                    raise ProjectError("confirmation_conflict", "该版本已确认，请保存新版本后修改检索技术语境。", 409)
             return self.view(project_id, version)
         if not data.get("analysis") or data["status"] != "analyzed":
             raise ProjectError("analysis_required", "请先成功分析或保存修改后的知识点", 409)
-        # Validate the original v1 graph on a detached projection. Retained
-        # optional teaching annotations neither gate confirmation nor disappear
-        # from the source analysis / immutable confirmation snapshot.
+        # Keep historical annotations in their immutable source snapshot, while
+        # validating the chosen format on a detached projection. New flat
+        # concepts keep their explicit technology and never acquire a graph.
         validation_analysis = deepcopy(data["analysis"])
-        validation_analysis.pop("learner_profile", None)
-        for point in validation_analysis.get("knowledge_points", []):
-            for field in ("technology", "project_task", "concepts", "learning_skills", "practice_check"):
-                point.pop(field, None)
+        if validation_analysis.get("analysis_format") != "concept_list_v1":
+            validation_analysis.pop("learner_profile", None)
+            for point in validation_analysis.get("knowledge_points", []):
+                for field in ("technology", "project_task", "concepts", "learning_skills", "practice_check"):
+                    point.pop(field, None)
         document = AnalysisDocument.model_validate(validation_analysis)
         points = document.model_dump()["knowledge_points"]
-        by_id = {point["id"]: point for point in points}
-        conflicts = []
-        for point in points:
-            if point["selection"] != "learn":
-                continue
-            pending, seen = list(point["prerequisite_ids"]), set()
-            while pending:
-                prior = pending.pop()
-                if prior in seen:
-                    continue
-                seen.add(prior)
-                if by_id[prior]["selection"] == "skip":
-                    conflicts.append({"knowledge_point_id": point["id"], "prerequisite_id": prior})
-                pending.extend(by_id[prior]["prerequisite_ids"])
-        skipped = {item["prerequisite_id"] for item in conflicts}
-        if not set(acknowledged).issubset(skipped):
-            raise ProjectError("invalid_acknowledgement", "前置知识确认列表含无关或不存在的知识点")
-        selected = sorted((point for point in points if point["selection"] == "learn"), key=lambda p: p["learning_order"])
-        self._professional_search_names(selected)
+        # The old acknowledgement input remains accepted for API compatibility
+        # only. Selection and batching follow the stored array, never a graph
+        # traversal, numeric learning order or checkbox click order.
+        selected = [point for point in points if point["selection"] == "learn"]
+        names = self._professional_search_names(selected)
         data["budgets"] = self._budget(selected, data["input"]["preferred_platforms"])
         data["confirmation"] = {"confirmation_version": version, "confirmed_at": now(), "search_mode": "professional_terms_v1",
             "selected_ids": [point["id"] for point in selected], "selections": {point["id"]: point["selection"] for point in points},
-            "acknowledged_skipped_prerequisites": sorted(set(acknowledged)), "analysis": deepcopy(data["analysis"]), "input": deepcopy(data["input"])}
+            "analysis": deepcopy(data["analysis"]), "input": deepcopy(data["input"])}
+        try:
+            technologies = (reviewed_technologies(reviewed_topic_technologies, data["analysis"]["knowledge_points"])
+                if reviewed_topic_technologies is not None else bound_generated_context(data) or {})
+        except ValueError:
+            raise ProjectError("invalid_topic_technologies", "检索技术语境必须绑定当前专业概念，且只能包含简短的技术名称。") from None
+        data["confirmation"]["topic_technologies"] = {key: value for key, value in technologies.items() if key in names.values()}
         data["status"] = "confirmed"
         self.db.save(project_id, data)
         return self.view(project_id, version)
@@ -267,7 +339,9 @@ class ProjectService:
         snapshot = data["confirmation"]
         by_id = {point["id"]: point for point in snapshot["analysis"]["knowledge_points"]}
         selected = [by_id[point_id] for point_id in snapshot["selected_ids"]]
-        self._professional_search_names(selected)
+        names = self._professional_search_names(selected)
+        # Existing confirmations do not inherit hidden historical annotations.
+        # The explicit, immutable review or validated generation was bound at confirm.
         budget = self._budget(selected, snapshot["input"]["preferred_platforms"])
         # A first, explicitly requested search can adopt the current name-only
         # mode. Already-started historical jobs return above without migration.
@@ -276,7 +350,7 @@ class ProjectService:
         data["search_started_at"] = now()
         if not selected:
             data["status"] = "completed"
-            data["warnings"].append("所有知识点均已掌握或暂时跳过；已保存确认结果，没有创建空检索任务。")
+            data["warnings"].append("没有勾选知识点；已保存确认结果，没有创建检索任务。")
         else:
             size = data["budgets"]["batch_size"]
             for ordinal, offset in enumerate(range(0, len(selected), size), 1):
@@ -405,6 +479,8 @@ class ProjectService:
                     search_names = self._professional_search_names([point_map[point_id]
                                     for point_id in batch["project_knowledge_point_ids"]])
                     request = SearchRequest(knowledge_points=list(search_names.values()),
+                        topic_technologies={name: value for name, value in snapshot.get("topic_technologies", {}).items()
+                                            if name in search_names.values()},
                         student_level=source["student_level"], language=source["language"], project_context=context[:1000],
                         technical_version=source["technical_version"], preferred_platforms=source["preferred_platforms"])
                     try:

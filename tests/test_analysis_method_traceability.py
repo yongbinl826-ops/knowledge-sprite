@@ -19,6 +19,9 @@ BAD_PAIRS = [c for c in CASES if c["kind"] == "retained_real_synthetic_plan_pair
 ALLOWED = [c for c in CASES if c["kind"] == "unseen_offline_positive"]
 PASS = {"passed": True, "issues": []}
 
+# Mock generation names only; actual retained method/graph/behavior records remain unchanged.
+MOCK_CONCEPT_NAMES = {'actual_state_render_missing': {'k1': 'DOM元素查询', 'k2': '状态机', 'k3': '事件回调', 'k4': '时间戳', 'k5': '计数器', 'k6': '无障碍交互', 'k7': '响应式布局'}, 'actual_early_observation': {'k1': '限流电阻', 'k2': '数字输入', 'k3': '按键消抖', 'k4': '非阻塞定时', 'k5': '状态机'}, 'actual_api_template_inconsistent': {'k1': '文件上传', 'k2': 'CSV解析', 'k3': '数据校验', 'k4': '条件筛选', 'k5': '加权平均', 'k6': '分组聚合'}, 'distinct_recovery_policies_allowed': {'k1': '结构校验'}, 'declared_prior_skill_reuse_allowed': {'k1': '状态机', 'k2': '时间格式化'}, 'explicit_background_reuse_allowed': {'k2': '时间格式化'}}
+
 
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c["id"])
 def test_local_fixture_has_current_schema_and_does_not_add_a_broad_heuristic(case):
@@ -41,9 +44,9 @@ async def test_historical_method_examples_are_projected_without_claiming_semanti
     # them is deliberately not a new semantic approval or a promise of review.
     project = ProjectInput.model_validate(case["project"])
     result, calls = await projected_once(case["before"], project,
-        replace(settings(), project_semantic_review_enabled=True))
+        replace(settings(), project_semantic_review_enabled=True), concept_names=MOCK_CONCEPT_NAMES[case["id"]])
     assert calls[0]["messages"][0]["content"] == analysis_module.SYSTEM_PROMPT
-    assert result.functions == AnalysisDocument.model_validate(case["before"]).functions
+    assert "functions" not in result.model_dump()
 
 
 @pytest.mark.asyncio
@@ -51,22 +54,21 @@ async def test_historical_method_examples_are_projected_without_claiming_semanti
 async def test_legacy_reuse_examples_keep_graph_and_background_without_filled_new_targets(case):
     from tests.professional_contract_support import projected_once
     result, calls = await projected_once(case["before"], ProjectInput.model_validate(case["project"]),
-        replace(settings(), project_semantic_review_enabled=True))
-    assert len(calls) == 1
+        replace(settings(), project_semantic_review_enabled=True), concept_names=MOCK_CONCEPT_NAMES[case["id"]])
+    assert len(calls) == 2
     assert all(k.selection == "learn" for k in result.knowledge_points)
-    assert [k.prerequisite_ids for k in result.knowledge_points] == [
-        p["prerequisite_ids"] for p in case["before"]["knowledge_points"]]
+    assert all("prerequisite_ids" not in p for p in result.model_dump()["knowledge_points"])
 
 
 def test_active_prompt_selects_relevant_terms_without_compulsory_method_traceability():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert analysis_module.ANALYSIS_PROMPT_VERSION == "project-analysis-v4.1-coherent-professional-terms"
+    assert analysis_module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
     prompt = analysis_module.SYSTEM_PROMPT
-    assert "select terms from the actual requirements" in prompt
+    assert "Analyze the full requested behavior and constraints" in prompt
     assert "Honor explicitly requested technologies" in prompt
-    assert "Use only real prerequisite relationships" in prompt
-    assert "no missing references, self edges or cycles" in prompt
-    assert "Do not output project_task, concepts, learning_skills, practice_check or learner_profile" in prompt
+    assert "Do not output prerequisite_ids, learning_order, dependency graphs" in prompt
+    assert "without connecting them with prerequisite edges" in prompt
+    assert "project_task, concepts, learning_skills, practice_check or learner_profile" in prompt
     assert analysis_module.ANALYSIS_MAX_MODEL_CALLS == 2
     assert_simple_generation_schema()
 

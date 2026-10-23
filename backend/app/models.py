@@ -7,6 +7,7 @@ from typing import Annotated, Literal
 import unicodedata
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator, model_validator
 from .url_utils import safe_thumbnail_url
+from .professional_concepts import clean_topic_technology
 
 
 def now() -> str:
@@ -37,6 +38,9 @@ class SearchRequest(BaseModel):
     # Transferable teaching goals are distinct from the project's exact practice
     # requirements. Older/manual jobs may omit them without being rewritten.
     learning_skills: dict[str, LearningSkillList] = Field(default_factory=dict, max_length=5)
+    # Disambiguates each canonical concept without renaming it or adding goals.
+    topic_technologies: dict[str, Annotated[str, StringConstraints(strict=True, min_length=1, max_length=48)]] = Field(
+        default_factory=dict, strict=True, max_length=5)
 
     @field_validator("knowledge_points")
     @classmethod
@@ -67,6 +71,15 @@ class SearchRequest(BaseModel):
         if any(re.search(r"https?://|www\.|\b(?:site|filetype|inurl):", skill, re.I)
                for skills in self.learning_skills.values() for skill in skills):
             raise ValueError("学习技能应为技能名称，不得包含网址或搜索指令")
+        return self
+
+    @model_validator(mode="after")
+    def bound_topic_technologies(self):
+        if not set(self.topic_technologies) <= set(self.knowledge_points):
+            raise ValueError("Technology context must refer to an exact current knowledge point")
+        for name, technology in self.topic_technologies.items():
+            if not clean_topic_technology(technology) or len(name) + len(technology) + 1 > 180:
+                raise ValueError("Technology context must be specific and bounded")
         return self
 
 

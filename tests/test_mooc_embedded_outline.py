@@ -17,7 +17,7 @@ from backend.app.extractor import MetadataExtractor
 from backend.app.source_adapters.icourse163 import MOOC_CATALOG_LIMIT
 
 
-RAW_PATH = Path(__file__).resolve().parents[1] / "reports/mooc-public-read-20261017/direct-probe/02-page.body"
+RAW_PATH = Path(__file__).resolve().parents[1] / "tests/fixtures/public_catalog_replays/mooc-public-read-20261017/direct-probe/02-page.body"
 RAW_SHA256 = "c492d76ac452b0189057e6d061470b434d14189a6e38931a91a9f2adebf04af4"
 URL = "https://www.icourse163.org/course/PKU-1003479006"
 

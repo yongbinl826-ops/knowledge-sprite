@@ -1,0 +1,223 @@
+{
+  "provenance": {
+    "source_path": "tmp\\motion-paid-four-project-harness\\runs\\approved-round-1-decoding-recovery\\arduino_pot_button_beginner\\analyzed.json",
+    "source_sha256": "ad2fce2bca9869840ef2e519fcf21370b5fb597bd4396c297084d587a7c17c75",
+    "project_id": "73c440b1-5a56-479f-9880-4a825b50bf63",
+    "version": 1,
+    "kind": "actual_retained_paid_output_offline_fixture_no_new_HTTP"
+  },
+  "project": {
+    "name": "Arduino 电位器调光灯",
+    "requirements": "使用 Arduino Uno、A0电位器、9号PWM引脚的LED和2号按键。读取电位器模拟量，将0–1023线性映射为0–255的LED亮度；按键使用内部上拉并切换开/关，软件去抖后一次按下只切换一次；每100毫秒打印一次原始读数，整个过程中调光和按键保持响应，不使用长时间delay。只用已有低压开发板，不联网。",
+    "student_level": "beginner",
+    "language": "zh",
+    "project_context": "已会上传Arduino程序、基本变量/条件、Serial.begin/Serial.println基础串口输出和LED限流接线；第一次学习模拟输入、PWM、按钮消抖和millis定时。指定板为Uno，不能默认为ESP32的ADC/PWM接口。",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163"
+    ]
+  },
+  "analysis": {
+    "scope": "在 Arduino Uno 上实现一个不阻塞主循环的电位器调光与按键开关：A0 读取 10 位模拟量并线性映射到 0–255 的 PWM 输出（9 号引脚 LED），2 号引脚按键启用内部上拉并在软件去抖后单次切换开/关，每 100 毫秒通过串口打印一次电位器原始读数；全程不使用长时间 delay，调光与按键响应持续可用。仅使用已有低压开发板，不联网。",
+    "technical_plan": "使用 Arduino Uno 与 Arduino IDE(C/C++)：analogRead(A0) 获取 0–1023 原始值，用 map() 或整数比例映射为 0–255 后 analogWrite(9, 值) 输出 PWM；按键 pinMode(2, INPUT_PULLUP)，以 millis() 记录时间戳做非阻塞软件去抖与边沿检测，实现按一次只切换一次状态；串口打印同样用 millis() 时间戳控制 100 毫秒周期，与调光、按键逻辑在同一 loop() 中轮流执行，不使用 delay() 阻塞。注意 Uno 的 PWM 引脚与 ADC 均为板载 10 位，不采用 ESP32 接口。",
+    "assumptions": [
+      "电位器接 5V 与 GND，滑动端接 A0，读数 0 与 1023 可覆盖亮度两端。",
+      "LED 经限流电阻接 9 号引脚（Uno 上该脚支持 PWM），高电平为点亮。",
+      "按键一端接 2 号引脚、另一端接 GND，使用内部上拉，按下读到 LOW。",
+      "去抖时间与串口打印周期均为可调常数，去抖取值按常见 20–50 毫秒量级设定。"
+    ],
+    "learner_profile": null,
+    "functions": [
+      {
+        "id": "read_pot",
+        "name": "采集电位器模拟量",
+        "original_requirement": "使用 A0 电位器读取模拟量，范围为 0–1023。",
+        "acceptance_criteria": "程序周期读取 A0，得到 0–1023 的原始整数值，并可用于后续映射与打印。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "map_brightness",
+        "name": "线性映射与 PWM 调光",
+        "original_requirement": "将 0–1023 线性映射为 0–255 的 LED 亮度，输出到 9 号 PWM 引脚。",
+        "acceptance_criteria": "电位器读数与 PWM 输出值近似线性对应；读数 0 时亮度为 0，读数 1023 时亮度为 255；LED 亮度随旋钮连续变化。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "button_toggle",
+        "name": "按键切换开关与内部上拉",
+        "original_requirement": "2 号按键使用内部上拉，切换 LED 开/关。",
+        "acceptance_criteria": "按键未被按下时读到高电平；每次有效按下在开与关之间切换一次，关闭时 LED 熄灭、开启时恢复当前亮度。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "debounce",
+        "name": "软件去抖与单次触发",
+        "original_requirement": "软件去抖后一次按下只切换一次。",
+        "acceptance_criteria": "按住按键不放不会连续切换；抖动期间不产生多余切换。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "serial_log",
+        "name": "100ms 周期串口打印",
+        "original_requirement": "每 100 毫秒打印一次原始读数。",
+        "acceptance_criteria": "串口监视器按约 100 毫秒间隔持续输出 A0 原始读数，数值与旋钮位置一致。",
+        "no_new_learning_reason": null
+      },
+      {
+        "id": "nonblocking",
+        "name": "非阻塞主循环",
+        "original_requirement": "整个过程中调光和按键保持响应，不使用长时间 delay。",
+        "acceptance_criteria": "串口打印与按键等待期间，旋钮调节与按键仍能及时响应；程序中没有长时间 delay 阻塞。",
+        "no_new_learning_reason": null
+      }
+    ],
+    "knowledge_points": [
+      {
+        "id": "analog_read",
+        "name": "Arduino analogRead 模拟输入",
+        "description": "使用 analogRead 读取 Uno 板载 10 位 ADC 的引脚电压，得到 0–1023 的整数原始值。",
+        "function_ids": [
+          "read_pot"
+        ],
+        "why_needed": "采集电位器位置是本项目调光的数据来源。",
+        "learning_goal": "能正确配置 A0 为模拟输入并用 analogRead 获取稳定读数。",
+        "technology": "Arduino",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 1,
+        "selection": "learn"
+      },
+      {
+        "id": "linear_map",
+        "name": "数值线性映射与约束",
+        "description": "用比例换算或 map() 把 0–1023 区间线性变换到 0–255，并处理边界与整数取整。",
+        "function_ids": [
+          "map_brightness"
+        ],
+        "why_needed": "电位器量程与 PWM 输出量程不同，需要线性换算。",
+        "learning_goal": "能写出并验证 10 位到 8 位的线性映射，端点值正确。",
+        "technology": "Arduino",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "analog_read"
+        ],
+        "learning_order": 2,
+        "selection": "learn"
+      },
+      {
+        "id": "pwm_analogwrite",
+        "name": "Arduino PWM 与 analogWrite",
+        "description": "在 Uno 的 PWM 引脚上用 analogWrite 输出 0–255 占空比，控制 LED 亮度；不套用 ESP32 的 PWM 接口。",
+        "function_ids": [
+          "map_brightness"
+        ],
+        "why_needed": "LED 亮度调节依赖 PWM 占空比输出。",
+        "learning_goal": "能在 9 号引脚输出 0–255 的 PWM 并观察亮度连续变化。",
+        "technology": "Arduino Uno",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "linear_map"
+        ],
+        "learning_order": 3,
+        "selection": "learn"
+      },
+      {
+        "id": "input_pullup",
+        "name": "Arduino INPUT_PULLUP 内部上拉",
+        "description": "用 pinMode 的 INPUT_PULLUP 启用片内上拉电阻，使按键在未按下时读到 HIGH、按下时读到 LOW。",
+        "function_ids": [
+          "button_toggle"
+        ],
+        "why_needed": "按键接线需要确定稳定的默认电平与有效电平判断。",
+        "learning_goal": "能正确配置内部上拉并解释读到的电平含义。",
+        "technology": "Arduino",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 2,
+        "selection": "learn"
+      },
+      {
+        "id": "millis_timing",
+        "name": "millis 非阻塞定时",
+        "description": "用 millis() 时间戳与间隔比较替代 delay 实现周期任务与状态计时。",
+        "function_ids": [
+          "serial_log",
+          "nonblocking",
+          "debounce"
+        ],
+        "why_needed": "100 毫秒打印与去抖计时都要求主循环不被阻塞。",
+        "learning_goal": "能用 millis() 写周期执行与非阻塞延时判断。",
+        "technology": "Arduino",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [],
+        "learning_order": 3,
+        "selection": "learn"
+      },
+      {
+        "id": "button_debounce",
+        "name": "按键软件去抖与边沿检测",
+        "description": "记录按键上一次电平与时间，在稳定超过去抖时间后检测按下边沿，保证一次按下只触发一次动作。",
+        "function_ids": [
+          "debounce",
+          "button_toggle"
+        ],
+        "why_needed": "机械按键抖动会造成误触发，需要软件去抖。",
+        "learning_goal": "能实现 20–50ms 量级的去抖与单次触发切换。",
+        "technology": "Arduino",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "input_pullup",
+          "millis_timing"
+        ],
+        "learning_order": 4,
+        "selection": "learn"
+      },
+      {
+        "id": "serial_print",
+        "name": "Arduino Serial 周期打印",
+        "description": "用 Serial.begin 初始化串口，并结合 millis 定时用 Serial.println 周期输出读数。",
+        "function_ids": [
+          "serial_log"
+        ],
+        "why_needed": "需要每 100 毫秒输出一次原始读数用于观察。",
+        "learning_goal": "能按固定周期在串口监视器中稳定打印数值。",
+        "technology": "Arduino",
+        "project_task": null,
+        "concepts": [],
+        "learning_skills": [],
+        "practice_check": null,
+        "necessity": "required",
+        "prerequisite_ids": [
+          "millis_timing"
+        ],
+        "learning_order": 4,
+        "selection": "learn"
+      }
+    ]
+  }
+}

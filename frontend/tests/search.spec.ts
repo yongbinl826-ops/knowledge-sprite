@@ -82,7 +82,7 @@ test('未配置状态、必填和知识点预算校验；无假结果', async ({
   page.on('pageerror', error => consoleErrors.push(error.message));
   await setup(page, { ...caps, search: { ...caps.search, status: 'unconfigured', message: '请先在服务端接入 SearXNG，或启用已配置的 Tavily。' } });
   await page.goto('/?mode=manual');
-  await expect(page).toHaveTitle('项目制知识引导小精灵 · 课程与视频发现');
+  await expect(page).toHaveTitle('项目制学习引导小精灵 · 课程与视频发现');
   await expect(page.getByText('搜索服务暂不可用')).toBeVisible();
   await expect(page.locator('.resource-card')).toHaveCount(0);
   await expect(page.locator('vite-error-overlay')).toHaveCount(0);
@@ -106,14 +106,13 @@ test('多知识点提交、分组筛选、简洁占位封面与安全原平台�
   });
   await page.goto('/?mode=manual');
   await page.getByLabel('知识点', { exact: true }).fill('非预设知识点：空间哈希\n边界条件\n边界条件');
-  await page.getByText('更多筛选', { exact: true }).click();
-  await page.getByLabel('技术版本').fill('WebGL 2');
-  await page.getByLabel('项目背景').fill('地图可视化');
+  await expect(page.locator('#level, #version, #context, .platform-choices')).toHaveCount(0);
+  await expect(page.locator('#language')).toBeVisible();
   await page.getByRole('button', { name: '开始查找' }).click();
   await expect(page.getByText('正在查找', { exact: true })).toBeVisible();
   await expect(page.locator('.search-progress')).toContainText('1/4');
   await expect(page.getByText('检索完成', { exact: true })).toBeVisible();
-  expect(submitted).toMatchObject({ knowledge_points: ['非预设知识点：空间哈希', '边界条件'], technical_version: 'WebGL 2', project_context: '地图可视化' });
+  expect(submitted).toMatchObject({ knowledge_points: ['非预设知识点：空间哈希', '边界条件'], student_level: 'any', language: 'zh', technical_version: '', project_context: '', preferred_platforms: ['bilibili', 'icourse163'] });
   await expect(page.locator('.result-group')).toHaveCount(2);
   await expect(page.locator('.resource-card')).toHaveCount(3);
   await expect(page.locator('.resource-card img')).toHaveCount(0);
@@ -731,13 +730,13 @@ test('创建响应丢失后刷新可按原幂等key恢复已结束任务，确�
     return route.fulfill({ status: 202, json: { job_id: 'test-job', status: 'completed', reused: true } });
   });
   await page.goto('/?mode=manual');
-  await page.getByLabel('知识点', { exact: true }).fill('响应丢失后的原知识点');
-  await page.getByLabel('学生基础').selectOption('intermediate');
-  await page.getByLabel('学习语言').selectOption('en');
-  await page.getByText('更多筛选', { exact: true }).click();
-  await page.getByLabel('技术版本').fill('fixture version');
-  await page.getByLabel('项目背景').fill('fixture background');
-  await page.getByRole('button', { name: '开始查找' }).click();
+  // Replay an older uncertain request unchanged; hidden historic fields remain
+  // part of its immutable payload, without reviving removed form controls.
+  const historicalRequest = { knowledge_points: ['响应丢失后的原知识点'], student_level: 'intermediate', language: 'en', technical_version: 'fixture version', project_context: 'fixture background', preferred_platforms: ['xuetangx'] };
+  await page.evaluate(request => sessionStorage.setItem('knowledge-guide.pending-creation.v1', JSON.stringify({ key: 'fixture-old-ui-uncertain-key', body: JSON.stringify(request) })), historicalRequest);
+  await page.reload();
+  await expect(page.locator('#level, #version, #context, .platform-choices')).toHaveCount(0);
+  await page.getByRole('button', { name: '继续上次未确认提交' }).click();
   await expect(page.getByText(/创建状态尚未确认/)).toBeVisible();
   const beforeReload = await page.evaluate(() => sessionStorage.getItem('knowledge-guide.pending-creation.v1'));
   expect(JSON.parse(beforeReload!).key).toBe(requests[0].key);
@@ -745,9 +744,10 @@ test('创建响应丢失后刷新可按原幂等key恢复已结束任务，确�
   const recovery = page.getByRole('region', { name: '未确认提交恢复' });
   await expect(recovery).toContainText('响应丢失后的原知识点');
   expect(requests).toHaveLength(1);
-  await recovery.getByText('查看原学习需求').click();
-  await expect(recovery).toContainText('fixture version');
-  await expect(recovery).toContainText('fixture background');
+  await recovery.getByText('查看原语言偏好').click();
+  await expect(recovery).toContainText('英语');
+  expect(JSON.parse(JSON.parse(beforeReload!).body)).toEqual(historicalRequest);
+  expect(requests[0].body).toEqual(historicalRequest);
   await page.screenshot({ path: testInfo.outputPath('submission-recovery-desktop.png'), fullPage: true });
   await page.getByRole('button', { name: '继续上次未确认提交' }).click();
   await expect(page.locator('.job-status')).toHaveText('检索完成');

@@ -1,4 +1,15 @@
-# 项目制知识引导小精灵
+# 项目制学习引导小精灵
+
+2026-10-20 当前版本：项目输入 → 勾选专业知识点 → 按知识点查找视频。知识点使用可独立学习的专业概念，技术栈作为单独的检索语境；学生不需要排序，点击先后不改变学习顺序。无账号手机模式把个人项目、版本、勾选和进度保存在设备，服务端只长期保留自行校验的公共课程元数据及聚合预算。
+
+- 本地 Web 模式保留 `APP_MODE=legacy` 和独立 `frontend/dist`。
+- 手机模式使用 `APP_MODE=mobile`、`frontend/dist-mobile` 和 `frontend/android` 原生工程。调试构建不是已安装 APP；当前缺少可用 JDK/SDK，未生成 APK/AAB。
+- 运行、预算、健康检查和回滚限制见 [手机部署说明](docs/mobile-deployment.md)；数据边界见 [架构说明](docs/mobile-architecture.md)；原生构建门槛见 [Android 工程](docs/mobile-native.md)。
+- 本轮需求矩阵、最终证据与生产前置条件见 [2026-10-20 验收](docs/mobile-concepts-acceptance-20261020.md)。本轮未新增真实模型或供应商调用，没有外网部署或 Git 推送。
+
+## 历史阶段记录
+
+下文保留此前开发阶段的观察、测试计数和局部目标。“当前”“最终”等表述只适用于原记录日期，不能替代上述新版本验收；例如旧的知识点排序交互已取消。
 
 最新严格验收得到 pandas 分组聚合 **2 门**、SQL 多表连接与分组查询 **2 门**、HTML 表单与网页结构 **4 门**合格 MOOC。其中自动发现并经当前规则重验的课程为 **1 / 2 / 4**；人工公开线索补库只新增 1 门 pandas 课程。默认每点 3 门目标仍未全部达到，pandas 和 SQL 各缺 1 门，不能据此宣布生产召回已达标。16 条当前有效的公开课程观察已导入本机预览库，入库数量不等于这三个知识点的合格数量。过程、额度、课程大纲和验收边界见 [每点三门目标验收](docs/mooc-target-three-20261019.md)。
 
@@ -33,14 +44,14 @@ cd D:\项目制知识引导小精灵
 跨平台等效步骤：复制 `.env.example` 到 `.env`；复制 `deploy/searxng/settings.example.yml` 到 `settings.yml` 并用随机值替换 secret；运行 `docker compose up -d searxng`、`uv sync --frozen`、在 `frontend` 运行 `npm ci && npm run build`，最后在根目录运行：
 
 ```text
-uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
+uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-proxy-headers --no-access-log
 ```
 
 ## 开发启动
 
 ```powershell
 uv sync --frozen
-uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
+uv run --frozen uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-proxy-headers --no-access-log
 # 另开终端：
 cd frontend
 npm ci
@@ -87,6 +98,8 @@ HTTP 403 常见于 JSON 未开启或实例访问限制。SearXNG 能启动不代
 本项目的 SearXNG 模板移除了 `youtube` / `bilibili` 直接抓取引擎；应用也拒绝显式启用这两个引擎，并把用户输入的引擎选择操作符视为普通文字。外部自托管实例的管理员需同样核对并关闭未经许可的直接采集引擎。一般搜索服务发现的原平台链接可以保留，详情采集仍独立遵守站点规则。
 
 每条查询的 `provider_requests` 记录本轮实际 HTTP 状态、耗时、请求引擎、已识别的上游原始原因；缓存来源的历史请求另列，不能把旧 200 当成本次成功。未知异常原因保留 unknown，不输出可能含凭据的异常正文。
+
+后台视频补充检索使用预先配置的 `AI_VIDEO_SEARCH_PROVIDER`；`auto` 按已有密钥选择 Serper、Tavily 或普通来源。独立索引分别保留自己的访问状态：普通来源停止后不再访问或解除其暂停，已选定的独立索引仍按自身状态执行。同一来源继续遵守原有停止规则；选定来源自身拒绝、限流或额度耗尽时，不再切换索引重试。所有实际请求仍共用原任务预算，只有通过自身页面证据与独立复核的结果才能形成推荐；前端不显示补充过程。
 
 ### Tavily（可选）
 
@@ -140,6 +153,8 @@ TAVILY_API_KEY=
 | 动态网页 | 可选安全 Fetcher + 离线 Edge 补全已实现，默认关闭；已验证隔离流程与取消 | 任意动态网站可采集；本次真实动态目录增益已通过；已使用 Crawl4AI |
 
 平台策略核对与公开来源仍保留。B站协议5.6(3)、1.5的原有记录对应默认配置下的请求前停止；普通 `ALLOWED_RESTRICTED_HOSTS` 不解除该默认策略。本机另以专用 `BILIBILI_PUBLIC_METADATA=true` 开启窄范围读取：只允许 `https://www.bilibili.com` / `https://bilibili.com` 的视频 HTML 与 robots，视频查询参数仅保留真实 `p` 编号；重定向也必须留在该范围，不运行页面脚本、不采集推荐合集或继续遍历 UP 主投稿。此本地选择和平台条款记录分别保留。
+
+普通 B站视频入口返回已识别的空 SSR 模板时，后台可在预留额外详情页预算后，补读一次同一 BV、同一分 P 的 `/zh-Hans/video/` 公开 HTML。沿用原有 robots、访问限制、任务期限和字节预算；缺少预算回调、预算不足或已有登录、拒绝、失效等事实时不发起补充请求。原始响应与实际中文路径分别留在后台采集记录中，推荐仍需通过视频身份和内容匹配检查，前端不显示这一步。
 
 YouTube、学堂在线的原有默认限制不变。MOOC 当前使用独立的公开课程 HTML 范围，不把自动聚合许可尚未确认推断成公开课程页不可访问。`ALLOWED_RESTRICTED_HOSTS` 仍用于其他需精确配置的来源，不跳过 robots、访问限制页和 SSRF 检查。robots 是独立的路径规则，不代表数据使用授权。
 
@@ -271,3 +286,6 @@ data/             本机 SQLite（不入库）
 历史阶段（2026-10-17，浏览器目录核验）：实际打开B站视频页与MOOC课程页，新增目录适配器并逐项核对15个分P、84项课程大纲。MOOC当时学期关闭的提示保留；当时后台自动采集策略仍有限制。真实页面、修复前后对照、运行方法与测试见 [平台目录核验报告](reports/platform-catalog-20261017/README.md)，不能将该阶段保存DOM复核理解为全平台自动采集已经打通。
 
 历史阶段（2026-10-17，公开 HTML 接入前）：实际从双知识点输入完成12次真实搜索，发现B站21条、MOOC11条候选，无旧缓存命中；进入详情流程的9条B站、3条MOOC均在请求前因当时的条款/许可范围判断停止，新取得目录0条，**该阶段后台目录链路未通过**。修复了动态失败长缓存、条款变更缓存失效、重定向证据范围及审计错误处理；原文截图、真实任务与运行方式见 [后台联网验收](reports/platform-live-chain-20261017/README.md)。该历史结论不代替后续 MOOC 公开课程读取及 B站本地自用模式的当前结果。
+
+
+生产工程门槛、已修复的重启/并发问题及访问隔离限制，见 [2026-10-19 上线门槛审查](docs/production-gates-20261019.md)；Linux 本机容器模板见 [部署与恢复操作](deploy/app-operations.md)。

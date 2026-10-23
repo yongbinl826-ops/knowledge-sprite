@@ -3,8 +3,14 @@ import re
 from .models import Query, SearchRequest
 from .probe_priority import has_literal_identifier
 from .config import course_domains
+from .ai_video_fallback import normalize_empty_api_calls, video_recovery_required_literals
 
 PLATFORMS = {"bilibili": "bilibili.com", "icourse163": "icourse163.org", "xuetangx": "xuetangx.com"}
+
+# Word classes select among technologies the request itself declares. They do
+# not map APIs to languages or invent undeclared framework ownership.
+_PROGRAMMING_LANGUAGES = {"javascript", "typescript", "python", "java", "c", "c++", "c#",
+    "rust", "go", "ruby", "php", "swift", "kotlin", "dart", "scala", "julia", "lua", "r"}
 
 
 def _query_context(text: str) -> list[str]:
@@ -32,10 +38,122 @@ def _recall_terms(text: str) -> set[str]:
 
 def _explicit_query_parts(text: str, context: list[str]) -> list[str]:
     body = re.sub(r"^\s*" + r"\s+".join(re.escape(term) for term in context), "", text, count=1, flags=re.I).strip()
-    # This deliberately omits ambiguous '及' (e.g. 及格率) and does not infer
-    # API synonyms. Parts are query-selection hints, not a new topic structure.
-    parts = [part.strip() for part in re.split(r"[与和、]|\s+and\s+", body, flags=re.I)]
+    parts = split_query_parts(body)
     return parts if 2 <= len(parts) <= 4 and all(len(part) >= 2 for part in parts) else []
+
+
+def split_query_parts(text: str) -> list[str]:
+    """Literal conjunctions only, never a new knowledge-point decomposition."""
+    # Avoid ordinary words such as 涉及/普及/及格/及时. A short or empty
+    # component cannot create a recall part either; no API synonyms are inferred.
+    # Prefer explicit boundaries once, so an internal 和 in a component is
+    # not recursively treated as a conjunction. A bare 和 is ambiguous.
+    parts = re.split(r"以及|[与、]|\s+and\s+", text, flags=re.I)
+    if len(parts) == 1:
+        parts = re.split(r"(?<![涉触波普提顾危不累殃])及(?![格第时早其])", text)
+    return [part.strip() for part in parts]
+
+
+def declared_query_stack(request: SearchRequest, text: str = "") -> list[str]:
+    """Bounded positive stack declaration from original input, never a plan.
+
+    The list is literal search context, not an assertion of API ownership.
+    Ambiguous/negative/example/experience clauses deliberately contribute none.
+    """
+    forbidden = re.compile(r"(?:https?://|www\.|\b(?:site|filetype|inurl)\s*:|[!@`$]|"
+        r"不|未|无|禁止|比较|对比|而非|例如|比如|已会|熟悉|学过|曾经|假如|如果|或|"
+        r"\b(?:not|without|rather\s+than|instead\s+of|compare\w*|example|previously|either|or|secret|token|password|key)\b)", re.I)
+    for clause in re.split(r"[。；;，!?\n]", request.project_context):
+        if forbidden.search(clause):
+            continue
+        match = re.search(r"(?:只用|仅用|使用|采用|基于|原生|(?i:\busing\b|\buse\b|\bbased\s+on\b))\s*(?:原生\s*)?"
+                          r"([A-Za-z][A-Za-z0-9+#]*(?:\s+(?:[A-Z][A-Za-z0-9+#]*|[0-9][0-9.]*)){0,2})", clause)
+        if not match:
+            continue
+        terms = [" ".join(_query_context(match[1]))]
+        if not terms or len(" ".join(terms)) > 60:
+            continue
+        # A declared native stack may list several literal technologies. Do
+        # not guess which language owns a particular API or append pin nouns.
+        tail = clause[match.end():]
+        for _ in range(3):
+            item = re.match(r"\s*(?:[、, /]|和|与|\band\b)\s*([A-Za-z][A-Za-z0-9+#]*)(?=\s|[、,/和与]|做|开发|实现|编写|搭建|$)", tail, re.I)
+            if not item:
+                break
+            terms.append(item[1])
+            tail = tail[item.end():]
+        terms = list(dict.fromkeys(terms))[:4]
+        named = [term for term in terms if re.search(r"(?<![A-Za-z0-9_.+#])" + re.escape(term.split()[0])
+                + r"(?![A-Za-z0-9_.+#])", text, re.I)]
+        languages = [term for term in terms if term.split()[0].casefold() in _PROGRAMMING_LANGUAGES]
+        return named or languages or terms
+    return []
+
+
+def query_contextual_concept_name(text: str, technology: str) -> str:
+    """Join a search-only owner, removing only exact leading suffix overlap.
+
+    Ranking and canonical point labels retain their existing independent rules.
+    No aliases, token substitutions or inferred technology ownership are used.
+    """
+    from .professional_concepts import clean_topic_technology
+    technology = clean_topic_technology(technology)
+    if not technology:
+        return text
+    words = technology.split()
+    for index in range(len(words)):
+        overlap = " ".join(words[index:])
+        match = re.match(re.escape(overlap).replace(r"\ ", r"\s+")
+                         + r"(?=$|\s|[\u3400-\u9fff])", text, re.I)
+        if match:
+            suffix = text[match.end():].strip()
+            return " ".join([technology, suffix]).strip()
+    return technology + " " + text
+
+
+def contextual_search_phrase(text: str, request: SearchRequest) -> str:
+    """Keep the entire professional label; only prepend declared missing stack."""
+    if request.topic_technologies.get(text):
+        return query_contextual_concept_name(text, request.topic_technologies[text])
+    if request.learning_targets.get(text) or request.learning_skills.get(text):
+        return text  # Legacy target-specific pipelines keep their own contract.
+    missing = [term for term in declared_query_stack(request, text) if not re.search(
+        r"(?<![A-Za-z0-9_.+#])" + re.escape(term) + r"(?![A-Za-z0-9_.+#])", text, re.I)]
+    phrase = " ".join([*missing, text])
+    return phrase if len(phrase) <= 180 else text  # Never truncate the original.
+
+
+def complementary_search_phrase(text: str, request: SearchRequest, round_index: int) -> str | None:
+    """Use each explicit named component in an existing subsequent slot."""
+    if (round_index not in {1, 2} or request.learning_targets.get(text)
+            or request.learning_skills.get(text)):
+        return None
+    parts = _explicit_query_parts(text, [])
+    if not parts or round_index > len(parts):
+        return None
+    # A repeated component with/without its literal leading owner is not a
+    # distinct recall target ("QuillFlow queues and queues").
+    context = _query_context(text)
+    cores = _explicit_query_parts(text, context)
+    if len({re.sub(r"\s+", "", value).casefold() for value in cores}) < 2:
+        return None
+    part = re.sub(r"([A-Za-z0-9_.+#])(?=[\u3400-\u9fff])", r"\1 ", parts[round_index - 1])
+    owner = request.topic_technologies.get(text)
+    # A reviewed point owner is narrower than the full project's stack.
+    # Its original leading identifiers still constrain every component query.
+    stack = [owner, *_query_context(text)] if owner else declared_query_stack(request, text)
+    if not stack:
+        stack = _query_context(text)
+    if owner:
+        phrase = part
+        for term in reversed(stack):
+            if not re.search(r"(?<![A-Za-z0-9_.+#])" + re.escape(term)
+                             + r"(?![A-Za-z0-9_.+#])", phrase, re.I):
+                phrase = query_contextual_concept_name(phrase, term)
+        return _bounded_expansion(text, phrase)
+    prefix = [term for term in stack if not re.search(
+        r"(?<![A-Za-z0-9_.+#])" + re.escape(term) + r"(?![A-Za-z0-9_.+#])", part, re.I)]
+    return _bounded_expansion(text, " ".join([*prefix, part]))
 
 
 def _bounded_expansion(text: str, value: str) -> str | None:
@@ -113,7 +231,7 @@ def generate_queries(point_id: str, text: str, request: SearchRequest, expansion
         teaching, alternate = "video tutorial", "course lesson"
     else:
         teaching, alternate = "视频教程", "课程 教学"
-    stem = f"{text}{version}"
+    stem = f"{contextual_search_phrase(text, request)}{version}"
     result = [Query(knowledge_point_id=point_id, query=f"{stem} {level} {teaching}".strip()),
               Query(knowledge_point_id=point_id, query=f"{stem} {alternate}")]
     for platform in dict.fromkeys(request.preferred_platforms):
@@ -191,6 +309,9 @@ def fair_queries(groups: list[list[Query]]) -> list[Query]:
 # Small lexical translations diversify discovery, not evidence or teaching
 # equivalence. They apply across projects/tools and contain no resource URLs.
 _RECALL_TRANSLATIONS = (
+    (r"表单(?:输入|录入|数据收集)", "form input"),
+    (r"文件下载|下载文件", "file download"),
+    (r"文本(?:分段|切分|分割)", "text splitting"),
     (r"矩形.{0,4}(?:碰撞|相交|重叠)", "rectangle collision"),
     (r"(?:下落|下降).{0,4}(?:更新|移动)?", "falling movement update"),
     (r"(?:游戏结束|结束状态|失败状态)", "game over state"),
@@ -221,6 +342,324 @@ def _recall_translation(fragment: str) -> str | None:
     # Preserve explicit API, file-format and version spellings from this part.
     literals = re.findall(r"[A-Za-z][A-Za-z0-9_.+#]*|\b\d+(?:\.\d+)*\b", fragment)
     return " ".join(dict.fromkeys([*literals, *translated]))
+
+
+def _video_recovery_translation(text: str) -> str | None:
+    """Replace known lexical spans, retaining every unmatched qualifier.
+
+    Unlike a bag of translated terms, this cannot drop an unknown second
+    operation, file format, API or version from a compound selected concept.
+    """
+    spans = sorted((hit.start(), hit.end(), english, hit.group())
+                   for pattern, english in _RECALL_TRANSLATIONS
+                   # Legacy gap recall permits wildcard paraphrases; this
+                   # whole-point path must not consume an unknown operation
+                   # between the known words (e.g. CSV conversion + reading).
+                   if ".{" not in pattern
+                   for hit in re.finditer(pattern, text, re.I))
+    if not spans:
+        return None
+    pieces, cursor = [], 0
+    for start, end, english, matched in spans:
+        if start < cursor:
+            continue
+        literals = re.findall(r"[A-Za-z][A-Za-z0-9_.+#]*|\b\d+(?:\.\d+)*\b", matched)
+        retained = [word for word in literals if not re.search(
+            r"(?<![A-Za-z0-9_.+#])" + re.escape(word) + r"(?![A-Za-z0-9_.+#])", english, re.I)]
+        pieces.extend([text[cursor:start], " ".join([*retained, english])])
+        cursor = end
+    pieces.append(text[cursor:])
+    translated = re.sub(r"以及|与|、", " and ", " ".join(pieces))
+    return " ".join(translated.split())
+
+
+def video_recovery_search_phrases(text: str, request: SearchRequest,
+                                  model_hints: list[str] | tuple[str, ...] = ()) -> list[str]:
+    """Compatibility projection of bounded discovery; hints are never facts."""
+    return video_recovery_search_phrases_with_diagnostics(text, request, model_hints)[0]
+
+
+def video_recovery_search_phrases_with_diagnostics(
+    text: str, request: SearchRequest, model_hints: list[str] | tuple[str, ...] = (),
+) -> tuple[list[str], dict]:
+    """Keep the full original first, with at most two complementary queries.
+
+    Safe English leads may describe unfamiliar or partially known operations.
+    Known operation spans, literal technology/API/version and all source gates
+    remain unchanged. A lead is not a translation assertion or matching target.
+    Diagnostics contain only bounded counts and fixed labels, never input text.
+    """
+    values = model_hints[:2] if isinstance(model_hints, (list, tuple)) else ()
+    diagnostic = {"schema_version": 1, "status": "normalized", "input_hints": len(values),
+        "accepted_hints": 0, "not_evaluated_hints": 0,
+        "rejected_hints": {key: 0 for key in ("empty", "invalid_syntax_or_length", "word_limit",
+            "missing_literal", "version_conflict", "duplicate", "operation_not_preserved",
+            "insufficient_specificity", "slots_exhausted")}, "phrase_kinds": []}
+    if not isinstance(model_hints, (list, tuple)):
+        diagnostic["status"] = "invalid_hint_container"
+
+    def finish_early(status):
+        diagnostic.update(status=status, not_evaluated_hints=len(values))
+        return [], diagnostic
+
+    if text not in request.knowledge_points:
+        return finish_early("target_unavailable")
+
+    def safe(value, limit):
+        if not isinstance(value, str) or len(value) > limit or re.search(r"[\x00-\x1f\x7f]", value):
+            return None
+        value = normalize_empty_api_calls(value)
+        if re.search(r'https?://|www\.|\b[\w-]+\.(?:com|org|net|cn|io)\b|'
+                     r'[/\\<>:!@="();|`$]|(?:^|\s)-\S', value, re.I):
+            return None
+        phrase = " ".join(value.split())
+        return phrase if 2 <= len(phrase) <= limit else None
+
+    def contains(value, required):
+        pattern = r"(?<![A-Za-z0-9_.+#])" + re.escape(required).replace(r"\ ", r"\s+") + r"(?![A-Za-z0-9_.+#])"
+        return bool(re.search(pattern, value, re.I))
+
+    source_contextual = normalize_empty_api_calls(contextual_search_phrase(text, request))
+    contextual = re.sub(r"(?<=[\u3400-\u9fff])/(?=[\u3400-\u9fff])", " and ", source_contextual)
+    version = " ".join(request.technical_version.split())
+    original = contextual if not version or contains(contextual, version) else contextual + " " + version
+    original = safe(original, 320)
+    if original is None:
+        return finish_early("original_rejected")
+    results = [original]
+    diagnostic["phrase_kinds"].append("original")
+    candidates = []
+    translated = _video_recovery_translation(contextual)
+    if translated:
+        if version and not contains(translated, version):
+            translated += " " + version
+        translated = safe(translated, 80)
+        if translated and translated.casefold() != original.casefold():
+            candidates.append((translated, "deterministic"))
+
+    context = _query_context(contextual)
+    core = re.sub(r"^\s*" + r"\s+".join(re.escape(term) for term in context),
+                  "", contextual, count=1, flags=re.I).strip() if context else contextual
+    parts = split_query_parts(core)
+    literals = video_recovery_required_literals(source_contextual)
+    allowed_numbers = set(re.findall(r"\d+(?:\.\d+)*", original))
+    unknown_atomic = (len(parts) == 1 and bool(re.search(r"[\u3400-\u9fff]", core))
+                      and not re.search(r"与|以及|和|及|、|\band\b", core, re.I)
+                      and not any(re.search(pattern, core, re.I) for pattern, _ in _RECALL_TRANSLATIONS))
+
+    generic = {"a", "an", "the", "to", "for", "in", "on", "using", "use", "learn", "learning",
+               "intro", "introduction", "beginner", "beginners", "basic", "basics", "fundamentals",
+               "overview", "tutorial", "tutorials", "course", "courses", "lesson", "lessons",
+               "example", "examples", "guide", "complete", "full", "programming", "development"}
+
+    def english_terms(phrase):
+        if re.search(r"[\u3400-\u9fff]", phrase):
+            return set()
+        return _recall_terms(phrase) - {word.casefold() for word in literals} - _recall_terms(version) - generic
+
+    def alternatives(part):
+        result = [part, _video_recovery_translation(part)]
+        if re.fullmatch(r"表单(?:输入|录入|数据收集)", part):
+            result += ["form inputs", "input widgets"]
+        if re.fullmatch(r"文件下载|下载文件", part):
+            result += ["download files", "download button"]
+        if re.fullmatch(r"文本(?:分段|切分|分割)", part):
+            result += ["split text", "text segmentation"]
+        return [value for value in result if value]
+
+    def keeps_part(phrase, part):
+        return any(contains(phrase, value) for value in alternatives(part))
+
+    # Reuse only existing exact lexical spans; wildcard translations cannot
+    # swallow an unknown intervening operation or convert CSV-to-JSON to read CSV.
+    spans = sorted((hit.start(), hit.end(), hit.group()) for pattern, _ in _RECALL_TRANSLATIONS
+                   if ".{" not in pattern for hit in re.finditer(pattern, core, re.I))
+    known, remaining, cursor = [], [], 0
+    for start, end, fragment in spans:
+        if start < cursor:
+            continue
+        known.append(fragment)
+        remaining.append(core[cursor:start])
+        cursor = end
+    remaining.append(core[cursor:])
+    remainder = re.sub(r"以及|与|和|及|、|\band\b", " ", " ".join(remaining), flags=re.I)
+    unfamiliar_compound = (bool(re.search(r"[\u3400-\u9fff]", remainder))
+                           and (len(parts) > 1 or bool(re.search(r"与|以及|和|及|、|\band\b", core, re.I))))
+    known_terms = set().union(*(_recall_terms(value) for part in known for value in alternatives(part))) if known else set()
+    # Preserve an untranslated relationship between multiple identifiers (e.g.
+    # CSV-to-JSON) rather than treating their mere presence as the same action.
+    # One API plus an unknown action may use an independent English discovery
+    # lead: requiring its Chinese suffix would defeat cross-language recall.
+    relationship_text = contextual
+    declared_owner = request.topic_technologies.get(text, "")
+    if not declared_owner and context and context[0].casefold() in _PROGRAMMING_LANGUAGES:
+        declared_owner = context[0]
+    if declared_owner:
+        relationship_text = re.sub(r"^\s*" + re.escape(declared_owner) + r"\s+", "",
+                                   relationship_text, count=1, flags=re.I)
+    def has_identifier_relation(part):
+        identifiers = video_recovery_required_literals(part)
+        return any(re.search(re.escape(left) + r"\s*[\u3400-\u9fff]+(?:\s*[\u3400-\u9fff]+)*\s*"
+                             + re.escape(right), part)
+                   for left, right in zip(identifiers, identifiers[1:]))
+
+    # A relation between named objects is an original constraint even when no
+    # operation has a known translation. Merely retaining both names says
+    # nothing about direction; uncertain relations must remain verbatim.
+    identifier_parts = [part for part in split_query_parts(relationship_text) if has_identifier_relation(part)]
+    # Only request-declared owner tokens can be restored. Original
+    # target identifiers, including identifiers also present in owner, stay core.
+    core_literals = video_recovery_required_literals(text)
+    owner_literals = video_recovery_required_literals(declared_owner)
+    owner_set = {word.casefold() for word in owner_literals}
+    non_owner_core = {word.casefold() for word in core_literals
+                      if word.casefold() not in owner_set and re.search(r"[A-Za-z]", word)}
+
+    def restore_declared_owner(phrase):
+        missing = [word for word in literals if not contains(phrase, word)]
+        if not missing:
+            return phrase
+        if (not declared_owner or any(word.casefold() not in owner_set for word in missing)
+                or not all(contains(phrase, word) for word in core_literals)):
+            return None
+        # Adding the requested owner must not hide another explicit ecosystem.
+        # Reuse existing inheritance in both directions, so complementary
+        # markup/language contexts are not treated as competing frameworks.
+        from .related_recommendations import (obvious_technology_conflict, chapter_can_inherit_technology,
+                                               _CHAPTER_TECH_OWNERS)
+        from .technical_prefix import leading_technical_owner
+        hint_owner = leading_technical_owner(phrase)
+        words = video_recovery_required_literals(phrase)
+        named_owners = list(dict.fromkeys([*([hint_owner] if hint_owner else []),
+            *(word for word in words if word.split(".", 1)[0].casefold() in _CHAPTER_TECH_OWNERS)]))
+        if (obvious_technology_conflict(declared_owner, phrase)
+                or any(not (chapter_can_inherit_technology(declared_owner, name + " topic")
+                    or chapter_can_inherit_technology(name, declared_owner)) for name in named_owners)):
+            return None
+        # Punctuation is part of a technical name. C cannot stand in for C++
+        # (or C#), even when an older compatibility matrix lacks that spelling.
+        if any(re.sub(r"^\.|[.+#]+$", "", word).casefold() == re.sub(r"^\.|[.+#]+$", "", owner).casefold()
+                and word.casefold() != owner.casefold() for word in words for owner in owner_literals):
+            return None
+        # CamelCase and namespaces can be ordinary APIs. Only an explicit new
+        # framework/library declaration invokes the existing owner gate.
+        declarations = re.finditer(r"[A-Za-z][A-Za-z0-9_.+#]*\s+(?:framework|library|sdk|package)\b", phrase, re.I)
+        if any(not chapter_can_inherit_technology(declared_owner, match.group()) for match in declarations):
+            return None
+        # Restore the declaration's spelling, not reassembled lexical tokens.
+        # Remove only an exact leading overlap (HTML5 Canvas + Canvas ...).
+        owner_words = declared_owner.split()
+        suffix = phrase
+        for index in range(len(owner_words)):
+            overlap = " ".join(owner_words[index:])
+            match = re.match(re.escape(overlap).replace(r"\ ", r"\s+") + r"(?=\s|$)", phrase, re.I)
+            if match:
+                suffix = phrase[match.end():].strip()
+                break
+        return safe(" ".join([declared_owner, suffix]).strip(), 80)
+
+    def keeps_chinese_discovery_fragment(phrase):
+        # Only exact original compound components can be compact Chinese leads.
+        # This does not translate, shorten the target, or supply source facts.
+        if not unfamiliar_compound or not re.search(r"[\u3400-\u9fff]", phrase):
+            return False
+        if not all(contains(phrase, part) for part in identifier_parts):
+            return False
+        return any(len(re.findall(r"[\u3400-\u9fff]", part)) >= 4
+                   and contains(phrase, part) for part in parts)
+
+    deferred = []
+
+    def discovery_key(phrase):
+        # Reuse the existing literal conjunction boundaries. Removing only a
+        # connector or punctuation cannot create another discovery direction.
+        return _recall_terms(" ".join(split_query_parts(phrase)))
+
+    def mixed_translation(phrase):
+        # Declared owners and required APIs are not translated English prose.
+        body = phrase
+        for literal in sorted(literals, key=len, reverse=True):
+            body = re.sub(r"(?<![A-Za-z0-9_.+#])" + re.escape(literal)
+                          + r"(?![A-Za-z0-9_.+#])", " ", body, flags=re.I)
+        return bool(re.search(r"[\u3400-\u9fff]", body) and re.search(r"[A-Za-z]", body))
+
+    def reject(reason):
+        diagnostic["rejected_hints"][reason] += 1
+
+    for value in values:
+        phrase = safe(value, 80)
+        if not phrase:
+            reject("empty" if isinstance(value, str) and not value.strip() else "invalid_syntax_or_length")
+            continue
+        if len(phrase.split()) > 8:
+            reject("word_limit")
+            continue
+        phrase = restore_declared_owner(phrase)
+        if not phrase:
+            reject("missing_literal")
+            continue
+        if len(phrase.split()) > 8:
+            reject("word_limit")
+            continue
+        if set(re.findall(r"\d+(?:\.\d+)*", phrase)) - allowed_numbers:
+            reject("version_conflict")
+            continue
+        if version and not contains(phrase, version):
+            phrase = safe(phrase + " " + version, 80)
+        if not phrase:
+            reject("invalid_syntax_or_length")
+            continue
+        if any(discovery_key(phrase) == discovery_key(item)
+               for item in [original, *(item for item, _ in candidates), *deferred]):
+            reject("duplicate")
+            continue
+        if not all(contains(phrase, part) for part in identifier_parts):
+            reject("operation_not_preserved")
+            continue
+        if not all(keeps_part(phrase, part) for part in parts) and not (unknown_atomic and english_terms(phrase)):
+            if not unfamiliar_compound or not all(keeps_part(phrase, part) for part in [*known, *identifier_parts]):
+                reject("operation_not_preserved")
+            elif (len(english_terms(phrase) - known_terms) < (1 if known or non_owner_core else 2)
+                  and not keeps_chinese_discovery_fragment(phrase)):
+                reject("insufficient_specificity")
+            else:
+                deferred.append(phrase)
+            continue
+        candidates.append((phrase, "model"))
+
+    candidates.extend((phrase, "model") for phrase in deferred)
+    # Select from the complete validated pool before allocating the two slots.
+    # A partial bilingual translation is fallback when complete leads exist.
+    selected = set()
+    seen = [discovery_key(original)]
+    for index in sorted(range(len(candidates)), key=lambda i: mixed_translation(candidates[i][0])):
+        phrase, kind = candidates[index]
+        key = discovery_key(phrase)
+        if key in seen:
+            if kind == "model":
+                reject("duplicate")
+        elif len(selected) == 2:
+            if kind == "model":
+                reject("slots_exhausted")
+        else:
+            selected.add(index)
+            seen.append(key)
+    # Keep stable presentation order among selected leads; only displaced
+    # candidates change. The original point and matching target stay untouched.
+    for index, (phrase, kind) in enumerate(candidates):
+        if index in selected:
+            results.append(phrase)
+            diagnostic["phrase_kinds"].append(kind)
+            if kind == "model":
+                diagnostic["accepted_hints"] += 1
+    ui_context = {"streamlit", "flet", "gradio", "dash", "html", "react", "vue", "angular", "svelte"}
+    if (len(results) < 3 and translated and any(term.casefold() in ui_context for term in context)
+            and contains(translated, "file download")):
+        alternative = safe(re.sub(r"\bfile download\b", "download button", translated, flags=re.I), 80)
+        if alternative and not any(discovery_key(alternative) == discovery_key(item) for item in results):
+            results.append(alternative)
+            diagnostic["phrase_kinds"].append("deterministic_alternative")
+    return results, diagnostic
 
 
 def gap_query_candidates(point_id: str, original_text: str, request: SearchRequest,

@@ -32,7 +32,7 @@ def test_four_optional_slots_have_narrower_scope_and_search_only_aliases(languag
     default = mooc_query_plan(point, request)
     expanded = mooc_query_plan(point, request, rounds=10)
     assert len(default) == 6 and expanded[:6] == default
-    assert MOOC_QUERY_POLICY == "course-discovery-phrases-v2"
+    assert MOOC_QUERY_POLICY == "course-discovery-phrases-v4"
     assert [query.query for query in expanded[6:]] == ["site:www.icourse163.org/course/ " + label for label in extra]
     for index, query in enumerate(expanded):
         assert query == mooc_platform_query(point, request, round_index=index)
@@ -111,7 +111,7 @@ def test_config_allows_ten_mooc_rounds_and_retains_bilibili_six_and_existing_def
     expanded = replace(settings, parallel_platform_search=True, mooc_search_rounds=10,
                        bilibili_search_rounds=6, max_search_requests=80).validate()
     assert platform_budget(expanded, 3, ["bilibili", "icourse163"])["platform_request_limits"] == {
-        "bilibili": 18, "icourse163": 30}
+        "bilibili": 18, "icourse163": 30, "open_web": 3}
     for fields in ({"mooc_search_rounds": 11}, {"bilibili_search_rounds": 7}):
         with pytest.raises(ValueError):
             replace(settings, **fields).validate()

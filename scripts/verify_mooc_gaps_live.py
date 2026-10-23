@@ -40,6 +40,8 @@ from scripts.verify_split_provider_live import make_fetcher, scrub
 POINTS = ["pandas 数据分组与聚合", "SQL 多表连接与分组查询", "HTML 表单与网页结构"]
 SOURCE_CAPS = {"tavily": 18, "serper": 18, "searxng": 9}
 OVERRIDES = dict(
+    # Fixed-budget platform comparison, intentionally excludes unrestricted web.
+    open_web_search_enabled=False,
     search_provider="searxng", bilibili_search_provider="searxng", mooc_search_provider="tavily",
     bilibili_search_rounds=3, mooc_search_rounds=6, search_results_per_query=10,
     shared_course_library_enabled=True, mooc_gap_search_enabled=True, mooc_target_courses_per_point=3,

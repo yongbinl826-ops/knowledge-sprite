@@ -44,16 +44,14 @@ async function setup(page:Page,initial=fixture()) {
   return {writes,getView:()=>current,assertClean:()=>{expect(unexpected).toEqual([]);expect(runtime).toEqual([]);expect(consoleErrors).toEqual([]);}};
 }
 const point=(page:Page,id:string)=>page.locator(`.simple-knowledge-point[data-point-id="${id}"]`);
-test('professional-name selection and order preserve all historical fields, recover drafts, and confirm without invented prerequisite acknowledgements',async({page},info)=>{
+test('professional-name checkbox selection preserves historical fields and server order, recovers drafts, and confirms without invented acknowledgements',async({page},info)=>{
   const original=fixture(),s=await setup(page,original);
   const panel=page.locator('.simple-knowledge-review');
-  await expect(panel.getByRole('textbox')).toHaveCount(3);await expect(panel.getByRole('checkbox')).toHaveCount(3);await expect(panel.getByRole('spinbutton')).toHaveCount(3);
-  await expect(panel.locator('textarea,details')).toHaveCount(0);
+  await expect(panel.getByRole('textbox')).toHaveCount(3);await expect(panel.getByRole('checkbox')).toHaveCount(3);await expect(panel.getByRole('spinbutton')).toHaveCount(0);
+  await expect(panel.locator('textarea,details')).toHaveCount(0); await expect(point(page,'k2')).toContainText('检索语境：pygame');
   await expect(panel).not.toContainText(/隐藏历史|原功能|先修|学习目标|本单元|已检查草案/);
   await expect(point(page,'k3').getByRole('checkbox')).not.toBeChecked();
   await point(page,'k1').getByRole('textbox').fill('pygame 键盘事件处理');
-  await point(page,'k1').getByRole('spinbutton').fill('4');
-  await point(page,'k2').getByRole('spinbutton').fill('1');
   await point(page,'k1').getByRole('checkbox').focus();await page.keyboard.press('Space');
   await page.reload();await expect(point(page,'k1').getByRole('textbox')).toHaveValue('pygame 键盘事件处理');await expect(point(page,'k1').getByRole('checkbox')).not.toBeChecked();
   expect(s.writes).toEqual([]);
@@ -66,27 +64,48 @@ test('professional-name selection and order preserve all historical fields, reco
   await page.getByRole('region',{name:'视频封面',exact:true}).waitFor();
   expect(s.writes.map(w=>w.action)).toEqual(['edit','confirm','search']);
   const expected=structuredClone(original.version!.analysis!) as ProjectAnalysis;
-  Object.assign(expected.knowledge_points[0],{name:'pygame 键盘事件处理',learning_order:4,selection:'skip'});expected.knowledge_points[1].learning_order=1;
-  expect(s.writes[0].body.analysis).toEqual(expected);expect(s.writes[1].body).toEqual({version:2,acknowledged_skipped_prerequisites:[]});expect(s.writes[2].body).toEqual({version:2});
+  Object.assign(expected.knowledge_points[0],{name:'pygame 键盘事件处理',selection:'skip'});
+  expect(s.writes[0].body.analysis).toEqual(expected);expect(s.writes[1].body).toEqual({version:2,reviewed_topic_technologies:{'矩形碰撞检测':'pygame'}});expect(s.writes[2].body).toEqual({version:2});
   await expect(page.getByRole('navigation',{name:'已选知识点'}).getByRole('button',{name:'矩形碰撞检测',exact:true})).toBeVisible();
   await expect(page.getByRole('navigation',{name:'已选知识点'}).getByRole('button',{name:'pygame 键盘事件处理',exact:true})).toHaveCount(0);
-  expect(await page.locator('.stage-content').innerText()).toBe('');expect(s.getView().version!.analysis).toEqual(expected);s.assertClean();
+  expect(await page.locator('.stage-content .gallery-motion').innerText()).toBe('');expect(s.getView().version!.analysis).toEqual(expected);s.assertClean();
 });
-test('confirmed left navigation follows edited priority and preserves original order for equal priorities',async({page})=>{
-  const original=fixture();original.version!.analysis!.knowledge_points[2].selection='learn';
+test('confirmed navigation follows the returned array, ignoring legacy order and checkbox click order',async({page})=>{
+  const original=fixture();original.version!.analysis!.knowledge_points=original.version!.analysis!.knowledge_points.map((point,index)=>({...point,selection:'learn',learning_order:[4,1,4][index]}));
   const s=await setup(page,original);
-  await point(page,'k1').getByRole('spinbutton').fill('4');
-  await point(page,'k2').getByRole('spinbutton').fill('1');
-  await point(page,'k3').getByRole('spinbutton').fill('4');
+  await expect(page.getByRole('spinbutton')).toHaveCount(0);
+  expect(await page.locator('.simple-knowledge-point').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-point-id')))).toEqual(['k1','k2','k3']);
+  for (const id of ['k3','k1','k2']) { await point(page,id).getByRole('checkbox').uncheck(); await point(page,id).getByRole('checkbox').check(); }
   await page.getByRole('button',{name:'查找视频',exact:true}).click();
   const nav=page.getByRole('navigation',{name:'已选知识点'});
-  await expect(nav.getByRole('button')).toHaveText(['全部','矩形碰撞检测','pygame 事件循环','状态机']);
-  await nav.getByRole('button',{name:'矩形碰撞检测',exact:true}).focus();await page.keyboard.press('Tab');
-  await expect(nav.getByRole('button',{name:'pygame 事件循环',exact:true})).toBeFocused();
-  expect(s.writes.map(w=>w.action)).toEqual(['edit','confirm','search']);
-  // Display sorting must not reorder or alter the saved source array.
-  expect(s.writes[0].body.analysis.knowledge_points.map((p:{id:string})=>p.id)).toEqual(['k1','k2','k3']);
-  expect(s.writes[1].body).toEqual({version:2,acknowledged_skipped_prerequisites:[]});s.assertClean();
+  expect(await nav.getByRole('button').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')||node.textContent))).toEqual(['全部','pygame 事件循环','矩形碰撞检测','状态机']);
+  await nav.getByRole('button',{name:'pygame 事件循环',exact:true}).focus();await page.keyboard.press('Tab');
+  await expect(nav.getByRole('button',{name:'矩形碰撞检测',exact:true})).toBeFocused();
+  expect(s.writes.map(w=>w.action)).toEqual(['confirm','search']);
+  // Checkbox click order must not rewrite either the source array or its server order.
+  expect(s.getView().version!.analysis).toEqual(original.version!.analysis);
+  expect(s.writes[0].body).toEqual({version:1,reviewed_topic_technologies:{'pygame 事件循环':'pygame','矩形碰撞检测':'pygame','状态机':'pygame'}});s.assertClean();
+});
+test('minimal concept list shows descriptions and survives draft reload, confirmation and ordered navigation',async({page})=>{
+  const original=fixture();
+  original.version!.analysis={analysis_format:'concept_list_v1',scope:'合成范围',technical_plan:'本地实现',assumptions:[],knowledge_points:[
+    {id:'k2',name:'输入校验',description:'检查必填字段与格式，并说明错误位置。',technology:'Python',selection:'learn'},
+    {id:'k1',name:'模板渲染',description:'将结构化数据写入模板并保持格式。',technology:'python-docx',selection:'learn'},
+  ]};
+  const s=await setup(page,original), panel=page.locator('.simple-knowledge-review');
+  await expect(panel.locator('.simple-point-description')).toHaveText(['检查必填字段与格式，并说明错误位置。','将结构化数据写入模板并保持格式。']);
+  await expect(panel).not.toContainText(/前置|先修|学习顺序/);
+  await point(page,'k2').getByRole('textbox').fill('表单输入校验');
+  await page.reload();await expect(point(page,'k2').getByRole('textbox')).toHaveValue('表单输入校验');
+  await panel.getByRole('button',{name:'查找视频',exact:true}).click();
+  const nav=page.getByRole('navigation',{name:'已选知识点'});
+  expect(await nav.getByRole('button').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')||node.textContent))).toEqual(['全部','表单输入校验','模板渲染']);
+  expect(s.writes.map(write=>write.action)).toEqual(['edit','confirm','search']);
+  const saved=s.writes[0].body.analysis;
+  expect(saved.analysis_format).toBe('concept_list_v1');expect(saved.functions).toBeUndefined();
+  expect(saved.knowledge_points.map((entry:any)=>Object.keys(entry).sort())).toEqual([['description','id','name','selection','technology'],['description','id','name','selection','technology']]);
+  expect(s.writes[1].body.acknowledged_skipped_prerequisites).toBeUndefined();
+  expect(saved.knowledge_points.map((entry:any)=>entry.id)).toEqual(['k2','k1']);s.assertClean();
 });
 test('saving an edited term creates one version; empty selection creates no search; history remains read-only',async({page})=>{
   const s=await setup(page);
@@ -95,7 +114,7 @@ test('saving an edited term creates one version; empty selection creates no sear
   expect(s.writes.map(w=>w.action)).toEqual(['edit']);expect(s.getView().version!.confirmation).toBeNull();
   for(const checkbox of await page.locator('.simple-knowledge-review').getByRole('checkbox').all())if(await checkbox.isChecked())await checkbox.uncheck();
   await page.getByRole('button',{name:'保存选择',exact:true}).click();await expect(page.getByRole('status')).toContainText('没有勾选知识点');
-  expect(s.writes.map(w=>w.action)).toEqual(['edit','edit','confirm']);expect(s.writes.at(-1)!.body).toEqual({version:3,acknowledged_skipped_prerequisites:[]});
+  expect(s.writes.map(w=>w.action)).toEqual(['edit','edit','confirm']);expect(s.writes.at(-1)!.body).toEqual({version:3,reviewed_topic_technologies:{}});
   s.assertClean();
   // A separate restored historical version is view-only; no hidden write is allowed.
   const old=fixture();old.current_version=2;await page.unrouteAll();

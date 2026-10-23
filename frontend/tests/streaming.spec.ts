@@ -8,9 +8,15 @@ const time = '2026-10-19T10:00:00Z';
 const input: ProjectInput = { name: '流式课程验收', requirements: '了解 pandas 数据聚合。', student_level: 'beginner', language: 'zh', project_context: '', technical_version: '', preferred_platforms: ['bilibili', 'icourse163'] };
 const caps: Capabilities = { mode: 'live', teaching_match_enabled: false, search: { selected_provider: 'offline', status: 'configured', message: '离线传输测试', providers: [] }, llm: { status: 'unconfigured', message: '不调用模型' }, fetch: { status: 'available', message: '离线测试', browser_fallback: false }, platforms: [], limits: { max_knowledge_points: 5, max_results_per_point: 5, max_search_requests: 60, max_detail_pages: 60 } };
 const pipeline = (displayed = 0, terminal = false): SearchPipeline => ({ stage: terminal ? 'complete' : 'searching', search_requests: 2, search_budget: 12, candidates: 5, checking: terminal ? 0 : 1, displayed, filtered: 1, unknown: terminal ? 0 : 1, terminal, source_limited: false });
+const fixtureVideoIds = new Map<string, number>();
 function video(id: string, mooc = false): DiscoveredVideo {
-  const url = mooc ? `https://www.icourse163.org/course/TEST-${id}` : `https://www.bilibili.com/video/${id}/`;
-  return { resource: { resource_id: id, title: mooc ? 'pandas 分组聚合课程（大纲已确认）' : `B站 pandas 教程 ${id}`, url, canonical_url: url, platform: mooc ? 'icourse163' : 'bilibili', resource_type: mooc ? 'course' : 'video', thumbnail_url: null, fetch_status: mooc ? 'fetched' : 'not_started', video_evidence_status: 'search_discovered' }, discovery_evidence: [] };
+  const number = fixtureVideoIds.get(id) ?? fixtureVideoIds.size + 1;
+  fixtureVideoIds.set(id, number);
+  const url = mooc ? `https://www.icourse163.org/course/OFFLINE-${1000000000 + number}`
+    : `https://www.bilibili.com/video/BV1${number.toString(36).padStart(9, '0')}/`;
+  // URLs and page-verification fields are synthetic offline controls for the
+  // transport/UI contract. No source page is fetched or claimed verified here.
+  return { resource: { resource_id: id, title: mooc ? 'pandas 分组聚合课程（大纲已确认）' : `B站 pandas 教程 ${id}`, url, canonical_url: url, platform: mooc ? 'icourse163' : 'bilibili', resource_type: mooc ? 'course' : 'video', thumbnail_url: null, fetch_status: 'fetched', video_evidence_status: 'page_verified' }, discovery_evidence: [] };
 }
 function libraryCourse(id: string): DiscoveredVideo {
   const row = video(id, true);
@@ -78,19 +84,77 @@ const assertClean = (diagnostics: Awaited<ReturnType<typeof setup>>['diagnostics
   expect(diagnostics.runtime).toEqual([]); expect(diagnostics.console).toEqual([]); expect(diagnostics.unexpected).toEqual([]);
 };
 
-test('project native stream shows B站 first, only appends verified MOOC, retains covers through completion and mobile filtering', async ({ page }, info) => {
+async function setupRetry(page: Page) {
+  const context = await setup(page);
+  context.state.project = project([video('PREVIOUS')], 2, true);
+  const requests: { action: string; release: (status?: number) => void }[] = [];
+  const reads: { release: () => void }[] = [];
+  let holdRunningRead = false;
+  await page.route('**/api/projects/stream-project/**', async route => {
+    const request = route.request(), url = new URL(request.url());
+    if (request.method() === 'GET' && url.pathname.endsWith('/results') && holdRunningRead && context.state.project.version?.status === 'running') {
+      holdRunningRead = false;
+      const snapshot = structuredClone(context.state.project);
+      await new Promise<void>(resolve => reads.push({ release: resolve }));
+      return route.fulfill({ json: snapshot });
+    }
+    const action = url.pathname.split('/').at(-1)!;
+    if (request.method() !== 'POST' || !['edit', 'confirm', 'search'].includes(action)) return route.fallback();
+    const body = request.postDataJSON() as { expected_version?: number; version?: number };
+    const status = await new Promise<number>(resolve => requests.push({ action, release: (code = 200) => resolve(code) }));
+    if (status !== 200) return route.fulfill({ status, json: { detail: '离线重试提交失败' } });
+    const version = action === 'edit' ? body.expected_version! + 1 : body.version!;
+    const snapshot = project([], version, action !== 'search');
+    snapshot.current_version = version;
+    snapshot.version!.status = action === 'edit' ? 'analyzed' : action === 'confirm' ? 'confirmed' : 'running';
+    if (action === 'edit') snapshot.version!.confirmation = null;
+    snapshot.versions = [...context.state.project.versions.filter(row => row.version !== version),
+      { version, status: snapshot.version!.status, created_at: time }];
+    snapshot.points = [];
+    if (action === 'search') snapshot.pipeline = { ...pipeline(), stage: 'queued' };
+    context.state.project = snapshot;
+    // Mutation responses use projects.view and contain neither pipeline nor point results.
+    const response = structuredClone(snapshot); delete response.pipeline; delete response.points;
+    return route.fulfill({ json: response });
+  });
+  return { ...context, requests, reads, holdRunningRead: () => { holdRunningRead = true; },
+    cleanup: async () => { for (const request of requests) request.release(503); for (const read of reads) read.release(); await context.cleanup(); } };
+}
+
+async function gateCancellation(page: Page, response: ProjectView) {
+  const requests: { body: unknown; release: (status?: number) => void }[] = [];
+  await page.route('**/api/projects/stream-project/cancel', async route => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    const body = route.request().postDataJSON() as unknown;
+    const status = await new Promise<number>(resolve => requests.push({ body, release: (code = 200) => resolve(code) }));
+    if (status !== 200) return route.fulfill({ status, json: { detail: '离线取消提交失败' } });
+    const mutation = structuredClone(response); delete mutation.pipeline; delete mutation.points;
+    return route.fulfill({ json: mutation });
+  });
+  return requests;
+}
+
+test('project native stream shows page-verified B站 then appends page-verified MOOC controls, retaining covers through completion and mobile filtering', async ({ page }, info) => {
   const context = await setup(page);
   try {
     await page.goto('/?project=stream-project&version=2');
-    await expect(page).toHaveTitle('项目制知识引导小精灵 · 课程与视频发现');
+    await expect(page).toHaveTitle('项目制学习引导小精灵 · 课程与视频发现');
     await expect(page.getByRole('region', { name: '视频封面', exact: true })).toBeVisible();
     await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toContainText('已显示 0 条');
+    const progress = page.getByRole('status', { name: '搜索与匹配进度' });
+    const bar = progress.getByRole('progressbar');
+    await expect(progress).toHaveAttribute('data-state', 'active');
+    await expect(progress.locator('p')).toHaveCount(1);
+    await expect(progress.locator('ol,li,.pipeline-limit')).toHaveCount(0);
+    await expect(bar).not.toHaveAttribute('aria-valuenow');
+    await expect(progress.locator('.pipeline-bar-fill')).toHaveCSS('animation-name', 'pipeline-travel');
+    await expect(page.locator('.stage-intro .action-notice,.project-search-controls p')).toHaveCount(0);
     await expect.poll(() => context.streams.length).toBe(1);
     const initialReads = context.state.projectReads;
     const first = project([video('BVFIRST')]); context.send(first);
     await expect(page.locator('.video-cover-card')).toHaveCount(1);
     await expect(page.locator('[data-resource-id="BVFIRST"]')).toBeVisible();
-    await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toContainText('覆盖待确认 1 条');
+    await expect(progress).toHaveText('正在搜索相关视频 · 已显示 1 条');
     await expect(page.locator('a[href*="icourse163.org"]')).toHaveCount(0);
     await page.screenshot({ path: info.outputPath('stream-searching-desktop.png'), animations: 'disabled' });
     const second = project([video('BVFIRST'), video('BVSECOND'), libraryCourse('123456')]);
@@ -98,23 +162,43 @@ test('project native stream shows B站 first, only appends verified MOOC, retain
     await expect(page.locator('.video-cover-card')).toHaveCount(3);
     await expect(page.locator('[data-resource-id="BVFIRST"]')).toBeVisible();
     await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toContainText('已显示 3 条');
-    await expect(page.locator('a[href*="icourse163.org"]')).toHaveCount(1);
-    await expect(page.locator('[data-resource-id="123456"] a')).toHaveAccessibleName(/pandas 分组聚合课程/);
+    await expect(progress).toHaveText('正在校验视频与大纲 · 已显示 3 条');
+    await expect(page.locator('.video-cover-card a.course-cover[href*="icourse163.org"]')).toHaveCount(1);
+    await expect(page.locator('[data-resource-id="123456"] a')).toHaveCount(2);
+    for (const link of await page.locator('[data-resource-id="123456"] a').all()) { await expect(link).toHaveAccessibleName(/pandas 分组聚合课程/); await expect(link).toHaveAttribute('rel', 'noopener noreferrer'); await expect(link).toHaveAttribute('target', '_blank'); }
     await expect(page.locator('body')).not.toContainText(internalLibraryLabels);
     const final = project(second.points![0].result!.discovery_items!, 2, true);
     final.version!.batches = [{ batch_id: 'batch1', status: 'submitted', job_status: 'completed', project_knowledge_point_ids: ['p1'], job_id: 'stream-job' }];
     context.send(final, 'complete');
     await expect.poll(() => context.streams[0].closed).toBe(true);
-    await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toContainText('本次结果已保留');
+    await expect(progress).toHaveCount(0);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
     await page.getByRole('navigation', { name: '已选知识点' }).getByRole('button', { name: 'pandas 分组聚合', exact: true }).click();
     await expect(page.locator('.video-cover-card')).toHaveCount(3);
     await page.screenshot({ path: info.outputPath('stream-complete-desktop.png'), animations: 'disabled' });
     await page.setViewportSize({ width: 390, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.locator('.search-pipeline').scrollIntoViewIfNeeded();
+    await page.getByRole('region', { name: '视频封面', exact: true }).scrollIntoViewIfNeeded();
     await page.screenshot({ path: info.outputPath('stream-complete-mobile.png'), animations: 'disabled' });
     await expect(page.locator('vite-error-overlay')).toHaveCount(0);
     expect(context.state.projectReads).toBe(initialReads); expect(context.streams).toHaveLength(1); assertClean(context.diagnostics);
+  } finally { await context.cleanup(); }
+});
+
+for (const terminal of [true, false]) test(`cancellation removes the progress bar and its project wrapper with pipeline terminal=${terminal}`, async ({ page }) => {
+  const context = await setup(page);
+  try {
+    await page.goto('/?project=stream-project&version=2');
+    await expect.poll(() => context.streams.length).toBe(1);
+    const progress = page.getByRole('status', { name: '搜索与匹配进度' });
+    await expect(progress).toBeVisible();
+    const cancelled = project([], 2, terminal);
+    cancelled.version!.status = 'cancelled';
+    context.send(cancelled, terminal ? 'complete' : 'snapshot');
+    await expect(progress).toHaveCount(0);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
+    if (terminal) await expect.poll(() => context.streams[0].closed).toBe(true);
+    assertClean(context.diagnostics);
   } finally { await context.cleanup(); }
 });
 
@@ -127,6 +211,8 @@ test('changing project version closes the old stream and ignores late frames', a
     await page.getByRole('button', { name: '我的项目' }).click();
     await page.getByLabel('查看版本', { exact: true }).selectOption('1');
     await expect(page.locator('[data-resource-id="HISTORY"]')).toBeVisible();
+    await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toHaveCount(0);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
     await expect.poll(() => context.streams[0].closed).toBe(true);
     context.send(project([video('LATE')]));
     await expect(page.locator('[data-resource-id="LATEST"],[data-resource-id="LATE"]')).toHaveCount(0);
@@ -142,13 +228,14 @@ test('manual native stream preserves B站 results and falls back to reads after 
     await expect.poll(() => context.streams.length).toBe(1);
     const initialReads = context.state.jobReads;
     context.send(result([video('BVFIRST')])); await expect(page.locator('.discovery-card')).toHaveCount(1);
+    await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toBeVisible();
     context.state.results = result([video('BVFIRST'), libraryCourse('123456')], true);
     context.streams[0].response.end();
     await expect(page.locator('.discovery-card')).toHaveCount(2);
     await expect(page.locator('[data-resource-id="BVFIRST"]')).toBeVisible();
     await expect(page.locator('[data-resource-id="123456"]')).toContainText('pandas 分组聚合课程');
     await expect(page.locator('body')).not.toContainText(internalLibraryLabels);
-    await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toContainText('本次结果已保留');
+    await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toHaveCount(0);
     expect(context.state.jobReads).toBe(initialReads + 1); expect(context.streams).toHaveLength(1); assertClean(context.diagnostics);
   } finally { await context.cleanup(); }
 });
@@ -173,10 +260,14 @@ test('deferred followups keep a nominally completed job streaming until pipeline
     await page.goto('/?job=stream-job&mode=manual');
     await expect.poll(() => context.streams.length).toBe(1);
     context.send(deferred);
-    await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toContainText('找到后陆续显示');
+    const progress = page.getByRole('status', { name: '搜索与匹配进度' });
+    await expect(progress).toHaveText('正在搜索相关视频 · 已显示 1 条');
+    await expect(progress).toHaveAttribute('data-state', 'active');
+    await expect(progress.getByRole('progressbar')).toBeVisible();
     expect(context.streams[0].closed).toBe(false);
     context.send(result([video('BVFIRST'), video('123456', true)], true), 'complete');
     await expect(page.locator('.discovery-card')).toHaveCount(2);
+    await expect(progress).toHaveCount(0);
     await expect.poll(() => context.streams[0].closed).toBe(true); assertClean(context.diagnostics);
   } finally { await context.cleanup(); }
 });
@@ -189,6 +280,178 @@ test('unsupported EventSource uses read-only polling with no duplicate stream', 
     await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toBeVisible();
     context.state.project = project([video('BVFIRST')], 2, true);
     await expect(page.locator('[data-resource-id="BVFIRST"]')).toBeVisible();
+    await expect(page.getByRole('status', { name: '搜索与匹配进度' })).toHaveCount(0);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
     expect(context.streams).toHaveLength(0); assertClean(context.diagnostics);
   } finally { await context.cleanup(); }
+});
+
+test('retry immediately restores progress through gated mutations and first snapshot, hides on completion and works again on mobile', async ({ page }, info) => {
+  const context = await setupRetry(page);
+  try {
+    await page.goto('/?project=stream-project&version=2');
+    const progress = page.getByRole('status', { name: '搜索与匹配进度' });
+    await expect(page.locator('[data-resource-id="PREVIOUS"]')).toBeVisible();
+    await expect(progress).toHaveCount(0);
+    for (let round = 0; round < 2; round += 1) {
+      await page.setViewportSize(round === 0 ? { width: 1440, height: 1000 } : { width: 390, height: 844 });
+      await page.getByRole('button', { name: '重新检索这些知识点', exact: true }).click();
+      for (const [offset, action] of ['edit', 'confirm', 'search'].entries()) {
+        const index = round * 3 + offset;
+        await expect.poll(() => context.requests.length).toBe(index + 1);
+        expect(context.requests[index].action).toBe(action);
+        await expect(page.locator('.stage-main')).toHaveClass(/\bstage-3\b/);
+        await expect(progress).toBeVisible();
+        await expect(progress).toBeInViewport();
+        await expect(progress).toContainText('正在准备搜索');
+        await expect(progress.locator('p')).toHaveCount(1);
+        if (action === 'search') context.holdRunningRead();
+        context.requests[index].release();
+      }
+      await expect.poll(() => context.reads.length).toBe(round + 1);
+      // The search POST has settled, but the running result still has no pipeline in the UI.
+      await expect(page.getByRole('button', { name: '取消项目检索', exact: true })).toBeEnabled();
+      await expect(page.locator('.stage-main')).toHaveClass(/\bstage-3\b/);
+      await expect(progress).toBeVisible();
+      await expect(progress).toContainText('正在准备搜索');
+      await page.screenshot({ path: info.outputPath(`retry-preparing-${round}.png`), animations: 'disabled' });
+      context.reads[round].release();
+      await expect.poll(() => context.streams.length).toBe(round + 1);
+      await expect(progress).toBeVisible();
+      const completed = project([video(`RETRY-${round + 1}`)], 3 + round, true);
+      completed.current_version = 3 + round;
+      completed.versions = context.state.project.versions.map(row => row.version === completed.current_version ? { ...row, status: 'completed' } : row);
+      context.state.project = completed;
+      context.send(completed, 'complete', round);
+      await expect(page.locator(`[data-resource-id="RETRY-${round + 1}"]`)).toBeVisible();
+      await expect(progress).toHaveCount(0);
+      await expect(page.locator('.project-progress')).toHaveCount(0);
+      await expect.poll(() => context.streams[round].closed).toBe(true);
+      await expect(page.getByRole('button', { name: '重新检索这些知识点', exact: true })).toBeEnabled();
+      await page.screenshot({ path: info.outputPath(`retry-complete-${round}.png`), animations: 'disabled' });
+    }
+    expect(context.requests.map(request => request.action)).toEqual(['edit', 'confirm', 'search', 'edit', 'confirm', 'search']);
+    assertClean(context.diagnostics);
+  } finally { await context.cleanup(); }
+});
+
+test('retry search submission failure removes temporary progress and allows another explicit retry', async ({ page }) => {
+  const context = await setupRetry(page);
+  try {
+    await page.goto('/?project=stream-project&version=2');
+    const progress = page.getByRole('status', { name: '搜索与匹配进度' });
+    const retry = page.getByRole('button', { name: '重新检索这些知识点', exact: true });
+    await retry.click();
+    for (const [index, action] of ['edit', 'confirm', 'search'].entries()) {
+      await expect.poll(() => context.requests.length).toBe(index + 1);
+      expect(context.requests[index].action).toBe(action);
+      await expect(progress).toBeVisible();
+      await expect(page.locator('.stage-main')).toHaveClass(/\bstage-3\b/);
+      context.requests[index].release(action === 'search' ? 503 : 200);
+    }
+    await expect(page.getByRole('alert')).toContainText('离线重试提交失败');
+    await expect(progress).toHaveCount(0);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
+    await expect(retry).toBeEnabled();
+    await retry.click();
+    await expect.poll(() => context.requests.length).toBe(4);
+    expect(context.requests[3].action).toBe('edit');
+    await expect(progress).toBeVisible();
+    context.requests[3].release(503);
+    await expect(page.getByRole('alert')).toContainText('离线重试提交失败');
+    await expect(progress).toHaveCount(0);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
+    await expect(retry).toBeEnabled();
+    expect(context.streams).toHaveLength(0);
+    expect(context.diagnostics.runtime).toEqual([]);
+    expect(context.diagnostics.unexpected).toEqual([]);
+    expect(context.diagnostics.console.every(message => /503|Service Unavailable/.test(message))).toBe(true);
+  } finally { await context.cleanup(); }
+});
+
+test('cancel immediately hides progress before its POST completes, ignores stale running snapshots, and retry restores it', async ({ page }) => {
+  const context = await setupRetry(page);
+  context.state.project = project([video('BEFORE-CANCEL')]);
+  const cancelled = project([video('BEFORE-CANCEL')], 2, true);
+  cancelled.version!.status = 'cancelled';
+  cancelled.versions[1].status = 'cancelled';
+  const cancellations = await gateCancellation(page, cancelled);
+  try {
+    await page.goto('/?project=stream-project&version=2');
+    const progress = page.getByRole('status', { name: '搜索与匹配进度' });
+    const wrapper = page.locator('.project-progress');
+    const cancel = page.getByRole('button', { name: '取消项目检索', exact: true });
+    await expect(progress).toBeVisible();
+    await expect.poll(() => context.streams.length).toBe(1);
+    await cancel.click();
+    await expect.poll(() => cancellations.length).toBe(1);
+    expect(cancellations[0].body).toEqual({ version: 2 });
+    await expect(cancel).toBeDisabled();
+    // The response is still held: hiding must come from the click, not a terminal snapshot.
+    await expect(progress).toHaveCount(0);
+    await expect(wrapper).toHaveCount(0);
+    await expect.poll(() => context.streams[0].closed).toBe(true);
+
+    context.state.project = project([video('STALE-READ')]);
+    cancellations[0].release();
+    await expect(page.locator('[data-resource-id="STALE-READ"]')).toBeVisible();
+    await expect.poll(() => context.streams.length).toBe(2);
+    await expect(progress).toHaveCount(0);
+    await expect(wrapper).toHaveCount(0);
+    context.send(project([video('STALE-EVENT')]), 'snapshot', 1);
+    await expect(page.locator('[data-resource-id="STALE-EVENT"]')).toBeVisible();
+    await expect(progress).toHaveCount(0);
+    await expect(wrapper).toHaveCount(0);
+
+    context.state.project = cancelled;
+    context.send(cancelled, 'complete', 1);
+    await expect.poll(() => context.streams[1].closed).toBe(true);
+    await expect(progress).toHaveCount(0);
+    await page.getByRole('button', { name: '重新检索这些知识点', exact: true }).click();
+    for (const [index, action] of ['edit', 'confirm', 'search'].entries()) {
+      await expect.poll(() => context.requests.length).toBe(index + 1);
+      expect(context.requests[index].action).toBe(action);
+      await expect(progress).toBeVisible();
+      context.requests[index].release();
+    }
+    await expect.poll(() => context.streams.length).toBe(3);
+    await expect(progress).toBeVisible();
+    const completed = project([video('AFTER-CANCEL-RETRY')], 3, true);
+    completed.current_version = 3;
+    completed.versions = context.state.project.versions.map(row => row.version === 3 ? { ...row, status: 'completed' } : row);
+    context.state.project = completed;
+    context.send(completed, 'complete', 2);
+    await expect(page.locator('[data-resource-id="AFTER-CANCEL-RETRY"]')).toBeVisible();
+    await expect(progress).toHaveCount(0);
+    await expect(wrapper).toHaveCount(0);
+    assertClean(context.diagnostics);
+  } finally { for (const cancellation of cancellations) cancellation.release(503); await context.cleanup(); }
+});
+
+test('cancel failure restores active progress after hiding it while the POST is pending', async ({ page }) => {
+  const context = await setup(page);
+  const cancelled = project([], 2, true); cancelled.version!.status = 'cancelled';
+  const cancellations = await gateCancellation(page, cancelled);
+  try {
+    await page.goto('/?project=stream-project&version=2');
+    const progress = page.getByRole('status', { name: '搜索与匹配进度' });
+    const cancel = page.getByRole('button', { name: '取消项目检索', exact: true });
+    await expect(progress).toBeVisible();
+    await expect.poll(() => context.streams.length).toBe(1);
+    await cancel.click();
+    await expect.poll(() => cancellations.length).toBe(1);
+    await expect(cancel).toBeDisabled();
+    await expect(progress).toHaveCount(0);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
+    cancellations[0].release(503);
+    await expect(page.getByRole('alert')).toContainText('离线取消提交失败');
+    await expect(cancel).toBeEnabled();
+    await expect(progress).toBeVisible();
+    await expect(progress).toHaveAttribute('data-state', 'active');
+    await expect(progress.getByRole('progressbar')).toBeVisible();
+    await expect.poll(() => context.streams.length).toBe(2);
+    expect(context.diagnostics.runtime).toEqual([]);
+    expect(context.diagnostics.unexpected).toEqual([]);
+    expect(context.diagnostics.console.every(message => /503|Service Unavailable/.test(message))).toBe(true);
+  } finally { for (const cancellation of cancellations) cancellation.release(503); await context.cleanup(); }
 });

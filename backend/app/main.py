@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from dataclasses import replace
 from pathlib import Path
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,10 +11,11 @@ from .config import Settings
 from .db import Store
 from .models import SearchRequest
 from .service import AdmissionRejected, IdempotencyConflict, JobService
-from .project_models import AnalysisDocument, ProjectInput
+from .project_models import AnalysisDocument, ProjectInput, ReviewedTopicTechnologies
 from .project_service import ProjectError, ProjectService
 from .security import RequestSecurityMiddleware
 from .result_stream import job_snapshot, project_snapshot, result_events
+from .runtime_guard import database_owner
 
 
 class AnalyzeProjectRequest(BaseModel):
@@ -36,6 +38,7 @@ class ProjectVersionRequest(BaseModel):
 
 class ConfirmProjectRequest(ProjectVersionRequest):
     acknowledged_skipped_prerequisites: list[str] = Field(default_factory=list, max_length=24)
+    reviewed_topic_technologies: ReviewedTopicTechnologies | None = None
 
 
 def create_app(settings: Settings | None = None, provider=None, fetcher=None, llm=None, analyzer=None) -> FastAPI:
@@ -43,31 +46,67 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        store = Store(settings.database_path)
+        # Guard before migration/recovery can touch an active worker's database.
+        if settings.app_mode == "mobile":
+            from .mobile_public import public_path
+            lock_path = str(public_path(settings))
+        else:
+            lock_path = settings.database_path
+        with database_owner(lock_path):
+            async with owned_lifespan(app):
+                yield
+
+    @asynccontextmanager
+    async def owned_lifespan(app: FastAPI):
+        mobile_mode = settings.app_mode == "mobile"
+        public = mobile = None
+        if mobile_mode:
+            from .mobile_tasks import MobileRAMStore, MobileJobService, MobileTasks
+            from .mobile_public import MobilePublicStore
+            store = MobileRAMStore()
+            live_settings = replace(settings, database_path=":memory:", js_render_enabled=False)
+        else:
+            store, live_settings = Store(settings.database_path), settings
         service = projects = None
         try:
-            service = JobService(settings, store, provider=provider, fetcher=fetcher, llm=llm)
+            if mobile_mode:
+                public = MobilePublicStore(settings)
+            queue_class = MobileJobService if mobile_mode else JobService
+            service = queue_class(live_settings, store, provider=provider, fetcher=fetcher, llm=llm)
             app.state.service, app.state.store = service, store
             service.start()
-            projects = ProjectService(settings, store, service, analyzer=analyzer)
+            projects = ProjectService(live_settings, store, service, analyzer=analyzer)
             app.state.projects = projects
             projects.start()
+            if mobile_mode:
+                mobile = MobileTasks(live_settings, store, service, projects, public)
+                app.state.mobile = mobile
+                mobile.start()
             yield
         finally:
             # Startup failures must release a worker already started, and one
             # cleanup failure must not leave the SQLite connection open.
             try:
-                if projects is not None:
-                    await projects.stop()
+                try:
+                    if mobile is not None:
+                        await mobile.stop()
+                finally:
+                    if projects is not None:
+                        await projects.stop()
             finally:
                 try:
                     if service is not None:
                         await service.stop()
                 finally:
-                    store.close()
+                    try:
+                        store.close()
+                    finally:
+                        if public is not None:
+                            public.close()
 
-    app = FastAPI(title="项目制知识引导小精灵", version="0.1.0", lifespan=lifespan)
-    app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins), allow_methods=["GET", "POST"], allow_headers=["Content-Type", "Idempotency-Key"])
+    app = FastAPI(title="项目制学习引导小精灵", version="0.1.0", lifespan=lifespan)
+    origins = list(dict.fromkeys([*settings.cors_origins, *(settings.mobile_origins if settings.app_mode == "mobile" else ())]))
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", "POST"], allow_headers=["Content-Type", "Idempotency-Key", *( ["Authorization"] if settings.app_mode == "mobile" else [])])
     app.add_middleware(RequestSecurityMiddleware, settings=settings)
 
     @app.exception_handler(RequestValidationError)
@@ -86,6 +125,10 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
         state = app.state.service.health()
         state["project_analysis_pending"] = len(app.state.projects.analysis_tasks)
         state["project_search_pending"] = len(app.state.projects.tasks)
+        if settings.app_mode == "mobile":
+            state["mobile_ready"] = app.state.mobile.healthy()
+            if not state["mobile_ready"]:
+                state["status"] = "degraded"
         return JSONResponse(state, status_code=200 if state["status"] == "ok" else 503)
 
     @app.get("/health/live")
@@ -95,6 +138,8 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
     @app.get("/health/ready")
     async def readiness():
         infrastructure = app.state.service.health()["status"] == "ok"
+        if settings.app_mode == "mobile":
+            infrastructure = infrastructure and app.state.mobile.healthy()
         search = app.state.service.capabilities()["search"]["status"] in {"configured", "available"}
         analysis = bool(getattr(app.state.projects.analyzer, "available", False))
         ready = infrastructure and search and analysis
@@ -106,11 +151,23 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
     async def capabilities():
         return {**app.state.service.capabilities(), **app.state.projects.capabilities(),
             "deployment": {"local_only": settings.local_only, "authentication": False,
-                "single_process": True, "external_access_requires_authenticated_proxy": True},
+                "single_process": True, "external_access_requires_authenticated_proxy": settings.app_mode != "mobile",
+                **({"mode": "mobile", "ephemeral_task_capabilities": True, "https_required_for_release": True}
+                   if settings.app_mode == "mobile" else {})},
+            **({"mobile": {"personal_storage": "device_authoritative", "server_personal_storage": "ram_only",
+                "task_ttl_seconds": settings.mobile_task_ttl_seconds, "ttl_sliding": False,
+                "restart_invalidates_tasks": True, "max_tasks": settings.mobile_max_tasks,
+                "max_active_tasks": settings.mobile_max_active_tasks}} if settings.app_mode == "mobile" else {}),
             "http_limits": {"max_request_body_bytes": settings.max_request_body_bytes,
                 "write_limit_per_minute": settings.api_write_limit_per_minute,
                 "max_pending_analyses": settings.max_pending_analyses,
-                "max_pending_project_searches": settings.max_pending_project_searches}}
+                "max_pending_project_searches": settings.max_pending_project_searches,
+                "max_event_streams": settings.max_event_streams}}
+
+    if settings.app_mode == "mobile":
+        from .mobile_api import register_mobile_routes
+        register_mobile_routes(app, settings)
+        return app
 
     @app.post("/api/projects", status_code=201)
     async def create_project(request: ProjectInput):
@@ -149,7 +206,8 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
 
     @app.post("/api/projects/{project_id}/confirm")
     async def confirm_project(project_id: str, request: ConfirmProjectRequest):
-        return app.state.projects.confirm(project_id, request.version, request.acknowledged_skipped_prerequisites)
+        return app.state.projects.confirm(project_id, request.version, request.acknowledged_skipped_prerequisites,
+            reviewed_topic_technologies=request.reviewed_topic_technologies)
 
     @app.post("/api/projects/{project_id}/search", status_code=202)
     async def search_project(project_id: str, request: ProjectVersionRequest):

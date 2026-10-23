@@ -16,9 +16,9 @@ function SourceDetails({ sources }: { sources: SkillSource[] }) {
   })}</ul></details>;
 }
 
-export function SkillLearningRoute({ planned, result, rows, filtered, searching, prerequisites = [], legacy }: {
+export function SkillLearningRoute({ planned, result, rows, filtered, searching, legacy }: {
   planned: ProjectKnowledgePoint; result: ResultGroup | null | undefined; rows: VisibleItem[]; filtered: boolean; searching: boolean;
-  prerequisites?: string[]; legacy: ReactNode;
+  legacy: ReactNode;
 }) {
   const evidenceKey = JSON.stringify(learningEvidenceTexts(rows));
   const [digestState, setDigestState] = useState(() => ({ key: '', values: new Map<string, string>() }));
@@ -49,7 +49,6 @@ export function SkillLearningRoute({ planned, result, rows, filtered, searching,
     : '尚无已确认技能教学范围的主要推荐。请保留学习目标，继续核对资料，或调整后重新检索。';
   return <aside className="unit-learning-route" aria-label={`${planned.name}的学习路线`}>
     <div className="learning-route-heading"><h5>从学会技能，到完成项目</h5><span role="status">{checking ? '正在核对课程依据…' : content.length ? `${content.length} 项技能有内容依据` : titles.length ? `${titles.length} 项本课标题明确` : clues.length ? `${clues.length} 条局部入门线索` : '教学范围待核对'}</span></div>
-    <p className="learning-route-prerequisites"><strong>必要先修</strong>{prerequisites.length ? prerequisites.join('、') : '无额外先修，可从这里开始'}</p>
     <div className="learning-route-axes">
       <section className="learning-skill-axis" aria-label="先学这些技能"><div className="learning-axis-title"><span aria-hidden="true">01</span><h6>先学这些技能</h6></div>
         <p className="learning-axis-intro">学习可迁移的方法；教程不必使用同款项目。</p>
@@ -64,7 +63,7 @@ export function SkillLearningRoute({ planned, result, rows, filtered, searching,
         <p className="learning-axis-intro">把技能用于自己的项目。课程匹配不会自动完成这些要求。</p>
         <div className="project-practice-task"><strong>项目子任务</strong><p>{planned.project_task || planned.description}</p></div>
         {planned.concepts?.length ? <div className="project-practice-concepts"><strong>参数与应用检查</strong><ul>{planned.concepts.map((text, index) => <li key={index}>{text}</li>)}</ul></div> : null}
-        <div className="project-practice-check"><strong>试做后这样检查</strong><p>{planned.practice_check || planned.learning_goal}</p></div>
+        {(planned.practice_check || planned.learning_goal) && <div className="project-practice-check"><strong>试做后这样检查</strong><p>{planned.practice_check || planned.learning_goal}</p></div>}
       </section>
     </div>
     <div className="learning-route-next"><strong>下一步</strong><p>{next}</p>{firstUrl && <a href={firstUrl} target="_blank" rel="noopener noreferrer">{content.length ? '从这门课开始' : '核对这门入门课'} <span aria-hidden="true">↗</span><span className="sr-only">：{first.item.resource.title}（在新窗口打开）</span></a>}</div>

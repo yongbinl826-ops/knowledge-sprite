@@ -10,8 +10,9 @@ import re
 import unicodedata
 
 from .models import Query, SearchRequest
+from .queries import split_query_parts, contextual_search_phrase, complementary_search_phrase
 
-MOOC_QUERY_POLICY = "course-discovery-phrases-v2"
+MOOC_QUERY_POLICY = "course-discovery-phrases-v4"
 MOOC_DOMAIN = "icourse163.org"
 
 # Course-family words are discovery hints, not asserted ownership of a result
@@ -100,7 +101,7 @@ def _explicit_parts(text, original_text, owner, request, *, exact=False):
         body = _body(text, owner)
         # A leading numeric version is retained elsewhere, not a chapter part.
         body = re.sub(r"^\d+(?:\.\d+)*\s+", "", body)
-        values = re.split(r"[与和、]|\s+and\s+", body, flags=re.I)
+        values = split_query_parts(body)
         if len(values) < 2:
             values = [body]
     # The exact slot must retain every declared part, unlike the earlier
@@ -142,12 +143,11 @@ def _english_chapters(parts, owner):
 def _query_labels(point: dict, request: SearchRequest) -> list[tuple[str, str]]:
     """Six stable slots plus four optional search-only recall slots.
 
-    Keep the original point first, then a named technology's broader course
-    family, the first two explicit parts, literal English chapter terms and an
-    exact phrase query for all safely split original parts. Unknown owners or
-    unsplittable topics retain the original syllabus wording. No source URL or
-    course identity is synthesized. Optional slots keep every safe selected
-    part, use no course suffix, and do not change the first six observations.
+    Keep the original point first. A named technology's broader course family
+    remains next. When early labels repeat and the name explicitly has multiple
+    parts, prioritize existing distinct labels before suffix-only repeats. Do
+    not split unsplittable names or infer context. Optional slots keep their
+    original positions, domain paths and safe selected parts.
     """
     original = point.get("text")
     text = _safe_label(original)
@@ -169,6 +169,13 @@ def _query_labels(point: dict, request: SearchRequest) -> list[tuple[str, str]]:
               _with_owner(parts[1], owner) if len(parts) > 1 else text,
               _with_owner(translated, owner) if translated else (_with_owner(parts[2], owner) if len(parts) > 2 else text),
               text]
+    if not request.learning_targets.get(original) and not request.learning_skills.get(original):
+        labels[0] = contextual_search_phrase(text, request)
+        labels[1] = contextual_search_phrase(broad, request)
+        for index in (1, 2):
+            component = complementary_search_phrase(text, request, index)
+            if component:
+                labels[index + 1] = component
     suffixes = ("course", "course content", "course chapters", "course lessons", "course outline", "course syllabus") if english else (
         "课程", "课程 内容", "课程 章节", "课程 教学", "课程 目录", "课程 大纲")
     exact_parts = _explicit_parts(text, original, owner, request, exact=True) if family else []
@@ -201,9 +208,29 @@ def _query_labels(point: dict, request: SearchRequest) -> list[tuple[str, str]]:
     version = version or (initial_version[1] if initial_version else None)
     pairs = []
     for label, suffix in zip(labels, suffixes):
+        if request.topic_technologies.get(original):
+            from .professional_concepts import contextual_concept_name
+            label = contextual_concept_name(label, request.topic_technologies[original])
         if version and not re.search(r"(?<![\w.])" + re.escape(version) + r"(?![\w.])", label, re.I):
             label += " " + version
         pairs.append((label, suffix))
+    # Reorder only already-planned first-six (label, suffix) pairs: their
+    # source scope is identical. The optional www/course slots stay untouched.
+    # Hidden legacy targets cannot trigger or supply this name-only policy.
+    named_request = request.model_copy(update={"learning_targets": {}, "learning_skills": {}})
+    named_parts = _explicit_parts(text, original, owner, named_request)
+    core = lambda pair: " ".join(unicodedata.normalize("NFKC", pair[0]).casefold().split())
+    if (len(named_parts) >= 2 and parts == named_parts
+            and core(pairs[0]) == core(pairs[1])):
+        distinct, repeated, seen = [], [], set()
+        for pair in pairs[:6]:
+            key = core(pair)
+            if key in seen:
+                repeated.append(pair)
+            else:
+                seen.add(key)
+                distinct.append(pair)
+        pairs[:6] = distinct + repeated
     return pairs
 
 

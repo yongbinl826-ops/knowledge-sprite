@@ -8,6 +8,7 @@ import json
 
 import httpx
 import pytest
+from tests.professional_contract_support import flat_proposal
 from pydantic import ValidationError
 
 from backend.app.analysis_review import REVIEW_PROMPT_VERSION, SYSTEM_REVIEW_PROMPT
@@ -160,13 +161,13 @@ def test_new_skill_layer_cannot_bypass_existing_behavior_guards(source, skill, c
 
 def test_prompt_schema_omits_expanded_fields_while_storage_keeps_safe_optional_history():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v4.1-coherent-professional-terms"
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
     assert_simple_generation_schema()
     storage = AnalysisDocument.model_json_schema()["$defs"]["ProjectKnowledgePoint"]
     assert "learning_skills" not in storage.get("required", [])
     assert storage["properties"]["learning_skills"]["maxItems"] == 6
     assert storage["properties"]["learning_skills"]["items"]["maxLength"] == 120
-    assert "Do not output project_task, concepts, learning_skills, practice_check or learner_profile" in SYSTEM_PROMPT
+    assert "project_task, concepts, learning_skills, practice_check or learner_profile" in SYSTEM_PROMPT
     assert ANALYSIS_MAX_ATTEMPTS == 2 and ANALYSIS_MAX_MODEL_CALLS == 2
 
 
@@ -175,27 +176,27 @@ async def test_missing_legacy_skills_need_no_repair_or_concept_fallback():
     from tests.professional_contract_support import projected_once
     body = document_slice()
     body["knowledge_points"][0].pop("learning_skills")
-    result, calls = await projected_once(body, ProjectInput(**SLICES["review_cards"]["project"]), settings())
-    assert len(calls) == 1
+    result, calls = await projected_once(body, ProjectInput(**SLICES["review_cards"]["project"]), settings(), concept_names={"k1": "数组索引"})
+    assert len(calls) == 2
     assert result.knowledge_points[0].learning_skills == []
     assert result.knowledge_points[0].concepts == []
 
 
 @pytest.mark.asyncio
-async def test_absent_skills_do_not_spend_an_unnecessary_second_generation():
+async def test_absent_skills_remain_absent_through_required_normalization():
     from tests.professional_contract_support import projected_once
     body = document_slice()
     body["knowledge_points"][0].pop("learning_skills")
-    result, calls = await projected_once(body, ProjectInput(**SLICES["review_cards"]["project"]), settings())
-    assert len(calls) == 1 and result.knowledge_points[0].learning_skills == []
+    result, calls = await projected_once(body, ProjectInput(**SLICES["review_cards"]["project"]), settings(), concept_names={"k1": "数组索引"})
+    assert len(calls) == 2 and result.knowledge_points[0].learning_skills == []
 
 
 def test_professional_term_prompt_is_specific_without_compulsory_skill_or_practice_layers():
-    assert "not a conversational task sentence" in SYSTEM_PROMPT
-    assert "isolated line of syntax or entire discipline" in SYSTEM_PROMPT
-    assert "select terms from the actual requirements" in SYSTEM_PROMPT
-    assert "Preserve the requested behavior, numbers and constraints in concise feature criteria" in SYSTEM_PROMPT
-    assert "Do not turn these points into a compulsory project-task/skills/practice breakdown" in SYSTEM_PROMPT
+    assert "implementation checklist, task sentence" in SYSTEM_PROMPT
+    assert "line of syntax, acceptance item or entire discipline" in SYSTEM_PROMPT
+    assert "Analyze the full requested behavior and constraints" in SYSTEM_PROMPT
+    assert "Preserve numeric contracts" in SYSTEM_PROMPT
+    assert "Every knowledge point contains only name, description and optional technology" in SYSTEM_PROMPT
 
 
 def test_concrete_streamlit_controls_are_allowed_instead_of_a_generic_family():

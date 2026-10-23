@@ -35,6 +35,9 @@ from scripts.verify_split_provider_live import make_fetcher, platform_summary, s
 POINTS = ["Python 列表与字典", "pandas 数据分组与聚合", "SQL 多表连接与分组查询", "HTML 表单与网页结构"]
 PLATFORMS = ["bilibili", "icourse163"]
 OVERRIDES = dict(
+    # Fixed-budget platform comparison, intentionally excludes unrestricted web.
+    open_web_search_enabled=False,
+    shared_course_library_enabled=False, mooc_gap_search_enabled=False, mooc_refresh_enabled=False,
     search_provider="searxng", bilibili_search_provider="searxng", mooc_search_provider="tavily",
     tavily_allow_keyless=True, tavily_api_key="", llm_provider="none", llm_api_key="",
     teaching_match_enabled=False, teaching_match_max_calls_per_job=0, project_semantic_review_enabled=False,

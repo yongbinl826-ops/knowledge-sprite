@@ -1,0 +1,626 @@
+{
+  "project_id": "64c9c8ce-f367-451e-93fa-ab0098f90bdc",
+  "original_input": {
+    "name": "教学大纲生成助手（视频补链验收）",
+    "requirements": "教师给出课程名和教材目录，AI生成符合学校模板的教学大纲",
+    "student_level": "any",
+    "language": "zh",
+    "project_context": "",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163"
+    ]
+  },
+  "input": {
+    "name": "教学大纲生成助手（视频补链验收）",
+    "requirements": "教师给出课程名和教材目录，AI生成符合学校模板的教学大纲",
+    "student_level": "any",
+    "language": "zh",
+    "project_context": "",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163"
+    ]
+  },
+  "current_version": 1,
+  "created_at": "2026-10-21T01:30:22.115932+00:00",
+  "updated_at": "2026-10-21T01:30:49.465029+00:00",
+  "versions": [
+    {
+      "version": 1,
+      "status": "analyzed",
+      "created_at": "2026-10-21T01:30:22.117662+00:00",
+      "model": "deepseek-flash",
+      "prompt_version": "project-analysis-v5.5-auditable-concept-validation"
+    }
+  ],
+  "version": {
+    "version": 1,
+    "input": {
+      "name": "教学大纲生成助手（视频补链验收）",
+      "requirements": "教师给出课程名和教材目录，AI生成符合学校模板的教学大纲",
+      "student_level": "any",
+      "language": "zh",
+      "project_context": "",
+      "technical_version": "",
+      "preferred_platforms": [
+        "bilibili",
+        "icourse163"
+      ]
+    },
+    "status": "analyzed",
+    "analysis": {
+      "scope": "面向教师的教学大纲生成助手：教师输入课程名和教材目录，系统依据学校大纲模板生成结构化教学大纲，并为每个教学单元从 bilibili、icourse163 检索可公开访问的视频资源进行补链；生成的大纲与视频链需要可校验、可预览与导出，且对检索失败或无结果的情况给出降级提示。",
+      "technical_plan": "采用 Python 作为后端语言，使用 FastAPI 提供生成与检索接口；大纲模板以结构化模板（JSON/YAML 描述章节字段与格式约束，用 python-docx 渲染 Word 文档）；教材目录文本解析采用规则+正则抽取单元条目；视频检索通过 requests 调用 bilibili 与 icourse163 公开搜索接口并解析返回 JSON/HTML，结果按标题相似度（difflib）排序并做链接有效性校验；生成接口返回结构化大纲 JSON 供前端预览与导出，前端可用 Streamlit 快速搭建教师输入与结果展示界面。",
+      "assumptions": [
+        "不使用需要登录或付费的私有接口，仅调用平台公开可访问的搜索页/公开 API，返回结果视平台可用性可能有波动。",
+        "学校大纲模板以可配置的结构化模板文件（字段、表格、格式约束）提供，不预设某所学校的具体样式。",
+        "教材目录由教师以纯文本粘贴或上传，按常见章节编号与行结构解析，不处理扫描版 PDF 的 OCR。",
+        "生成内容由教师复核后使用，系统不承诺与学校模板每个排版细节完全一致，只保证字段完整与结构正确。",
+        "视频补链以可访问的标题匹配资源为目标，不下载或转存视频文件。"
+      ],
+      "learner_profile": null,
+      "functions": [
+        {
+          "id": "f_input",
+          "name": "课程信息与教材目录输入",
+          "original_requirement": "教师给出课程名和教材目录，作为生成教学大纲的输入。",
+          "acceptance_criteria": "提供一个输入界面或接口，接收课程名（非空字符串）与教材目录原始文本；空课程名或空目录时返回明确的参数错误提示，不进入生成流程。",
+          "no_new_learning_reason": "表单校验与参数接收属于基础编程能力，不引入新的专业知识点。"
+        },
+        {
+          "id": "f_parse",
+          "name": "教材目录解析为教学单元",
+          "original_requirement": "教材目录文本需要被拆分为可编排进大纲的章、节或教学单元。",
+          "acceptance_criteria": "对含章节编号的目录文本，能按行/编号规则抽取至少章、节两级条目，输出有序的单元列表；无法识别编号时保留原始行并给出提示，不丢弃内容。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f_outline",
+          "name": "按学校模板生成教学大纲",
+          "original_requirement": "AI生成符合学校模板的教学大纲。",
+          "acceptance_criteria": "使用学校模板的字段定义（如课程名、学时、教学单元、教学目标、考核方式）生成结构化大纲，每个解析出的教学单元都出现在大纲中且顺序与教材目录一致；缺少必填字段时给出缺失项清单。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f_template",
+          "name": "大纲模板约束与渲染",
+          "original_requirement": "教学大纲需要符合学校模板的结构与格式约束。",
+          "acceptance_criteria": "模板以可配置的结构描述提供；渲染结果包含模板规定的标题、表格与字段，字段为空或类型不符时在渲染前报告校验错误，而不是静默输出残缺文档。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f_video_search",
+          "name": "双平台视频检索",
+          "original_requirement": "为教学单元从 bilibili 与 icourse163 检索视频资源补链。",
+          "acceptance_criteria": "以教学单元标题或关键词为查询，对 bilibili 与 icourse163 分别发起检索并合并结果；每次检索结果包含平台、标题与链接；某平台请求失败时记录错误并继续返回另一平台结果，不整体中断。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f_rank_validate",
+          "name": "视频结果排序与链接校验",
+          "original_requirement": "补链的视频应尽量与教学单元匹配且可访问。",
+          "acceptance_criteria": "按标题与教学单元的相似度对候选视频排序；对候选链接做可访问性检查，标记有效/无效；无效链接不进入最终推荐列表，且保留被剔除原因供教师查看。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f_preview_export",
+          "name": "大纲预览与导出",
+          "original_requirement": "教师需要预览并导出带视频链接的教学大纲。",
+          "acceptance_criteria": "界面展示结构化大纲的单元、目标与视频链接；支持导出含相同内容的 Word 文档，导出内容与预览内容一致，未匹配到视频的单元在导出中显示明确占位说明。",
+          "no_new_learning_reason": null
+        },
+        {
+          "id": "f_error_fallback",
+          "name": "检索失败与无结果的降级处理",
+          "original_requirement": "视频补链可能失败，需要给出降级提示而不是生成错误的链接。",
+          "acceptance_criteria": "当平台超时或返回无结果时，对应单元标记为“未找到视频”并附带原因；系统仍能返回完整大纲文本；所有未匹配单元在结果中可计数可查看。",
+          "no_new_learning_reason": null
+        }
+      ],
+      "knowledge_points": [
+        {
+          "id": "kp_text_parse",
+          "name": "正则表达式与文本结构化解析",
+          "description": "使用正则表达式从非结构化教材目录文本中识别章节编号与标题，切分为有序教学单元。",
+          "function_ids": [
+            "f_parse"
+          ],
+          "why_needed": "教材目录是自由文本，必须先解析为章节结构才能编排进大纲。",
+          "learning_goal": "能针对含编号的目录文本编写正则规则，抽取章、节条目并处理无法匹配的行。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 1,
+          "selection": "learn"
+        },
+        {
+          "id": "kp_structured_template",
+          "name": "结构化模板定义与字段校验",
+          "description": "用结构化的模式描述学校大纲模板的字段、层级与必填约束，并在生成时校验数据是否符合模板。",
+          "function_ids": [
+            "f_template",
+            "f_outline"
+          ],
+          "why_needed": "大纲必须符合学校模板，模板需要作为可配置的结构约束被读取和校验。",
+          "learning_goal": "能定义大纲模板的字段结构并依据约束检查生成数据是否完整、类型正确。",
+          "technology": "",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 2,
+          "selection": "learn"
+        },
+        {
+          "id": "kp_http_client",
+          "name": "HTTP 客户端请求与响应处理",
+          "description": "使用 HTTP 库发送检索请求，处理状态码、超时、编码与返回体解析。",
+          "function_ids": [
+            "f_video_search"
+          ],
+          "why_needed": "视频补链依赖调用 bilibili 与 icourse163 的公开检索接口。",
+          "learning_goal": "能用 HTTP 客户端发起请求，区分成功、超时与错误响应并进行相应处理。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 3,
+          "selection": "learn"
+        },
+        {
+          "id": "kp_json_parse",
+          "name": "JSON 数据解析与字段提取",
+          "description": "解析平台返回的 JSON 结构，定位视频标题、链接等字段并转为统一的数据结构。",
+          "function_ids": [
+            "f_video_search"
+          ],
+          "why_needed": "bilibili 等平台接口返回 JSON，需要提取出标题和地址用于后续排序校验。",
+          "learning_goal": "能从嵌套 JSON 响应中安全提取所需字段，并对缺失字段做容错。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "kp_http_client"
+          ],
+          "learning_order": 4,
+          "selection": "learn"
+        },
+        {
+          "id": "kp_similarity_ranking",
+          "name": "文本相似度排序",
+          "description": "使用字符串相似度（如 difflib 的比率）度量视频标题与教学单元标题的匹配程度并排序。",
+          "function_ids": [
+            "f_rank_validate"
+          ],
+          "why_needed": "检索结果需要按与教学单元的相关性排序，优先推荐最匹配的视频。",
+          "learning_goal": "能计算两组标题的相似度分数并据此对候选视频排序。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 5,
+          "selection": "learn"
+        },
+        {
+          "id": "kp_link_check",
+          "name": "链接有效性校验",
+          "description": "对候选视频链接发起请求或检查响应状态，判断链接是否可公开访问并标记无效链接。",
+          "function_ids": [
+            "f_rank_validate"
+          ],
+          "why_needed": "补链需要提供可访问的视频链接，避免把失效链接写入大纲。",
+          "learning_goal": "能实现链接可达性检查，并根据状态码或异常将结果标记为有效或无效。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "kp_http_client"
+          ],
+          "learning_order": 6,
+          "selection": "learn"
+        },
+        {
+          "id": "kp_docx_render",
+          "name": "Word 文档结构化渲染",
+          "description": "使用 python-docx 按模板结构生成包含标题、表格与各教学单元内容的 Word 文档。",
+          "function_ids": [
+            "f_template",
+            "f_preview_export"
+          ],
+          "why_needed": "教师要求导出符合学校模板结构的 Word 教学大纲。",
+          "learning_goal": "能用 docx 库创建段落、表格并填充结构化大纲数据，导出可打开的 .docx 文件。",
+          "technology": "python-docx",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "kp_structured_template"
+          ],
+          "learning_order": 7,
+          "selection": "learn"
+        },
+        {
+          "id": "kp_web_ui",
+          "name": "Web 表单与结果展示界面",
+          "description": "搭建教师输入课程名和目录、展示生成大纲与视频链接、触发导出的交互界面。",
+          "function_ids": [
+            "f_input",
+            "f_preview_export"
+          ],
+          "why_needed": "教师需要通过界面输入信息、预览大纲并执行导出，而不是命令行操作。",
+          "learning_goal": "能实现文本输入、按钮触发与结果列表展示的基本 Web 界面。",
+          "technology": "Streamlit",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [],
+          "learning_order": 8,
+          "selection": "learn"
+        },
+        {
+          "id": "kp_api_integration",
+          "name": "后端接口设计与集成",
+          "description": "使用 FastAPI 定义生成大纲与视频检索的接口，将输入、处理、输出串成完整流程。",
+          "function_ids": [
+            "f_outline",
+            "f_video_search"
+          ],
+          "why_needed": "生成与检索需要以接口形式被前端调用，并返回统一的结构化结果。",
+          "learning_goal": "能定义接收 JSON 请求、调用内部处理并返回结构化响应的接口。",
+          "technology": "FastAPI",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "kp_text_parse",
+            "kp_structured_template",
+            "kp_http_client"
+          ],
+          "learning_order": 9,
+          "selection": "learn"
+        },
+        {
+          "id": "kp_error_handling",
+          "name": "异常处理与降级策略",
+          "description": "对请求失败、解析失败和无结果的情况进行捕获与降级，返回明确的未匹配状态和原因。",
+          "function_ids": [
+            "f_error_fallback",
+            "f_video_search"
+          ],
+          "why_needed": "外部平台可能失败或无结果，系统需要给出降级提示而非错误链接或中断。",
+          "learning_goal": "能为外部请求与解析设计异常捕获，保证主流程继续并输出可读的降级信息。",
+          "technology": "Python",
+          "project_task": null,
+          "concepts": [],
+          "learning_skills": [],
+          "practice_check": null,
+          "necessity": "required",
+          "prerequisite_ids": [
+            "kp_http_client",
+            "kp_json_parse"
+          ],
+          "learning_order": 10,
+          "selection": "learn"
+        }
+      ]
+    },
+    "confirmation": null,
+    "batches": [],
+    "budgets": null,
+    "error": null,
+    "warnings": [],
+    "created_at": "2026-10-21T01:30:22.117662+00:00",
+    "model": "deepseek-flash",
+    "prompt_version": "project-analysis-v5.5-auditable-concept-validation",
+    "origin": "analysis",
+    "search_started_at": null,
+    "cancel_requested": false,
+    "updated_at": "2026-10-21T01:30:49.464818+00:00",
+    "rejected_analysis_attempts": [
+      {
+        "attempt": 1,
+        "phase": "generation",
+        "category": "schema",
+        "exception_type": "ValidationError",
+        "errors": [
+          {
+            "location": [
+              "knowledge_points",
+              1,
+              "<unknown_field>"
+            ],
+            "type": "extra_forbidden"
+          }
+        ],
+        "recorded_at": "2026-10-21T01:30:35.407952+00:00",
+        "prompt_version": "project-analysis-v5.5-auditable-concept-validation",
+        "model": "deepseek-flash",
+        "analysis": {
+          "scope": "构建一个教学大纲生成助手：教师输入课程名称与教材目录，系统生成符合学校模板的教学大纲；为大纲中每个章节目录补充可验证的视频资源链接，视频平台限定为 bilibili 和 icourse163，并执行“视频补链验收”：检查链接可访问、标题或章节匹配、重复/失效链接处理，验收不通过的条目给出原因与替代候选。",
+          "technical_plan": "采用 Python 后端 + 模板化文档生成方案：1) 用结构化数据模型（课程信息、章节树、课时/学分、考核方式）承载输入；2) 用文本解析将教材目录（每行一条，含编号层级）转为章节树；3) 用 Jinja2 模板渲染学校模板大纲，输出 Markdown/HTML，可另存为 docx；4) 使用大模型 API 生成章节教学要求、学时分配与考核建议，提示词中注入学校模板结构约束；5) 视频检索：按平台分别调用 bilibili 搜索接口与 icourse163 课程搜索（或人工候选池文件），用标题相似度与章节关键词匹配打分；6) 视频补链验收：对候选链接做可访问性探测（HTTP 状态/超时/重定向），对重复 URL 去重，按匹配阈值判定通过/待人工确认，输出验收报告；7) 结果持久化为 JSON 产物，附生成日志与验收报表。技术细节缺失处（如学校模板具体版式、是否有大模型 Key）列为假设。",
+          "assumptions": [
+            "学校模板以章节标题、教学目标、学时、考核方式四类字段构成的占位模板表示，可替换为真实 docx 模板。",
+            "教材目录以纯文本逐行输入，允许“第1章/1.1”等编号前缀表示层级。",
+            "视频检索允许使用平台公开搜索接口或离线候选池文件两种来源之一。",
+            "视频链接验收以 HTTP 可访问性与标题/章节关键词匹配度为主要判据，不下载视频内容。",
+            "大模型通过 API 调用生成教学目标与学时建议；无 Key 时可回退为规则模板生成。"
+          ],
+          "functions": [
+            {
+              "id": "F1",
+              "name": "课程信息与目录输入校验",
+              "original_requirement": "教师给出课程名和教材目录，系统据此生成大纲。",
+              "acceptance_criteria": "输入课程名（非空、≤100 字符）与教材目录文本；目录按行解析出章节编号与标题，至少 1 章；缺少课程名或目录为空时报错并提示；解析结果以章节树展示层级正确。"
+            },
+            {
+              "id": "F2",
+              "name": "教材目录章节树解析",
+              "original_requirement": "从教材目录文本中识别章节层级，作为大纲结构来源。",
+              "acceptance_criteria": "支持“第N章”“N.N”“N.N.N”等编号识别层级；父子关系正确；保留原始行顺序；对无法识别的行给出警告而非静默丢弃。"
+            },
+            {
+              "id": "F3",
+              "name": "学校模板结构化渲染",
+              "original_requirement": "生成符合学校模板的教学大纲。",
+              "acceptance_criteria": "按模板顺序输出课程基本信息、章节教学目标、学时分配、考核方式；缺失字段以占位符标记；渲染结果为 Markdown 且可导出为 docx。"
+            },
+            {
+              "id": "F4",
+              "name": "AI 生成章节教学目标与学时建议",
+              "original_requirement": "AI生成符合学校模板的教学大纲内容。",
+              "acceptance_criteria": "为每章生成 1–3 条可测教学目标与学时建议；总学时与课程设定学时一致（误差为 0）；输出结构化字段而非自由文本段落；调用失败时回退规则模板并标注来源。"
+            },
+            {
+              "id": "F5",
+              "name": "大纲章节与视频章节匹配",
+              "original_requirement": "为每个大纲章节补充视频链接。",
+              "acceptance_criteria": "每个章节输出候选视频列表；按标题相似度与章节关键词计算匹配分，展示分数；低于阈值标为“待人工确认”；不得编造标题与链接。"
+            },
+            {
+              "id": "F6",
+              "name": "bilibili 视频候选检索",
+              "original_requirement": "支持从 bilibili 平台补充视频链接。",
+              "acceptance_criteria": "按章节关键词返回最多 N 条候选，含标题、链接、UP主、时长；请求失败/超时给出明确错误；结果缓存以便复现。"
+            },
+            {
+              "id": "F7",
+              "name": "icourse163 课程候选检索",
+              "original_requirement": "支持从 icourse163 平台补充视频链接。",
+              "acceptance_criteria": "按课程名与章节关键词返回最多 N 条候选课程链接，含课程名、链接、开课状态；无结果时明确提示而非返回空对象。"
+            },
+            {
+              "id": "F8",
+              "name": "视频链接可访问性与去重验收",
+              "original_requirement": "视频补链验收：确认补充的视频链接真实可用。",
+              "acceptance_criteria": "对每条链接发起 HEAD/GET 探测，记录状态码、耗时、最终 URL；重复 URL 去重；状态非 2xx 或超时（>10s）判为失败并给出原因；验收结果写入报告。"
+            },
+            {
+              "id": "F9",
+              "name": "验收报告与大纲合并输出",
+              "original_requirement": "输出带有已验收视频链接的最终教学大纲。",
+              "acceptance_criteria": "最终大纲每个章节仅保留“通过”状态的链接；报告列出通过/失败/待确认数量与明细；失败项附替代候选；导出文件与报告均以 JSON/Markdown 落盘。"
+            }
+          ],
+          "knowledge_points": [
+            {
+              "id": "K1",
+              "name": "结构化数据模型设计",
+              "description": "用嵌套数据结构表示课程信息、章节树、教学目标、学时与考核方式，并定义字段约束。",
+              "function_ids": [
+                "F1",
+                "F3",
+                "F9"
+              ],
+              "why_needed": "大纲内容需要在解析、生成、渲染、验收多个环节之间传递，必须先确定统一的数据表示。",
+              "learning_goal": "能够设计并校验一个覆盖课程大纲全字段的嵌套数据模型。",
+              "technology": "Python",
+              "necessity": "required",
+              "prerequisite_ids": [],
+              "learning_order": 1,
+              "selection": "learn"
+            },
+            {
+              "id": "K2",
+              "name": "文本目录解析与层级识别",
+              "description": "基于编号规则与缩进，把逐行教材目录解析成带父子关系的章节树。",
+              "function_ids": [
+                "F2",
+                "F1"
+              ],
+              "why_needed": "教材目录是唯一的结构输入，必须可靠转换为程序可用的章节层级。",
+              "learning_goal": "能够用编号模式与规则把纯文本目录转换为正确的章节树并处理异常行。",
+              "technology": "Python",
+              "necessity": "required",
+              "prerequired_ids": [],
+              "prerequisite_ids": [],
+              "learning_order": 2,
+              "selection": "learn"
+            },
+            {
+              "id": "K3",
+              "name": "模板引擎渲染",
+              "description": "使用占位模板把结构化大纲数据填充为固定版式文档，并处理缺失字段。",
+              "function_ids": [
+                "F3",
+                "F9"
+              ],
+              "why_needed": "学校模板决定输出格式，需要将数据驱动地渲染成模板要求的顺序与字段。",
+              "learning_goal": "能够编写模板并渲染出结构完整、缺失字段可识别的教学大纲文档。",
+              "technology": "Jinja2",
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K1"
+              ],
+              "learning_order": 3,
+              "selection": "learn"
+            },
+            {
+              "id": "K4",
+              "name": "大模型提示设计与结构化输出约束",
+              "description": "通过系统提示与输出格式约束，让模型返回字段化、可解析的章节教学目标与学时建议，并处理调用失败回退。",
+              "function_ids": [
+                "F4"
+              ],
+              "why_needed": "AI 生成内容是本项目核心，若不约束输出格式则无法填入模板并被程序校验。",
+              "learning_goal": "能够设计提示与解析逻辑，稳定获得结构化的大纲生成结果并处理失败回退。",
+              "technology": "Python",
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K1"
+              ],
+              "learning_order": 4,
+              "selection": "learn"
+            },
+            {
+              "id": "K5",
+              "name": "文本相似度匹配",
+              "description": "用词项重合、编辑距离或向量相似度比较章节标题与视频标题的相关程度。",
+              "function_ids": [
+                "F5"
+              ],
+              "why_needed": "补链是否合理的判定依赖章节与候选视频标题的匹配度计算。",
+              "learning_goal": "能够实现并解释一种标题相似度算法，产出可比较的匹配分。",
+              "technology": "Python",
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K1"
+              ],
+              "learning_order": 5,
+              "selection": "learn"
+            },
+            {
+              "id": "K6",
+              "name": "搜索接口调用与限流处理",
+              "description": "按平台公开搜索接口发起关键词检索，处理超时、重试、限流与结果缓存。",
+              "function_ids": [
+                "F6",
+                "F7"
+              ],
+              "why_needed": "bilibili 与 icourse163 候选获取均依赖远程检索，必须处理网络不稳定与频率限制。",
+              "learning_goal": "能够封装带超时、重试与缓存的检索调用并对外暴露稳定结果。",
+              "technology": "Python",
+              "necessity": "required",
+              "prerequisite_ids": [],
+              "learning_order": 6,
+              "selection": "learn"
+            },
+            {
+              "id": "K7",
+              "name": "HTTP 状态码与链接可访问性探测",
+              "description": "对候选链接发起请求，依据状态码、耗时与最终重定向 URL 判断链接是否可用。",
+              "function_ids": [
+                "F8",
+                "F9"
+              ],
+              "why_needed": "视频补链验收的核心是验证链接真实可访问，不能仅凭搜索结果存在就视为有效。",
+              "learning_goal": "能够实现对链接的可访问性探测，并正确解释状态码与超时结果。",
+              "technology": "requests",
+              "necessity": "required",
+              "prerequisite_ids": [],
+              "learning_order": 7,
+              "selection": "learn"
+            },
+            {
+              "id": "K8",
+              "name": "URL 规范化与重复检测",
+              "description": "对链接做大小写、查询参数与尾斜杠处理，识别内容相同的重复条目。",
+              "function_ids": [
+                "F8"
+              ],
+              "why_needed": "同一视频可能出现多条不同形态的链接，重复会导致大纲冗余与验收统计失真。",
+              "learning_goal": "能够设计 URL 规范化规则并实现去重，说明误判风险。",
+              "technology": "Python",
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K7"
+              ],
+              "learning_order": 8,
+              "selection": "learn"
+            },
+            {
+              "id": "K9",
+              "name": "阈值判定与人机协同确认",
+              "description": "以匹配分和探测结果设定通过/待确认/失败阈值，并把不满阈值的条目留给人工确认。",
+              "function_ids": [
+                "F5",
+                "F8",
+                "F9"
+              ],
+              "why_needed": "自动补链存在误匹配，需用阈值区分可靠结果与需人工复核的条目。",
+              "learning_goal": "能够设定并解释阈值策略，输出三态验收结论。",
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K5",
+                "K7"
+              ],
+              "learning_order": 9,
+              "selection": "learn"
+            },
+            {
+              "id": "K10",
+              "name": "JSON 序列化与结果落盘",
+              "description": "把最终大纲与验收报告序列化为 JSON 与 Markdown 文件，保证可复现与可审计。",
+              "function_ids": [
+                "F9"
+              ],
+              "why_needed": "最终交付物需要作为文件保存，且验收记录应可追溯。",
+              "learning_goal": "能够把嵌套对象稳定序列化并分别输出结构化与可读两种格式。",
+              "technology": "Python",
+              "necessity": "required",
+              "prerequisite_ids": [
+                "K1"
+              ],
+              "learning_order": 10,
+              "selection": "learn"
+            }
+          ]
+        },
+        "omitted_reason": null,
+        "project_id": "64c9c8ce-f367-451e-93fa-ab0098f90bdc",
+        "version": 1
+      }
+    ],
+    "validated_concept_context": {
+      "version": "professional-concepts-v1",
+      "analysis_fingerprint": "60a1a86fec23bed05511e9daf511d8dffa3dfaa036f37aff4f65fb72e15a54cf",
+      "topic_technologies": {
+        "正则表达式与文本结构化解析": "Python",
+        "HTTP 客户端请求与响应处理": "Python",
+        "JSON 数据解析与字段提取": "Python",
+        "文本相似度排序": "Python",
+        "链接有效性校验": "Python",
+        "Word 文档结构化渲染": "python-docx",
+        "Web 表单与结果展示界面": "Streamlit",
+        "后端接口设计与集成": "FastAPI",
+        "异常处理与降级策略": "Python"
+      }
+    }
+  }
+}

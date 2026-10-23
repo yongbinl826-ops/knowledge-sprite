@@ -88,12 +88,12 @@ class ProjectStore:
             analysis = version.get("analysis")
             if analysis:
                 self.connection.executemany("INSERT OR IGNORE INTO project_functions VALUES(?,?,?,?)", [
-                    (project_id, version["version"], item["id"], dumps(item)) for item in analysis["functions"]])
+                    (project_id, version["version"], item["id"], dumps(item)) for item in analysis.get("functions", [])])
                 self.connection.executemany("INSERT OR IGNORE INTO project_knowledge_points VALUES(?,?,?,?)", [
                     (project_id, version["version"], item["id"], dumps(item)) for item in analysis["knowledge_points"]])
                 self.connection.executemany("INSERT OR IGNORE INTO project_prerequisites VALUES(?,?,?,?)", [
                     (project_id, version["version"], item["id"], prerequisite)
-                    for item in analysis["knowledge_points"] for prerequisite in item["prerequisite_ids"]])
+                    for item in analysis["knowledge_points"] for prerequisite in item.get("prerequisite_ids", [])])
             for batch in version.get("batches", []):
                 self.connection.execute("INSERT INTO project_batches VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET status=excluded.status,job_id=excluded.job_id,data=excluded.data",
                     (batch["batch_id"], project_id, version["version"], batch["ordinal"], batch["status"], batch.get("job_id"), dumps(batch)))
