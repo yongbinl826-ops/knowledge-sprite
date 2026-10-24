@@ -17,6 +17,13 @@ from test_projects import analyzed
 IMAGE = "https://i0.hdslb.com/bfs/archive/observed-cover.jpg"
 
 
+def without_cover_state(row):
+    value = deepcopy(row)
+    for key in ("cover_status", "cover_error_code"):
+        value["resource"].pop(key, None)
+    return value
+
+
 @pytest.fixture(autouse=True)
 def no_real_operations(monkeypatch):
     def forbidden(*_args, **_kwargs):
@@ -101,7 +108,8 @@ async def test_cover_resume_has_independent_budget_and_keeps_all_video_and_chapt
     instance = CoverEnricher.instances[-1]
     assert instance.max_resources == 96 and instance.max_http_requests == 288
     assert [resource["resource_id"] for resource, _ in instance.resources] == ["r1", "r2"]
-    assert result["recommendations"]["loop"][0] == original["recommendations"]["loop"][0]
+    assert without_cover_state(result["recommendations"]["loop"][0]) == original["recommendations"]["loop"][0]
+    assert result["recommendations"]["loop"][0]["resource"]["cover_status"] == "ready"
     for before, after in zip(original["recommendations"]["loop"], result["recommendations"]["loop"]):
         assert after["matched_chapters"] == before["matched_chapters"]
         assert after["added_at"] == before["added_at"]
@@ -260,8 +268,8 @@ async def test_real_enricher_cover_only_never_publishes_its_chapters_or_calls_a_
 
 
 @pytest.mark.asyncio
-async def test_normal_run_refreshes_old_catalog_cache_without_cover_only_after_video_terminal():
-    terminal = asyncio.Event()
+async def test_normal_run_refreshes_missing_cached_cover_during_matching_with_one_fetch():
+    terminal, matching, cover_ready = asyncio.Event(), asyncio.Event(), asyncio.Event()
     snapshots, fetched = [], []
     class Cache:
         def lookup(self, resource):
@@ -269,13 +277,19 @@ async def test_normal_run_refreshes_old_catalog_cache_without_cover_only_after_v
         def observe(self, *_args):
             pass
     async def fetch(resource):
-        assert terminal.is_set(), "A missing cached cover must not add a foreground page fetch"
+        await asyncio.wait_for(matching.wait(), .2)
+        assert not terminal.is_set(), "The cover should arrive alongside candidate matching"
         fetched.append(resource["url"])
+        cover_ready.set()
         return native_metadata(resource)
     ordinary = completion()
     async def complete(config, prompt, payload, **kwargs):
         if payload["task"] == "match_video_chapters":
+            assert any(call["task"] == "match_helpful_videos" for call in ordinary.calls)
             return {"matches": []}
+        if payload["task"] == "match_helpful_videos":
+            matching.set()
+            await asyncio.wait_for(cover_ready.wait(), .2)
         return await ordinary(config, prompt, payload, **kwargs)
     def publish(snapshot):
         snapshots.append(snapshot)
@@ -288,11 +302,56 @@ async def test_normal_run_refreshes_old_catalog_cache_without_cover_only_after_v
         chapter_enricher_factory=lambda *args, **kwargs: HelpfulVideoChapterEnricher(
             *args, **kwargs, fetch_catalog=fetch))
     first = next(snapshot for snapshot in snapshots if snapshot["status"] != "running")
-    assert first["recommendations"]["loop"][0]["resource"]["thumbnail_url"] is None
+    assert first["recommendations"]["loop"][0]["resource"]["thumbnail_url"] == IMAGE
+    assert first["recommendations"]["loop"][0]["resource"]["cover_status"] == "ready"
     assert len(fetched) == 1
     assert result["recommendations"]["loop"][0]["resource"]["thumbnail_url"] == IMAGE
     assert result["elapsed_seconds"] == first["elapsed_seconds"]
     assert result["finished_at"] == first["finished_at"]
+    assert result["progress"]["recommendation_model_calls"] == len(ordinary.calls) == 2
+    assert result["progress"]["catalog_model_calls"] == 1  # Existing directory matching, after admission.
+    assert result["diagnostics"]["chapters"]["network_scheduled_resources"] == 1
+    assert result["diagnostics"]["chapters"]["fetch_attempts"] == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("outcome", ["cover_only", "exception"])
+async def test_early_cover_response_preserves_cached_native_chapters(outcome):
+    cover_ready = asyncio.Event()
+    fetched = []
+    class Cache:
+        def lookup(self, resource):
+            return native_metadata(resource, with_image=False)
+        def observe(self, *_args):
+            pass
+    async def fetch(resource):
+        fetched.append(resource["url"])
+        observation = native_metadata(resource)
+        observation["chapters"] = []
+        cover_ready.set()
+        if outcome == "exception":
+            raise RuntimeError("Offline speculative page failure")
+        return observation
+    ordinary = completion()
+    async def complete(config, prompt, payload, **kwargs):
+        if payload["task"] == "match_video_chapters":
+            return {"matches": []}
+        if payload["task"] == "match_helpful_videos":
+            await asyncio.wait_for(cover_ready.wait(), .2)
+        return await ordinary(config, prompt, payload, **kwargs)
+    result = await fast.run_fast_video_search(settings(), POINTS,
+        {"preferred_platforms": ["bilibili"], "name": "offline"}, publish=lambda _: None,
+        provider_factory=factory(Provider(lambda _: [video(12, title="Python 循环结构", snippet="循环结构")])),
+        complete=complete, deadline_seconds=.5, catalog_deadline_seconds=.5, catalog_cache=Cache(),
+        chapter_enricher_factory=lambda *args, **kwargs: HelpfulVideoChapterEnricher(
+            *args, **kwargs, fetch_catalog=fetch))
+    card = result["recommendations"]["loop"][0]
+    assert [chapter["title"] for chapter in card["matched_chapters"]] == ["循环结构"]
+    assert card["matched_chapters"][0]["observed_at"] == "2026-10-23T10:00:00+00:00"
+    assert card["resource"]["thumbnail_url"] == (IMAGE if outcome == "cover_only" else None)
+    assert card["resource"]["cover_status"] == ("ready" if outcome == "cover_only" else "failed")
+    assert result["diagnostics"]["chapters"]["resources"][0]["catalog_source"] == "retained_catalog"
+    assert len(fetched) == 1
 
 
 @pytest.mark.asyncio
@@ -305,7 +364,8 @@ async def test_safe_existing_course_image_fills_other_alias_without_fetching():
                                            chapter_enricher_factory=CoverEnricher)
     assert CoverEnricher.instances[-1].resources == []
     assert result["recommendations"]["loop"][1]["resource"]["thumbnail_url"] == IMAGE
-    assert result["recommendations"]["loop"][0] == state["recommendations"]["loop"][0]
+    assert without_cover_state(result["recommendations"]["loop"][0]) == state["recommendations"]["loop"][0]
+    assert result["recommendations"]["loop"][0]["resource"]["cover_status"] == "ready"
     assert result["diagnostics"]["covers"]["http_requests"] == 0
 
 
@@ -319,7 +379,8 @@ async def test_non_displayable_http_cover_is_missing_but_bilibili_http_cover_is_
                                            chapter_enricher_factory=CoverEnricher)
     assert [resource["resource_id"] for resource, _ in CoverEnricher.instances[-1].resources] == ["r0"]
     assert result["recommendations"]["loop"][0]["resource"]["thumbnail_url"] == IMAGE
-    assert result["recommendations"]["loop"][1] == state["recommendations"]["loop"][1]
+    assert without_cover_state(result["recommendations"]["loop"][1]) == state["recommendations"]["loop"][1]
+    assert result["recommendations"]["loop"][1]["resource"]["cover_status"] == "ready"
 
 
 @pytest.mark.asyncio

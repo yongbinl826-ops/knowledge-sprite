@@ -283,8 +283,8 @@ def test_regular_public_course_and_public_ipv4_urls_preserved():
 
 
 @pytest.mark.parametrize("changes", [
-    {"project_analysis_timeout_seconds": 0}, {"project_analysis_timeout_seconds": 121},
-    {"project_analysis_total_timeout_seconds": 181}, {"project_analysis_total_timeout_seconds": 89},
+    {"project_analysis_timeout_seconds": 0}, {"project_analysis_timeout_seconds": 181},
+    {"project_analysis_total_timeout_seconds": 601}, {"project_analysis_total_timeout_seconds": 59},
     {"llm_max_output_tokens": 255}, {"llm_max_output_tokens": 16001}, {"llm_max_output_tokens": True},
 ])
 def test_model_cost_and_timeout_configuration_fail_closed(changes):
@@ -292,7 +292,8 @@ def test_model_cost_and_timeout_configuration_fail_closed(changes):
         replace(Settings(), **changes).validate()
 
 
-def test_model_budget_defaults_and_exact_environment_overrides(monkeypatch):
+@pytest.mark.parametrize("per_call,total", [(60, 100), (180, 600)])
+def test_model_budget_defaults_and_exact_environment_overrides(monkeypatch, per_call, total):
     from backend.app import config
     monkeypatch.setattr(config, "load_dotenv", lambda *_args, **_kwargs: None)
     for name in ("PROJECT_ANALYSIS_TIMEOUT_SECONDS", "PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", "LLM_MAX_OUTPUT_TOKENS",
@@ -300,14 +301,15 @@ def test_model_budget_defaults_and_exact_environment_overrides(monkeypatch):
         monkeypatch.delenv(name, raising=False)
     defaults = Settings.from_env()
     assert (defaults.project_analysis_timeout_seconds, defaults.project_analysis_total_timeout_seconds,
-            defaults.llm_max_output_tokens, defaults.project_analysis_normalization_max_output_tokens) == (90, 120, 6000, 12000)
-    monkeypatch.setenv("PROJECT_ANALYSIS_TIMEOUT_SECONDS", "60")
-    monkeypatch.setenv("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", "100")
+            defaults.llm_max_output_tokens, defaults.project_analysis_normalization_max_output_tokens) == (60, 60, 6000, 8000)
+    monkeypatch.setenv("PROJECT_ANALYSIS_TIMEOUT_SECONDS", str(per_call))
+    monkeypatch.setenv("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", str(total))
     monkeypatch.setenv("LLM_MAX_OUTPUT_TOKENS", "2048")
     monkeypatch.setenv("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", "4096")
     actual = Settings.from_env()
     assert (actual.project_analysis_timeout_seconds, actual.project_analysis_total_timeout_seconds,
-            actual.llm_max_output_tokens, actual.project_analysis_normalization_max_output_tokens) == (60, 100, 2048, 4096)
+            actual.llm_max_output_tokens, actual.project_analysis_normalization_max_output_tokens) == (per_call, total, 2048, 4096)
+    actual.validate()
 
 
 @pytest.mark.parametrize("value", [255, 16001, True, False, None, "12000", 12000.0])
@@ -374,6 +376,8 @@ async def test_project_analysis_schema_retry_shares_total_deadline(monkeypatch):
             cancelled.append(True)
 
     monkeypatch.setattr(module, "complete_json", respond)
+    # Scale the minimum repair budget for this 1-second transport cancellation test.
+    monkeypatch.setattr(module, "ANALYSIS_MIN_REPAIR_SECONDS", .1)
     settings = model_settings(project_analysis_timeout_seconds=1, project_analysis_total_timeout_seconds=1)
     started = time.monotonic()
     with pytest.raises(module.AnalysisError) as error:
@@ -462,6 +466,8 @@ def test_invalid_reasoning_effort_configuration_fails_closed(value):
 
 
 def test_reasoning_effort_default_and_explicit_environment_values(monkeypatch):
+    monkeypatch.setenv("PROJECT_ANALYSIS_REASONING_EFFORT", "inherit")
+    monkeypatch.setenv("PROJECT_ANALYSIS_MODEL", "")
     from backend.app import config
     monkeypatch.setattr(config, "load_dotenv", lambda *_args, **_kwargs: None)
     monkeypatch.setenv("LLM_THINKING_MODE", "provider_default")
@@ -555,6 +561,8 @@ def test_invalid_thinking_mode_configuration_fails_closed(value):
 
 
 def test_thinking_mode_environment_default_and_explicit_values(monkeypatch):
+    monkeypatch.setenv("PROJECT_ANALYSIS_REASONING_EFFORT", "inherit")
+    monkeypatch.setenv("PROJECT_ANALYSIS_MODEL", "")
     from backend.app import config
     monkeypatch.setattr(config, "load_dotenv", lambda *_args, **_kwargs: None)
     monkeypatch.setenv("LLM_REASONING_EFFORT", "provider_default")

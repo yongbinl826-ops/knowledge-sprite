@@ -41,7 +41,7 @@ REQUIRED_TABLES = {
     "project_batches", "project_point_job_mappings",
 }
 PROJECT_ONLY_TABLES = {
-    "projects", "project_versions", "project_functions", "project_knowledge_points", "project_prerequisites",
+    "projects", "project_versions", "project_version_summaries", "project_functions", "project_knowledge_points", "project_prerequisites",
 }
 
 

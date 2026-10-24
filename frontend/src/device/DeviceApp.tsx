@@ -36,7 +36,7 @@ export function DeviceApp() {
     if (!nativeDevice()) return;
     let disposed = false; const handles: PluginListenerHandle[] = [];
     const retain = (handle: PluginListenerHandle) => { if (disposed) void handle.remove(); else handles.push(handle); };
-    void NativeApp.addListener('appStateChange', state => { if (state.isActive) window.dispatchEvent(new Event('device-resume')); }).then(retain);
+    void NativeApp.addListener('appStateChange', state => { window.dispatchEvent(new Event(state.isActive ? 'device-resume' : 'device-pause')); }).then(retain);
     void NativeApp.addListener('backButton', () => {
       if (manual) { closeOverlay(); return; }
       const event = new Event('device-back', { cancelable: true });

@@ -69,6 +69,8 @@ async def test_rejected_full_document_survives_successful_repair_and_persistence
         assert [(row["phase"], row["outcome"]) for row in attempts] == [
             ("generation", "rejected"), ("repair", "accepted")]
         assert [row["analysis"] for row in attempts] == [bad, analysis_fixture()]
+        assert all(row["validation_scope"] == "local_checks" for row in attempts)
+        assert all("implementation_inventory" not in row for row in attempts)
         assert all(row["project_id"] == project_id and row["version"] == 1 for row in attempts)
         assert service.db.version(project_id, 1)["analysis_attempts"] == attempts
     finally:
@@ -77,7 +79,7 @@ async def test_rejected_full_document_survives_successful_repair_and_persistence
 
 
 @pytest.mark.asyncio
-async def test_two_rejected_drafts_retain_distinct_complete_candidates(monkeypatch):
+async def test_distinct_rejected_candidates_survive_final_quality_rejection(monkeypatch):
     first, second = rejected_document("first-complete-draft"), rejected_document("second-complete-draft")
     install_replies(monkeypatch, [first, second])
     entries = []
@@ -106,7 +108,7 @@ async def test_timeout_after_rejection_does_not_reuse_previous_candidate(monkeyp
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("secret_field", ["llm_api_key", "tavily_api_key", "serper_api_key"])
+@pytest.mark.parametrize("secret_field", ["llm_api_key", "tavily_api_key", "tavily_backup_api_key", "serper_api_key"])
 @pytest.mark.parametrize("suffix", ["plain", 'quote"key', r"backslash\key"])
 async def test_configured_secret_is_omitted_from_drafts_and_diagnostics(monkeypatch, secret_field, suffix):
     secret = "audit-test-secret-" + secret_field + suffix
@@ -182,7 +184,7 @@ async def test_first_rejection_is_saved_before_repair_and_survives_cancel_recove
         nonlocal call_count
         call_count += 1
         if call_count == 1:
-            return deepcopy(bad)
+            return bad
         second_started.set()
         await never_finish.wait()
 
@@ -203,11 +205,15 @@ async def test_first_rejection_is_saved_before_repair_and_survives_cancel_recove
         await asyncio.gather(task, return_exceptions=True)
         service.db.recover_analysis()
         recovered = service.view(project_id)["version"]
-        assert recovered["status"] == "analysis_failed"
-        assert recovered["error"]["code"] == "interrupted"
+        assert recovered["status"] == "cancelled"
+        assert recovered["error"]["code"] == "cancelled"
         assert recovered["analysis"] is None
-        assert recovered["rejected_analysis_attempts"] == stored["rejected_analysis_attempts"]
-        assert recovered["analysis_attempts"] == stored["analysis_attempts"]
+        assert recovered["analysis_timing"]["finished_at"]
+        assert recovered["rejected_analysis_attempts"][:1] == stored["rejected_analysis_attempts"]
+        assert recovered["analysis_attempts"][:1] == stored["analysis_attempts"]
+        assert recovered["rejected_analysis_attempts"][1]["category"] == "cancelled"
+        assert recovered["analysis_attempts"][1]["category"] == "cancelled"
+        assert recovered["analysis_attempts"][1]["analysis"] is None
         for table in ("project_functions", "project_knowledge_points", "project_prerequisites"):
             assert store.connection.execute(f"SELECT COUNT(*) FROM {table} WHERE project_id=?", (project_id,)).fetchone()[0] == 0
     finally:

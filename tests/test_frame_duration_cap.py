@@ -7,6 +7,7 @@ from backend.app import project_analysis as module
 from backend.app.config import Settings
 from backend.app.project_analysis import AnalysisError, GeneratedConceptList, ProjectAnalyzer
 from backend.app.project_models import ProjectInput
+from tests.professional_contract_support import is_semantic_review_payload, semantic_review_pass, draft_with_inventory, coverage_completion
 
 
 OBSERVED = "游戏主循环反复处理输入、更新状态并绘制画面，通常配合时钟对象限制每帧耗时上限。"
@@ -76,20 +77,21 @@ def test_unrelated_execution_time_limit_is_not_reclassified_as_a_frame_cap():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("repaired", [True, False])
-async def test_invalid_cap_is_repaired_or_rejected_but_never_delivered(monkeypatch, repaired):
+@pytest.mark.parametrize("repair_stage", ["repair", None])
+async def test_invalid_cap_is_repaired_or_rejected_but_never_delivered(monkeypatch, repair_stage):
     calls, audits = [], []
-    replies = [proposal(OBSERVED), proposal(CORRECT if repaired else OBSERVED)]
+    replies = [proposal(OBSERVED), proposal(CORRECT if repair_stage == "repair" else OBSERVED)]
 
     async def complete(_settings, _prompt, payload, *_args, **_kwargs):
         calls.append(deepcopy(payload))
+        assert len(calls) <= 2
         return deepcopy(replies[len(calls) - 1])
 
     monkeypatch.setattr(module, "complete_json", complete)
     settings = Settings(llm_provider="openai_compatible", llm_base_url="https://offline.invalid/v1",
                         llm_api_key="synthetic", llm_model="synthetic")
     analyzer = ProjectAnalyzer(settings)
-    if repaired:
+    if repair_stage is not None:
         result = await analyzer.analyze(project(), on_analysis_attempt=audits.append)
         assert result.knowledge_points[0].description == CORRECT
         assert audits[-1]["outcome"] == "accepted"
@@ -99,6 +101,8 @@ async def test_invalid_cap_is_repaired_or_rejected_but_never_delivered(monkeypat
         assert error.value.code == "quality"
         assert audits[-1]["outcome"] == "rejected"
     assert len(calls) == 2
+    assert any(row["code"] == "frame_duration_upper_bound" for row in calls[-1]["validation_feedback"])
+    assert calls[-1]["repair_targets"][0]["current_value"] == OBSERVED
     assert audits[0]["outcome"] == "rejected"
     assert any(row["code"] == "frame_duration_upper_bound" for row in calls[1]["validation_feedback"])
     assert any(row["code"] == "frame_duration_upper_bound" for row in audits[0]["issues"])

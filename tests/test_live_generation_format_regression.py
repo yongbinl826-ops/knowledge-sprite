@@ -5,6 +5,7 @@ import json
 import httpx
 import pytest
 from tests.professional_contract_support import flat_proposal
+from tests.professional_contract_support import unrepaired_quality_response
 from backend.app.config import Settings
 from backend.app.project_analysis import ProjectAnalyzer, AnalysisError, generation_schema, SYSTEM_PROMPT, professional_contract_issues
 from backend.app.project_models import AnalysisDocument, ProjectInput
@@ -17,14 +18,19 @@ def response(value):return httpx.Response(200,json={'choices':[{'finish_reason':
 async def test_original_invalid_technology_still_rejected_with_exact_safe_codes():
     calls=[]
     def reply(request):
-        calls.append(json.loads(request.content));return response(flat_proposal(observed(6)))
+        calls.append(json.loads(request.content))
+        body = flat_proposal(observed(6))
+        payload = json.loads(calls[-1]["messages"][1]["content"])
+        assert len(calls) <= 2
+        body = unrepaired_quality_response(payload, body, payload["project"])
+        return response(body)
     settings=Settings(llm_provider='openai_compatible',llm_base_url='https://offline.invalid/v1',llm_api_key='synthetic',llm_model='synthetic')
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         with pytest.raises(AnalysisError) as error:
             await ProjectAnalyzer(settings,client).analyze(ProjectInput(name='pygame game',requirements='Move a paddle and catch falling coins; restart with R'))
     assert len(calls)==2 and error.value.code=='quality'
     history=next(item for item in error.value.diagnostics if item.get('type')=='attempt_history')
-    codes={issue['code'] for attempt in history['attempts'] for issue in attempt['issues']}
+    codes={issue['code'] for attempt in history['attempts'] for issue in attempt.get('issues',[])}
     assert 'invalid_topic_technology' in codes
     assert 'compound_concept_name' not in codes
     # Diagnostics remain coordinate/code only, never raw model values.
@@ -53,10 +59,11 @@ def test_recorded_conjunction_name_does_not_require_a_synthetic_rename():
     assert [point.name for point in doc.knowledge_points]==[point['name'] for point in original['knowledge_points']]
 
 def test_model_contract_explains_single_concept_umbrella_and_student_starting_point():
-    assert 'keep closely related facets of one mechanism together' in SYSTEM_PROMPT
-    assert 'automatically deselect concepts' in SYSTEM_PROMPT
+    assert 'Keep facets of the same principle together' in SYSTEM_PROMPT
+    assert 'The server supplies IDs and selection' in SYSTEM_PROMPT
+    assert 'not requirements or proof of mastery' in SYSTEM_PROMPT
     schema=generation_schema()['$defs']['GeneratedConcept']['properties']
-    assert 'learning_skills' not in schema and schema['technology']['maxLength']==48
+    assert 'learning_skills' not in schema and 'selection' not in schema and schema['technology']['maxLength']==48
 
 @pytest.mark.parametrize('text',[
  '通过 pygame.time.Clock 与 tick 限制每帧时间间隔，使移动速度与刷新频率解耦。',

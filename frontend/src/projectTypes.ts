@@ -29,6 +29,7 @@ export function hasProjectScopeMismatch(point: Pick<ProjectPointResult, 'status'
   return point?.status === 'scope_mismatch' || point?.result?.scope_status === 'mismatch';
 }
 export type ProjectView = {
+  snapshot_revision?: string;
   project_id: string; input: ProjectInput; current_version: number;
   pipeline?: SearchPipeline;
   versions: { version: number; status: string; created_at: string }[];

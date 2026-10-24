@@ -84,7 +84,7 @@ class AnalysisReviewResult(BaseModel):
 def _contains_configured_secret(settings: Settings, text: str) -> bool:
     # Credentials are never part of the review data. Reject an upstream echo
     # before schema errors or repair feedback can retain any configured key.
-    return any(value and value in text for value in (settings.llm_api_key, settings.tavily_api_key))
+    return any(value and value in text for value in (settings.llm_api_key, settings.tavily_api_key, settings.tavily_backup_api_key))
 
 
 async def review_analysis(settings: Settings, project: ProjectInput, document: AnalysisDocument,

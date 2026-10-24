@@ -61,6 +61,7 @@ export type Resource = {
   platform: string; resource_type: string;
   author: string | null; description: string | null; language: string | null;
   thumbnail_url?: string | null;
+  cover_status?: 'pending' | 'ready' | 'failed';
   author_role?: 'course_instructors' | 'video_instructors' | 'credited_creator' | null;
   duration_seconds: number | null; published_at: string | null; discovered_at: string; fetched_at: string | null;
   fetch_status: string; metadata_evidence_level: string;
@@ -155,7 +156,7 @@ export type HelpfulVideoChapter = {
 };
 export type HelpfulVideoRecommendation = {
   resource: Pick<Resource, 'resource_id' | 'title' | 'url' | 'platform'> &
-    Partial<Pick<Resource, 'canonical_url' | 'thumbnail_url' | 'language' | 'requires_payment' | 'description' | 'fetch_status' | 'video_evidence_status' | 'playback_verified'>>;
+    Partial<Pick<Resource, 'canonical_url' | 'thumbnail_url' | 'cover_status' | 'language' | 'requires_payment' | 'description' | 'fetch_status' | 'video_evidence_status' | 'playback_verified'>>;
   origin: 'search' | 'ai' | 'technology';
   added_at: string;
   elapsed_seconds: number;
@@ -179,6 +180,7 @@ export type DiscoveredVideo = {
   discovery_evidence: Evidence[];
 };
 export type SearchResults = {
+  snapshot_revision?: string;
   job_id: string; status: JobStatus;
   job?: SearchJob;
   pipeline?: SearchPipeline;

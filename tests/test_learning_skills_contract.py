@@ -161,13 +161,14 @@ def test_new_skill_layer_cannot_bypass_existing_behavior_guards(source, skill, c
 
 def test_prompt_schema_omits_expanded_fields_while_storage_keeps_safe_optional_history():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
     assert_simple_generation_schema()
     storage = AnalysisDocument.model_json_schema()["$defs"]["ProjectKnowledgePoint"]
     assert "learning_skills" not in storage.get("required", [])
     assert storage["properties"]["learning_skills"]["maxItems"] == 6
     assert storage["properties"]["learning_skills"]["items"]["maxLength"] == 120
-    assert "project_task, concepts, learning_skills, practice_check or learner_profile" in SYSTEM_PROMPT
+    assert "Each point contains only name, description and optional technology" in SYSTEM_PROMPT
+    assert "Do not output graphs, learning order, functions, learner profiles, review fields" in SYSTEM_PROMPT
     assert ANALYSIS_MAX_ATTEMPTS == 2 and ANALYSIS_MAX_MODEL_CALLS == 2
 
 
@@ -183,7 +184,7 @@ async def test_missing_legacy_skills_need_no_repair_or_concept_fallback():
 
 
 @pytest.mark.asyncio
-async def test_absent_skills_remain_absent_through_required_normalization():
+async def test_absent_skills_remain_absent_without_required_normalization():
     from tests.professional_contract_support import projected_once
     body = document_slice()
     body["knowledge_points"][0].pop("learning_skills")
@@ -192,11 +193,12 @@ async def test_absent_skills_remain_absent_through_required_normalization():
 
 
 def test_professional_term_prompt_is_specific_without_compulsory_skill_or_practice_layers():
-    assert "implementation checklist, task sentence" in SYSTEM_PROMPT
-    assert "line of syntax, acceptance item or entire discipline" in SYSTEM_PROMPT
-    assert "Analyze the full requested behavior and constraints" in SYSTEM_PROMPT
-    assert "Preserve numeric contracts" in SYSTEM_PROMPT
-    assert "Every knowledge point contains only name, description and optional technology" in SYSTEM_PROMPT
+    assert "rather than task instructions, business labels, isolated API calls or whole disciplines" in SYSTEM_PROMPT
+    assert "Do not split by variable, field, parameter, API call or workflow step" in SYSTEM_PROMPT
+    assert "Work backwards from each required behavior to the mechanisms it depends on" in SYSTEM_PROMPT
+    assert "Honor its technologies and constraints" in SYSTEM_PROMPT
+    assert "interfaces, types, units, ordering, identity matching and data roles" in SYSTEM_PROMPT
+    assert "Each point contains only name, description and optional technology" in SYSTEM_PROMPT
 
 
 def test_concrete_streamlit_controls_are_allowed_instead_of_a_generic_family():

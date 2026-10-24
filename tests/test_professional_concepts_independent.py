@@ -10,7 +10,7 @@ import sys
 
 import httpx
 import pytest
-from tests.professional_contract_support import flat_proposal
+from tests.professional_contract_support import flat_proposal, unrepaired_quality_response
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path(os.environ.get("PROFESSIONAL_CONCEPT_SOURCE_ROOT", ROOT)).resolve()
@@ -108,8 +108,13 @@ def test_generation_rejects_broad_subjects_and_single_statement_fragments(name):
         async def respond(request):
             nonlocal count
             count += 1
+            assert count <= 2
+            payload = json.loads(json.loads(request.content)["messages"][-1]["content"])
+            body = flat_proposal(document([{"name": name}]))
+            project_data = {"name": "Local project", "requirements": "Read local data"}
+            body = unrepaired_quality_response(payload, body, project_data)
             return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {
-                "content": json.dumps(flat_proposal(document([{"name": name}])), ensure_ascii=False)}}]})
+                "content": json.dumps(body, ensure_ascii=False)}}]})
         settings = Settings(llm_provider="openai_compatible", llm_base_url="https://synthetic.invalid/v1",
                             llm_api_key="synthetic-not-a-secret", llm_model="synthetic")
         async with httpx.AsyncClient(transport=httpx.MockTransport(respond), trust_env=False) as client:
@@ -126,7 +131,7 @@ def test_schema_does_not_restore_skills_tasks_or_student_order_selection():
     assert not set(props) & {"project_task", "concepts", "learning_skills", "practice_check"}
     assert "learner_profile" not in schema["properties"]
     assert ANALYSIS_MAX_MODEL_CALLS == 2
-    assert "Do not output prerequisite_ids, learning_order" in SYSTEM_PROMPT
+    assert "Do not output graphs, learning order" in SYSTEM_PROMPT
 
 
 def test_same_name_different_stack_cannot_share_active_job_or_positive_cache():

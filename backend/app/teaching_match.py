@@ -863,7 +863,7 @@ async def judge_batch(settings: Settings, pairs: list[dict], client: httpx.Async
             "version": VERSION, "limits": {"supports": MAX_SUPPORTS, "quote_characters": 180}}
     encoded = _json(data)
     if (_URL.search(encoded) or _SECRET.search(encoded) or len(encoded) > MAX_INPUT_CHARS
-            or any(key and key in encoded for key in [settings.llm_api_key, settings.tavily_api_key])):
+            or any(key and key in encoded for key in [settings.llm_api_key, settings.tavily_api_key, settings.tavily_backup_api_key])):
         return {}
     try:
         bounded = replace(settings, llm_max_output_tokens=min(settings.llm_max_output_tokens, 3000))
@@ -871,7 +871,7 @@ async def judge_batch(settings: Settings, pairs: list[dict], client: httpx.Async
             result = await complete_json(bounded, SYSTEM_TEACHING_PROMPT, data, client,
                                          timeout_seconds=DEADLINE_SECONDS, max_content_chars=MAX_OUTPUT_CHARS)
         encoded_result = _json(result)
-        if len(encoded_result) > MAX_OUTPUT_CHARS or any(key and key in encoded_result for key in [settings.llm_api_key, settings.tavily_api_key]):
+        if len(encoded_result) > MAX_OUTPUT_CHARS or any(key and key in encoded_result for key in [settings.llm_api_key, settings.tavily_api_key, settings.tavily_backup_api_key]):
             return {}
         parsed = BatchDecision.model_validate(result)
         if sum(len(d.supports) for d in parsed.decisions) > MAX_SUPPORTS:

@@ -13,6 +13,7 @@ import inspect
 import math
 import re
 import time
+import httpx
 from contextlib import nullcontext
 from datetime import datetime, timezone
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
@@ -23,8 +24,11 @@ from .helpful_video_chapters import (
     catalog_identity, displayable_cover_url,
 )
 from .llm import complete_json
+from . import llm as llm_transport
+from .models import Candidate
 from .mooc_urls import course_identity_parts
 from .providers import SearchBudgetReached, SearchError, build_provider
+from . import providers as provider_module
 from .url_utils import UnsafeURL, normalize_url, platform_for_url
 
 
@@ -34,6 +38,8 @@ TAIL_MODEL_CALLS = 2
 SEARCH_CONCURRENCY = 8
 MATCH_CONCURRENCY = 2
 MATCH_BATCH_SIZE = 36
+EARLY_COVER_MAX_RESOURCES = 4
+SEARCH_CACHE_POLICY = "fast-video-search-v2"
 
 
 def catalog_background_limits(settings):
@@ -119,6 +125,8 @@ def _apply_observed_cover(recommendations, resource_id, cover, *, resource=None)
         if displayable_cover_url(target.get("thumbnail_url")) or _cover_identity_key(target["url"]) != identity:
             continue
         target["thumbnail_url"] = image
+        target["cover_status"] = "ready"
+        target.pop("cover_error_code", None)
         target["thumbnail_provenance"] = copy.deepcopy({key: value for key, value in cover.items()
                                                        if key != "thumbnail_url"})
         changed = True
@@ -143,6 +151,26 @@ def _synchronize_existing_covers(recommendations):
         evidence.update(thumbnail_url=image, source_url=resource["url"])
         changed |= _apply_observed_cover(recommendations, resource["resource_id"], evidence)
     return changed
+
+
+def _finish_cover_states(recommendations, status):
+    for rows in recommendations.values():
+        for row in rows:
+            resource = row["resource"]
+            if displayable_cover_url(resource.get("thumbnail_url")):
+                resource.update(cover_status="ready", cover_error_code=None)
+            elif resource.get("cover_status") != "failed":
+                resource.update(cover_status="failed", cover_error_code=(
+                    "cancelled" if status == "cancelled" else "metadata_unavailable"))
+
+
+def _cover_metrics(recommendations):
+    displayed = {row["resource"]["resource_id"]: row["resource"]
+                 for rows in recommendations.values() for row in rows}
+    with_cover = sum(bool(displayable_cover_url(resource.get("thumbnail_url")))
+                     for resource in displayed.values())
+    return {"displayed_resources": len(displayed), "resources_with_cover_url": with_cover,
+            "cover_url_rate": round(with_cover / len(displayed), 4) if displayed else None}
 
 
 PLATFORM_DOMAINS = {
@@ -394,7 +422,7 @@ def _shareable_general_course(candidate: dict, technology: str, evidence) -> boo
 
 async def run_fast_video_search(settings, points, input_data, *, publish,
                                 deadline_seconds=110, provider_factory=None, complete=None,
-                                chapter_enricher_factory=None, catalog_cache=None,
+                                chapter_enricher_factory=None, catalog_cache=None, search_cache=None,
                                 catalog_deadline_seconds=None) -> dict:
     """Publish independent snapshots while all selected platforms run together.
 
@@ -428,6 +456,8 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
         "progress": {"search_requests": 0, "model_calls": 0, "recommendation_model_calls": 0,
                      "catalog_model_calls": 0, "candidates": 0, "covered_points": 0},
         "diagnostics": {"page_requests": 0, "playback_checks": 0, "cache_candidates": 0,
+                        "search_cache_hits": 0, "search_cache_errors": 0,
+                        "early_cover_scheduled": 0, "first_recommendation_seconds": None,
                         "searches": [], "model_batches": [], "rejections": {},
                         "deadline_reached": False, "search_budget_reached": False,
                         "model_budget_reached": False, "catalog_model_budget_reached": False,
@@ -455,6 +485,7 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
     request_limit = max_search_requests(settings, clean_points, selected)
     chapter_enricher = None
     catalog_task = None
+    early_cover_points, early_cover_ids = set(), set()
 
     def elapsed():
         return round(time.monotonic() - started_clock, 3)
@@ -491,6 +522,11 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
                                          for rows in recommendations.values() for row in rows),
             "general_fallback_associations": sum(row.get("relevance") == "general"
                                                  for rows in recommendations.values() for row in rows),
+        }
+        diagnostics["metrics"] = {
+            "judgement_rate": round(counts["judged"] / len(candidates), 4) if candidates else None,
+            **_cover_metrics(recommendations),
+            "covered_points": progress["covered_points"], "total_points": len(point_map),
         }
 
     def reject(reason):
@@ -543,6 +579,8 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
                 row["resource"].get("language") != "zh", -row["score"]))
             changed = True
         if changed:
+            if diagnostics["first_recommendation_seconds"] is None:
+                diagnostics["first_recommendation_seconds"] = elapsed()
             emit()
 
     def apply_point_matches(candidate, point_matches, origin, score):
@@ -629,6 +667,41 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
                 and state["catalog_enrichment"]["status"] == "running"
                 and _apply_observed_cover(recommendations, resource_id, cover, resource=candidate["resource"])):
             emit()
+
+    def receive_cover_state(resource_id, cover_status, reason=None):
+        candidate = known.get(resource_id)
+        if not candidate or cover_status not in {"pending", "ready", "failed"}:
+            return
+        targets = [candidate["resource"], *[row["resource"] for rows in recommendations.values()
+                    for row in rows if row["resource"]["resource_id"] == resource_id]]
+        changed = False
+        for resource in targets:
+            status = "ready" if displayable_cover_url(resource.get("thumbnail_url")) else cover_status
+            if status == "ready" and not displayable_cover_url(resource.get("thumbnail_url")):
+                continue  # A status event cannot manufacture a source image.
+            safe_reason = reason if isinstance(reason, str) and re.fullmatch(r"[a-z_]{1,60}", reason) else None
+            value = safe_reason if status == "failed" else None
+            changed |= resource.get("cover_status") != status or resource.get("cover_error_code") != value
+            resource.update(cover_status=status, cover_error_code=value)
+        if changed:
+            emit()
+
+    def prefetch_cover(candidate, point_id):
+        # Only one promising result per point, four identities per entire run.
+        # These reads use the existing foreground HTTP/resource allowance and
+        # do not promote a candidate or claim any new relevance evidence.
+        early = getattr(chapter_enricher, "enqueue_early_cover", None)
+        if (early is None or point_id not in point_map or point_id in early_cover_points
+                or len(early_cover_ids) >= EARLY_COVER_MAX_RESOURCES
+                or candidate["id"] in early_cover_ids
+                or displayable_cover_url(candidate["resource"].get("thumbnail_url"))
+                or not _technology_matches(point_map[point_id]["technology"],
+                                           candidate["title"] + " " + candidate["snippet"])):
+            return
+        if early(candidate["resource"], [point_id]):
+            early_cover_ids.add(candidate["id"])
+            early_cover_points.add(point_id)
+            diagnostics["early_cover_scheduled"] += 1
 
     def receive_unavailable_catalog(resource_id):
         candidate = known.get(resource_id)
@@ -753,12 +826,13 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
             "platform": platform_for_url(url),
             "resource_type": "video" if platform_for_url(url) == "bilibili" else "course",
             "thumbnail_url": displayable_cover_url(row.get("thumbnail_url")), "language": language,
+            "cover_status": "ready" if displayable_cover_url(row.get("thumbnail_url")) else "pending",
             "requires_payment": False if row.get("requires_payment") is False else None,
             "video_evidence_status": "search_discovered" if origin == "search" else "none",
             "snippet": snippet, "access_status": "unknown", "playback_status": "unknown",
             "fetch_status": "not_fetched", "playback_verified": False,
             "discovery_source": provider or ("ai" if origin == "ai" else row.get("source", "search")),
-            "discovery_query": query, "discovered_at": _now(),
+            "discovery_query": query, "discovered_at": (row.get("discovered_at") if origin == "search" else None) or _now(),
             "discovery_snippets": [{"url": url, "title": title, "snippet": raw_snippet}],
         }
         candidate = {"id": identity, "title": title, "snippet": snippet, "url": url,
@@ -816,7 +890,8 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
         chosen = getattr(settings, "ai_video_search_provider", "default")
         if chosen == "auto":
             chosen = ("serper" if getattr(settings, "serper_api_key", "") else
-                      "tavily" if getattr(settings, "tavily_api_key", "") else configured)
+                      "tavily" if (getattr(settings, "tavily_api_key", "")
+                                   or getattr(settings, "tavily_backup_api_key", "")) else configured)
         if chosen == "default":
             chosen = configured
         return chosen if chosen != configured else None
@@ -906,6 +981,10 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
 
     async def execute_search(provider, specification, record, *, role="primary"):
         name = getattr(provider, "name", "search")
+        language = input_data.get("language", "zh")
+        language = language if language in {"zh", "en", "any"} else "zh"
+        domains = [PLATFORM_DOMAINS[specification["platform"]]]
+        started = time.monotonic()
         attempt = {"provider": name, "role": role, "status": "running", "started_at": _now(),
                    "elapsed_seconds": elapsed(), "network_attempted": False, "http_requests": 0}
         record.setdefault("provider_attempts", []).append(attempt)
@@ -924,12 +1003,50 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
                 if stop:
                     attempt.update(status="skipped", skipped_reason=stop)
                     raise SearchError(stop, "The selected source has no available configured query route")
+                cache_key = None
+                if search_cache is not None and getattr(settings, "search_cache_ttl", 0) > 0:
+                    try:
+                        cache_key = search_cache.cache_key(SEARCH_CACHE_POLICY, {
+                            "provider": name, "query": specification["query"], "language": language,
+                            "platform": specification["platform"], "domains": domains, "limit": 10,
+                            "thumbnail_mapping_version": getattr(provider_module, "SEARCH_THUMBNAIL_VERSION", 2),
+                            "mode": "videos" if name == "serper" and specification["platform"] == "bilibili" else "organic",
+                            "endpoint": getattr(settings, "searxng_url", "") if name == "searxng" else name,
+                            "engines": list(getattr(settings, "searxng_engines", ())) if name == "searxng" else [],
+                            "video_engines": list(getattr(settings, "searxng_video_engines", ())) if name == "searxng" else [],
+                            "fallback_engines": list(getattr(settings, "searxng_fallback_engines", ())) if name == "searxng" else [],
+                        })
+                        cached = search_cache.cache_get(cache_key)
+                        if (isinstance(cached, dict) and not cached.get("cache", {}).get("stale")
+                                and isinstance(cached.get("data"), dict)
+                                and isinstance(cached["data"].get("candidates"), list)):
+                            items = [Candidate.model_validate(row) for row in cached["data"]["candidates"]]
+                            if len(items) > 10:
+                                raise ValueError("Invalid cached candidate count")
+                            diagnostics["cache_candidates"] += len(items)
+                            diagnostics["search_cache_hits"] += 1
+                            attempt.update(status="cached", candidate_count=len(items),
+                                           cache={**cached.get("cache", {}),
+                                                  "observed_at": cached["data"].get("observed_at")})
+                            return items
+                    except Exception:
+                        diagnostics["search_cache_errors"] += 1
                 if not scope:
                     await reserve()
                 async with asyncio.timeout(min(19, max(0.01, deadline - time.monotonic()))):
-                    items = await provider.search(specification["query"], "zh", 10,
-                                                  [PLATFORM_DOMAINS[specification["platform"]]])
+                    items = await provider.search(specification["query"], language, 10, domains)
                 attempt.update(status="completed" if items else "empty", candidate_count=len(items))
+                # Store source observations only. Matching is always rerun for
+                # current points; unsuccessful/partial upstream responses and
+                # supplier restrictions must never become a fresh cache hit.
+                if cache_key is not None and not getattr(provider, "last_warnings", []) and not source_stopped(provider):
+                    try:
+                        serialized = [Candidate.model_validate(item.model_dump() if hasattr(item, "model_dump") else item).model_dump()
+                                      for item in items]
+                        search_cache.cache_set(cache_key, SEARCH_CACHE_POLICY,
+                            {"candidates": serialized, "observed_at": _now()}, settings.search_cache_ttl)
+                    except Exception:
+                        diagnostics["search_cache_errors"] += 1
                 return items
             except SearchError as exc:
                 warnings = getattr(provider, "last_warnings", [])
@@ -959,10 +1076,10 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
             finally:
                 # ContextVar observations disappear on scope exit. Copy each
                 # supplier attempt here, including failures and cancellations.
-                requests, warnings = compact_observations(provider)
+                requests, warnings = compact_observations(provider) if used else ([], [])
                 attempt.update(provider_requests=requests, provider_warnings=warnings,
                                network_attempted=bool(used), http_requests=used,
-                               finished_elapsed_seconds=elapsed())
+                               finished_elapsed_seconds=elapsed(), duration_seconds=round(time.monotonic() - started, 6))
 
     def usable_search_candidates(items):
         # Search providers admit platform pages too. Recovery requires a usable
@@ -996,7 +1113,7 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
             primary = record["provider_attempts"][-1]
             if (getattr(provider, "name", "") == "searxng"
                     and getattr(settings, "searxng_failover_provider", "") == "tavily"
-                    and getattr(settings, "tavily_api_key", "")
+                    and (getattr(settings, "tavily_api_key", "") or getattr(settings, "tavily_backup_api_key", ""))
                     and not primary.get("failover_forbidden")
                     and exc.code in {"search_timeout", "search_unavailable", "upstream_engine_failed"}):
                 source_failovers.add(specification["platform"])
@@ -1040,36 +1157,60 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
         call_deadline = catalog_deadline if is_catalog else deadline
         counter = "catalog_model_calls" if is_catalog else "recommendation_model_calls"
         call_limit = catalog_model_limit if is_catalog else MAX_MODEL_CALLS
-        if not model_enabled:
-            return {}, "disabled"
-        if time.monotonic() >= call_deadline:
-            return {}, "deadline"
-        if progress[counter] >= call_limit:
-            diagnostics["catalog_model_budget_reached" if is_catalog else "model_budget_reached"] = True
-            return {}, "budget"
-        progress[counter] += 1
-        progress["model_calls"] += 1
-        record = {"task": task_name, "started_at": _now(), "elapsed_seconds": elapsed(),
-                  "candidate_count": len(payload.get("candidates", [])), "status": "running",
-                  "budget": "catalog" if is_catalog else "recommendation"}
-        diagnostics["model_batches"].append(record)
-        try:
-            seconds = min(timeout, max(0.01, call_deadline - time.monotonic()))
-            async with asyncio.timeout(seconds):
-                result = await completer(settings, prompt, {"task": task_name, **payload},
-                                          timeout_seconds=seconds, max_content_chars=60_000)
-            if not isinstance(result, dict):
-                raise ValueError("Invalid completion shape")
-            record["status"] = "completed"
-            return result, "completed"
-        except asyncio.CancelledError:
-            record["status"] = "cancelled"
-            raise
-        except Exception as exc:
-            record.update(status="failed", error_type=type(exc).__name__)
-            return {}, "failed"
-        finally:
-            record["finished_elapsed_seconds"] = elapsed()
+        window_deadline = min(call_deadline, time.monotonic() + timeout)
+        batch_id = len(diagnostics["model_batches"])
+        for retry_index in range(2):
+            if not model_enabled:
+                return {}, "disabled"
+            if time.monotonic() >= window_deadline:
+                return {}, "deadline"
+            if progress[counter] >= call_limit:
+                diagnostics["catalog_model_budget_reached" if is_catalog else "model_budget_reached"] = True
+                return {}, "budget"
+            progress[counter] += 1
+            progress["model_calls"] += 1
+            began = time.monotonic()
+            record = {"task": task_name, "started_at": _now(), "elapsed_seconds": elapsed(),
+                      "candidate_count": len(payload.get("candidates", [])), "status": "running",
+                      "budget": "catalog" if is_catalog else "recommendation", "batch_id": batch_id,
+                      "retry_index": retry_index, "usage": None}
+            diagnostics["model_batches"].append(record)
+            observer = getattr(llm_transport, "LLM_OBSERVER", None)
+            def observe(event):
+                if isinstance(event, dict):
+                    for key in ("usage", "http_status", "request_id_sha256"):
+                        if key in event:
+                            record[key] = copy.deepcopy(event[key])
+            token = observer.set(observe) if observer is not None else None
+            try:
+                seconds = max(.001, window_deadline - time.monotonic())
+                async with asyncio.timeout(seconds):
+                    result = await completer(settings, prompt, {"task": task_name, **payload},
+                                              timeout_seconds=seconds, max_content_chars=60_000)
+                if not isinstance(result, dict):
+                    raise ValueError("Invalid completion shape")
+                record["status"] = "completed"
+                return result, "completed"
+            except asyncio.CancelledError:
+                record["status"] = "cancelled"
+                raise
+            except Exception as exc:
+                record.update(status="failed", error_type=type(exc).__name__)
+                # Connect errors happen before a request body is sent. A read
+                # timeout, 429, malformed completion, or unknown error may be
+                # billable and is never replayed by this recovery path.
+                retryable = isinstance(exc, (httpx.ConnectError, httpx.ConnectTimeout))
+                record["retryable_connect_failure"] = retryable
+                if (task_name == "match_helpful_videos" and retry_index == 0 and retryable
+                        and progress[counter] < call_limit and time.monotonic() + .05 < window_deadline):
+                    record["recovery_scheduled"] = True
+                    continue
+                return {}, "failed"
+            finally:
+                if token is not None:
+                    observer.reset(token)
+                record["finished_elapsed_seconds"] = elapsed()
+                record["duration_seconds"] = round(time.monotonic() - began, 6)
 
     async def match_catalogs(prompt, payload, timeout):
         result, outcome = await model_call("match_video_chapters", prompt, payload, timeout)
@@ -1092,6 +1233,8 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
                             if _accepts_keyword(enricher_factory, "on_unavailable") else {})
         if _accepts_keyword(enricher_factory, "on_cover"):
             callback_options["on_cover"] = receive_cover
+        if _accepts_keyword(enricher_factory, "on_cover_state"):
+            callback_options["on_cover_state"] = receive_cover_state
         chapter_enricher = enricher_factory(
             settings, clean_points, match=match_catalogs, publish=receive_chapters,
             on_paid=receive_paid_catalog, deadline=catalog_deadline, max_resources=MAX_CATALOG_RESOURCES,
@@ -1144,6 +1287,8 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
                 count = 0
                 for item in items:
                     candidate = remember(item, query=specification["query"], provider=record["result_provider"])
+                    if candidate:
+                        prefetch_cover(candidate, specification.get("point_id"))
                     if (candidate and not candidate.get("queued")
                             and candidate["source_revision"] > candidate["attempted_revision"]):
                         candidate["queued"] = True
@@ -1370,7 +1515,13 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
                 # Only now enlarge optional work. Video terminal/timing has
                 # already reached the client; every subscription names a card
                 # actually retained under that point.
-                for binding in _displayed_catalog_bindings(recommendations).values():
+                # Enqueue missing covers before optional directories of cards
+                # that already have images. This stable sort changes only new
+                # task admission order; existing same-host work and budgets stay
+                # intact, and the displayed recommendation order is unchanged.
+                pending_bindings = sorted(_displayed_catalog_bindings(recommendations).values(),
+                    key=lambda binding: bool(displayable_cover_url(binding["resource"].get("thumbnail_url"))))
+                for binding in pending_bindings:
                     chapter_enricher.enqueue(binding["resource"], binding["point_ids"])
                     enqueue_cover = getattr(chapter_enricher, "enqueue_cover", None)
                     if enqueue_cover is not None and not displayable_cover_url(binding["resource"].get("thumbnail_url")):
@@ -1413,6 +1564,7 @@ async def run_fast_video_search(settings, points, input_data, *, publish,
                                 for batch in diagnostics["model_batches"]))):
                 catalog_status = "partial"
         state["catalog_enrichment"].update(status=catalog_status, finished_at=_now(), elapsed_seconds=elapsed())
+        _finish_cover_states(recommendations, catalog_status)
         emit()
     return copy.deepcopy(state)
 
@@ -1515,6 +1667,8 @@ async def resume_video_catalogs(settings, points, state, *, publish, complete=No
             diagnostics[diagnostic_key] = merged
             diagnostics["page_requests"] = baseline_page_requests + current.get("http_requests", 0)
         progress["covered_points"] = sum(bool(rows) for rows in recommendations.values())
+        diagnostics.setdefault("metrics", {}).update(_cover_metrics(recommendations),
+            covered_points=progress["covered_points"], total_points=len(point_ids))
         publish(copy.deepcopy(state))
 
     def receive_chapters(resource_id, point_id, chapters):
@@ -1533,6 +1687,23 @@ async def resume_video_catalogs(settings, points, state, *, publish, complete=No
     def receive_cover(resource_id, cover):
         if (state["catalog_enrichment"]["status"] == "running"
                 and _apply_observed_cover(recommendations, resource_id, cover)):
+            emit()
+
+    def receive_cover_state(resource_id, status, reason=None):
+        if status not in {"pending", "ready", "failed"}:
+            return
+        changed = False
+        for rows in recommendations.values():
+            for row in rows:
+                resource = row["resource"]
+                if resource["resource_id"] != resource_id or displayable_cover_url(resource.get("thumbnail_url")):
+                    continue
+                if status == "ready":
+                    continue
+                safe_reason = reason if isinstance(reason, str) and re.fullmatch(r"[a-z_]{1,60}", reason) else None
+                changed |= resource.get("cover_status") != status or resource.get("cover_error_code") != safe_reason
+                resource.update(cover_status=status, cover_error_code=safe_reason if status == "failed" else None)
+        if changed:
             emit()
 
     def retract(resource_id, reason):
@@ -1565,8 +1736,16 @@ async def resume_video_catalogs(settings, points, state, *, publish, complete=No
         progress["catalog_model_calls"] += 1
         progress["model_calls"] += 1
         record = {"task": "match_video_chapters", "budget": "catalog", "run_id": run_id,
-                  "started_at": _now(), "elapsed_seconds": elapsed(), "status": "running"}
+                  "started_at": _now(), "elapsed_seconds": elapsed(), "status": "running", "usage": None}
         batches.append(record)
+        began = time.monotonic()
+        observer = getattr(llm_transport, "LLM_OBSERVER", None)
+        def observe(event):
+            if isinstance(event, dict):
+                for key in ("usage", "http_status", "request_id_sha256"):
+                    if key in event:
+                        record[key] = copy.deepcopy(event[key])
+        token = observer.set(observe) if observer is not None else None
         try:
             async with asyncio.timeout(seconds):
                 result = await completer(settings, prompt, {"task": "match_video_chapters", **payload},
@@ -1582,7 +1761,10 @@ async def resume_video_catalogs(settings, points, state, *, publish, complete=No
             record.update(status="failed", error_type=type(exc).__name__)
             raise RuntimeError("Catalog model completion failed") from None
         finally:
+            if token is not None:
+                observer.reset(token)
             record["finished_elapsed_seconds"] = elapsed()
+            record["duration_seconds"] = round(time.monotonic() - began, 6)
 
     factory = chapter_enricher_factory or HelpfulVideoChapterEnricher
     options = {"max_resources": max(0, limits["resources"] - round_record["baseline_network_resources"]),
@@ -1591,6 +1773,7 @@ async def resume_video_catalogs(settings, points, state, *, publish, complete=No
                "background_mode": True,
                "cover_only": cover_only,
                "on_cover": receive_cover,
+               "on_cover_state": receive_cover_state,
                "on_unavailable": lambda resource_id: retract(resource_id, "not_found")}
     if catalog_cache is not None:
         options.update(load_cached_catalog=catalog_cache.lookup, save_catalog=catalog_cache.observe)
@@ -1648,6 +1831,7 @@ async def resume_video_catalogs(settings, points, state, *, publish, complete=No
             if status == "completed" and _catalog_incomplete(current):
                 status = "partial"
         state["catalog_enrichment"].update(status=status, finished_at=_now(), elapsed_seconds=elapsed())
+        _finish_cover_states(recommendations, status)
         round_record.update(status=status, finished_at=_now(), elapsed_seconds=elapsed())
         emit()
     return copy.deepcopy(state)

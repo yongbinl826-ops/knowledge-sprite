@@ -275,7 +275,7 @@ class HelpfulVideoChapterEnricher:
 
     def __init__(self, settings, points, *, match=None, fetch_catalog=None,
                  load_cached_catalog=None, save_catalog=None, homepage_lookup=None,
-                 publish=None, on_paid=None, on_unavailable=None, on_cover=None, cover_only=False,
+                 publish=None, on_paid=None, on_unavailable=None, on_cover=None, on_cover_state=None, cover_only=False,
                  deadline=None, max_resources=MAX_CATALOG_RESOURCES,
                  concurrency=3, per_resource_timeout=12.0, max_http_requests=MAX_CATALOG_HTTP_REQUESTS,
                  max_match_chapters=240, max_semantic_batches=MAX_CATALOG_MODEL_CALLS,
@@ -286,6 +286,7 @@ class HelpfulVideoChapterEnricher:
         self.on_paid = on_paid or (lambda _resource_id: None)
         self.on_unavailable = on_unavailable or (lambda _resource_id: None)
         self.on_cover = on_cover or (lambda _resource_id, _cover: None)
+        self.on_cover_state = on_cover_state or (lambda _resource_id, _state, _reason: None)
         self.cover_only = bool(cover_only)
         self.load_cached_catalog, self.save_catalog = load_cached_catalog, save_catalog
         self.homepage_lookup = homepage_lookup
@@ -337,7 +338,13 @@ class HelpfulVideoChapterEnricher:
         if fetch_catalog is None:
             self._fetcher = Fetcher(FetcherConfig(
                 enabled=getattr(settings, "fetch_enabled", True), max_retries=0,
-                timeout_seconds=self.per_resource_timeout,
+                timeout_seconds=min(self.per_resource_timeout, getattr(settings, "fetch_timeout_seconds", self.per_resource_timeout)),
+                max_bytes=getattr(settings, "fetch_max_bytes", 1_000_000),
+                global_concurrency=getattr(settings, "global_concurrency", 5),
+                phased_timeouts=getattr(settings, "fetch_phased_timeouts", False),
+                body_idle_timeout_seconds=getattr(settings, "fetch_body_idle_timeout_seconds", 5),
+                body_min_bytes_per_second=getattr(settings, "fetch_body_min_bytes_per_second", 32768),
+                body_timeout_cap_seconds=getattr(settings, "fetch_body_timeout_cap_seconds", 20),
                 dns_resolver=getattr(settings, "dns_resolver", "system"),
                 min_interval_seconds=getattr(settings, "fetch_min_interval_seconds", 0.5),
                 allowed_restricted_hosts=getattr(settings, "allowed_restricted_hosts", ()),
@@ -457,6 +464,32 @@ class HelpfulVideoChapterEnricher:
         wanted = {p for p in point_ids if isinstance(p, str) and p in self.points}
         if not identity or not resource_id or not wanted:
             return False
+        prior = self._records.get(identity)
+        if prior is not None and prior.get("early_cover") and not self.cover_only:
+            # A candidate has now earned a displayed recommendation. Reuse the
+            # same page and reservation; any already observed native chapters
+            # can be processed without repeating the early page request. Only
+            # an explicitly deferred outline needs a later normal catalog read.
+            prior["early_cover"] = False
+            prior["early_cover_promoted"] = True
+            prior["cover_only"] = False
+            prior["cover_fetch_only"] = False
+            if prior["done"]:
+                metadata = prior.get("observed_metadata")
+                if not isinstance(metadata, dict):
+                    # A failed speculative cover request must not hide an
+                    # already observed native catalog. Network attempt facts
+                    # remain in diagnostic.attempts; no page is requested here.
+                    metadata = self._lookup_cached(resource, cover_only=False)
+                    if isinstance(metadata, dict):
+                        prior["diagnostic"]["catalog_source"] = "retained_catalog"
+                        prior["diagnostic"]["catalog_observed_at"] = metadata.get("fetched_at")
+                if isinstance(metadata, dict):
+                    self._accept_metadata(prior, metadata)
+                if self._reserve_deferred_catalog(prior):
+                    prior["done"] = False
+                    self._tasks.add(asyncio.create_task(self._load(prior)))
+                    self._state_changed.set()
         if self.enqueue_cached(resource, wanted):
             return True
         record = self._records.get(identity)
@@ -528,14 +561,22 @@ class HelpfulVideoChapterEnricher:
         self._subscribe(record, resource_id, wanted)
         return True
 
-    def enqueue_cover(self, resource, point_ids) -> bool:
+    def enqueue_early_cover(self, resource, point_ids) -> bool:
+        """Read a caller-selected candidate cover within the existing budget.
+
+        The caller limits speculative admissions. This starts only metadata
+        work, never model matching or additional MOOC outline requests.
+        """
+        return self.enqueue_cover(resource, point_ids, early=True)
+
+    def enqueue_cover(self, resource, point_ids, *, early=False) -> bool:
         """After recommendations finish, fill a missing cover without rematching.
 
         A directory-cache hit may receive one page fetch. Explicitly requested
         background covers may also retry one transient native failure, using
         the same owner's budgets. Empty pages and access restrictions are final.
         """
-        if (self._closed or self._admission_closed or not (self.background_mode or self.cover_only)
+        if (self._closed or self._admission_closed or not (early or self.background_mode or self.cover_only)
                 or time.monotonic() >= self.deadline or not isinstance(resource, dict)):
             return False
         identity = catalog_identity(resource.get("url", ""))
@@ -556,6 +597,7 @@ class HelpfulVideoChapterEnricher:
                     return False
                 self.diagnostics["network_scheduled_resources"] += 1
                 record = self._schedule_record(identity, resource, network_reserved=True, cover_only=True)
+            record["early_cover"] = bool(early)
         self._subscribe(record, resource_id, wanted)
         if record.get("cover") or record["paid"] or record["unavailable"]:
             return bool(record.get("cover"))
@@ -595,6 +637,8 @@ class HelpfulVideoChapterEnricher:
                   "semantic_seen": set(), "semantic_attempts": {},
                   "cached_metadata": cached,
                   "cached_accepted": False, "cover": None, "cover_published": {},
+                  "cover_state_published": {}, "early_cover": False, "observed_metadata": None,
+                  "early_cover_promoted": False, "deferred_catalog_resumed": False,
                   "network_reserved": network_reserved, "cover_only": only_cover,
                   "cover_fetch_only": only_cover, "cover_refresh_requested": False,
                   "cover_requested": only_cover, "cover_retry_pending": False,
@@ -618,6 +662,7 @@ class HelpfulVideoChapterEnricher:
     def _subscribe(self, record, resource_id, wanted):
         before = set().union(*record["subscribers"].values()) if record["subscribers"] else set()
         record["subscribers"].setdefault(resource_id, set()).update(wanted)
+        self._publish_cover_state(record, resource_id)
         if wanted - before:
             self._refresh_semantic_diagnostics()
             self._state_changed.set()
@@ -672,6 +717,8 @@ class HelpfulVideoChapterEnricher:
         record["cover_retry_used"] = True
         record["cover_fetch_only"] = True
         record["done"] = False
+        for resource_id in record["subscribers"]:
+            self._publish_cover_state(record, resource_id)
         record["diagnostic"]["retry_reason"] = record["diagnostic"].get("status")
         record["diagnostic"]["retry_backoff_seconds"] = COVER_TRANSIENT_RETRY_BACKOFF_SECONDS
         self.diagnostics["cover_retry_scheduled"] += 1
@@ -680,12 +727,34 @@ class HelpfulVideoChapterEnricher:
         await asyncio.sleep(COVER_TRANSIENT_RETRY_BACKOFF_SECONDS)
         return self._cover_retry_can_start(record, after_backoff=True)
 
+    def _reserve_deferred_catalog(self, record):
+        metadata = record.get("observed_metadata") or {}
+        if (not record.get("early_cover_promoted") or record.get("deferred_catalog_resumed")
+                or metadata.get("catalog_fetch_status") != "not_attempted" or record["chapters"]
+                or metadata.get("fetch_status") != "fetched" or record["paid"] or record["unavailable"]
+                or self._closed or time.monotonic() >= self.deadline
+                or self.diagnostics["http_requests"] >= self.max_http_requests):
+            return False
+        if not record["network_reserved"]:
+            if self.diagnostics["network_scheduled_resources"] >= self.max_resources:
+                return False
+            self.diagnostics["network_scheduled_resources"] += 1
+            record["network_reserved"] = True
+        record["deferred_catalog_resumed"] = True
+        record["queued_clock"] = time.monotonic()
+        record["diagnostic"].update(status="queued", deferred_catalog_resumed=True)
+        return True
+
     async def _load(self, record):
         try:
+            for resource_id in record["subscribers"]:
+                self._publish_cover_state(record, resource_id)
             if record.pop("cover_retry_pending", False):
                 if not await self._wait_cover_retry(record):
                     return
             await self._load_once(record)
+            if self._reserve_deferred_catalog(record):
+                await self._load_once(record)
             if self._cover_retry_eligible(record):
                 if await self._wait_cover_retry(record):
                     await self._load_once(record)
@@ -706,6 +775,8 @@ class HelpfulVideoChapterEnricher:
                 record["diagnostic"]["retry_outcome"] = record["diagnostic"].get("status")
             record["done"] = True
             self._refresh_page_failure_diagnostics()
+            for resource_id in record["subscribers"]:
+                self._publish_cover_state(record, resource_id)
             self._state_changed.set()
 
     async def _load_once(self, record):
@@ -755,6 +826,13 @@ class HelpfulVideoChapterEnricher:
                 # the original one-course window.
                 course_timeout = min(24.0, self.per_resource_timeout *
                                      (2 if record.get("cover_fetch_only") else 1))
+                transport_config = getattr(self._fetcher, "config", None)
+                if transport_config is not None and transport_config.phased_timeouts:
+                    # Preserve the configured first-response/body windows.
+                    # The owner's deadline and HTTP reservations remain the
+                    # hard outer limit, including robots and locale fallback.
+                    course_timeout = max(course_timeout, transport_config.timeout_seconds
+                                         + transport_config.body_timeout_cap_seconds)
                 remaining = min(course_timeout, self.deadline - time.monotonic())
                 detail["course_timeout_seconds"] = round(max(0.0, remaining), 3)
                 if remaining <= 0:
@@ -803,6 +881,7 @@ class HelpfulVideoChapterEnricher:
             self._state_changed.set()
 
     def _accept_metadata(self, record, metadata):
+        record["observed_metadata"] = copy.deepcopy(metadata)
         detail = record["diagnostic"]
         detail["fetch_status"] = metadata.get("fetch_status", "unknown")
         detail["catalog_status"] = metadata.get("catalog_fetch_status")
@@ -835,6 +914,17 @@ class HelpfulVideoChapterEnricher:
                                 else metadata.get("fetch_status", "no_cover"))
             return
         record["chapters"] = observed_chapters(record["resource"], metadata)
+        if not record["chapters"] and record.get("early_cover_promoted"):
+            # Early cover reads can return only an image (or fail), while an
+            # older same-course catalog remains valid. Keep its own observation
+            # times and provenance instead of dating those chapters to this
+            # new cover response. Explicit paid/not_found results returned above.
+            retained = self._lookup_cached(record["resource"], cover_only=False)
+            if isinstance(retained, dict):
+                record["chapters"] = observed_chapters(record["resource"], retained)
+                if record["chapters"]:
+                    detail["catalog_source"] = "retained_catalog"
+                    detail["catalog_observed_at"] = retained.get("fetched_at")
         record["specific_chapters"] = [chapter for chapter in record["chapters"]
             if specific_chapter_title(chapter["title"], (point.get("technology") for point in self.points.values()))]
         self._refresh_semantic_diagnostics()
@@ -860,6 +950,15 @@ class HelpfulVideoChapterEnricher:
         record["cover_published"][resource_id] = copy.deepcopy(cover)
         self.diagnostics["cover_updates"] += 1
         self.on_cover(resource_id, copy.deepcopy(cover))
+        self._publish_cover_state(record, resource_id)
+
+    def _publish_cover_state(self, record, resource_id):
+        state = "ready" if record.get("cover") else "failed" if record["done"] else "pending"
+        reason = record["diagnostic"].get("status") if state == "failed" else None
+        value = (state, reason)
+        if record["cover_state_published"].get(resource_id) != value:
+            record["cover_state_published"][resource_id] = value
+            self.on_cover_state(resource_id, state, reason)
 
     def _literal_matches(self, record):
         for resource_id, point_ids in record["subscribers"].items():

@@ -1,20 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { courseImageUrl, externalUrl, platformNames } from '../api';
 import type { ResourceItem, TopicEvidenceStatus } from '../types';
 import { topicStatus } from '../topicEvidence';
 import { recommendChapters } from '../chapterRecommendations';
 import { BookIcon } from './Icons';
 
-export function CourseCover({ title, image, href, action = '去原平台学习', coverOnly = false }: { title: string; image?: string | null; href?: string; action?: string; coverOnly?: boolean }) {
+export function CourseCover({ title, image, href, action = '去原平台学习', coverOnly = false, onImageState, eager = false }: { title: string; image?: string | null; href?: string; action?: string; coverOnly?: boolean; onImageState?: (state: 'ready' | 'failed') => void; eager?: boolean }) {
   const [failedImage, setFailedImage] = useState<string>();
   const [loadedImage, setLoadedImage] = useState<string>();
   const imageUrl = courseImageUrl(image);
   const imageLoaded = !!imageUrl && loadedImage === imageUrl && failedImage !== imageUrl;
+  useEffect(() => { if (imageUrl && (imageLoaded || failedImage === imageUrl)) onImageState?.(imageLoaded ? 'ready' : 'failed'); }, [imageUrl, imageLoaded, failedImage, onImageState]);
   const content = <>
     {!imageLoaded && <div aria-hidden={coverOnly || undefined} className={`cover-placeholder cover-${/python|pygame|turtle/i.test(title) ? 'code' : /arduino|传感|硬件/i.test(title) ? 'hardware' : /pandas|excel|数据|图表/i.test(title) ? 'data' : 'learning'}`}>{!coverOnly && <span className="cover-letter" aria-hidden="true">{/python|pygame|turtle/i.test(title) ? 'Py' : /arduino|传感|硬件/i.test(title) ? 'IoT' : /pandas|excel|数据|图表/i.test(title) ? 'Data' : 'Learn'}</span>}<BookIcon/>{!coverOnly && <span>{image ? '封面暂不可用' : '来源未提供封面'}</span>}</div>}
     {/* A slow image keeps downloading above the placeholder until its real load
         or error event. A new URL gets its own element and can recover. */}
-    {imageUrl && failedImage !== imageUrl && <img key={imageUrl} src={imageUrl} alt={coverOnly ? '' : `${title}封面`} loading="lazy" decoding="async" referrerPolicy="no-referrer" style={{ position: 'absolute', inset: 0, opacity: imageLoaded ? 1 : 0 }} onLoad={() => setLoadedImage(imageUrl)} onError={() => setFailedImage(imageUrl)}/>}
+    {imageUrl && failedImage !== imageUrl && <img key={imageUrl} src={imageUrl} alt={coverOnly ? '' : `${title}封面`} loading={eager ? 'eager' : 'lazy'} decoding="async" referrerPolicy="no-referrer" style={{ position: 'absolute', inset: 0, opacity: imageLoaded ? 1 : 0 }} onLoad={() => setLoadedImage(imageUrl)} onError={() => setFailedImage(imageUrl)}/>}
     {href && !coverOnly && <span className="cover-action"><span aria-hidden="true">↗</span> {action}</span>}
   </>;
   return href

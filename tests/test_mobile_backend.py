@@ -88,6 +88,31 @@ async def settle(client, path, headers):
     raise AssertionError("Offline task failed to settle")
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("limited_counter", ["analysis_calls", "model_calls"])
+async def test_analysis_reserves_generation_and_optional_repair_once_before_admission(tmp_path, limited_counter):
+    app, _, _, analyzer = setup(tmp_path, **{"mobile_daily_" + limited_counter: 2})
+    payload = {"kind": "analysis", "input": {"name": "Local report", "requirements": "Read list values"}}
+    async with app.router.lifespan_context(app):
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app), base_url="http://127.0.0.1") as client:
+            path, headers = ticket()
+            assert (await client.post(path, headers=headers, json=payload)).status_code == 202
+            assert (await settle(client, path, headers))["status"] == "completed"
+            connection = app.state.mobile.public.connection
+            before = [tuple(row) for row in connection.execute("SELECT * FROM mobile_daily_budget")]
+            row = connection.execute("SELECT tasks, analysis_calls, model_calls FROM mobile_daily_budget").fetchone()
+            assert tuple(row) == (1, 2, 2)
+            assert analyzer.calls == 1  # One business invocation, at most generation plus one repair.
+            assert (await client.post(path, headers=headers, json=payload)).status_code == 202
+            another_path, another_headers = ticket()
+            denied = await client.post(another_path, headers=another_headers, json=payload)
+            assert denied.status_code == 429 and denied.json()["code"] == "daily_budget_exhausted"
+            assert analyzer.calls == 1
+            assert len(app.state.mobile.records) == 1
+            assert len(app.state.mobile.projects.db.list()) == 1
+            assert [tuple(row) for row in connection.execute("SELECT * FROM mobile_daily_budget")] == before
+
+
 def public_fixture():
     url = "https://www.bilibili.com/video/BV1AAAAAAAAA/"
     page = '<html><head><meta property="og:type" content="video"><title>Python list indexing lesson</title></head>'

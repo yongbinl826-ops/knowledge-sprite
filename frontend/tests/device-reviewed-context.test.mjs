@@ -9,6 +9,13 @@ test('professional labels remain unchanged; visible safe context is separate, ex
   const value = analysis([point('线性表', 'C++'), point('栈', 'Python'), point('队列', 'Java', 'skip')]), before = JSON.stringify(value);
   assert.deepEqual(reviewedTopicTechnologies(value), { 线性表: 'C++', 栈: 'Python' }); assert.equal(JSON.stringify(value), before);
 });
+
+test('all thirty selected project concepts keep their explicit technology context', () => {
+  const points = Array.from({ length: 30 }, (_, index) => point(`概念${index + 1}`, 'Python'));
+  const expected = Object.fromEntries(points.map(item => [item.name, item.technology]));
+  assert.deepEqual(reviewedTopicTechnologies(analysis(points)), expected);
+  assert.deepEqual(reviewedTopicTechnologies(analysis([...points, point('超额概念', 'Python')])), expected);
+});
 test('canonical name matches backend whitespace and leading ASCII/CJK boundary, without NFKC/alias guessing', () => {
   assert.equal(canonicalTopicName('  pygame事件循环\t'), 'pygame 事件循环');
   assert.equal(canonicalTopicName('localStorage读写与JSON序列化'), 'localStorage 读写与JSON序列化');

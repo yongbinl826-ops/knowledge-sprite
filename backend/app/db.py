@@ -13,11 +13,20 @@ def dumps(value) -> str:
 
 
 class Store:
-    def __init__(self, path: str):
+    # Only derived caches may be reclaimed. Project history and evidence are
+    # deliberately outside this list. Stale reads have a bounded grace period.
+    REBUILDABLE_CACHE_KINDS = frozenset({"search", "page", "official_sitemap", "teaching_decision",
+        "native_catalog_v1", "mooc_homepage_alias_v1", "fast-video-search-v2"})
+
+    def __init__(self, path: str, *, cache_stale_grace_seconds: float = 7 * 86400,
+                 cache_prune_batch: int = 32):
         if path != ":memory:":
             Path(path).parent.mkdir(parents=True, exist_ok=True)
         self.connection = sqlite3.connect(path, check_same_thread=False)
         self.connection.row_factory = sqlite3.Row
+        self.cache_stale_grace_seconds = max(0.0, float(cache_stale_grace_seconds))
+        self.cache_prune_batch = max(0, min(256, int(cache_prune_batch)))
+        self._next_cache_prune = 0.0
         self.connection.execute("PRAGMA journal_mode=WAL")
         self.connection.execute("PRAGMA foreign_keys=ON")
         had_consumers = self.connection.execute(
@@ -34,6 +43,8 @@ class Store:
             CREATE TABLE IF NOT EXISTS job_consumers(job_id TEXT NOT NULL REFERENCES jobs(id), consumer_key TEXT NOT NULL, PRIMARY KEY(job_id,consumer_key));
             CREATE INDEX IF NOT EXISTS evidence_job_resource ON evidence(job_id,resource_id);
             CREATE INDEX IF NOT EXISTS jobs_status ON jobs(status);
+            CREATE INDEX IF NOT EXISTS search_attempts_job_id ON search_attempts(job_id,id);
+            CREATE INDEX IF NOT EXISTS cache_expiry ON cache(expires);
         """)
         if not had_consumers:
             # Ownership of pre-migration jobs is unknown. A project must never
@@ -152,7 +163,10 @@ class Store:
         row = self.connection.execute("SELECT * FROM cache WHERE key=?", (key,)).fetchone()
         if not row:
             return None
-        stale = row["expires"] <= time.time()
+        stamp = time.time()
+        stale = row["expires"] <= stamp
+        if row["expires"] <= stamp - self.cache_stale_grace_seconds:
+            return None
         if stale and not allow_stale:
             return None
         from datetime import datetime, timezone
@@ -161,6 +175,13 @@ class Store:
     def cache_set(self, key: str, kind: str, data, ttl: int):
         stamp = time.time()
         self.connection.execute("INSERT OR REPLACE INTO cache VALUES(?,?,?,?,?)", (key, kind, stamp, stamp + ttl, dumps(data)))
+        if self.cache_prune_batch and stamp >= self._next_cache_prune:
+            kinds = tuple(sorted(self.REBUILDABLE_CACHE_KINDS))
+            marks = ",".join("?" for _ in kinds)
+            self.connection.execute(f"DELETE FROM cache WHERE key IN (SELECT key FROM cache "
+                f"WHERE expires<=? AND kind IN ({marks}) ORDER BY expires LIMIT ?)",
+                (stamp - self.cache_stale_grace_seconds, *kinds, self.cache_prune_batch))
+            self._next_cache_prune = stamp + 60
         self.connection.commit()
 
     def close(self):

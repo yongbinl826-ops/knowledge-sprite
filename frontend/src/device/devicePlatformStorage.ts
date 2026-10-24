@@ -1,7 +1,8 @@
 import { DeviceStorageError, type KeyValueStorage } from './deviceStorage.ts';
 
 export type DurableBridge = { get(options: { key: string }): Promise<{ value: string | null }>;
-  set(options: { key: string; value: string }): Promise<{ committed: boolean }> };
+  set(options: { key: string; value: string }): Promise<{ committed: boolean }>;
+  remove?(options: { key: string }): Promise<{ committed: boolean }> };
 
 /** Android commit acknowledgement is required before any task POST. Preferences
  * apply()/web cache is deliberately not used as a native durability fallback. */
@@ -23,6 +24,12 @@ export function devicePlatformStorage(platform: () => string, bridge: DurableBri
       requireAndroid();
       try { const result = await bridge.set({ key, value }); if (result.committed !== true) throw new Error('native commit not acknowledged'); }
       catch { throw new DeviceStorageError('设备未确认可靠落盘；旧记录保留，未继续提交任务。请检查存储空间后重试。'); }
+    },
+    async remove(key) {
+      if (!/^knowledge-sprite\.device\.v2\.block\.[a-f0-9]{64}$/.test(key)) throw new DeviceStorageError('仅允许清理不再引用的分块副本。');
+      if (platform() === 'web') { web().removeItem(key); return; }
+      requireAndroid();
+      if (!bridge.remove || (await bridge.remove({ key })).committed !== true) throw new DeviceStorageError('本机暂未确认清理完成。');
     },
   };
 }

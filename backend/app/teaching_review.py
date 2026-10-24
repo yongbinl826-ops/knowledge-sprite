@@ -107,7 +107,7 @@ async def review_batch(settings: Settings, claims: list[dict], client=None) -> d
     payload = {"claims": claims, "output_schema": ClaimReview.model_json_schema(), "version": VERSION}
     encoded = _json(payload)
     if (len(encoded) > MAX_INPUT_CHARS or teaching_match._URL.search(encoded) or teaching_match._SECRET.search(encoded)
-            or any(secret and secret in encoded for secret in [settings.llm_api_key, settings.tavily_api_key])):
+            or any(secret and secret in encoded for secret in [settings.llm_api_key, settings.tavily_api_key, settings.tavily_backup_api_key])):
         return None
     try:
         bounded = replace(settings, llm_max_output_tokens=min(settings.llm_max_output_tokens, 1500))
@@ -115,7 +115,7 @@ async def review_batch(settings: Settings, claims: list[dict], client=None) -> d
             body = await complete_json(bounded, SYSTEM_REVIEW_PROMPT, payload, client,
                 timeout_seconds=DEADLINE_SECONDS, max_content_chars=MAX_OUTPUT_CHARS)
         encoded_result = _json(body)
-        if len(encoded_result) > MAX_OUTPUT_CHARS or any(secret and secret in encoded_result for secret in [settings.llm_api_key, settings.tavily_api_key]):
+        if len(encoded_result) > MAX_OUTPUT_CHARS or any(secret and secret in encoded_result for secret in [settings.llm_api_key, settings.tavily_api_key, settings.tavily_backup_api_key]):
             return None
         report = ClaimReview.model_validate(body)
         result = {}

@@ -22,13 +22,14 @@ function harness(t, callbacks = {}) {
   const snapshots = [], completed = [], reads = [];
   const close = openSnapshotStream({
     url: '/api/projects/example/events?version=17', signal: controller.signal,
+    reconnectDelays: callbacks.reconnectDelays || [],
     onSnapshot: value => { callbacks.onSnapshot?.(value); snapshots.push(value); },
     onComplete: value => { callbacks.onComplete?.(value); completed.push(value); },
     // This is the watcher fallback contract: reread saved results, not search.
     onFallback: () => reads.push({ method: 'GET', url: '/api/projects/example/results?version=17' }),
   });
   t.after(close);
-  return { controller, source: sources[0], close, snapshots, completed, reads };
+  return { controller, source: sources[0], sources, close, snapshots, completed, reads };
 }
 
 const snapshot = (pending = true, image = null) => ({
@@ -158,4 +159,23 @@ test('transport error closes once and immediately invokes saved-state fallback',
   t.mock.timers.tick(120_000);
   assert.equal(h.source.closed, 1);
   assert.equal(h.reads.length, 1);
+});
+
+test('transport recovers with bounded backoff and rejects frames from replaced connections', t => {
+  const h = harness(t, { reconnectDelays: [1000, 3000] });
+  h.source.emit('error'); t.mock.timers.tick(999); assert.equal(h.sources.length, 1);
+  t.mock.timers.tick(1); assert.equal(h.sources.length, 2); assert.equal(h.reads.length, 0);
+  h.source.emit('snapshot', JSON.stringify(snapshot())); assert.equal(h.snapshots.length, 0);
+  h.sources[1].emit('snapshot', JSON.stringify(snapshot())); assert.equal(h.snapshots.length, 1);
+  h.sources[1].emit('error'); t.mock.timers.tick(3000); assert.equal(h.sources.length, 3);
+  h.sources[2].emit('error'); assert.equal(h.reads.length, 1);
+  t.mock.timers.tick(120000); assert.equal(h.sources.length, 3); assert.equal(h.reads.length, 1);
+});
+
+test('explicit heartbeat preserves a quiet stream and abort cancels a scheduled retry', t => {
+  const h = harness(t, { reconnectDelays: [1000] });
+  h.source.emit('snapshot', JSON.stringify(snapshot())); t.mock.timers.tick(59000);
+  h.source.emit('heartbeat'); t.mock.timers.tick(59000); assert.equal(h.source.closed, 0);
+  h.source.emit('error'); h.controller.abort(); t.mock.timers.tick(120000);
+  assert.equal(h.sources.length, 1); assert.equal(h.reads.length, 0);
 });

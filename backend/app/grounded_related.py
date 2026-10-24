@@ -65,7 +65,7 @@ def _safe_payload(value, settings):
     return (len(encoded) <= MAX_INPUT_CHARS and not binding._URL.search(encoded)
             and not binding._SECRET.search(encoded) and not binding._INJECTION.search(encoded)
             and not any(secret and secret in encoded for secret in
-                (settings.llm_api_key, settings.tavily_api_key, settings.serper_api_key)))
+                (settings.llm_api_key, settings.tavily_api_key, settings.tavily_backup_api_key, settings.serper_api_key)))
 
 
 def prepare_pair(point, resource, evidence, request, *, hints=(), source_ids=None):

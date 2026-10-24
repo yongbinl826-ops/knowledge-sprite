@@ -347,8 +347,9 @@ def topic_technologies(points: list[dict], names: dict[str, str]) -> dict[str, s
 
 def reviewed_technologies(value, points):
     """A visible, explicit student review, separate from old hidden metadata."""
+    from .project_models import MAX_PROJECT_KNOWLEDGE_POINTS
     from .technical_prefix import canonical_search_name
-    if not isinstance(value, dict) or len(value) > 24:
+    if not isinstance(value, dict) or len(value) > MAX_PROJECT_KNOWLEDGE_POINTS:
         raise ValueError("Reviewed context must be a bounded name map")
     names = [canonical_search_name(p["name"]) for p in points]
     if not set(value) <= set(names):
@@ -387,7 +388,7 @@ def generated_context(analysis):
 def bound_generated_context(version):
     proof = version.get("validated_concept_context")
     analysis = version.get("analysis") or {}
-    if (not str(version.get("prompt_version") or "").startswith("project-analysis-v5.")
+    if (not str(version.get("prompt_version") or "").startswith(("project-analysis-v5.", "project-analysis-v6.", "project-analysis-v7.", "project-analysis-v8-"))
             or not isinstance(analysis.get("knowledge_points"), list)
             or not isinstance(proof, dict) or proof.get("version") != CONCEPT_POLICY_VERSION
             or proof.get("analysis_fingerprint") != _context_fingerprint(analysis)):

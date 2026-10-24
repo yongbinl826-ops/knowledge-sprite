@@ -9,6 +9,7 @@ from backend.app import project_analysis as module
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer
 from backend.app.project_models import ProjectInput
 from tests.test_project_analysis import settings
+from tests.professional_contract_support import unrepaired_quality_response
 
 
 FIXTURES = Path(__file__).parent / "fixtures" / "textbook-live-20261023"
@@ -23,7 +24,8 @@ def install_same_reply(monkeypatch, analysis):
 
     async def complete(_settings, _prompt, payload, *_args, **_kwargs):
         calls.append(deepcopy(payload))
-        return deepcopy(analysis)
+        assert len(calls) <= 2
+        return unrepaired_quality_response(payload, analysis, payload["project"])
 
     monkeypatch.setattr(module, "complete_json", complete)
     return calls
@@ -47,6 +49,7 @@ async def test_full_recorded_draft_must_enter_conditional_repair_and_cannot_be_a
     assert caught.value.code == "quality" and len(calls) == 2
     assert [(attempt["phase"], attempt["outcome"]) for attempt in attempts] == [
         ("generation", "rejected"), ("repair", "rejected")]
+    assert expected <= {issue["code"] for issue in calls[1]["validation_feedback"]}
     assert calls[1]["repair_required"] is True
     assert expected <= {issue["code"] for issue in calls[1]["validation_feedback"]}
     assert calls[1]["previous_analysis"] == record["analysis"]

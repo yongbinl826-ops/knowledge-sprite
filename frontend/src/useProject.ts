@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from './api';
 import { openSnapshotStream } from './snapshotStream';
+import { readSnapshot, snapshotPollDelay } from './snapshotRead';
 import type { ProjectAnalysis, ProjectInput, ProjectSummary, ProjectView } from './projectTypes';
 import { reviewedTopicTechnologies } from './reviewedTopicTechnologies';
 
@@ -58,22 +59,32 @@ export function useProject() {
     let watchedVersion = pointer.version;
     let allowStream = true;
     let closeStream = () => {};
+    let etag: string | undefined;
+    let lastSnapshot: ProjectView | undefined;
+    let unchanged = 0;
     const apply = (next: ProjectView) => {
       if (!current()) return;
       if (next.project_id !== pointer.id || (watchedVersion && next.version?.version !== watchedVersion)) throw new Error('项目或版本编号不一致，未替换当前结果。');
-      setView(next); setLoading(false); setPollError(''); failures = 0;
+      const same = !!next.snapshot_revision && next.snapshot_revision === lastSnapshot?.snapshot_revision;
+      unchanged = same ? unchanged + 1 : 0;
+      if (!same) setView(next);
+      lastSnapshot = next; setLoading(false); setPollError(''); failures = 0;
     };
     const poll = async () => {
       try {
-        const next = await api<ProjectView>(`/api/projects/${encodeURIComponent(pointer.id)}/results${watchedVersion ? `?version=${watchedVersion}` : ''}`, { signal: controller.signal });
+        const response = await readSnapshot<ProjectView>(`/api/projects/${encodeURIComponent(pointer.id)}/results?projection=ui${watchedVersion ? `&version=${watchedVersion}` : ''}`, controller.signal, etag);
         if (!current()) return;
-        apply(next);
+        etag = response.etag;
+        const next = response.value || lastSnapshot;
+        if (!next) throw new Error('状态缓存尚未建立');
+        if (response.value) apply(next);
+        else { unchanged += 1; failures = 0; setLoading(false); setPollError(''); }
         if (!isActive(next)) return;
         if (allowStream && next.pipeline) {
           allowStream = false;
           watchedVersion = next.version?.version;
           closeStream = openSnapshotStream<ProjectView>({
-            url: `/api/projects/${encodeURIComponent(pointer.id)}/events${watchedVersion ? `?version=${watchedVersion}` : ''}`,
+            url: `/api/projects/${encodeURIComponent(pointer.id)}/events?projection=ui${watchedVersion ? `&version=${watchedVersion}` : ''}`,
             signal: controller.signal,
             onSnapshot: snapshot => { apply(snapshot); if (!isActive(snapshot)) closeStream(); },
             onComplete: snapshot => { if (!snapshot || isActive(snapshot)) throw new Error('缺少最终项目状态'); apply(snapshot); },
@@ -87,7 +98,7 @@ export function useProject() {
         setPollError(`项目状态暂时无法读取：${(err as Error).message}${failures < 3 ? ' 正在重试。' : ' 可点击重新读取。'}`);
         if (failures >= 3) return;
       }
-      if (current()) timer = window.setTimeout(poll, 1500);
+      if (current()) timer = window.setTimeout(poll, snapshotPollDelay(!!lastSnapshot?.pipeline?.terminal, unchanged, failures));
     };
     void poll();
     return () => { controller.abort(); closeStream(); window.clearTimeout(timer); };

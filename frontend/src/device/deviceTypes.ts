@@ -5,6 +5,7 @@ export type MobileTaskBody = { kind: 'analysis'; input: ProjectInput } | {
   kind: 'search'; input: ProjectInput; analysis: ProjectAnalysis; reviewed_topic_technologies: Record<string, string>;
 } | { kind: 'direct_search'; request: SearchRequest };
 export type MobileTask = {
+  snapshot_revision?: string;
   task_id: string; kind: MobileTaskBody['kind']; expires_at: string;
   status: 'queued' | 'running' | 'completed' | 'partial' | 'failed' | 'cancelled';
   error: null | { code: string; message: string }; result: ProjectView | SearchResults | null;
@@ -12,7 +13,7 @@ export type MobileTask = {
 export type TaskTicket = {
   schema: 1; id: string; capability: string; body: string; projectId: string; version: number;
   createdAt: string; expiresAt: string; phase: 'prepared' | 'submitted' | 'uncertain' | 'complete' | 'expired';
-  nextPollAt?: string; message?: string;
+  nextPollAt?: string; message?: string; snapshotRevision?: string;
 };
 export type LocalProject = { schema: 1; mode?: 'project' | 'direct'; summary: ProjectSummary; input: ProjectInput; views: ProjectView[];
   drafts: Record<number, ProjectAnalysis>; learned: Record<string, { learned: boolean; at: string }>; ticket?: TaskTicket };

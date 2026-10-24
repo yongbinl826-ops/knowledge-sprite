@@ -20,9 +20,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .db import Store
 from .models import SearchRequest, now
-from .project_models import AnalysisDocument, ProjectInput, ReviewedTopicTechnologies
+from .project_models import MAX_PROJECT_KNOWLEDGE_POINTS, AnalysisDocument, ProjectInput, ReviewedTopicTechnologies
 from .professional_concepts import reviewed_technologies
 from .project_service import ProjectError
+from .project_analysis import ANALYSIS_MAX_MODEL_CALLS
 from .service import AdmissionRejected, JobService
 from .mobile_public import COUNTERS, DailyBudgetFull, iso
 
@@ -41,7 +42,7 @@ class MobileTaskPayload(BaseModel):
     input: ProjectInput | None = None
     analysis: AnalysisDocument | None = None
     request: SearchRequest | None = None
-    acknowledged_skipped_prerequisites: list[str] = Field(default_factory=list, max_length=24)
+    acknowledged_skipped_prerequisites: list[str] = Field(default_factory=list, max_length=MAX_PROJECT_KNOWLEDGE_POINTS)
     reviewed_topic_technologies: ReviewedTopicTechnologies | None = None
 
     @model_validator(mode="after")
@@ -227,7 +228,7 @@ class MobileTasks:
         costs = dict.fromkeys(COUNTERS, 0)
         costs["tasks"] = 1
         if payload.kind == "analysis":
-            costs.update(analysis_calls=2, model_calls=2)
+            costs.update(analysis_calls=ANALYSIS_MAX_MODEL_CALLS, model_calls=ANALYSIS_MAX_MODEL_CALLS)
             return costs
         if payload.kind == "direct_search":
             from .platform_search import platform_budget

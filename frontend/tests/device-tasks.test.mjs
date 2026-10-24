@@ -17,6 +17,29 @@ function setup(handler) {
 }
 const reply = (id, body, status = 'completed', result = retained) => new Response(JSON.stringify({ task_id: id, kind: body.kind, expires_at: new Date(Date.now() + 7200000).toISOString(), status, error: null, result }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
+test('identical result revisions and conditional 304 reads never rewrite device history', async () => {
+  const expires = new Date(Date.now() + 7200000).toISOString(); let gets = 0, body;
+  const x = setup(({ url, options }) => {
+    if (options.method === 'POST') body = JSON.parse(options.body);
+    if (body.kind === 'analysis') return reply(url.pathname.split('/').at(-1), body);
+    if (options.method === 'GET') { gets++; if (gets === 2) { assert.equal(options.headers['If-None-Match'], '"stable"'); return new Response(null, { status: 304 }); } }
+    const result = structuredClone(retained); result.pipeline = { terminal: true, catalog_pending: true };
+    return new Response(JSON.stringify({ task_id: url.pathname.split('/').at(-1), kind: body.kind, expires_at: expires, status: 'completed', error: null, result, snapshot_revision: 'stable' }), { headers: { ETag: '"stable"' } });
+  });
+  await x.service.analyze(input); await x.service.confirmAndSearch((await x.service.snapshot()).view.version.analysis, false);
+  const before = (await x.store.load()).revision;
+  assert.equal(await x.service.poll(), false); assert.equal(await x.service.poll(), false);
+  assert.equal((await x.store.load()).revision, before); assert.equal(gets, 2);
+});
+
+test('switching views flushes the latest merged input before completing', async () => {
+  const x = setup(() => { throw Error('no network'); });
+  const saves = Array.from({ length: 30 }, (_, i) => x.service.inputDraft({ ...input, name: `edit ${i}` }));
+  await x.service.select(''); await Promise.all(saves);
+  const state = await new DeviceStore(x.disk).load();
+  assert.equal(state.inputDraft.name, 'edit 29'); assert.equal(state.revision, 2); assert.equal(x.calls.length, 0);
+});
+
 test('release API is HTTPS only, development HTTP is explicit loopback only', () => {
   assert.equal(mobileApiBase('https://api.example/base', false), 'https://api.example/base');
   for (const url of ['http://api.example', 'http://127.0.0.1', 'https://user:pass@api.example', 'https://api.example/?token=a']) assert.throws(() => mobileApiBase(url, false));

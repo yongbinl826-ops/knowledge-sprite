@@ -5,7 +5,7 @@ from pathlib import Path
 
 import httpx
 import pytest
-from tests.professional_contract_support import flat_proposal
+from tests.professional_contract_support import unrepaired_quality_response, flat_proposal
 
 from backend.app import project_analysis as module
 from backend.app.config import Settings
@@ -60,7 +60,9 @@ async def test_actual_failure_gets_one_repair_on_real_professional_branch(case,c
         bad['knowledge_points'][2]['technology']=''
     good=corrected(case,bad);calls=[]
     def reply(request):
-        calls.append(json.loads(request.content));return response(flat_proposal(bad if len(calls)==1 else good))
+        calls.append(json.loads(request.content))
+        proposal = flat_proposal(bad if len(calls)==1 else good)
+        return response(proposal)
     project=ProjectInput.model_validate(actual["project"])
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         result=await module.ProjectAnalyzer(config(),client).analyze(project)
@@ -88,7 +90,11 @@ async def test_repeated_actual_failure_stops_bounded_with_safe_coordinates(case,
     actual=retained(case);calls=[];bad=deepcopy(actual['analysis'])
     if case.startswith('browser'):
         bad['knowledge_points'][2]['technology']=''
-    def reply(request):calls.append(request);return response(flat_proposal(bad))
+    def reply(request):
+        calls.append(request)
+        payload = json.loads(json.loads(request.content)["messages"][1]["content"])
+        proposal = flat_proposal(bad)
+        return response(unrepaired_quality_response(payload, proposal, actual["project"]))
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         with pytest.raises(module.AnalysisError) as error:
             await module.ProjectAnalyzer(config(),client).analyze(ProjectInput.model_validate(actual["project"]))
@@ -97,6 +103,8 @@ async def test_repeated_actual_failure_stops_bounded_with_safe_coordinates(case,
     serialized=json.dumps(error.value.diagnostics,ensure_ascii=False)
     assert "previous_analysis" not in serialized and "均为板载" not in serialized and "SYNTHETIC_NOT_A_KEY" not in serialized
     history=error.value.diagnostics[-1]["attempts"]
+    assert [row["phase"] for row in history] == ["generation", "repair"]
+    assert [row["category"] for row in history] == ["quality", "quality"]
     assert all(any(issue["code"]==code for issue in row["issues"]) for row in history)
 
 
@@ -206,9 +214,11 @@ def test_nonweb_project_and_saved_legacy_analysis_are_not_rewritten():
 
 
 def test_prompt_preserves_numeric_and_ecosystem_contract_without_expanded_fields():
-    assert module.ANALYSIS_PROMPT_VERSION=="project-analysis-v5.22-program-state-description-checks"
-    assert "Preserve numeric contracts" in module.SYSTEM_PROMPT
-    assert "different interfaces' input/output domains" in module.SYSTEM_PROMPT
-    assert "Keep canonical concept and technical context separate" in module.SYSTEM_PROMPT
-    assert "otherwise use an empty string" in module.SYSTEM_PROMPT
-    assert module.ANALYSIS_MAX_MODEL_CALLS==module.ANALYSIS_MAX_ATTEMPTS==2
+    assert module.ANALYSIS_PROMPT_VERSION=="project-analysis-v8-compact-foundations"
+    assert "types/units" in module.SYSTEM_PROMPT
+    assert "relevant input/output conditions" in module.SYSTEM_PROMPT
+    assert "interfaces, types, units, ordering, identity matching and data roles" in module.SYSTEM_PROMPT
+    assert "technology is one short actual language/tool/framework identifier" in module.SYSTEM_PROMPT
+    assert "or an empty string for a general concept" in module.SYSTEM_PROMPT
+    assert module.ANALYSIS_MAX_MODEL_CALLS==2
+    assert module.ANALYSIS_MAX_ATTEMPTS==2

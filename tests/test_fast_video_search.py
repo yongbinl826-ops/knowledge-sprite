@@ -990,7 +990,7 @@ async def test_generic_only_catalogs_do_not_reserve_an_unusable_model_call(monke
 
     model = completion()
     result = await run_fast_video_search(settings(), POINTS, INPUT, publish=lambda _: None,
-        deadline_seconds=.8, provider_factory=factory(Provider(lambda _: [video(900 + n) for n in range(73)])),
+        deadline_seconds=2, provider_factory=factory(Provider(lambda _: [video(900 + n) for n in range(73)])),
         complete=model, chapter_enricher_factory=enricher)
     assert result["diagnostics"]["chapters"]["catalogs_received"] > 0
     assert result["diagnostics"]["chapters"]["semantic_calls"] == 0
@@ -1059,8 +1059,11 @@ async def test_late_catalog_semantics_updates_only_existing_cards_after_frozen_v
         assert {key: snapshot[key] for key in frozen} == frozen
         assert not rows(snapshot, "collision"), "Late metadata cannot create another point/resource recommendation"
         assert len(rows(snapshot)) == 1
-        assert {key: value for key, value in rows(snapshot)[0].items() if key != "matched_chapters"} == {
-            key: value for key, value in rows(first_terminal)[0].items() if key != "matched_chapters"}
+        def recommendation_identity(row):
+            return {**{key: value for key, value in row.items() if key not in {"matched_chapters", "resource"}},
+                    "resource": {key: value for key, value in row["resource"].items()
+                                 if key not in {"cover_status", "cover_error_code"}}}
+        assert recommendation_identity(rows(snapshot)[0]) == recommendation_identity(rows(first_terminal)[0])
     assert [chapter["index"] for chapter in rows(result)[0]["matched_chapters"]] == [3]
     assert all(child.done() for instance in instances for child in instance._tasks)
 
@@ -1324,3 +1327,64 @@ async def test_legacy_catalog_factory_without_unavailable_callback_remains_compa
         deadline_seconds=.6, provider_factory=factory(Provider(lambda _: [video(1000)])),
         complete=completion(), chapter_enricher_factory=LegacyEnricher)
     assert all(result["recommendations"].values()) and closed == [True]
+
+
+async def test_background_missing_cover_fetch_precedes_new_covered_catalogs_on_same_host(monkeypatch):
+    from backend.app.helpful_video_chapters import HelpfulVideoChapterEnricher, MAX_CATALOG_RESOURCES
+
+    # Keep model completion order deterministic; native catalog tasks still use
+    # the real concurrent scheduler and its same-host lock.
+    monkeypatch.setattr(fast_search, "MATCH_CONCURRENCY", 1)
+
+    # Fill the existing foreground allowance with already illustrated cards.
+    # The last two cards are admitted only after expansion, in display order:
+    # an illustrated slow directory, then a card still missing its cover.
+    initial = [video(2000 + n).model_copy(update={
+        "thumbnail_url": f"https://i0.hdslb.com/observed-{n}.jpg"})
+        for n in range(MAX_CATALOG_RESOURCES)]
+    slow = video(2100).model_copy(update={"thumbnail_url": "https://i0.hdslb.com/observed-slow.jpg"})
+    missing = video(2101)
+    candidates = [*initial, slow, missing]
+    fetched, instances = [], []
+    active = peak_active = 0
+
+    async def fetch(resource):
+        nonlocal active, peak_active
+        fetched.append(resource["url"])
+        active += 1
+        peak_active = max(peak_active, active)
+        try:
+            if resource["url"] == slow.url:
+                await asyncio.Event().wait()
+            observed = {"url": resource["url"], "fetch_status": "fetched", "chapters": [],
+                        "fetched_at": "2026-10-24T00:00:00+00:00"}
+            if resource["url"] == missing.url:
+                observed.update(thumbnail_url="https://i0.hdslb.com/backfilled.jpg",
+                    field_provenance={"thumbnail_url": {"source": "html.bilibili.__INITIAL_STATE__.videoData.pic",
+                        "url": resource["url"], "fetched_at": observed["fetched_at"]}})
+            return observed
+        finally:
+            active -= 1
+
+    def enricher(*args, **kwargs):
+        instance = HelpfulVideoChapterEnricher(*args, **kwargs, fetch_catalog=fetch)
+        instances.append(instance)
+        return instance
+
+    provider = Provider(lambda call: candidates if "入门 项目实战 教程" in call["query"] else [])
+    result = await run_fast_video_search(settings(), POINTS[:1], {**INPUT, "preferred_platforms": ["bilibili"]},
+        publish=lambda _: None, deadline_seconds=2, catalog_deadline_seconds=.1,
+        provider_factory=factory(provider), complete=completion(), chapter_enricher_factory=enricher)
+
+    assert fetched[:MAX_CATALOG_RESOURCES] == [item.url for item in initial]
+    assert fetched[MAX_CATALOG_RESOURCES:] == [missing.url, slow.url], (
+        "A new missing cover must acquire the same-host slot before an already illustrated slow directory")
+    assert peak_active == 1 and active == 0
+    assert [row["resource"]["url"] for row in rows(result)] == [item.url for item in candidates], (
+        "Scheduling priority must not reorder or filter recommendations")
+    backfilled = next(row["resource"] for row in rows(result) if row["resource"]["url"] == missing.url)
+    assert backfilled["thumbnail_url"] == "https://i0.hdslb.com/backfilled.jpg"
+    instance = instances[0]
+    assert instance.diagnostics["network_scheduled_resources"] == len(candidates)
+    assert instance.max_resources == 96 and instance.max_http_requests == 288
+    assert all(task.done() for task in instance._tasks)

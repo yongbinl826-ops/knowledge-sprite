@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ProjectAnalysis, ProjectInput, ProjectView } from '../projectTypes';
 import type { LocalProjectService } from './localProjectService';
+import { snapshotPollDelay } from '../snapshotRead';
 
 export function useDeviceProject(service: LocalProjectService, configurationError = '') {
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<LocalProjectService['snapshot']>> | null>(null);
@@ -15,19 +16,22 @@ export function useDeviceProject(service: LocalProjectService, configurationErro
   useEffect(() => {
     mounted.current = true; void load().catch(() => {});
     const unsubscribe = service.subscribe(() => { void load().catch(() => {}); });
-    return () => { mounted.current = false; action.current?.abort(); unsubscribe(); };
+    const flush = () => { void service.flushDrafts().catch(reason => { if (mounted.current) setError((reason as Error).message); }); };
+    window.addEventListener('pagehide', flush); window.addEventListener('device-pause', flush);
+    return () => { flush(); mounted.current = false; action.current?.abort(); unsubscribe(); window.removeEventListener('pagehide', flush); window.removeEventListener('device-pause', flush); };
   }, [service, load]);
   const ticket = snapshot?.project?.ticket;
   const ticketKey = `${snapshot?.state.selected.id || ''}:${ticket?.id || ''}`;
   useEffect(() => {
     if (busy || !ticket?.id || configurationError || !['prepared', 'submitted', 'uncertain'].includes(ticket.phase)) return;
     // Authorization-bearing fetch only; never EventSource or a token in a URL.
-    const controller = new AbortController(); let timer: ReturnType<typeof setTimeout> | undefined, failures = 0;
+    const controller = new AbortController(); let timer: ReturnType<typeof setTimeout> | undefined, failures = 0, unchanged = 0;
     const poll = async () => {
       if (controller.signal.aborted) return;
       if (!navigator.onLine) { setNotice('当前离线，可继续查看本机记录。联网后只读取原任务，不会重新提交。'); return; }
       try {
-        await service.poll(controller.signal); if (controller.signal.aborted) return;
+        const changed = await service.poll(controller.signal); if (controller.signal.aborted) return;
+        unchanged = changed === false ? unchanged + 1 : 0;
         setError(''); failures = 0;
       } catch (reason) {
         if (controller.signal.aborted) return;
@@ -36,7 +40,7 @@ export function useDeviceProject(service: LocalProjectService, configurationErro
       }
       const next = await service.snapshot();
       if (next.project?.ticket?.id !== ticket.id || !['prepared', 'submitted', 'uncertain'].includes(next.project.ticket.phase)) return;
-      const wait = Math.max(1500 * 2 ** failures, Date.parse(next.project.ticket.nextPollAt || '') - Date.now() || 0);
+      const wait = Math.max(snapshotPollDelay(!!next.view?.pipeline?.terminal, unchanged, failures), Date.parse(next.project.ticket.nextPollAt || '') - Date.now() || 0);
       timer = setTimeout(() => { void poll().catch(reason => { if (!controller.signal.aborted) setError((reason as Error).message); }); }, Math.min(wait, 2 * 60 * 60 * 1000));
     };
     // Allow a pending POST to settle first. Even cold-start recovery is GET-only.

@@ -37,8 +37,9 @@ async def test_all_points_share_one_budget_stream_and_keep_more_than_five(tmp_pa
     published = asyncio.Event()
     release = asyncio.Event()
 
-    async def engine(settings, points, input_data, *, publish, deadline_seconds, catalog_cache):
+    async def engine(settings, points, input_data, *, publish, deadline_seconds, catalog_cache, search_cache):
         assert callable(catalog_cache.lookup) and callable(catalog_cache.observe)
+        assert search_cache is store
         calls.append((deepcopy(points), deadline_seconds))
         rows = [recommendation(i) for i in range(1, 9)]
         snapshot = {"policy": "helpful-video-v1", "status": "running", "started_at": now(),
@@ -85,7 +86,8 @@ async def test_cancel_preserves_visible_results_and_rejects_late_callback(tmp_pa
     _, store, jobs, projects = setup(tmp_path)
     entered, cancelled = asyncio.Event(), asyncio.Event()
 
-    async def engine(settings, points, input_data, *, publish, deadline_seconds, catalog_cache):
+    async def engine(settings, points, input_data, *, publish, deadline_seconds, catalog_cache, search_cache):
+        assert search_cache is store
         snapshot = {"policy": "helpful-video-v1", "status": "running",
                     "recommendations": {p["id"]: [recommendation()] for p in points}, "progress": {}}
         publish(snapshot)

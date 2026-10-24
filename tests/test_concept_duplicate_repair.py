@@ -30,6 +30,7 @@ def install(monkeypatch, replies):
 
     async def generate(_settings, _prompt, payload, *_args, **_kwargs):
         requests.append(deepcopy(payload))
+        assert len(requests) <= len(replies), "Unexpected additional model request"
         return deepcopy(replies[len(requests) - 1])
 
     monkeypatch.setattr(module, "complete_json", generate)
@@ -71,6 +72,7 @@ async def test_repeated_duplicate_failure_never_silently_deletes_points_or_calls
     assert caught.value.code == "quality"
     assert len(calls) == 2
     assert [entry["analysis"] for entry in audit] == [bad, bad]
+    assert [entry["attempt"] for entry in audit] == [1, 2]
     # This is a generation-only check; the existing historical read path is unchanged.
     retained = {**bad, "analysis_format": "concept_list_v1", "knowledge_points": [
         {"id": f"k{i + 1}", **point, "selection": "learn"}
@@ -86,7 +88,7 @@ async def test_different_validation_mechanisms_and_cohesive_term_remain_independ
         ("跨字段业务约束", "学习字段之间的逻辑谓词，用于校验起止日期关系。", "Python"),
         ("发布与订阅模式", "学习发布者和订阅者的解耦通信，用于传递事件。", ""),
     ])
-    calls = install(monkeypatch, [body, body])
+    calls = install(monkeypatch, [body])
     result = await ProjectAnalyzer(settings()).analyze(request())
     assert len(calls) == 1
     assert [p.name for p in result.knowledge_points] == [p["name"] for p in body["knowledge_points"]]

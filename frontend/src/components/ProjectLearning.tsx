@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import type { Capabilities } from '../types';
 import type { ProjectAnalysis, ProjectKnowledgePoint, ProjectVersion } from '../projectTypes';
 import { visibleTopicTechnology } from '../reviewedTopicTechnologies';
+import { MAX_PROJECT_KNOWLEDGE_POINTS } from '../projectLimits.ts';
 
 export function ProjectConfirmation({ projectId, version, current, busy, inputDirty, capabilities, onSave, onConfirm, onSelectedChange, deviceMode = false, deviceDraft, onDraftChange }: {
   projectId: string; version: ProjectVersion; current: boolean; busy: boolean; inputDirty: boolean; capabilities: Capabilities | null;
@@ -37,7 +38,7 @@ export function ProjectConfirmation({ projectId, version, current, busy, inputDi
   };
   const helpfulPolicy = capabilities?.project_search?.recommendation_policy === 'helpful-video-v1';
   const batchSize = helpfulPolicy
-    ? Math.max(1, Math.min(capabilities?.project_analysis?.max_knowledge_points || 24, capabilities?.project_search?.batch_size || 24))
+    ? Math.max(1, Math.min(capabilities?.project_analysis?.max_knowledge_points || MAX_PROJECT_KNOWLEDGE_POINTS, capabilities?.project_search?.batch_size || MAX_PROJECT_KNOWLEDGE_POINTS))
     : Math.max(1, Math.min(5, capabilities?.limits.max_knowledge_points || 5, capabilities?.project_search?.batch_size || 5));
   const overBudget = Math.ceil(learned.length / batchSize) > (capabilities?.project_search?.max_batches || Infinity);
   const submit = async (confirm: boolean) => {

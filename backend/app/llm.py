@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import re
+import time
+from contextvars import ContextVar
 from typing import Protocol
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -15,6 +18,23 @@ from .ai_video_fallback import (MAX_VIDEO_HINT_POINTS, MAX_VIDEO_HINTS_PER_POINT
                                 video_recovery_required_literals)
 from .config import Settings
 from .models import SearchRequest
+from .http_clients import managed_client
+
+
+LLM_OBSERVER: ContextVar = ContextVar("llm_completion_observer", default=None)
+
+
+def _usage(envelope):
+    usage = envelope.get("usage") if isinstance(envelope, dict) else None
+    usage = usage if isinstance(usage, dict) else {}
+    def count(value):
+        return value if type(value) is int and value >= 0 else None
+    details = usage.get("prompt_tokens_details")
+    cached = details.get("cached_tokens") if isinstance(details, dict) else None
+    return {"input_tokens": count(usage.get("prompt_tokens", usage.get("input_tokens"))),
+            "output_tokens": count(usage.get("completion_tokens", usage.get("output_tokens"))),
+            "total_tokens": count(usage.get("total_tokens")),
+            "cached_input_tokens": count(usage.get("prompt_cache_hit_tokens", cached))}
 
 
 class Expansion(BaseModel):
@@ -69,6 +89,35 @@ class LLMCompletionFailed(httpx.HTTPError):
 async def complete_json(settings: Settings, system_prompt: str, data: dict,
                         client: httpx.AsyncClient | None = None, *,
                         timeout_seconds: int = 15, max_content_chars: int = 40_000) -> dict:
+    started = time.monotonic()
+    observation = {"status": "running", "usage": _usage({}), "http_status": None,
+                   "request_id_sha256": None}
+    try:
+        result = await _complete_json(settings, system_prompt, data, client,
+            timeout_seconds=timeout_seconds, max_content_chars=max_content_chars,
+            observation=observation)
+        observation["status"] = "completed"
+        return result
+    except BaseException as exc:
+        observation.update(status="cancelled" if isinstance(exc, asyncio.CancelledError) else "failed",
+                           error_type=type(exc).__name__)
+        raise
+    finally:
+        observation["duration_seconds"] = round(time.monotonic() - started, 6)
+        observer = LLM_OBSERVER.get()
+        if observer is not None:
+            try:
+                observer(observation)
+            except Exception:
+                # Diagnostics must not turn a completed model response into a
+                # failed/repeated billable request.
+                pass
+
+
+async def _complete_json(settings: Settings, system_prompt: str, data: dict,
+                         client: httpx.AsyncClient | None = None, *,
+                         timeout_seconds=15, max_content_chars=40_000,
+                         observation: dict) -> dict:
     """Shared transport only: each task owns its system prompt and validation."""
     payload = {"model": settings.llm_model, "messages": [
         {"role": "system", "content": system_prompt},
@@ -96,8 +145,13 @@ async def complete_json(settings: Settings, system_prompt: str, data: dict,
     kwargs = {"headers": {"Authorization": "Bearer " + settings.llm_api_key}, "json": payload}
     max_response_bytes = max(250_000, max_content_chars * 6)
 
-    async def read_envelope(http_client):
-        async with http_client.stream("POST", settings.llm_base_url + "/chat/completions", **kwargs) as response:
+    async def read_envelope(http_client, *, managed=False):
+        options = {**kwargs, **({"timeout": httpx.Timeout(timeout_seconds, connect=5)} if managed else {})}
+        async with http_client.stream("POST", settings.llm_base_url + "/chat/completions", **options) as response:
+            observation["http_status"] = response.status_code
+            request_id = response.headers.get("x-request-id")
+            if request_id:
+                observation["request_id_sha256"] = hashlib.sha256(request_id.encode()).hexdigest()
             body = bytearray()
             # aiter_bytes yields decoded bytes, so compressed responses cannot
             # bypass the application limit. Never load the full body with post,
@@ -117,8 +171,13 @@ async def complete_json(settings: Settings, system_prompt: str, data: dict,
         if client is not None:
             envelope = await read_envelope(client)
         else:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(timeout_seconds, connect=5), follow_redirects=False) as owned_client:
-                envelope = await read_envelope(owned_client)
+            async with managed_client(settings, "llm", timeout_seconds=timeout_seconds, trust_env=True) as owned_client:
+                envelope = await read_envelope(owned_client, managed=True)
+    observation["usage"] = _usage(envelope)
+    if (not isinstance(envelope, dict) or not isinstance(envelope.get("choices"), list)
+            or not envelope["choices"] or not isinstance(envelope["choices"][0], dict)
+            or not isinstance(envelope["choices"][0].get("message"), dict)):
+        raise ValueError("Invalid LLM completion envelope")
     choice = envelope["choices"][0]
     finish_reason = choice.get("finish_reason")
     if finish_reason == "length":

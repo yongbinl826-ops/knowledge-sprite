@@ -1,9 +1,11 @@
 """No account, enumeration or legacy API: per-task temporary capabilities."""
 from fastapi import Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import ValidationError
 
 from .mobile_tasks import MobileError, MobileTaskPayload, capability, task_id
+from .result_stream import result_events
+from .snapshot_transport import conditional_snapshot, mobile_snapshot
 
 
 def register_mobile_routes(app, settings):
@@ -12,9 +14,12 @@ def register_mobile_routes(app, settings):
         return JSONResponse({"detail": exc.message, "code": exc.code}, status_code=exc.status,
                             headers={"Retry-After": str(exc.retry_after)} if exc.retry_after else {})
 
-    def identity(identifier, request):
+    def identity(identifier, request, *, read=False):
         # A token in a URL is never accepted as authentication.
-        if request.query_params:
+        params = request.query_params
+        if params and (not read or set(params) != {"projection"}
+                       or len(params.getlist("projection")) != 1
+                       or params["projection"] not in {"full", "ui"}):
             raise MobileError()
         return task_id(identifier), capability(request.headers)
 
@@ -35,9 +40,30 @@ def register_mobile_routes(app, settings):
 
     @app.get("/api/mobile/tasks/{identifier}")
     async def get_mobile_task(identifier: str, request: Request):
-        identifier, digest = identity(identifier, request)
+        identifier, digest = identity(identifier, request, read=True)
         app.state.mobile.rate(request.client.host if request.client else None)
-        return await app.state.mobile.get(identifier, digest)
+        result = await app.state.mobile.get(identifier, digest)
+        return conditional_snapshot(request,
+            mobile_snapshot(result, request.query_params.get("projection", "full")), mobile=True)
+
+    @app.get("/api/mobile/tasks/{identifier}/events")
+    async def mobile_task_events(identifier: str, request: Request):
+        identifier, digest = identity(identifier, request, read=True)
+        app.state.mobile.rate(request.client.host if request.client else None)
+        projection = request.query_params.get("projection", "full")
+        initial = mobile_snapshot(await app.state.mobile.get(identifier, digest), projection)
+        initial_revision = app.state.store.connection.total_changes
+
+        async def read_snapshot():
+            try:
+                return mobile_snapshot(await app.state.mobile.get(identifier, digest), projection)
+            except MobileError:
+                return None
+
+        return StreamingResponse(result_events(request, read_snapshot,
+            lambda: app.state.store.connection.total_changes, initial, initial_revision=initial_revision,
+            explicit_heartbeat=True), media_type="text/event-stream",
+            headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no", "Vary": "Authorization"})
 
     @app.post("/api/mobile/tasks/{identifier}/cancel")
     async def cancel_mobile_task(identifier: str, request: Request):

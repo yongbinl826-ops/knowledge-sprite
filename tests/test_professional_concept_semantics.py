@@ -203,12 +203,13 @@ def test_synthetic_correction_does_not_add_scope_or_change_original_requirements
 
 
 def test_prompt_is_about_concepts_and_real_dependencies_not_mastery_or_mandatory_skills():
-    assert "one coherent reusable mechanism" in SYSTEM_PROMPT
-    assert "List order is only returned display order" in SYSTEM_PROMPT
-    assert "automatically deselect" in SYSTEM_PROMPT
+    assert "one point teaches one reusable principle" in SYSTEM_PROMPT
+    assert "Do not output graphs, learning order" in SYSTEM_PROMPT
+    assert "The server supplies IDs and selection" in SYSTEM_PROMPT
+    assert "not requirements or proof of mastery" in SYSTEM_PROMPT
     schema = generation_schema()
     fields = schema["$defs"]["GeneratedConcept"]["properties"]
-    assert not {"learning_skills", "project_task", "practice_check", "learning_position"} & fields.keys()
+    assert not {"learning_skills", "project_task", "practice_check", "learning_position", "selection"} & fields.keys()
     assert "learner_profile" not in schema["properties"]
 
 
@@ -218,8 +219,9 @@ async def test_actual_old_findings_use_existing_two_generation_repair_budget_onl
     def reply(request):
         calls.append(json.loads(request.content))
         body = observed()["analysis"] if len(calls) == 1 else synthetic_repair()
+        generated = flat_proposal(body)
         return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {
-            "content": json.dumps(flat_proposal(body), ensure_ascii=False)}}]})
+            "content": json.dumps(generated, ensure_ascii=False)}}]})
     settings = Settings(llm_provider="openai_compatible", llm_base_url="https://offline.invalid/v1",
                         llm_api_key="synthetic", llm_model="synthetic")
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
@@ -234,12 +236,17 @@ async def test_actual_old_findings_use_existing_two_generation_repair_budget_onl
 
 @pytest.mark.asyncio
 async def test_persistent_semantic_findings_fail_quality_with_safe_coordinates():
+    from tests.professional_contract_support import unrepaired_quality_response
     count = 0
     def reply(request):
         nonlocal count
         count += 1
+        assert count <= 2
+        generated = flat_proposal(observed()["analysis"])
+        payload = json.loads(json.loads(request.content)["messages"][1]["content"])
+        generated = unrepaired_quality_response(payload, generated, observed()["input"])
         return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {
-            "content": json.dumps(flat_proposal(observed()["analysis"]), ensure_ascii=False)}}]})
+            "content": json.dumps(generated, ensure_ascii=False)}}]})
     settings = Settings(llm_provider="openai_compatible", llm_base_url="https://offline.invalid/v1",
                         llm_api_key="synthetic", llm_model="synthetic")
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
@@ -247,6 +254,6 @@ async def test_persistent_semantic_findings_fail_quality_with_safe_coordinates()
             await ProjectAnalyzer(settings, client).analyze(ProjectInput.model_validate(observed()["input"]))
     assert count == 2 and caught.value.code == "quality"
     history = next(q for q in caught.value.diagnostics if q.get("type") == "attempt_history")
-    codes = {q["code"] for a in history["attempts"] for q in a["issues"]}
+    codes = {q["code"] for a in history["attempts"] for q in a.get("issues", [])}
     assert {"implementation_detail_as_concept"} <= codes
     assert "游戏计数变量" not in json.dumps(history, ensure_ascii=False)

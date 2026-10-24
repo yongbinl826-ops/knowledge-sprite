@@ -6,6 +6,7 @@ import pytest
 
 from backend.app import project_analysis as module
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer
+from tests.professional_contract_support import unrepaired_quality_response
 from tests.test_professional_knowledge_contract import body, config, project, response
 
 
@@ -41,6 +42,7 @@ async def test_observed_broad_or_whole_statement_title_gets_bounded_quality_repa
     assert repair["validation_feedback"][0]["code"] == code
     assert repair["previous_analysis"]["knowledge_points"][0]["name"] == title
     assert module.ANALYSIS_MAX_MODEL_CALLS == 2
+    assert module.ANALYSIS_MAX_ATTEMPTS == 2
 
 
 @pytest.mark.parametrize("title", [
@@ -72,16 +74,19 @@ async def test_professional_topics_are_not_rejected_for_substrings_or_api_identi
 
 
 @pytest.mark.asyncio
-async def test_repeated_single_statement_is_quality_failure_with_no_third_call():
+async def test_repeated_single_statement_is_rejected_after_last_quality_correction():
     supplied = body()
     supplied["knowledge_points"][0]["name"] = "x = x + 1"
     calls = []
     def reply(req):
         calls.append(req)
-        return response(supplied)
+        payload = json.loads(json.loads(req.content)["messages"][1]["content"])
+        return response(unrepaired_quality_response(payload, supplied, project()))
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         with pytest.raises(AnalysisError) as error:
             await ProjectAnalyzer(config(), client).analyze(project())
     assert len(calls) == 2 and error.value.code == "quality"
     assert error.value.diagnostics[0]["code"] == "syntax_fragment"
-    assert [row["phase"] for row in error.value.diagnostics[-1]["attempts"]] == ["generation", "repair"]
+    history = error.value.diagnostics[-1]["attempts"]
+    assert [row["phase"] for row in history] == ["generation", "repair"]
+    assert [row["category"] for row in history] == ["quality", "quality"]

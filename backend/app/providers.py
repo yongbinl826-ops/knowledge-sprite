@@ -6,6 +6,7 @@ import hashlib
 import math
 import re
 import time
+from dataclasses import replace
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Awaitable, Callable, Protocol
@@ -14,6 +15,47 @@ import httpx
 from .models import Candidate
 from .config import Settings
 from .url_utils import UnsafeURL, normalize_url, safe_thumbnail_url
+from .http_clients import managed_client
+
+SEARCH_THUMBNAIL_VERSION = 2
+
+
+def search_thumbnail(item: dict, provider: str) -> str | None:
+    """Use only this result's explicit cover, never a query-level image list.
+
+    Tavily page images can include avatars and recommendations. A generic
+    source-linked image is not sufficient to identify the video's poster.
+    """
+    fields = ("thumbnail", "thumbnail_url", "thumbnailUrl")
+    if provider == "serper":
+        fields += ("imageUrl",)
+    for field in fields:
+        value = item.get(field)
+        if isinstance(value, dict):
+            value = value.get("url")
+        image = safe_thumbnail_url(value)
+        if image:
+            return image
+    if provider == "tavily" and isinstance(item.get("images"), list):
+        for entry in item["images"][:20]:
+            if not isinstance(entry, dict):
+                continue
+            role = entry.get("role", entry.get("type"))
+            if not isinstance(role, str) or role not in {"thumbnail", "poster", "og:image"}:
+                continue
+            # Explicitly supplied bindings must agree. The containing result
+            # supplies the binding when the provider omits a redundant URL.
+            bound = entry.get("source_url", entry.get("page_url"))
+            if bound is not None:
+                try:
+                    if normalize_url(bound) != normalize_url(item.get("url")):
+                        continue
+                except (UnsafeURL, TypeError, ValueError):
+                    continue
+            image = safe_thumbnail_url(entry.get("url"))
+            if image:
+                return image
+    return None
 
 
 class SearchError(Exception):
@@ -124,8 +166,9 @@ def parse_candidates(items: list, provider: str, query: str, limit: int, domains
             snippet = ""
         engines = item.get("engines") or [item.get("engine")]
         engines = [e for e in engines if isinstance(e, str) and re.fullmatch(r"[a-zA-Z0-9 ._-]{1,60}", e)] if isinstance(engines, list) else []
-        video_result = provider == "searxng" and item.get("template") == "videos.html"
-        thumbnail = safe_thumbnail_url(item.get("thumbnail")) if provider == "searxng" else None
+        video_result = (provider == "searxng" and item.get("template") == "videos.html"
+                        or provider == "serper" and item.get("_result_kind") == "video")
+        thumbnail = search_thumbnail(item, provider)
         results.append(Candidate(id=hashlib.sha256(f"{provider}\0{query}\0{url}".encode()).hexdigest()[:24],
                                  title=title[:600], url=url[:4096], snippet=snippet[:4000], source=provider, query=query,
                                  source_engines=engines, resource_type_hint="video" if video_result else "unknown",
@@ -154,6 +197,9 @@ class HTTPProvider:
     def _get_observation(self, name, default):
         scope = self._query_observations.get()
         return scope.get(name, default) if scope is not None else self.__dict__.get("_" + name, default)
+
+    def prepare_request(self, kwargs):
+        return kwargs, {}
 
     def _set_observation(self, name, value):
         scope = self._query_observations.get()
@@ -243,11 +289,12 @@ class HTTPProvider:
                     raise SearchError("upstream_engine_failed", "上游引擎在等待期间进入暂停期，未发起该请求")
                 if not requested_engines and time.monotonic() < getattr(self, "default_group_pause_until", 0):
                     raise SearchError("upstream_engine_failed", "默认引擎组仍在暂停期，未发起该请求")
+                kwargs, request_metadata = self.prepare_request(kwargs)
                 if self.request_hook:
                     await self.request_hook()
                 self.last_request_started = time.monotonic()
             trace = {"provider": self.name, "started_at": datetime.now(timezone.utc).isoformat(),
-                     "retry_index": attempt, "status": "running"}
+                     "retry_index": attempt, "status": "running", **request_metadata}
             if "params" in kwargs:
                 trace["engines_requested"] = kwargs["params"].get("engines", "instance_defaults")
             self.last_requests.append(trace)
@@ -256,8 +303,13 @@ class HTTPProvider:
                 if self.client:
                     response = await self._bounded_response(self.client, method, url, trace, **kwargs)
                 else:
-                    async with httpx.AsyncClient(timeout=httpx.Timeout(self.settings.search_timeout_seconds, connect=5), follow_redirects=False, trust_env=False) as client:
-                        response = await self._bounded_response(client, method, url, trace, **kwargs)
+                    transport_settings = self.settings
+                    if self.name == "tavily" and kwargs.get("headers", {}).get("Authorization", "").startswith("Bearer "):
+                        transport_settings = replace(self.settings, tavily_api_key=kwargs["headers"]["Authorization"][7:])
+                    async with managed_client(transport_settings, "search:" + self.name,
+                                              timeout_seconds=self.settings.search_timeout_seconds) as client:
+                        response = await self._bounded_response(client, method, url, trace,
+                            **{**kwargs, "timeout": httpx.Timeout(self.settings.search_timeout_seconds, connect=5)})
                 trace["http_status"] = response.status_code
                 self.observe_response(response, trace)
                 if response.status_code == 429 or (response.status_code == 503 and "retry-after" in response.headers):
@@ -499,9 +551,29 @@ class TavilyProvider(HTTPProvider):
     name = "tavily"
     read_error_statuses = frozenset({400, 401, 402, 403, 429, 432, 433})
 
+    def __init__(self, settings, client=None):
+        super().__init__(settings, client)
+        self._exhausted_slots = set()
+
+    def _keys(self):
+        primary, backup = self.settings.tavily_api_key, self.settings.tavily_backup_api_key
+        return [(slot, key) for slot, key in (("primary", primary), ("backup", backup))
+                if key and (slot == "primary" or key != primary)]
+
+    def prepare_request(self, kwargs):
+        keys = self._keys()
+        available = next(((slot, key) for slot, key in keys if slot not in self._exhausted_slots), None)
+        if keys and available is None:
+            raise SearchError("quota_exhausted", "Tavily 已配置凭据的额度已用尽")
+        if available is None:
+            return {**kwargs, "headers": {"X-Tavily-Access-Mode": "keyless"}}, {"credential_slot": "keyless"}
+        slot, key = available
+        return {**kwargs, "headers": {"Authorization": "Bearer " + key}}, {"credential_slot": slot}
+
     def observe_response(self, response, trace):
         if response.status_code in {402, 432, 433}:
-            self.quota_exhausted = True
+            self._exhausted_slots.add(trace.get("credential_slot", "primary"))
+            self.quota_exhausted = not any(slot not in self._exhausted_slots for slot, _ in self._keys())
         if response.status_code not in self.read_error_statuses:
             return
         try:
@@ -523,7 +595,7 @@ class TavilyProvider(HTTPProvider):
 
     @property
     def auth_mode(self) -> str:
-        if self.settings.tavily_api_key:
+        if self._keys():
             return "api_key"
         return "keyless" if self.settings.tavily_allow_keyless else "unconfigured"
 
@@ -535,6 +607,7 @@ class TavilyProvider(HTTPProvider):
         if getattr(self, "quota_exhausted", False):
             raise SearchError("quota_exhausted", "Tavily 额度已用尽，已停止该来源；未切换账号或访问模式")
         payload = {"query": query, "max_results": min(limit, 20), "include_answer": False, "include_raw_content": False,
+                   "include_images": True,
                    "search_depth": "basic", "auto_parameters": False, "include_usage": True}
         if language != "any":
             payload["language"] = "zh-cn" if language == "zh" else "en"
@@ -544,16 +617,22 @@ class TavilyProvider(HTTPProvider):
             payload["include_domains_mode"] = "restrict"
         # Never send both headers: an API key overrides keyless access and uses
         # the account's budget. Missing keys do not silently opt into keyless.
-        headers = ({"Authorization": "Bearer " + self.settings.tavily_api_key}
-                   if self.auth_mode == "api_key" else {"X-Tavily-Access-Mode": "keyless"})
         try:
-            body = await self.request("POST", "https://api.tavily.com/search", headers=headers, json=payload)
-        except SearchError as exc:
-            if self.last_requests and self.last_requests[-1].get("http_status") in {402, 432, 433}:
-                self.quota_exhausted = True
-                self.last_requests[-1]["error_code"] = "quota_exhausted"
-                raise SearchError("quota_exhausted", "Tavily 额度或套餐限制，已停止该来源；未启用付费服务") from None
-            raise
+            for credential_attempt in range(2):
+                before = len(self.last_requests)
+                try:
+                    body = await self.request("POST", "https://api.tavily.com/search", json=payload)
+                    break
+                except SearchError:
+                    trace = self.last_requests[-1] if len(self.last_requests) > before else {}
+                    if trace.get("http_status") in {402, 432, 433}:
+                        trace["error_code"] = "quota_exhausted"
+                        if (credential_attempt == 0 and trace.get("credential_slot") == "primary"
+                                and not self.quota_exhausted):
+                            trace["backup_transition"] = "configured_quota_fallback"
+                            continue
+                        raise SearchError("quota_exhausted", "Tavily 已配置凭据的额度或套餐受限，已停止该来源") from None
+                    raise
         finally:
             for trace in self.last_requests:
                 trace.update(auth_mode=self.auth_mode, search_depth="basic")
@@ -569,7 +648,7 @@ class TavilyProvider(HTTPProvider):
 
 
 class SerperProvider(HTTPProvider):
-    """Google organic search only; no scrape endpoint, account or billing changes."""
+    """Organic courses and video results with their own thumbnails; no scraping."""
     name = "serper"
 
     @property
@@ -581,13 +660,19 @@ class SerperProvider(HTTPProvider):
             self.quota_exhausted = True
 
     def normalize_response(self, body):
-        if not isinstance(body, dict) or not isinstance(body.get("organic"), list):
-            raise SearchError("invalid_response", "Serper 未返回有效的 organic 搜索结果")
+        if not isinstance(body, dict):
+            raise SearchError("invalid_response", "Serper 未返回有效的搜索结果")
+        kind = "videos" if isinstance(body.get("videos"), list) else "organic"
+        if not isinstance(body.get(kind), list):
+            raise SearchError("invalid_response", "Serper 未返回有效的搜索结果")
         # Only organic search observations may become candidates. Knowledge
         # graphs, answer boxes and nested sitelinks are not course discoveries.
         return {"results": [{"title": item.get("title"), "url": item.get("link"),
-                              "snippet": item.get("snippet")} if isinstance(item, dict) else item
-                            for item in body["organic"]], "credits": body.get("credits")}
+                              "snippet": item.get("snippet"),
+                              "thumbnail": search_thumbnail(item, "serper"),
+                              "_result_kind": "video" if kind == "videos" else "organic"}
+                             if isinstance(item, dict) else item for item in body[kind]],
+                "credits": body.get("credits")}
 
     async def search(self, query: str, language: str, limit: int, domain_filters: list[str]) -> list[Candidate]:
         self.last_requests = []
@@ -608,8 +693,13 @@ class SerperProvider(HTTPProvider):
         payload = {"q": search_query, "num": min(max(limit, 1), 10), "gl": "cn" if language == "zh" else "us"}
         if language != "any":
             payload["hl"] = "zh-cn" if language == "zh" else "en"
+        # Keep course recall on organic search. Only explicit Bilibili searches
+        # use the provider's video index, whose thumbnail is bound to each hit.
+        video_search = bool(domain_filters) and all(
+            domain == "bilibili.com" or domain.endswith(".bilibili.com") for domain in domain_filters)
+        endpoint = "videos" if video_search else "search"
         try:
-            body = await self.request("POST", "https://google.serper.dev/search",
+            body = await self.request("POST", "https://google.serper.dev/" + endpoint,
                 headers={"X-API-KEY": self.settings.serper_api_key}, json=payload)
         except SearchError:
             if getattr(self, "quota_exhausted", False):
@@ -619,7 +709,8 @@ class SerperProvider(HTTPProvider):
             raise
         finally:
             for trace in self.last_requests:
-                trace.update(auth_mode=self.auth_mode, result_limit=payload["num"])
+                trace.update(auth_mode=self.auth_mode, result_limit=payload["num"], search_mode=endpoint,
+                             thumbnail_mapping_version=SEARCH_THUMBNAIL_VERSION)
         credits = body.get("credits")
         if (isinstance(credits, (int, float)) and not isinstance(credits, bool)
                 and 0 <= credits <= 1_000_000_000 and math.isfinite(credits)):

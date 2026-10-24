@@ -15,14 +15,23 @@ from .config import Settings
 from .db import Store
 from .models import SearchRequest, now
 from .project_db import ProjectStore
-from .project_models import AnalysisDocument, ProjectInput
-from .project_analysis import ANALYSIS_PROMPT_VERSION, AnalysisError, ProjectAnalyzer, concept_normalization_settings
+from .project_models import MAX_PROJECT_KNOWLEDGE_POINTS, AnalysisDocument, ProjectInput
+from .project_analysis import (ANALYSIS_PROMPT_VERSION, ANALYSIS_MAX_MODEL_CALLS,
+    ANALYSIS_TIMEOUT_SECONDS, ANALYSIS_TOTAL_TIMEOUT_SECONDS, AnalysisError, ProjectAnalyzer,
+    concept_normalization_settings, project_analysis_settings)
 from .project_search import searchable_unit_name
 from .service import AdmissionRejected, JobService
 from .technical_prefix import canonical_search_name, leading_technical_owner
 from .professional_concepts import generated_context, bound_generated_context, reviewed_technologies
 from .ranking import summarize_collection_coverage
 from .helpful_video_chapters import MAX_CATALOG_RESOURCES, MAX_CATALOG_HTTP_REQUESTS
+from .snapshot_updates import CoalescedPublisher
+
+
+# Leave time for the terminal status write inside the advertised overall budget.
+# This is an application deadline, not a real-time guarantee under a blocked OS
+# or disk. Deadline checks also reject results returned after synchronous work.
+ANALYSIS_PERSISTENCE_RESERVE_SECONDS = 0.5
 
 
 class ProjectError(Exception):
@@ -113,30 +122,54 @@ class ProjectService:
         from .fast_video_search import MAX_CATALOG_MODEL_CALLS, catalog_background_limits
         catalog = catalog_background_limits(self.settings)
         configured = bool(getattr(self.analyzer, "available", False))
+        generation = project_analysis_settings(self.settings)
         repair = concept_normalization_settings(self.settings)
+        total_timeout = min(60, ANALYSIS_TOTAL_TIMEOUT_SECONDS, self.settings.project_analysis_total_timeout_seconds)
         return {"project_analysis": {"status": "configured" if configured else "unconfigured",
-                    "model": self.settings.llm_model or None, "prompt_version": ANALYSIS_PROMPT_VERSION,
-                    "max_functions": 12, "max_knowledge_points": 24,
+                    "model": generation.llm_model or None, "prompt_version": ANALYSIS_PROMPT_VERSION,
+                    "max_functions": 12, "max_knowledge_points": MAX_PROJECT_KNOWLEDGE_POINTS,
                     "mode": "professional_knowledge_points",
                     "analysis_format": "concept_list_v1",
                     "knowledge_point_fields": ["name", "description", "technology"],
                     "prerequisites_generated": False,
                     "learning_order_generated": False,
                     "semantic_review_enabled": False,
+                    "coverage_review_enabled": False,
+                    "implementation_inventory_enabled": False,
+                    "coverage_completion_max_calls": 0,
+                    "coverage_completion_max_output_tokens": 0,
+                    "local_checks_enabled": True,
+                    "coverage_self_check": "generation_prompt",
+                    "semantic_completeness_certified": False,
+                    "total_timeout_seconds": total_timeout,
+                    "timeout_includes_queue": True,
+                    "per_call_timeout_seconds": min(60, ANALYSIS_TIMEOUT_SECONDS,
+                        self.settings.project_analysis_timeout_seconds, total_timeout),
                     "concept_normalization_enabled": False,
                     "normalization_max_calls": 0,
+                    "reasoning_policy": self.settings.project_analysis_reasoning_effort,
+                    "generation_thinking_mode": generation.llm_thinking_mode,
+                    "generation_reasoning_effort": generation.llm_reasoning_effort,
+                    "generation_max_output_tokens": generation.llm_max_output_tokens,
                     "conditional_repair_enabled": True,
+                    "repair_shares_coverage_completion": False,
+                    "repair_shares_total_deadline": True,
                     "repair_max_calls": 1,
                     "repair_thinking_mode": repair.llm_thinking_mode,
                     "repair_reasoning_effort": repair.llm_reasoning_effort,
                     "repair_max_output_tokens": repair.llm_max_output_tokens,
-                    "generation_stages": ["generation", "repair_if_needed"],
+                    "generation_stages": ["compact_generation", "conditional_repair_if_needed"],
                     "accepted_draft_immediate": True,
                     "concept_naming_policy": "established_textbook_terms_v2",
-                    "max_model_calls": 2,
+                    "max_model_calls": ANALYSIS_MAX_MODEL_CALLS,
                     "review_max_calls": 0,
+                    "review_model": None,
+                    "review_thinking_mode": None,
+                    "review_reasoning_effort": None,
                     "review_max_output_tokens": 0,
-                    "message": "项目分析使用独立提示词；内容需学生检查确认" if configured else "项目分析不可用：服务端未配置模型；仍可直接搜索知识点"},
+                    "semantic_correction_max_calls": 0,
+                    "semantic_correction_max_output_tokens": 0,
+                    "message": "项目分析按实际实现路线覆盖必要基础；本地检查发现问题时至多修正一次，排队与分析共用不超过一分钟的预算。内容仍需学生检查确认" if configured else "项目分析不可用：服务端未配置模型；仍可直接搜索知识点"},
                 "project_search": {"recommendation_policy": "helpful-video-v1" if self.settings.fast_video_recommendations_enabled else "related-reference-v1",
                     "match_policy": "targeted-video-v2" if self.settings.fast_video_recommendations_enabled else "related-reference-v1",
                     "max_batches": 1 if self.settings.fast_video_recommendations_enabled else self.settings.project_max_batches,
@@ -160,7 +193,7 @@ class ProjectService:
                     "catalog_cache_enabled": True,
                     "catalog_resource_budget_scope": "network_only",
                     "deadline_seconds": self.settings.fast_video_deadline_seconds if self.settings.fast_video_recommendations_enabled else self.settings.project_deadline_seconds,
-                    "batch_size": 24 if self.settings.fast_video_recommendations_enabled else min(5, self.settings.max_knowledge_points),
+                    "batch_size": MAX_PROJECT_KNOWLEDGE_POINTS if self.settings.fast_video_recommendations_enabled else min(5, self.settings.max_knowledge_points),
                     "mode": "professional_terms_v1",
                     "budget_policy": "全部知识点共用检索预算，推荐数量不截断" if self.settings.fast_video_recommendations_enabled else "按每批完整单任务上限预留；超预算整体拒绝，不截断知识点",
                     "deadline_policy": "全部平台和知识点共用一次墙钟时限，边搜边展示" if self.settings.fast_video_recommendations_enabled else "预留各批完整执行时限之和；墙钟时限控制新批次启动，已提交共享任务继续至原任务时限",
@@ -202,11 +235,14 @@ class ProjectService:
     def _new_version(self, project: dict, input_data: dict, *, status: str, analysis=None, origin="analysis"):
         return {"version": project["current_version"] + 1, "input": input_data, "status": status,
                 "analysis": analysis, "confirmation": None, "batches": [], "budgets": None,
-                "error": None, "warnings": [], "created_at": now(), "model": self.settings.llm_model or None,
+                "error": None, "warnings": [], "created_at": now(), "model": project_analysis_settings(self.settings).llm_model or None,
                 "prompt_version": ANALYSIS_PROMPT_VERSION, "origin": origin, "search_started_at": None,
                 "cancel_requested": False}
 
     def analyze(self, project_id: str, expected_version: int | None = None, input_data: ProjectInput | None = None):
+        loop = asyncio.get_running_loop()
+        budget = min(60, ANALYSIS_TOTAL_TIMEOUT_SECONDS, self.settings.project_analysis_total_timeout_seconds)
+        deadline = loop.time() + budget - min(ANALYSIS_PERSISTENCE_RESERVE_SECONDS, budget * 0.05)
         project = self._project(project_id)
         self._expect_current(project, expected_version)
         source = input_data.model_dump() if input_data is not None else project["input"]
@@ -216,15 +252,15 @@ class ProjectService:
         data = self._new_version(project, source, status="analyzing")
         data["analysis_timing"] = {"started_at": data["created_at"], "finished_at": None,
                                    "queue_wait_seconds": None, "processing_seconds": None,
-                                   "elapsed_seconds": None}
+                                   "elapsed_seconds": None, "budget_seconds": budget}
         self.db.save(project_id, data, new=True)
         key = project_id, data["version"]
-        task = asyncio.create_task(self._analyze(project_id, data["version"]))
+        task = asyncio.create_task(self._analyze(project_id, data["version"], deadline=deadline))
         self.analysis_tasks[key] = task
         task.add_done_callback(lambda _: self.analysis_tasks.pop(key, None))
         return self.view(project_id)
 
-    async def _analyze(self, project_id: str, version: int):
+    async def _analyze(self, project_id: str, version: int, *, deadline: float):
         _, data = self._version(project_id, version)
         data.setdefault("analysis_timing", {"started_at": data["created_at"], "finished_at": None,
                                            "queue_wait_seconds": None, "processing_seconds": None,
@@ -240,42 +276,66 @@ class ProjectService:
 
         def retain_attempt(entry: dict):
             # Retain each attempted model response and its validation outcome.
-            # A valid first draft is accepted without a second model call.
+            # Rejected candidates remain private; only validated results are usable.
             data.setdefault("analysis_attempts", []).append(
                 {**deepcopy(entry), "project_id": project_id, "version": version})
             self.db.save(project_id, data)
 
         try:
-            async with self.analysis_slots:
-                processing_started = now()
-                data["analysis_timing"]["processing_started_at"] = processing_started
-                data["analysis_timing"]["queue_wait_seconds"] = round((
-                    datetime.fromisoformat(processing_started) -
-                    datetime.fromisoformat(data["analysis_timing"]["started_at"])).total_seconds(), 6)
-                self.db.save(project_id, data)
-                audit_options = ({"on_rejected_attempt": retain_rejection, "on_analysis_attempt": retain_attempt}
-                                 if isinstance(self.analyzer, ProjectAnalyzer) else {})
-                analysis = await self.analyzer.analyze(ProjectInput.model_validate(data["input"]), **audit_options)
-            # Validate again at the persistence boundary, including injected test analyzers.
-            document = AnalysisDocument.model_validate(analysis.model_dump() if hasattr(analysis, "model_dump") else analysis)
-            data.update(status="analyzed", analysis=document.model_dump(), error=None)
-            data["validated_concept_context"] = generated_context(document.model_dump())
+            loop = asyncio.get_running_loop()
+            if loop.time() >= deadline:
+                raise TimeoutError
+            async with asyncio.timeout_at(deadline):
+                async with self.analysis_slots:
+                    if loop.time() >= deadline:
+                        raise TimeoutError
+                    processing_started = now()
+                    data["analysis_timing"]["processing_started_at"] = processing_started
+                    data["analysis_timing"]["queue_wait_seconds"] = round((
+                        datetime.fromisoformat(processing_started) -
+                        datetime.fromisoformat(data["analysis_timing"]["started_at"])).total_seconds(), 6)
+                    self.db.save(project_id, data)
+                    if loop.time() >= deadline:
+                        raise TimeoutError
+                    audit_options = ({"on_rejected_attempt": retain_rejection, "on_analysis_attempt": retain_attempt,
+                                      "deadline": deadline}
+                                     if isinstance(self.analyzer, ProjectAnalyzer) else {})
+                    analysis = await self.analyzer.analyze(ProjectInput.model_validate(data["input"]), **audit_options)
+                # Synchronous validation or callbacks can exhaust a deadline
+                # without giving asyncio's cancellation callback a turn to run.
+                if loop.time() >= deadline:
+                    raise TimeoutError
+                document = AnalysisDocument.model_validate(analysis.model_dump() if hasattr(analysis, "model_dump") else analysis)
+                serialized = document.model_dump()
+                context = generated_context(serialized)
+                if loop.time() >= deadline:
+                    raise TimeoutError
+                data.update(status="analyzed", analysis=serialized, error=None,
+                            validated_concept_context=context)
         except asyncio.CancelledError:
+            data.update(status="cancelled", analysis=None, cancel_requested=True,
+                        error={"code": "cancelled", "message": "项目分析已中止，原始输入和历史版本已保留。"})
             raise
+        except TimeoutError:
+            data.update(status="analysis_failed", analysis=None,
+                        error={"code": "timeout", "message": "项目分析已达到本次时间预算，原始输入和历史版本已保留。"})
         except AnalysisError as exc:
             data.update(status="analysis_failed", error={"code": exc.code, "message": exc.message})
             if exc.diagnostics:
                 data["error"]["diagnostics"] = exc.diagnostics
         except Exception:
             data.update(status="analysis_failed", error={"code": "analysis_failed", "message": "项目分析失败，输入已保留；请稍后重试或使用直接知识点搜索。"})
-        finished_at = now()
-        timing = data["analysis_timing"]
-        timing.update(finished_at=finished_at, elapsed_seconds=round((
-            datetime.fromisoformat(finished_at) - datetime.fromisoformat(timing["started_at"])).total_seconds(), 6))
-        if timing.get("processing_started_at"):
-            timing["processing_seconds"] = round((datetime.fromisoformat(finished_at) -
-                datetime.fromisoformat(timing["processing_started_at"])).total_seconds(), 6)
-        self.db.save(project_id, data)
+        finally:
+            finished_at = now()
+            timing = data["analysis_timing"]
+            timing.update(finished_at=finished_at, elapsed_seconds=round((
+                datetime.fromisoformat(finished_at) - datetime.fromisoformat(timing["started_at"])).total_seconds(), 6))
+            if timing.get("processing_started_at"):
+                timing["processing_seconds"] = round((datetime.fromisoformat(finished_at) -
+                    datetime.fromisoformat(timing["processing_started_at"])).total_seconds(), 6)
+            else:
+                timing["queue_wait_seconds"] = timing["elapsed_seconds"]
+            self.db.save(project_id, data)
 
     def edit(self, project_id: str, expected_version: int, analysis: AnalysisDocument, input_data: ProjectInput | None = None):
         project = self._project(project_id)
@@ -540,9 +600,10 @@ class ProjectService:
             latest["fast_video_search"] = snapshot
             self.db.save(project_id, latest)
 
+        coalesced = CoalescedPublisher(publish)
         try:
             resume = resume_video_covers if cover_only else resume_video_catalogs
-            await resume(self.settings, points, data["fast_video_search"], publish=publish,
+            await resume(self.settings, points, data["fast_video_search"], publish=coalesced,
                 catalog_cache=NativeCatalogCache(self.store, ttl_seconds=self.settings.page_cache_ttl,
                     page_lookup=self.jobs._page_cache,
                     shared_library_enabled=self.settings.shared_course_library_enabled))
@@ -560,6 +621,8 @@ class ProjectService:
                 if latest and ((latest.get("fast_video_search") or {}).get("catalog_enrichment") or {}).get("run_id") == run_id:
                     self._finish_catalog(latest, "failed")
                     self.db.save(project_id, latest)
+        finally:
+            coalesced.close()
 
     @staticmethod
     def _has_results(group):
@@ -667,12 +730,16 @@ class ProjectService:
             latest["status"] = snapshot["status"]
             self.db.save(project_id, latest)
 
-        await run_fast_video_search(self.settings, points, confirmation["input"],
-                                    publish=publish, deadline_seconds=remaining,
-                                    catalog_cache=NativeCatalogCache(
-                                        self.store, ttl_seconds=self.settings.page_cache_ttl,
-                                        page_lookup=self.jobs._page_cache,
-                                        shared_library_enabled=self.settings.shared_course_library_enabled))
+        coalesced = CoalescedPublisher(publish)
+        try:
+            await run_fast_video_search(self.settings, points, confirmation["input"],
+                                        publish=coalesced, deadline_seconds=remaining, search_cache=self.store,
+                                        catalog_cache=NativeCatalogCache(
+                                            self.store, ttl_seconds=self.settings.page_cache_ttl,
+                                            page_lookup=self.jobs._page_cache,
+                                            shared_library_enabled=self.settings.shared_course_library_enabled))
+        finally:
+            coalesced.close()
 
     async def _run(self, project_id: str, version: int):
         while True:

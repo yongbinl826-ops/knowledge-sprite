@@ -4,7 +4,7 @@ import json
 
 import httpx
 
-from backend.app.project_analysis import ProjectAnalyzer, generation_schema, SYSTEM_PROMPT
+from backend.app.project_analysis import ProjectAnalyzer, generation_schema, semantic_review_settings, SYSTEM_PROMPT
 
 
 def flat_proposal(raw):
@@ -48,8 +48,133 @@ def concept_proposal(raw, names):
     return proposal
 
 
+def draft_with_inventory(proposal, project):
+    """Synthetic mechanism inventory; no semantic or foundation-completeness claim."""
+    original = project.model_dump() if hasattr(project, "model_dump") else project
+    fields = [field for field in ("name", "requirements", "project_context", "technical_version")
+              if original.get(field)]
+    primary = "requirements" if "requirements" in fields else fields[0]
+    mechanisms = [{"id": f"m{index + 1}", "source_field": primary,
+                   "source_quote": original[primary][:1500], "mechanism": f"离线合成机制 {index + 1}",
+                   "must_explain": str(point.get("description", "离线合成说明"))[:500] or "离线合成说明"}
+                  for index, point in enumerate(proposal["knowledge_points"])]
+    # Fixed IDs keep non-primary source references stable when a final mock merges points.
+    mechanisms.extend({"id": f"m{101 + index}", "source_field": field,
+                       "source_quote": original[field][:1500], "mechanism": "离线合成来源对应",
+                       "must_explain": "只用于离线结构测试的来源引用，不证明语义覆盖。"}
+                      for index, field in enumerate(fields) if field != primary)
+    inventory = {"mechanisms": mechanisms, "foundation_checks": {
+        field: {"applicable": False, "reason": "离线合成夹具明确不评估实际基础适用性。", "mechanism_ids": []}
+        for field in ("data_representation", "data_transformation", "callable_contracts",
+                      "control_flow", "resource_readiness", "lifecycle_changes")}}
+    return {"inventory": inventory, "analysis": deepcopy(proposal)}
+
+
+def coverage_completion(proposal, project, inventory=None):
+    """Synthetic exact quotes; a supplied inventory preserves the first mock's IDs.
+
+    Without one, include a reconstruction for invalid/absent-first-draft tests.
+    Mapping/merging fixtures are not evidence that descriptions teach mechanisms.
+    """
+    frozen = deepcopy(inventory) if inventory is not None else draft_with_inventory(proposal, project)["inventory"]
+    if hasattr(frozen, "model_dump"):
+        frozen = frozen.model_dump()
+    points = proposal["knowledge_points"]
+    rows, mapped = [], set()
+    for mechanism in frozen["mechanisms"]:
+        ordinal = int(mechanism["id"][1:]) - 1
+        index = min(ordinal, len(points) - 1) if ordinal < 100 else 0
+        rows.append({"mechanism_id": mechanism["id"], "source_field": mechanism["source_field"],
+                     "source_quote": mechanism["source_quote"], "mechanism": mechanism["mechanism"],
+                     "taught_by": [{"point_index": index, "description_quote": points[index]["description"][:800]}]})
+        mapped.add(index)
+    for index in range(len(points)):
+        if index not in mapped:
+            source = frozen["mechanisms"][0]
+            rows.append({"mechanism_id": "", "source_field": source["source_field"],
+                         "source_quote": source["source_quote"], "mechanism": "离线合成补充机制",
+                         "taught_by": [{"point_index": index, "description_quote": points[index]["description"][:800]}]})
+    result = {"analysis": deepcopy(proposal), "coverage": rows, "unresolved": []}
+    if inventory is None:
+        result["reconstructed_inventory"] = frozen
+    return result
+
+
+def semantic_review_pass(analysis=None, inventory=None):
+    """Synthetic exact-reference review, never evidence of semantic correctness.
+
+    The no-argument form deliberately has no evidence and is only suitable for
+    tests of incomplete reports. Successful orchestrator fixtures must supply
+    the actual candidate and inventory from their review request.
+    """
+    if analysis is None and inventory is None:
+        return {"passed": True, "issues": []}
+    assert analysis is not None and inventory is not None
+    if hasattr(analysis, "model_dump"):
+        analysis = analysis.model_dump()
+    if hasattr(inventory, "model_dump"):
+        inventory = inventory.model_dump()
+    points = analysis["knowledge_points"]
+    checks = []
+    for mechanism in inventory["mechanisms"]:
+        ordinal = int(mechanism["id"][1:]) - 1
+        index = min(ordinal, len(points) - 1) if ordinal < 100 else 0
+        checks.append({
+            "mechanism_id": mechanism["id"],
+            "expected_contract": mechanism["must_explain"][:240],
+            "location": ["knowledge_points", index, "description"],
+            "description_quote": points[index]["description"][:400],
+            "verdict": "covered", "issue_ids": [],
+        })
+    route_field = "technical_plan" if analysis.get("technical_plan") else "scope"
+    return {"passed": True, "issues": [], "mechanism_checks": checks,
+            "route_check": {"expected_contract": "离线结构夹具中的路径引用，不证明实际语义正确。",
+                            "location": [route_field], "description_quote": analysis[route_field][:400],
+                            "verdict": "covered", "issue_ids": []}}
+
+
+def semantic_review_pass_for_payload(payload):
+    """Use the exact final candidate of an explicitly passing review fixture."""
+    return semantic_review_pass(payload["analysis"], payload["implementation_inventory"])
+
+
+def is_semantic_review_payload(payload):
+    properties = payload.get("output_schema", {}).get("properties", {})
+    return "passed" in properties and "issues" in properties
+
+
+def successful_analysis_response(payload, proposal, project):
+    """Route an explicitly valid fixture by phase; never repairs invalid responses."""
+    properties = payload.get("output_schema", {}).get("properties", {})
+    if "knowledge_points" in properties:
+        return deepcopy(proposal)
+    if is_semantic_review_payload(payload):
+        return semantic_review_pass_for_payload(payload)
+    if "resolutions" in properties:
+        raise AssertionError("A passing fixture must not request semantic correction")
+    if "inventory" in properties:
+        return draft_with_inventory(proposal, project)
+    if "coverage" in properties:
+        return coverage_completion(proposal, project, payload.get("implementation_inventory"))
+    raise AssertionError("Unexpected analysis fixture phase")
+
+
+def unchanged_quality_correction(payload):
+    """Explicit negative fixture: leave known local-quality defects unrepaired."""
+    assert "resolutions" in payload["output_schema"]["properties"]
+    return {**coverage_completion(payload["previous_analysis"], payload["project"],
+                                  payload["implementation_inventory"]), "resolutions": []}
+
+
+def unrepaired_quality_response(payload, proposal, project):
+    """Four-stage negative fixture; a passing review cannot approve local defects."""
+    if "resolutions" in payload["output_schema"]["properties"]:
+        return unchanged_quality_correction(payload)
+    return successful_analysis_response(payload, proposal, project)
+
+
 async def projected_once(raw, project, configured, *, concept_names=None):
-    """A valid proposal is delivered after its first locally validated response."""
+    """Compact generation fixture; historical source objects stay untouched."""
     from tests.test_project_analysis import response
     before = deepcopy(raw)
     proposal = flat_proposal(concept_proposal(raw, concept_names) if concept_names is not None else raw)
@@ -57,8 +182,9 @@ async def projected_once(raw, project, configured, *, concept_names=None):
 
     def respond(req):
         calls.append(json.loads(req.content))
-        assert len(calls) == 1, "A valid first proposal must not trigger another model call"
-        return response(proposal)
+        assert len(calls) == 1, "A valid flat proposal must not request extra rounds"
+        payload = json.loads(calls[-1]["messages"][1]["content"])
+        return response(successful_analysis_response(payload, proposal, project))
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         result = await ProjectAnalyzer(configured, client).analyze(project)
@@ -70,7 +196,8 @@ async def projected_once(raw, project, configured, *, concept_names=None):
     assert "validation_feedback" not in payload
     assert len(calls) == 1
     assert calls[0]["messages"][0]["content"] == SYSTEM_PROMPT
-    assert [c["max_tokens"] for c in calls] == [6000]
+    from backend.app.project_analysis import project_analysis_settings
+    assert [c["max_tokens"] for c in calls] == [project_analysis_settings(configured).llm_max_output_tokens]
     return result, calls
 
 

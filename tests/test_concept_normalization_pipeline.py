@@ -1,8 +1,9 @@
-"""Deliver a valid first response; repair only rejected output within two calls."""
+"""Repair rejected flat proposals once; never normalize already-valid output."""
 import asyncio
 from copy import deepcopy
 from dataclasses import replace
 import json
+from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -20,6 +21,7 @@ def replies(monkeypatch, items):
 
     async def complete(_settings, prompt, payload, *_args, **kwargs):
         calls.append({'prompt': prompt, 'payload': deepcopy(payload), **kwargs})
+        assert len(calls) <= len(items), "Unexpected additional model request"
         item = items[len(calls) - 1]
         if isinstance(item, Exception):
             raise item
@@ -44,7 +46,7 @@ def draft_and_normalized():
 
 
 @pytest.mark.asyncio
-async def test_valid_first_response_is_delivered_without_a_second_call(monkeypatch):
+async def test_valid_first_response_returns_without_normalization(monkeypatch):
     _, valid = draft_and_normalized()
     calls = replies(monkeypatch, [valid])
     audit, rejected = [], []
@@ -112,22 +114,26 @@ async def test_structural_repair_uses_only_the_second_call(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_second_stage_cannot_escape_remaining_shared_budget(monkeypatch):
-    draft, _ = draft_and_normalized()
+    draft, final = draft_and_normalized()
     timeouts = []
+    clock = SimpleNamespace(now=100.0)
+    replacements = {name: getattr(asyncio, name) for name in dir(asyncio)}
+    replacements['get_running_loop'] = lambda: SimpleNamespace(time=lambda: clock.now)
+    monkeypatch.setattr(module, 'asyncio', SimpleNamespace(**replacements))
 
     async def complete(*_args, **kwargs):
         timeouts.append(kwargs['timeout_seconds'])
         if len(timeouts) == 1:
-            await asyncio.sleep(.015)
+            clock.now += 40
             return draft
-        await asyncio.sleep(5)
+        clock.now += 21
+        return final
 
     monkeypatch.setattr(module, 'complete_json', complete)
-    monkeypatch.setattr(module, 'ANALYSIS_TOTAL_TIMEOUT_SECONDS', .05)
     with pytest.raises(AnalysisError) as caught:
         await ProjectAnalyzer(settings()).analyze(request())
     assert caught.value.code == 'timeout'
-    assert len(timeouts) == 2 and 0 < timeouts[1] < timeouts[0] <= .05
+    assert timeouts == [60, 20]
 
 
 @pytest.mark.asyncio
@@ -162,9 +168,13 @@ async def test_cancel_during_repair_keeps_rejected_draft_without_an_accepted_ana
         await asyncio.gather(task, return_exceptions=True)
         service.db.recover_analysis()
         data = service.db.version(project_id, 1)
-        assert data['analysis'] is None and data['status'] == 'analysis_failed'
-        assert len(data['analysis_attempts']) == 1
+        assert data['analysis'] is None and data['status'] == 'cancelled'
+        assert data['cancel_requested'] is True
+        assert len(data['analysis_attempts']) == 2
         assert data['analysis_attempts'][0]['analysis'] == draft
+        assert data['analysis_attempts'][1]['analysis'] is None
+        assert data['analysis_attempts'][1]['category'] == 'cancelled'
+        assert not any(entry['outcome'] == 'accepted' for entry in data['analysis_attempts'])
     finally:
         await service.stop()
         store.close()
@@ -205,7 +215,7 @@ async def test_repair_preserves_explicit_reasoning_settings_without_forcing_high
 
     def respond(req):
         payloads.append(json.loads(req.content))
-        return response({} if len(payloads) == 1 else flat_analysis_fixture())
+        return response([{}, flat_analysis_fixture()][len(payloads) - 1])
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         await ProjectAnalyzer(configured, client).analyze(request())
@@ -269,7 +279,7 @@ async def test_descriptive_titles_trigger_only_one_targeted_repair_and_retain_fo
     ('矩形区域表示与坐标约束', 'textbook_representation_constraint_bundle'),
     ('矩形表示与矩形碰撞检测', 'textbook_mechanism_application_bundle'),
 ])
-async def test_unrepaired_descriptive_title_is_not_displayed_and_never_gets_a_third_call(
+async def test_unrepaired_descriptive_title_is_not_displayed_after_final_correction(
         monkeypatch, bad_name, code):
     draft = flat_analysis_fixture()
     draft['knowledge_points'] = [{'name': bad_name, 'description': '保留原始用途。'}]
@@ -279,11 +289,12 @@ async def test_unrepaired_descriptive_title_is_not_displayed_and_never_gets_a_th
         await ProjectAnalyzer(settings()).analyze(request(), on_analysis_attempt=audit.append)
     assert caught.value.code == 'quality' and len(calls) == 2
     assert [entry['outcome'] for entry in audit] == ['rejected', 'rejected']
+    assert any(item['code'] == code for item in calls[1]['payload']['validation_feedback'])
     assert any(item.get('code') == code for item in caught.value.diagnostics)
 
 
 @pytest.mark.asyncio
-async def test_valid_canonical_names_allow_project_action_details_and_still_return_first_draft(monkeypatch):
+async def test_valid_canonical_names_allow_project_action_details_without_repair(monkeypatch):
     valid = flat_analysis_fixture()
     valid['knowledge_points'] = [
         {'name': '变量', 'description': '理解命名存储和赋值，用于保存与重置当前运行数据。'},

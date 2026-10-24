@@ -10,7 +10,7 @@ from .professional_concepts import concept_name_issues, clean_topic_technology
 
 
 MAX_PROJECT_FUNCTIONS = 12
-MAX_PROJECT_KNOWLEDGE_POINTS = 24
+MAX_PROJECT_KNOWLEDGE_POINTS = 30
 MAX_PROJECT_REQUIREMENT_CHARS = 8000
 Identifier = Annotated[str, StringConstraints(pattern=r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")]
 Selection = Literal["learn", "mastered", "skip"]

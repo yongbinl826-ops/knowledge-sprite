@@ -1,10 +1,12 @@
 """Offline regressions for failures found by the unseen-project acceptance set."""
+import json
 import httpx
 import pytest
 
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer, learning_quality_issues, _raw_edge_as_debounce
 from backend.app.project_models import AnalysisDocument, ProjectInput
 from tests import test_project_analysis as offline
+from tests.professional_contract_support import coverage_completion, semantic_review_pass_for_payload
 
 
 @pytest.mark.parametrize("text", [
@@ -51,16 +53,15 @@ def test_generated_tool_annotation_is_feedback_but_saved_analysis_still_reads():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("connection_error", [httpx.ConnectTimeout, httpx.ConnectError])
-async def test_only_presend_connection_failure_can_use_second_analysis_attempt(connection_error):
+async def test_connection_failure_is_reported_without_spending_repair_call(connection_error):
     calls = []
     def respond(request):
         calls.append(request)
-        if len(calls) == 1:
-            raise connection_error("offline connection failure", request=request)
-        return offline.response(offline.flat_analysis_fixture())
+        raise connection_error("offline connection failure", request=request)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        result = await ProjectAnalyzer(offline.settings(), client).analyze(offline.request())
-    assert result.knowledge_points and len(calls) == 2
+        with pytest.raises(AnalysisError) as error:
+            await ProjectAnalyzer(offline.settings(), client).analyze(offline.request())
+    assert error.value.code == "unavailable" and len(calls) == 1
 
 
 @pytest.mark.asyncio
@@ -73,7 +74,7 @@ async def test_uncertain_timeouts_never_retry_and_connection_retries_are_bounded
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         with pytest.raises(AnalysisError) as raised:
             await ProjectAnalyzer(offline.settings(), client).analyze(offline.request())
-    assert len(calls) == (2 if error is httpx.ConnectTimeout else 1)
+    assert len(calls) == 1
     assert raised.value.code == ("unavailable" if error is httpx.ConnectTimeout else "timeout")
 
 
@@ -88,4 +89,4 @@ async def test_connection_retry_does_not_create_a_third_schema_repair_attempt():
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         with pytest.raises(AnalysisError):
             await ProjectAnalyzer(offline.settings(), client).analyze(offline.request())
-    assert len(calls) == 2
+    assert len(calls) == 1

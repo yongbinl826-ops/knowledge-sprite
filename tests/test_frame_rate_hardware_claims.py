@@ -7,6 +7,7 @@ from backend.app import project_analysis as module
 from backend.app.project_analysis import AnalysisError, GeneratedConceptList, ProjectAnalyzer
 from backend.app.project_models import ProjectInput
 from tests.test_project_analysis import settings
+from tests.professional_contract_support import unchanged_quality_correction, is_semantic_review_payload, semantic_review_pass, draft_with_inventory, coverage_completion
 
 
 OBSERVED_CLAIM = "配合时钟限制帧率使运动速度与硬件性能无关。"
@@ -112,6 +113,7 @@ def install_replies(monkeypatch, replies):
 
     async def complete(_settings, _prompt, payload, *_args, **_kwargs):
         calls.append(deepcopy(payload))
+        assert len(calls) <= 2
         return deepcopy(replies[len(calls) - 1])
 
     monkeypatch.setattr(module, "complete_json", complete)
@@ -141,6 +143,8 @@ async def test_repeated_hardware_claim_is_terminal_quality_failure(monkeypatch):
     with pytest.raises(AnalysisError) as caught:
         await ProjectAnalyzer(settings()).analyze(project(), on_analysis_attempt=audit.append)
     assert caught.value.code == "quality" and len(calls) == 2
-    assert [row["outcome"] for row in audit] == ["rejected", "rejected"]
-    assert any(row["code"] == "frame_rate_independence" for row in caught.value.diagnostics
-               if row.get("type") == "knowledge_term_quality")
+    assert [row["outcome"] for row in audit] == [
+        "rejected", "rejected"]
+    assert any(row["code"] == "frame_rate_independence" for row in calls[-1]["validation_feedback"])
+    issue = next(row for row in caught.value.diagnostics if row.get("code") == "frame_rate_independence")
+    assert issue["location"] == ["knowledge_points", 0, "description"]

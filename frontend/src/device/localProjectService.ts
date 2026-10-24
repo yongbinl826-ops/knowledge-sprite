@@ -4,6 +4,7 @@ import type { DeviceState, LocalProject, MobileTask, MobileTaskBody, TaskTicket 
 import { DeviceStore } from './deviceStorage.ts';
 import { createTicket, MobileApi, MobileHttpError } from './mobileApi.ts';
 import { reviewedTopicTechnologies } from '../reviewedTopicTechnologies.ts';
+import { DraftWriter } from './draftWriter.ts';
 
 const stamp = () => new Date().toISOString();
 const activeTicket = (ticket?: TaskTicket) => !!ticket && ['prepared', 'submitted', 'uncertain'].includes(ticket.phase);
@@ -38,6 +39,7 @@ function searchBody(project: LocalProject, analysis: ProjectAnalysis): MobileTas
 }
 export class LocalProjectService {
   private listeners = new Set<() => void>();
+  private drafts = new DraftWriter<DeviceState>(change => this.commit(change));
   constructor(readonly store: DeviceStore, readonly api: MobileApi) {}
   subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
   private async commit(change: (state: DeviceState) => void) {
@@ -48,22 +50,23 @@ export class LocalProjectService {
     return { state, view: project ? localView(project, state.selected.version) : null,
       project, projects: Object.values(state.projects).map(p => p.summary).sort((a, b) => b.updated_at.localeCompare(a.updated_at)) };
   }
-  select(id: string, version?: number) { return this.commit(state => {
+  flushDrafts() { return this.drafts.flush(); }
+  async select(id: string, version?: number) { await this.flushDrafts(); return this.commit(state => {
     if (id && !state.projects[id]) throw new Error('本机没有此项目。');
     if (id && version && !state.projects[id].views.some(v => v.version?.version === version)) throw new Error('本机没有此版本。');
     state.selected = { id, version };
   }); }
-  inputDraft(input: ProjectInput) { return this.commit(state => { state.inputDraft = requestInput(input); }); }
-  draft(id: string, version: number, analysis: ProjectAnalysis) { return this.commit(state => {
+  inputDraft(input: ProjectInput) { const saved = requestInput(input); return this.drafts.save('input', state => { state.inputDraft = saved; }); }
+  draft(id: string, version: number, analysis: ProjectAnalysis) { const saved = structuredClone(analysis); return this.drafts.save(`edit:${id}:${version}`, state => {
     const project = state.projects[id]; if (!project || project.summary.current_version !== version) throw new Error('此历史版本仅供查看。');
-    project.drafts[version] = structuredClone(analysis);
+    project.drafts[version] = saved;
   }); }
   learned(id: string, version: number, point: string, learned: boolean) { return this.commit(state => {
     const project = state.projects[id];
     if (!project?.views.find(view => view.version?.version === version)?.version?.analysis?.knowledge_points.some(p => p.id === point)) throw new Error('未找到此本机知识点。');
     project.learned[`${version}:${point}`] = { learned, at: stamp() };
   }); }
-  remove(id: string) { return this.commit(state => {
+  async remove(id: string) { await this.flushDrafts(); return this.commit(state => {
     const project = state.projects[id]; if (!project) return;
     if (activeTicket(project.ticket)) throw new Error('请先明确取消或读取临时任务的最终状态，再删除本机项目。');
     delete state.projects[id];
@@ -78,6 +81,7 @@ export class LocalProjectService {
     if (activeTicket(project.ticket) && Date.parse(project.ticket!.expiresAt) > Date.now()) throw new Error('上次任务结果尚未确认。请先重新读取状态；不会重复提交。');
   }
   private async stopCatalogBeforeMutation(signal?: AbortSignal) {
+    await this.flushDrafts();
     const { state, project } = await this.snapshot();
     if (!project) return;
     this.current(state);
@@ -167,11 +171,17 @@ export class LocalProjectService {
   private async apply(ticket: TaskTicket, task: MobileTask) {
     const kind = (JSON.parse(ticket.body) as MobileTaskBody).kind;
     if (task.task_id !== ticket.id || task.kind !== kind || !Number.isFinite(Date.parse(task.expires_at)) || !['queued', 'running', 'completed', 'partial', 'failed', 'cancelled'].includes(task.status)) throw new Error('服务任务身份或状态不一致，保留本机记录。');
+    const revision = task.snapshot_revision || task.result?.snapshot_revision;
+    const fingerprint = JSON.stringify(revision ? { revision, status: task.status, error: task.error, expires_at: task.expires_at } : task);
+    const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(fingerprint)))].map(n => n.toString(16).padStart(2, '0')).join('');
+    const savedBefore = (await this.store.load()).projects[ticket.projectId]?.ticket;
+    if (savedBefore?.id === ticket.id && savedBefore.snapshotRevision === hash && !savedBefore.message) return false;
     await this.commit(state => {
       const project = state.projects[ticket.projectId]; const saved = project?.ticket;
       if (!saved || saved.id !== ticket.id) return; // Older responses never overwrite a newer action.
       const view = project.views.find(v => v.version?.version === ticket.version)!;
       saved.expiresAt = new Date(Math.min(Date.parse(saved.expiresAt), Date.parse(task.expires_at))).toISOString(); saved.nextPollAt = undefined; saved.message = undefined;
+      saved.snapshotRevision = hash;
       if (task.result) {
         if ('version' in task.result) {
           const remote = task.result; if (!remote.version) throw new Error('服务未返回项目版本。');
@@ -200,6 +210,7 @@ export class LocalProjectService {
       if (finalTask(task)) { saved.phase = 'complete'; saved.capability = ''; }
       project.summary.updated_at = stamp();
     });
+    return true;
   }
   private async noteFailure(ticket: TaskTicket, error: unknown) {
     await this.commit(state => { const saved = state.projects[ticket.projectId]?.ticket; if (!saved || saved.id !== ticket.id || !activeTicket(saved)) return;
@@ -218,7 +229,7 @@ export class LocalProjectService {
     if (!activeTicket(ticket)) return;
     if (Date.parse(ticket!.expiresAt) <= Date.now()) { await this.noteFailure(ticket!, new MobileHttpError('临时任务已过期', 404)); return; }
     if (ticket!.nextPollAt && Date.parse(ticket!.nextPollAt) > Date.now()) return;
-    try { await this.apply(ticket!, await this.api.task(ticket!, 'GET', signal)); }
+    try { return await this.apply(ticket!, await this.api.task(ticket!, 'GET', signal)); }
     catch (error) { if (signal?.aborted) return; await this.noteFailure(ticket!, error); throw error; }
   }
   async cancel(signal?: AbortSignal) {

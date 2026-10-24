@@ -15,6 +15,7 @@ from backend.app.llm import LLMCompletionTruncated, LLMResponseTooLarge
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer, generation_schema
 from backend.app.project_models import AnalysisDocument, ProjectInput
 from tests.professional_contract_support import flat_proposal, assert_simple_generation_schema
+from tests.professional_contract_support import unrepaired_quality_response
 
 
 FIXTURE = json.loads((Path(__file__).parent / "fixtures/professional_knowledge/original_v1_fixture.json").read_text(encoding="utf-8"))
@@ -85,11 +86,11 @@ async def test_flat_payload_works_without_expanded_fields_or_critic(monkeypatch)
                for p in result.knowledge_points)
     sent = json.loads(calls[0]["messages"][1]["content"])
     assert sent["output_schema"] == generation_schema() and sent["project"] == project().model_dump()
-    assert calls[0]["messages"][0]["content"] == module.SYSTEM_PROMPT
+    assert calls[0]["messages"][0]["content"] == module.GENERATION_PROMPT
     assert calls[0]["max_tokens"] == config().llm_max_output_tokens
-    assert module.ANALYSIS_MAX_MODEL_CALLS == module.ANALYSIS_MAX_ATTEMPTS == 2
-    assert "established textbook noun or technical term" in module.SYSTEM_PROMPT
-    assert "Use a reusable mechanism" in module.SYSTEM_PROMPT
+    assert module.ANALYSIS_MAX_MODEL_CALLS == 2 and module.ANALYSIS_MAX_ATTEMPTS == 2
+    assert "concise established concept names" in module.SYSTEM_PROMPT
+    assert "one point teaches one reusable principle" in module.SYSTEM_PROMPT
 
 
 @pytest.mark.parametrize("name", ["pygame事件处理", "矩形碰撞检测", "有限状态机", "pandas分组聚合"])
@@ -172,7 +173,7 @@ def test_history_and_edit_keep_reference_and_range_protections(kind):
     elif kind == "duplicate_name": q["name"] = p["name"]
     elif kind == "bad_function": p["function_ids"] = ["missing"]
     elif kind == "order_zero": p["learning_order"] = 0
-    elif kind == "order_large": p["learning_order"] = 25
+    elif kind == "order_large": p["learning_order"] = 31
     else: p["learning_order"] = "1"
     with pytest.raises(ValidationError): AnalysisDocument.model_validate(sample)
 
@@ -197,17 +198,22 @@ async def test_unsafe_or_invalid_generation_is_repaired_within_two_calls(kind):
 
 @pytest.mark.parametrize("field,value", [("name", "Python"), ("selection", "mastered"), ("selection", "skip")])
 @pytest.mark.asyncio
-async def test_original_v1_title_and_mastery_rejection_remains_terminal_after_two_attempts(field, value):
+async def test_title_rejection_is_final_while_invalid_mastery_stops_before_review(field, value):
     sample = body()
     sample["knowledge_points"][0][field] = value
     calls = []
     def reply(req):
         calls.append(req)
+        assert len(calls) <= 2
+        if field == "name":
+            payload = json.loads(json.loads(req.content)["messages"][1]["content"])
+            return response(unrepaired_quality_response(payload, sample, project()))
         return response(sample)
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         with pytest.raises(AnalysisError) as error:
             await ProjectAnalyzer(config(), client).analyze(project())
-    assert len(calls) == 2 and error.value.code == ("quality" if field == "name" else "schema")
+    assert len(calls) == 2
+    assert error.value.code == ("quality" if field == "name" else "schema")
 
 
 @pytest.mark.parametrize("status", [400, 401, 403, 429, 500])
@@ -225,7 +231,7 @@ async def test_http_failures_are_safe_and_not_retried(status):
 
 
 @pytest.mark.parametrize("failure,expected,calls_expected", [
-    (httpx.ConnectError, "unavailable", 2), (httpx.ReadTimeout, "timeout", 1),
+    (httpx.ConnectError, "unavailable", 1), (httpx.ReadTimeout, "timeout", 1),
     (LLMCompletionTruncated, "output_truncated", 1), (LLMResponseTooLarge, "response_too_large", 1),
 ])
 @pytest.mark.asyncio

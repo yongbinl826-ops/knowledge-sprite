@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, ApiError } from './api';
 import { openSnapshotStream } from './snapshotStream';
+import { readSnapshot, snapshotPollDelay } from './snapshotRead';
 import { pendingRequest, readPendingCreation, savePendingCreation } from './pendingCreation';
 import type { Capabilities, SearchJob, SearchRequest, SearchResults, JobCreated, JobCancelled } from './types';
 
 const terminal = new Set(['completed', 'partial', 'failed', 'interrupted', 'cancelled']);
 const resultsTerminal = (snapshot: SearchResults) => snapshot.pipeline?.terminal ?? terminal.has(snapshot.status);
+const resultsComplete = (snapshot: SearchResults) => resultsTerminal(snapshot) && snapshot.pipeline?.catalog_pending !== true;
 export function useSearch() {
   const [capabilities, setCapabilities] = useState<Capabilities | null>(null);
   const [capabilityError, setCapabilityError] = useState('');
@@ -62,11 +64,16 @@ export function useSearch() {
     let failures = 0;
     let allowStream = true;
     let closeStream = () => {};
+    let etag: string | undefined, lastSnapshot: SearchResults | undefined;
+    let unchanged = 0;
     const applySnapshot = (snapshot: SearchResults) => {
       if (!current()) return;
       if (snapshot.job_id !== jobId || !snapshot.job || snapshot.job.job_id !== jobId || snapshot.job.status !== snapshot.status) throw new Error('返回的任务状态不一致，未替换当前结果。');
-      setJob(snapshot.job); setResults(snapshot); setPollError(''); failures = 0;
-      if (resultsTerminal(snapshot)) { closeStream(); void refreshCapabilities(); }
+      const same = !!snapshot.snapshot_revision && snapshot.snapshot_revision === lastSnapshot?.snapshot_revision;
+      unchanged = same ? unchanged + 1 : 0;
+      if (!same) { setJob(snapshot.job); setResults(snapshot); }
+      lastSnapshot = snapshot; setPollError(''); failures = 0;
+      if (resultsComplete(snapshot)) { closeStream(); void refreshCapabilities(); }
     };
     const poll = async () => {
       if (!current()) return;
@@ -74,25 +81,29 @@ export function useSearch() {
       const abortRound = () => round.abort();
       controller.signal.addEventListener('abort', abortRound, { once: true });
       try {
-        const [nextJob, nextResults] = await Promise.all([
-          api<SearchJob>(`/api/search-jobs/${encodeURIComponent(jobId)}`, { signal: round.signal }),
-          api<SearchResults>(`/api/search-jobs/${encodeURIComponent(jobId)}/results`, { signal: round.signal }),
-        ]);
+        const response = await readSnapshot<SearchResults>(`/api/search-jobs/${encodeURIComponent(jobId)}/results?projection=ui`, round.signal, etag);
+        etag = response.etag;
+        const nextResults = response.value || lastSnapshot;
+        if (!nextResults) throw new Error('状态缓存尚未建立');
+        const nextJob = nextResults.job || await api<SearchJob>(`/api/search-jobs/${encodeURIComponent(jobId)}`, { signal: round.signal });
         if (!current()) return;
         // A terminal transition can occur between the two independent reads.
         const coherentResults = terminal.has(nextJob.status) && nextResults.status !== nextJob.status
-          ? await api<SearchResults>(`/api/search-jobs/${encodeURIComponent(jobId)}/results`, { signal: round.signal })
+          ? await api<SearchResults>(`/api/search-jobs/${encodeURIComponent(jobId)}/results?projection=ui`, { signal: round.signal })
           : nextResults;
         if (!current()) return;
         if (nextJob.job_id !== jobId || coherentResults.job_id !== jobId) throw new Error('返回的任务编号不一致，未替换当前结果。');
-        setJob(nextJob); setResults(coherentResults); setPollError(''); failures = 0;
-        if (coherentResults.pipeline?.terminal ?? terminal.has(nextJob.status)) { void refreshCapabilities(); return; }
+        const same = !response.value || !!coherentResults.snapshot_revision && coherentResults.snapshot_revision === lastSnapshot?.snapshot_revision;
+        unchanged = same ? unchanged + 1 : 0;
+        if (!same) { setJob(nextJob); setResults(coherentResults); }
+        lastSnapshot = coherentResults; setPollError(''); failures = 0;
+        if (resultsComplete(coherentResults)) { void refreshCapabilities(); return; }
         if (allowStream && coherentResults.pipeline) {
           allowStream = false;
           closeStream = openSnapshotStream<SearchResults>({
-            url: `/api/search-jobs/${encodeURIComponent(jobId)}/events`, signal: controller.signal,
+            url: `/api/search-jobs/${encodeURIComponent(jobId)}/events?projection=ui`, signal: controller.signal,
             onSnapshot: applySnapshot,
-            onComplete: snapshot => { if (!snapshot || !resultsTerminal(snapshot)) throw new Error('缺少最终任务状态'); applySnapshot(snapshot); },
+            onComplete: snapshot => { if (!snapshot || !resultsComplete(snapshot)) throw new Error('缺少最终任务状态'); applySnapshot(snapshot); },
             onFallback: () => { if (current()) void poll(); },
           });
           return;
@@ -103,10 +114,10 @@ export function useSearch() {
         setPollError(`进度暂时无法读取：${(err as Error).message}${failures < 3 ? ' 正在重试。' : ' 已暂停轮询，可手动重试。'}`);
         if (failures >= 3) return;
       } finally {
-        // A failed Promise.all must also stop its still-pending sibling request.
+        // Abort the read deadline and discard work belonging to this round.
         round.abort(); controller.signal.removeEventListener('abort', abortRound);
       }
-      if (current()) timer = window.setTimeout(poll, 1500);
+      if (current()) timer = window.setTimeout(poll, snapshotPollDelay(!!lastSnapshot?.pipeline?.terminal, unchanged, failures));
     };
     void poll();
     return () => { controller.abort(); closeStream(); window.clearTimeout(timer); };

@@ -248,14 +248,14 @@ async def test_cover_course_window_cannot_exceed_24_seconds_or_raise_http_timeou
         return cover_metadata()
 
     enrich = service(cover_only=True, per_resource_timeout=999)
-    assert enrich._fetcher.config.timeout_seconds == 12
+    assert enrich._fetcher.config.timeout_seconds == Settings().fetch_timeout_seconds
     enrich.fetch_catalog = fetch
     try:
         enrich.enqueue(RESOURCE, ["collision"])
         enrich.finish_admission()
         await enrich.run_background_match()
         assert enrich.diagnostics["resources"][0]["course_timeout_seconds"] == 24
-        assert enrich._fetcher.config.timeout_seconds == 12
+        assert enrich._fetcher.config.timeout_seconds == Settings().fetch_timeout_seconds
     finally:
         await enrich.close()
 

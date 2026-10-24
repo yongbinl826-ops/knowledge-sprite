@@ -280,8 +280,8 @@ class JobService:
         self._searxng_failover_health = {}
         names = [settings.search_provider_for(platform) for platform in PLATFORMS]
         if settings.ai_video_fallback_enabled:
-            names += [name for name, key in (("serper", settings.serper_api_key), ("tavily", settings.tavily_api_key)) if key]
-        if settings.searxng_failover_provider == "tavily" and settings.tavily_api_key:
+            names += [name for name, key in (("serper", settings.serper_api_key), ("tavily", settings.tavily_api_key or settings.tavily_backup_api_key)) if key]
+        if settings.searxng_failover_provider == "tavily" and (settings.tavily_api_key or settings.tavily_backup_api_key):
             names.append("tavily")
         for name in dict.fromkeys(names):
             if name in self._providers:
@@ -339,7 +339,7 @@ class JobService:
     def _failover_enabled(self):
         # An already-configured key is necessary; never opt into keyless access.
         return (getattr(self.settings, "searxng_failover_provider", "") == "tavily"
-                and bool(self.settings.tavily_api_key) and self._providers.get("tavily") is not None
+                and bool(self.settings.tavily_api_key or self.settings.tavily_backup_api_key) and self._providers.get("tavily") is not None
                 and self._provider_errors.get("tavily") is None)
 
     def _ai_search_source(self, query):
@@ -348,7 +348,7 @@ class JobService:
         selected = self.settings.ai_video_search_provider
         if selected == "auto":
             selected = ("serper" if self.settings.serper_api_key else
-                        "tavily" if self.settings.tavily_api_key else configured)
+                        "tavily" if self.settings.tavily_api_key or self.settings.tavily_backup_api_key else configured)
         if selected == "default":
             selected = configured
         if selected == configured:
@@ -2675,7 +2675,7 @@ class JobService:
     def capabilities(self):
         from . import grounded_related
         config = {"searxng": bool(self.settings.searxng_url),
-            "tavily": bool(self.settings.tavily_api_key or self.settings.tavily_allow_keyless),
+            "tavily": bool(self.settings.tavily_api_key or self.settings.tavily_backup_api_key or self.settings.tavily_allow_keyless),
             "serper": bool(self.settings.serper_api_key),
             "official_sitemap": self.settings.fetch_enabled}
         def provider_status(name):
@@ -2688,8 +2688,9 @@ class JobService:
                 "fault": "最近搜索请求故障，请查看任务错误", "unconfigured": "尚未配置"}.get(status, "搜索状态未知")
             result = {"name": name, "status": status, "message": message, "configured": configured}
             if name == "tavily":
-                mode = "api_key" if self.settings.tavily_api_key else "keyless" if self.settings.tavily_allow_keyless else "unconfigured"
+                mode = "api_key" if self.settings.tavily_api_key or self.settings.tavily_backup_api_key else "keyless" if self.settings.tavily_allow_keyless else "unconfigured"
                 result["auth_mode"] = mode
+                result["backup_configured"] = bool(self.settings.tavily_backup_api_key and self.settings.tavily_backup_api_key != self.settings.tavily_api_key)
                 if mode == "keyless":
                     result["message"] += "；免密模式仅供有限试用，不代表生产可用性"
             if name == "official_sitemap":

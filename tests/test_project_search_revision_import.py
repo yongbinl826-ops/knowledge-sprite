@@ -55,6 +55,7 @@ def test_import_is_unconfirmed_namespaced_and_contains_no_search_data(tmp_path):
         confirmed = projects.confirm(metadata["project_id"], 1, [])
         assert confirmed["version"]["confirmation"]["selected_ids"] == ["k1"]
         counts = table_counts(store.connection)
+        assert counts["project_version_summaries"] == 1
         assert counts["jobs"] == counts["resources"] == counts["cache"] == counts["project_batches"] == 0
     finally:
         store.close()
@@ -94,6 +95,7 @@ def test_nonempty_cache_and_repeat_import_are_rejected(tmp_path):
     with pytest.raises(ValueError, match="must be empty"):
         import_retained_analysis(source, database, 1)
     assert first["after_table_counts"]["projects"] == 1
+    assert first["after_table_counts"]["project_version_summaries"] == 1
 
 
 def test_failed_project_save_rolls_back_the_entire_import(tmp_path, monkeypatch):

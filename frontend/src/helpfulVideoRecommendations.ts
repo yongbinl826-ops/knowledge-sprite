@@ -7,6 +7,7 @@ export function hasHelpfulVideoPolicy(group: ResultGroup): boolean {
 
 export type HelpfulGalleryVideo = {
   id: string; title: string; image?: string | null; href: string; urlKey: string;
+  coverStatus?: 'pending' | 'ready' | 'failed';
   source: 'helpful-video'; knowledgePointIds: string[]; recommendedAt?: string;
   chapters: HelpfulGalleryChapter[];
 };
@@ -85,6 +86,8 @@ export function helpfulVideoCovers(groups: { pointId: string; result: ResultGrou
       // One course may arrive through several points before its native cover.
       // Preserve the ranked card while filling metadata from a later alias.
       existing.image ||= courseImageUrl(row.resource.thumbnail_url);
+      if (existing.image && row.resource.cover_status) existing.coverStatus = 'ready';
+      else if (row.resource.cover_status === 'pending') existing.coverStatus = 'pending';
       if (!existing.knowledgePointIds.includes(pointId)) existing.knowledgePointIds.push(pointId);
       if (stamp && (!existing.recommendedAt || Date.parse(stamp) < Date.parse(existing.recommendedAt))) existing.recommendedAt = stamp;
       const chapters = new Map(existing.chapters.map(chapter => [chapter.chapter_id, chapter]));
@@ -93,6 +96,7 @@ export function helpfulVideoCovers(groups: { pointId: string; result: ResultGrou
     } else {
       covers.set(row.urlKey, {
         id: row.resource.resource_id, title: row.resource.title, image: courseImageUrl(row.resource.thumbnail_url),
+        coverStatus: row.resource.cover_status,
         href: row.href, urlKey: row.urlKey, source: 'helpful-video', knowledgePointIds: [pointId], recommendedAt: stamp,
         chapters: chaptersFor(row).sort((a, b) => a.index - b.index),
       });

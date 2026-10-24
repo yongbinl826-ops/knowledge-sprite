@@ -75,4 +75,29 @@ public final class DurableDeviceStorePlugin extends Plugin {
             }
         });
     }
+
+    @PluginMethod
+    public void remove(PluginCall call) {
+        final String key = validatedKey(call);
+        if (key == null) return;
+        // This bridge is only for reclaiming unreferenced immutable v2 blocks.
+        // Legacy data, manifests and commit pointers cannot be deleted here.
+        if (!key.matches("knowledge-sprite\\.device\\.v2\\.block\\.[a-f0-9]{64}")) {
+            call.reject("仅允许清理不再引用的分块副本。", "device_storage_invalid_cleanup_key");
+            return;
+        }
+        getBridge().execute(() -> {
+            try {
+                if (!preferences().edit().remove(key).commit()) {
+                    call.reject("本机清理尚未确认。", "device_storage_cleanup_failed");
+                    return;
+                }
+                JSObject result = new JSObject();
+                result.put("committed", true);
+                call.resolve(result);
+            } catch (RuntimeException error) {
+                call.reject("本机清理尚未确认。", "device_storage_cleanup_failed");
+            }
+        });
+    }
 }

@@ -8,7 +8,7 @@ from pathlib import Path
 
 import httpx
 import pytest
-from tests.professional_contract_support import flat_proposal
+from tests.professional_contract_support import draft_with_inventory, flat_proposal
 from pydantic import ValidationError
 
 from backend.app.config import Settings
@@ -127,14 +127,14 @@ def test_generation_schema_uses_v1_terms_without_removing_optional_historical_st
     assert point["properties"]["technology"]["maxLength"] == 80
 
 
-def test_v4_prompt_uses_project_relevant_professional_names_and_modifiable_technology_assumptions():
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
-    assert "Honor explicitly requested technologies" in SYSTEM_PROMPT
-    assert "label it as a modifiable assumption" in SYSTEM_PROMPT
+def test_compact_prompt_uses_project_relevant_names_and_modifiable_technology_assumptions():
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
+    assert "Honor its technologies and constraints" in SYSTEM_PROMPT
+    assert "label necessary unspecified choices as modifiable assumptions" in SYSTEM_PROMPT
     assert "optional technology" in SYSTEM_PROMPT
-    assert "Never invent courses, video links, chapters or source evidence" in SYSTEM_PROMPT
-    assert "concise established textbook noun or technical term" in SYSTEM_PROMPT
-    assert "Analyze the full requested behavior and constraints" in SYSTEM_PROMPT
+    assert "invent courses, URLs or evidence" in SYSTEM_PROMPT
+    assert "concise established concept names" in SYSTEM_PROMPT
+    assert "Work backwards from each required behavior to the mechanisms it depends on" in SYSTEM_PROMPT
 
 
 @pytest.mark.parametrize("technology", ["", "Python", "pygame", "turtle", "pandas", "Arduino", "ASP.NET", "Socket.IO", "x" * 80])
@@ -205,12 +205,13 @@ async def test_fresh_explicitly_general_target_remains_empty_without_repair():
         learning_goal="Relate coordinate changes to visible movement.",
         practice_check="Predict the new position after three frames and verify the arithmetic.")
     body = flat_proposal(body)
+    project = case_input(CASES[0], "beginner")
     calls = []
     def respond(req):
         calls.append(req)
         return response(body)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        result = await ProjectAnalyzer(settings(), client).analyze(case_input(CASES[0], "beginner"))
+        result = await ProjectAnalyzer(settings(), client).analyze(project)
     assert len(calls) == 1
     assert result.knowledge_points[0].technology == ""
 
@@ -292,12 +293,14 @@ async def test_quality_repair_gets_controlled_feedback_and_returns_specific_unit
     invalid = deepcopy(original)
     invalid["knowledge_points"][0]["name"] = "Python基础"
     invalid["knowledge_points"][0]["description"] = "UNTRUSTED_PRIVATE_VALUE"
+    project = case_input(CASES[0], "beginner")
     calls = []
     def respond(req):
         calls.append(json.loads(req.content))
-        return response(invalid if len(calls) == 1 else original)
+        return response([invalid, original][len(calls) - 1])
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        result = await ProjectAnalyzer(settings(), client).analyze(case_input(CASES[0], "beginner"))
+        result = await ProjectAnalyzer(settings(), client).analyze(project)
+    assert len(calls) == 2
     assert result.knowledge_points[0].name == original["knowledge_points"][0]["name"]
     feedback = json.loads(calls[1]["messages"][1]["content"])["validation_feedback"]
     assert feedback[0]["code"] == "broad_subject"
@@ -328,18 +331,16 @@ async def test_live_harness_stops_at_the_provider_request_budget(monkeypatch):
     monkeypatch.setattr(harness.Settings, "from_env", lambda: settings())
     monkeypatch.setattr(harness, "load_dotenv", lambda *args, **kwargs: None)
     monkeypatch.setattr(harness.httpx, "AsyncClient", lambda **kwargs: real_client(
-        transport=httpx.MockTransport(lambda _: response(flat_proposal(professional_fixture()))), **kwargs))
+        transport=httpx.MockTransport(lambda _: response(draft_with_inventory(
+            flat_proposal(professional_fixture()), case_input(CASES[0], "beginner")))), **kwargs))
     evidence = await harness.run(Namespace(live=True, case=None, levels=["beginner"],
         env_file=Path("unused.env"), max_cases=4, max_requests=1))
     assert evidence["provider_requests"] == 1
-    assert len(evidence["records"]) == 2
-    assert evidence["records"][0]["status"] == "completed"
+    assert len(evidence["records"]) == 1
+    assert evidence["records"][0]["status"] == "failed"
+    assert evidence["records"][0]["error_code"] == "request_budget_exhausted"
     assert evidence["records"][0]["provider_requests"] == 1
-    assert evidence["records"][0]["analysis"]  # A validated first response is usable within one call.
-    assert evidence["records"][1]["status"] == "failed"
-    assert evidence["records"][1]["error_code"] == "request_budget_exhausted"
-    assert evidence["records"][1]["provider_requests"] == 0
-    assert "analysis" not in evidence["records"][1]
+    assert "analysis" not in evidence["records"][0]  # A rejected legacy wrapper is never delivered.
     assert not evidence["automated_passed"]
 
 
@@ -348,6 +349,8 @@ async def test_repair_uses_remaining_total_budget_instead_of_a_second_full_timeo
     import backend.app.project_analysis as analysis
     monkeypatch.setattr(analysis, "ANALYSIS_TIMEOUT_SECONDS", 0.2)
     monkeypatch.setattr(analysis, "ANALYSIS_TOTAL_TIMEOUT_SECONDS", 0.3)
+    # Scale the optional-repair admission margin with the tiny test deadline.
+    monkeypatch.setattr(analysis, "ANALYSIS_MIN_REPAIR_SECONDS", 0.05)
     seen_timeouts = []
     async def slow_response(*args, **kwargs):
         seen_timeouts.append(kwargs["timeout_seconds"])
@@ -381,15 +384,17 @@ async def test_timeout_configuration_is_used_without_retrying_slow_provider(monk
 
 
 @pytest.mark.asyncio
-async def test_expanded_analysis_uses_the_final_configured_token_limit():
+async def test_flat_analysis_uses_the_configured_token_limit_without_extra_calls():
     from dataclasses import replace
     calls = []
+    project = case_input(CASES[0], "beginner")
+    proposal = flat_proposal(professional_fixture())
     def respond(req):
         calls.append(json.loads(req.content))
-        return response(flat_proposal(professional_fixture()))
+        return response(proposal)
     configured = replace(settings(), llm_max_output_tokens=3210)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        document = await ProjectAnalyzer(configured, client).analyze(case_input(CASES[0], "beginner"))
+        document = await ProjectAnalyzer(configured, client).analyze(project)
     assert len(calls) == 1
     assert [call["max_tokens"] for call in calls] == [3210]
     assert len(document.knowledge_points) == 4

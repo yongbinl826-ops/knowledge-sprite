@@ -350,7 +350,17 @@ async def test_failed_refresh_does_not_mark_fresh_retry_covered_slots_or_storm_n
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("chapters,expected", [(("列表", "字典"), 2), (("列表",), 1)])
-async def test_refresh_sse_keeps_related_search_reference_and_gates_own_outline_claim(tmp_path, clock, chapters, expected):
+async def test_refresh_sse_keeps_related_search_reference_and_gates_own_outline_claim(tmp_path, clock, chapters, expected, monkeypatch):
+    # This fixture tests transport and independent outline counts. Keep its
+    # own page title explicitly topical so existing relevance rules do not
+    # replace the search reference during enrichment; do not relax that policy.
+    original_outline = synthetic_outline
+    def topical_outline(**kwargs):
+        html = original_outline(**kwargs)
+        old_title = '"name": ' + json.dumps("Python程序设计")
+        assert html.count(old_title) == 1
+        return html.replace(old_title, '"name": ' + json.dumps(POINT + " 课程"))
+    monkeypatch.setitem(globals(), "synthetic_outline", topical_outline)
     config, transport, pages = settings(tmp_path), SearchHTTP(), CoursePages()
     async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
         with closing(Store(config.database_path)) as store:

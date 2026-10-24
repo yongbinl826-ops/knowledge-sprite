@@ -16,21 +16,37 @@ import { hasHelpfulVideoPolicy, helpfulVideoCovers, type HelpfulGalleryChapter }
 
 type GalleryVideo = {
   id: string; title: string; image?: string | null; href: string;
+  coverStatus?: 'pending' | 'ready' | 'failed';
   source: 'recommendation' | 'related-topic' | 'discovery' | 'related-reference' | 'helpful-video'; notice?: string; label?: string;
   knowledgePointIds: string[]; recommendedAt?: string;
   chapters?: HelpfulGalleryChapter[];
 };
-type CoverResource = Pick<Resource, 'resource_id' | 'title' | 'url' | 'canonical_url' | 'thumbnail_url' | 'platform'> & VideoPageFacts;
+type CoverResource = Pick<Resource, 'resource_id' | 'title' | 'url' | 'canonical_url' | 'thumbnail_url' | 'cover_status' | 'platform'> & VideoPageFacts;
 
 function GalleryCover({ video, index }: { video: GalleryVideo; index: number }) {
   // A native transition captures the destination as a still image. Capturing a
   // concurrently transparent CSS entrance would crossfade to an empty snapshot.
   // Keep this choice for this mounted card so later stream updates never replay it.
   const [nativeEntry] = useState(() => !!document.documentElement.dataset.motionKind);
-  return <article className={`video-cover-card${nativeEntry ? ' motion-native-entry' : ''}`} data-resource-id={video.id} data-source-kind={video.source} data-knowledge-point-ids={video.knowledgePointIds.join(' ')} data-recommended-at={video.recommendedAt} title={video.notice} style={{ '--reveal-index': Math.min(index, 4) } as CSSProperties}>
-    <CourseCover title={video.title} image={video.image} href={video.href} action={video.notice ? `${video.notice} 在原平台打开` : '在原平台打开'} coverOnly/>
+  const requestKey = `${video.id}:${video.image || ''}`;
+  const [settled, setSettled] = useState('');
+  const [expired, setExpired] = useState('');
+  // Metadata backfill is owned by the backend. Its pending state must not expire
+  // on the browser's image-download timer and expose a title before its cover.
+  const waiting = !video.image && video.coverStatus === 'pending'
+    || !!video.image && settled !== requestKey && expired !== requestKey;
+  useEffect(() => {
+    if (!waiting || !video.image) return;
+    const timer = setTimeout(() => setExpired(requestKey), 6000);
+    return () => clearTimeout(timer);
+  }, [requestKey, waiting, video.image]);
+  return <article className={`video-cover-card${nativeEntry ? ' motion-native-entry' : ''}${waiting ? ' card-awaiting-cover' : ''}`} aria-busy={waiting || undefined} data-resource-id={video.id} data-source-kind={video.source} data-knowledge-point-ids={video.knowledgePointIds.join(' ')} data-recommended-at={video.recommendedAt} title={video.notice} style={{ '--reveal-index': Math.min(index, 4) } as CSSProperties}>
+    {waiting && <div className="video-card-skeleton" role="status" aria-label="正在读取视频封面"><div className="video-cover-skeleton"/><div className="video-title-skeleton"/></div>}
+    <div className="video-card-content" aria-hidden={waiting || undefined} inert={waiting}>
+    <CourseCover key={requestKey} title={video.title} image={video.image} href={video.href} action={video.notice ? `${video.notice} 在原平台打开` : '在原平台打开'} coverOnly eager onImageState={() => setSettled(requestKey)}/>
     <h2 className="video-cover-title"><a href={video.href} target="_blank" rel="noopener noreferrer">{video.title}</a>{video.chapters?.map(chapter => <span key={chapter.chapter_id} data-chapter-id={chapter.chapter_id}>｜{chapter.href ? <a href={chapter.href} target="_blank" rel="noopener noreferrer">{chapter.title}</a> : chapter.title}</span>)}</h2>
     {video.label ? <span className="video-reference-label">{video.label}</span> : null}
+    </div>
   </article>;
 }
 
@@ -83,7 +99,7 @@ export function ProjectVideoGallery({ version, points, capabilities, topic, pipe
     const previous = covers.get(key);
     const knowledgePointIds = [...new Set([...(previous?.knowledgePointIds || []), pointId])];
     if (!previous || source === 'recommendation' && previous.source !== 'recommendation') covers.set(key, {
-      id: resource.resource_id, title: resource.title || '视频', image: resource.thumbnail_url, href, source, notice, label, knowledgePointIds,
+      id: resource.resource_id, title: resource.title || '视频', image: resource.thumbnail_url, coverStatus: resource.cover_status, href, source, notice, label, knowledgePointIds,
     });
     else previous.knowledgePointIds = knowledgePointIds;
   };

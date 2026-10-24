@@ -45,7 +45,7 @@ async def test_historical_method_examples_are_projected_without_claiming_semanti
     project = ProjectInput.model_validate(case["project"])
     result, calls = await projected_once(case["before"], project,
         replace(settings(), project_semantic_review_enabled=True), concept_names=MOCK_CONCEPT_NAMES[case["id"]])
-    assert calls[0]["messages"][0]["content"] == analysis_module.SYSTEM_PROMPT
+    assert calls[0]["messages"][0]["content"] == analysis_module.GENERATION_PROMPT
     assert "functions" not in result.model_dump()
 
 
@@ -62,13 +62,13 @@ async def test_legacy_reuse_examples_keep_graph_and_background_without_filled_ne
 
 def test_active_prompt_selects_relevant_terms_without_compulsory_method_traceability():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert analysis_module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
+    assert analysis_module.ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
     prompt = analysis_module.SYSTEM_PROMPT
-    assert "Analyze the full requested behavior and constraints" in prompt
-    assert "Honor explicitly requested technologies" in prompt
-    assert "Do not output prerequisite_ids, learning_order, dependency graphs" in prompt
-    assert "without connecting them with prerequisite edges" in prompt
-    assert "project_task, concepts, learning_skills, practice_check or learner_profile" in prompt
+    assert "Honor its technologies and constraints" in prompt
+    assert "Honor its technologies and constraints" in prompt
+    assert "Do not output graphs, learning order" in prompt
+    assert "not a prerequisite graph" in prompt
+    assert "learner profiles, review fields or additional wrappers" in prompt
     assert analysis_module.ANALYSIS_MAX_MODEL_CALLS == 2
     assert_simple_generation_schema()
 

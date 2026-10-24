@@ -39,6 +39,7 @@ def local_only_setting() -> bool:
 
 
 def semantic_review_setting() -> bool:
+    """Parse the legacy flag; it does not disable mandatory independent review."""
     raw = os.getenv("PROJECT_SEMANTIC_REVIEW_ENABLED", "true").strip().lower()
     if raw not in {"1", "true", "yes", "0", "false", "no"}:
         raise ValueError("PROJECT_SEMANTIC_REVIEW_ENABLED must be true or false")
@@ -127,6 +128,7 @@ class Settings:
     official_sitemap_cache_ttl: int = 21600
     official_sitemap_children_per_query: int = 1
     tavily_api_key: str = ""
+    tavily_backup_api_key: str = ""
     tavily_allow_keyless: bool = False
     serper_api_key: str = ""
     shared_course_library_enabled: bool = True
@@ -173,9 +175,13 @@ class Settings:
     project_max_search_requests: int = 180
     project_max_detail_pages: int = 240
     project_deadline_seconds: int = 1800
-    project_analysis_timeout_seconds: int = 90
-    project_analysis_total_timeout_seconds: int = 120
-    project_analysis_normalization_max_output_tokens: int = 12000
+    # Legacy larger configured values remain readable; runtime always clamps to 60s.
+    project_analysis_timeout_seconds: int = 60
+    project_analysis_total_timeout_seconds: int = 60
+    project_analysis_reasoning_effort: str = "inherit"
+    project_analysis_model: str = ""
+    project_analysis_max_output_tokens: int = 8000
+    project_analysis_normalization_max_output_tokens: int = 8000
     project_semantic_review_enabled: bool = True
     search_timeout_seconds: int = 12
     search_max_retries: int = 1
@@ -223,14 +229,33 @@ class Settings:
                     "icourse163": self.mooc_search_provider}.get(platform, "")
         return override or self.search_provider
 
-    def uses_official_deepseek_model(self) -> bool:
+    def uses_official_deepseek_model(self, model: str | None = None) -> bool:
         try:
             endpoint = urlsplit(self.llm_base_url)
             return bool(endpoint.scheme == "https" and endpoint.hostname == "api.deepseek.com" and
                 endpoint.port in (None, 443) and endpoint.username is None and endpoint.password is None and
-                self.llm_model in {"deepseek-flash", "deepseek-v4-pro"})
+                (self.llm_model if model is None else model) in {"deepseek-flash", "deepseek-v4-pro"})
         except ValueError:
             return False
+
+    def validate_project_analysis_settings(self) -> None:
+        if not isinstance(self.project_analysis_model, str) or self.project_analysis_model not in {"", "deepseek-flash", "deepseek-v4-pro"}:
+            raise ValueError("PROJECT_ANALYSIS_MODEL must be empty, deepseek-flash or deepseek-v4-pro")
+        if not isinstance(self.project_analysis_reasoning_effort, str) or self.project_analysis_reasoning_effort not in {"inherit", "low"}:
+            raise ValueError("PROJECT_ANALYSIS_REASONING_EFFORT must be inherit or low")
+        if type(self.project_analysis_max_output_tokens) is not int or not 256 <= self.project_analysis_max_output_tokens <= 16000:
+            raise ValueError("PROJECT_ANALYSIS_MAX_OUTPUT_TOKENS must be an integer between 256 and 16000")
+        if self.project_analysis_reasoning_effort == "inherit" and not self.project_analysis_model:
+            return
+        endpoint = urlsplit(self.llm_base_url)
+        model = self.project_analysis_model or self.llm_model
+        if (self.llm_provider != "openai_compatible" or not self.uses_official_deepseek_model(model)
+                or endpoint.path.rstrip("/") not in {"", "/v1"} or endpoint.query or endpoint.fragment):
+            if self.project_analysis_model:
+                raise ValueError("PROJECT_ANALYSIS_MODEL requires the documented official DeepSeek endpoint and model")
+            raise ValueError("PROJECT_ANALYSIS_REASONING_EFFORT=low requires the documented official DeepSeek endpoint and model; use inherit for other providers")
+        if self.project_analysis_reasoning_effort == "low" and (self.llm_thinking_mode not in {"auto", "enabled"} or self.llm_reasoning_effort not in {"auto", "low"}):
+            raise ValueError("PROJECT_ANALYSIS_REASONING_EFFORT=low conflicts with explicit global thinking/reasoning settings; use inherit or explicitly reconcile those settings")
 
     def validate(self) -> "Settings":
         if not isinstance(self.app_mode, str) or self.app_mode not in {"legacy", "mobile"}:
@@ -338,6 +363,7 @@ class Settings:
             self.llm_thinking_mode == "auto" and self.uses_official_deepseek_model())
         if thinking_disabled and self.llm_reasoning_effort not in {"auto", "provider_default"}:
             raise ValueError("LLM_THINKING_MODE disables thinking; use enabled or provider_default before setting explicit LLM_REASONING_EFFORT")
+        self.validate_project_analysis_settings()
         for name, value in (("SEARXNG_URL", self.searxng_url), ("LLM_BASE_URL", self.llm_base_url)):
             if not value:
                 continue  # Unconfigured integrations remain an explicit capability state.
@@ -364,8 +390,8 @@ class Settings:
             ("MAX_PENDING_ANALYSES", self.max_pending_analyses, 1, 32),
             ("MAX_PENDING_PROJECT_SEARCHES", self.max_pending_project_searches, 1, 100),
             ("MAX_EVENT_STREAMS", self.max_event_streams, 1, 128),
-            ("PROJECT_ANALYSIS_TIMEOUT_SECONDS", self.project_analysis_timeout_seconds, 1, 120),
-            ("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", self.project_analysis_total_timeout_seconds, 1, 180),
+            ("PROJECT_ANALYSIS_TIMEOUT_SECONDS", self.project_analysis_timeout_seconds, 1, 180),
+            ("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", self.project_analysis_total_timeout_seconds, 1, 600),
             ("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", self.project_analysis_normalization_max_output_tokens, 256, 16000),
             ("LLM_MAX_OUTPUT_TOKENS", self.llm_max_output_tokens, 256, 16000),
             ("TEACHING_MATCH_MAX_CALLS_PER_JOB", self.teaching_match_max_calls_per_job, 0, 2),
@@ -417,6 +443,7 @@ class Settings:
             official_sitemap_cache_ttl=number("OFFICIAL_SITEMAP_CACHE_TTL_SECONDS", 21600, 0, 86400),
             official_sitemap_children_per_query=number("OFFICIAL_SITEMAP_CHILDREN_PER_QUERY", 1, 1, 2),
             tavily_api_key=os.getenv("TAVILY_API_KEY", ""),
+            tavily_backup_api_key=os.getenv("TAVILY_BACKUP_API_KEY", ""),
             tavily_allow_keyless=boolean("TAVILY_ALLOW_KEYLESS"),
             serper_api_key=os.getenv("SERPER_API_KEY", ""),
             shared_course_library_enabled=boolean("SHARED_COURSE_LIBRARY_ENABLED", True),
@@ -460,9 +487,12 @@ class Settings:
             project_max_search_requests=number("PROJECT_MAX_SEARCH_REQUESTS", 180, 1, 720),
             project_max_detail_pages=number("PROJECT_MAX_DETAIL_PAGES", 240, 0, 960),
             project_deadline_seconds=number("PROJECT_DEADLINE_SECONDS", 1800, 5, 14400),
-            project_analysis_timeout_seconds=security_number("PROJECT_ANALYSIS_TIMEOUT_SECONDS", 90, 1, 120),
-            project_analysis_total_timeout_seconds=security_number("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", 120, 1, 180),
-            project_analysis_normalization_max_output_tokens=security_number("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", 12000, 256, 16000),
+            project_analysis_timeout_seconds=security_number("PROJECT_ANALYSIS_TIMEOUT_SECONDS", 60, 1, 180),
+            project_analysis_total_timeout_seconds=security_number("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", 60, 1, 600),
+            project_analysis_reasoning_effort=os.getenv("PROJECT_ANALYSIS_REASONING_EFFORT", "inherit").strip().lower(),
+            project_analysis_model=os.getenv("PROJECT_ANALYSIS_MODEL", "").strip(),
+            project_analysis_max_output_tokens=security_number("PROJECT_ANALYSIS_MAX_OUTPUT_TOKENS", 8000, 256, 16000),
+            project_analysis_normalization_max_output_tokens=security_number("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", 8000, 256, 16000),
             project_semantic_review_enabled=semantic_review_setting(),
             search_timeout_seconds=number("SEARCH_TIMEOUT_SECONDS", 12, 1, 30),
             search_max_retries=number("SEARCH_MAX_RETRIES", 1, 0, 1),

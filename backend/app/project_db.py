@@ -1,6 +1,7 @@
 """Additive, versioned project persistence on the existing SQLite connection."""
 from __future__ import annotations
 
+import hashlib
 import json
 from .db import Store, dumps
 from .models import now
@@ -39,7 +40,18 @@ class ProjectStore:
                 FOREIGN KEY(project_id,version,project_point_id) REFERENCES project_knowledge_points(project_id,version,id));
             CREATE INDEX IF NOT EXISTS project_versions_status ON project_versions(status);
             CREATE INDEX IF NOT EXISTS project_batches_job ON project_batches(job_id);
+            CREATE TABLE IF NOT EXISTS project_version_summaries(
+                project_id TEXT NOT NULL, version INTEGER NOT NULL, status TEXT NOT NULL,
+                created_at TEXT NOT NULL, model TEXT, prompt_version TEXT, analysis_hash TEXT,
+                PRIMARY KEY(project_id,version),
+                FOREIGN KEY(project_id,version) REFERENCES project_versions(project_id,version) ON DELETE CASCADE);
         """)
+        # Additive migration: historical payloads stay untouched. Read them once
+        # in SQLite instead of parsing every version for each GET/SSE snapshot.
+        self.connection.execute("""INSERT OR IGNORE INTO project_version_summaries
+            SELECT project_id,version,status,COALESCE(json_extract(data,'$.created_at'),''),
+                   json_extract(data,'$.model'),json_extract(data,'$.prompt_version'),NULL
+            FROM project_versions""")
         self.connection.commit()
 
     def create(self, project_id: str, input_data: dict):
@@ -67,13 +79,17 @@ class ProjectStore:
         return json.loads(row[0]) if row else None
 
     def versions(self, project_id: str) -> list[dict]:
-        return [{"version": data["version"], "status": data["status"], "created_at": data["created_at"],
-                 "model": data.get("model"), "prompt_version": data.get("prompt_version")}
-                for row in self.connection.execute("SELECT data FROM project_versions WHERE project_id=? ORDER BY version DESC", (project_id,))
-                if (data := json.loads(row[0]))]
+        return [dict(row) for row in self.connection.execute(
+            "SELECT version,status,created_at,model,prompt_version FROM project_version_summaries "
+            "WHERE project_id=? ORDER BY version DESC", (project_id,))]
 
     def save(self, project_id: str, version: dict, *, new: bool = False):
         version["updated_at"] = now()
+        analysis = version.get("analysis")
+        analysis_hash = hashlib.sha256(dumps(analysis).encode()).hexdigest() if analysis else None
+        prior = self.connection.execute("SELECT analysis_hash FROM project_version_summaries "
+            "WHERE project_id=? AND version=?", (project_id, version["version"])).fetchone()
+        write_analysis = bool(analysis) and (prior is None or prior[0] != analysis_hash)
         with self.connection:
             if new:
                 self.connection.execute("INSERT INTO project_versions VALUES(?,?,?,?)",
@@ -85,8 +101,12 @@ class ProjectStore:
                     (version["status"], dumps(version), project_id, version["version"]))
                 self.connection.execute("UPDATE projects SET updated_at=? WHERE id=?", (now(), project_id))
             # A version's analysis is immutable once confirmed. Draft analysis is written once after AI completes.
-            analysis = version.get("analysis")
-            if analysis:
+            self.connection.execute("""INSERT INTO project_version_summaries VALUES(?,?,?,?,?,?,?)
+                ON CONFLICT(project_id,version) DO UPDATE SET status=excluded.status,
+                created_at=excluded.created_at,model=excluded.model,prompt_version=excluded.prompt_version,
+                analysis_hash=excluded.analysis_hash""", (project_id, version["version"], version["status"],
+                version.get("created_at", ""), version.get("model"), version.get("prompt_version"), analysis_hash))
+            if write_analysis:
                 self.connection.executemany("INSERT OR IGNORE INTO project_functions VALUES(?,?,?,?)", [
                     (project_id, version["version"], item["id"], dumps(item)) for item in analysis.get("functions", [])])
                 self.connection.executemany("INSERT OR IGNORE INTO project_knowledge_points VALUES(?,?,?,?)", [

@@ -1,4 +1,5 @@
 import type { ProjectAnalysis, ProjectKnowledgePoint } from './projectTypes';
+import { MAX_PROJECT_KNOWLEDGE_POINTS } from './projectLimits.ts';
 
 /** Literal retrieval context shown separately from the professional concept.
  * No legacy concepts/plan, inferred ecosystem, aliases or teaching claim. */
@@ -22,7 +23,7 @@ export function reviewedTopicTechnologies(analysis: ProjectAnalysis): Record<str
     const technology = visibleTopicTechnology(point), name = canonicalTopicName(point.name);
     if (!technology || !name || conflicts.has(name)) continue;
     if (Object.hasOwn(map, name) && map[name] !== technology) { delete map[name]; conflicts.add(name); }
-    else if (Object.hasOwn(map, name) || Object.keys(map).length < 24) Object.defineProperty(map, name, { value: technology, enumerable: true, configurable: true, writable: true });
+    else if (Object.hasOwn(map, name) || Object.keys(map).length < MAX_PROJECT_KNOWLEDGE_POINTS) Object.defineProperty(map, name, { value: technology, enumerable: true, configurable: true, writable: true });
   }
   return map;
 }

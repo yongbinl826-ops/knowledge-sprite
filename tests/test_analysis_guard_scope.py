@@ -4,7 +4,7 @@ from dataclasses import replace
 
 import httpx
 import pytest
-from tests.professional_contract_support import flat_proposal
+from tests.professional_contract_support import draft_with_inventory, flat_proposal
 
 from backend.app import project_analysis as module
 from backend.app.project_models import AnalysisDocument, ProjectInput
@@ -151,16 +151,16 @@ def test_history_is_bounded_and_does_not_echo_unknown_rule_or_code():
 def test_two_generation_budget_preserves_complete_json_and_closed_schema():
     from tests.professional_contract_support import assert_simple_generation_schema
     assert module.ANALYSIS_MAX_ATTEMPTS == 2 and module.ANALYSIS_MAX_MODEL_CALLS == 2
-    assert settings().project_analysis_total_timeout_seconds == 120
-    assert "one valid JSON object only" in module.SYSTEM_PROMPT
+    assert settings().project_analysis_total_timeout_seconds == 60
+    assert "Return one JSON object" in module.SYSTEM_PROMPT
     assert "without Markdown" in module.SYSTEM_PROMPT
     assert_simple_generation_schema()
 
 
 def test_generation_scope_excludes_compulsory_expanded_breakdown_and_critic():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert "Every knowledge point contains only name, description and optional technology" in module.SYSTEM_PROMPT
-    assert "Do not emit this review as extra fields" in module.SYSTEM_PROMPT
+    assert "Each point contains only name, description and optional technology" in module.SYSTEM_PROMPT
+    assert "Do not output this check" in module.SYSTEM_PROMPT
     assert module.ANALYSIS_MAX_ATTEMPTS == 2 and module.ANALYSIS_MAX_MODEL_CALLS == 2
     assert_simple_generation_schema()
 
@@ -181,7 +181,7 @@ def test_comparison_or_quit_cannot_excuse_real_restart_stop(text):
 
 
 def test_generation_version_names_the_professional_term_contract():
-    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
+    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
 
 
 @pytest.mark.parametrize("text", ["按Esc退出主循环后等待R", "Exit the main game loop when Escape is pressed then wait for R key"])

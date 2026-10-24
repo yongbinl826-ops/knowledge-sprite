@@ -10,7 +10,7 @@ from pathlib import Path
 
 import httpx
 import pytest
-from tests.professional_contract_support import flat_proposal
+from tests.professional_contract_support import flat_proposal, successful_analysis_response
 
 from backend.app.config import Settings
 from backend.app.main import create_app
@@ -86,7 +86,9 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
         generated=deepcopy(V1)
         generated['knowledge_points'][1]['name']='pandas 缺失值处理'
         generated=flat_proposal(generated)
-        assert len(model_calls)==1,'A valid first proposal is delivered without another model call'
+        assert len(model_calls)==1,'A valid flat response must not introduce a second call'
+        payload=json.loads(model_calls[-1]['messages'][1]['content'])
+        generated=successful_analysis_response(payload,generated,payload['project'])
         return httpx.Response(200,json={'choices':[{'finish_reason':'stop','message':{'content':json.dumps(generated,ensure_ascii=False)}}]})
     async with httpx.AsyncClient(transport=httpx.MockTransport(model_response)) as model_client:
         analyzer=ProjectAnalyzer(config,model_client)
@@ -112,6 +114,9 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 assert len(model_calls)==1
                 assert [(entry['phase'],entry['outcome']) for entry in view['version']['analysis_attempts']]==[
                     ('generation','accepted')]
+                first_attempt=view['version']['analysis_attempts'][0]
+                assert first_attempt['validation_scope']=='local_checks'
+                assert 'implementation_inventory' not in first_attempt and 'coverage_review' not in first_attempt
                 assert not view['version'].get('rejected_analysis_attempts')
                 generated_payload=json.loads(model_calls[0]['messages'][1]['content'])
                 assert 'repair_required' not in generated_payload
@@ -121,13 +126,16 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 assert capability['mode']=='professional_knowledge_points'
                 assert capability['max_model_calls']==2 and capability['semantic_review_enabled'] is False
                 assert capability['review_max_calls']==0
+                assert capability['review_max_output_tokens']==0
+                assert capability['semantic_correction_max_calls']==0
                 assert capability['concept_normalization_enabled'] is False
                 assert capability['normalization_max_calls']==0
                 assert capability['conditional_repair_enabled'] is True
                 assert capability['repair_max_calls']==1
-                assert capability['repair_max_output_tokens']==12000
-                assert capability['generation_stages']==['generation','repair_if_needed']
+                assert capability['repair_max_output_tokens']==config.project_analysis_normalization_max_output_tokens
+                assert capability['generation_stages']==['compact_generation','conditional_repair_if_needed']
                 assert capability['accepted_draft_immediate'] is True
+                assert capability['local_checks_enabled'] and not capability['semantic_completeness_certified']
                 assert capability['concept_naming_policy']=='established_textbook_terms_v2'
 
                 edited=deepcopy(view['version']['analysis'])

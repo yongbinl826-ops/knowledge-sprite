@@ -18,6 +18,7 @@ export function retryAfter(header: string | null, now = Date.now()): number {
   return Math.max(1500, Number.isFinite(delay) ? Math.min(delay, 2 * 60 * 60 * 1000) : 1500);
 }
 export class MobileApi {
+  private responses = new Map<string, { etag: string; body: unknown }>();
   // Native WebView fetch must retain the Window receiver, unlike Node's fetch.
   constructor(readonly base: string, private readonly transport: typeof fetch = (input, init) => globalThis.fetch(input, init)) {}
   private async request<T>(path: string, options: RequestInit, signal?: AbortSignal): Promise<T> {
@@ -27,15 +28,19 @@ export class MobileApi {
     if (signal?.aborted) abort();
     const timer = setTimeout(abort, 15000);
     try {
-      const response = await this.transport(`${this.base}${path}`, { ...options, signal: controller.signal, credentials: 'omit', redirect: 'error', referrerPolicy: 'no-referrer' });
+      const cached = options.method === 'GET' ? this.responses.get(path) : undefined;
+      const response = await this.transport(`${this.base}${path}`, { ...options, ...(cached ? { headers: { ...options.headers, 'If-None-Match': cached.etag } } : {}), signal: controller.signal, credentials: 'omit', redirect: 'error', referrerPolicy: 'no-referrer' });
+      if (response.status === 304 && cached) return cached.body as T;
       const body = await response.json().catch(() => null);
       if (!response.ok) throw new MobileHttpError(typeof body?.detail === 'string' ? body.detail : body?.detail?.message || `服务暂不可用（HTTP ${response.status}）`, response.status, retryAfter(response.headers.get('Retry-After')));
       if (!body) throw new Error('服务响应无法读取；已保留本机记录。');
+      const etag = response.headers.get('ETag');
+      if (options.method === 'GET' && etag) { if (this.responses.size >= 32 && !this.responses.has(path)) this.responses.delete(this.responses.keys().next().value!); this.responses.set(path, { etag, body }); }
       return body;
     } finally { clearTimeout(timer); signal?.removeEventListener('abort', abort); }
   }
   task(ticket: TaskTicket, method: 'GET' | 'POST', signal?: AbortSignal): Promise<MobileTask> {
-    return this.request(`/api/mobile/tasks/${encodeURIComponent(ticket.id)}`, { method,
+    return this.request(`/api/mobile/tasks/${encodeURIComponent(ticket.id)}${method === 'GET' ? '?projection=ui' : ''}`, { method,
       headers: { Authorization: `Bearer ${ticket.capability}`, ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}) },
       ...(method === 'POST' ? { body: ticket.body } : {}) }, signal);
   }

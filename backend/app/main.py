@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from dataclasses import replace
 from pathlib import Path
+from typing import Literal
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -11,11 +12,13 @@ from .config import Settings
 from .db import Store
 from .models import SearchRequest
 from .service import AdmissionRejected, IdempotencyConflict, JobService
-from .project_models import AnalysisDocument, ProjectInput, ReviewedTopicTechnologies
+from .project_models import MAX_PROJECT_KNOWLEDGE_POINTS, AnalysisDocument, ProjectInput, ReviewedTopicTechnologies
 from .project_service import ProjectError, ProjectService
 from .security import RequestSecurityMiddleware
 from .result_stream import job_snapshot, project_snapshot, result_events
 from .runtime_guard import database_owner
+from .snapshot_transport import conditional_snapshot, snapshot_payload
+from .http_clients import start_http_pool, stop_http_pool
 
 
 class AnalyzeProjectRequest(BaseModel):
@@ -37,7 +40,7 @@ class ProjectVersionRequest(BaseModel):
 
 
 class ConfirmProjectRequest(ProjectVersionRequest):
-    acknowledged_skipped_prerequisites: list[str] = Field(default_factory=list, max_length=24)
+    acknowledged_skipped_prerequisites: list[str] = Field(default_factory=list, max_length=MAX_PROJECT_KNOWLEDGE_POINTS)
     reviewed_topic_technologies: ReviewedTopicTechnologies | None = None
 
 
@@ -68,6 +71,7 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
         else:
             store, live_settings = Store(settings.database_path), settings
         service = projects = None
+        pool = start_http_pool()
         try:
             if mobile_mode:
                 public = MobilePublicStore(settings)
@@ -101,12 +105,17 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
                     try:
                         store.close()
                     finally:
-                        if public is not None:
-                            public.close()
+                        try:
+                            if public is not None:
+                                public.close()
+                        finally:
+                            await stop_http_pool(pool)
 
     app = FastAPI(title="项目制学习引导小精灵", version="0.1.0", lifespan=lifespan)
     origins = list(dict.fromkeys([*settings.cors_origins, *(settings.mobile_origins if settings.app_mode == "mobile" else ())]))
-    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", "POST"], allow_headers=["Content-Type", "Idempotency-Key", *( ["Authorization"] if settings.app_mode == "mobile" else [])])
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", "POST"],
+        allow_headers=["Content-Type", "Idempotency-Key", "If-None-Match", *( ["Authorization"] if settings.app_mode == "mobile" else [])],
+        expose_headers=["ETag"])
     app.add_middleware(RequestSecurityMiddleware, settings=settings)
 
     @app.exception_handler(RequestValidationError)
@@ -178,8 +187,9 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
         return {"projects": app.state.projects.db.list()}
 
     @app.get("/api/projects/{project_id}")
-    async def get_project(project_id: str, version: int | None = None):
-        return app.state.projects.view(project_id, version)
+    async def get_project(project_id: str, request: Request, version: int | None = None,
+                          projection: Literal["full", "ui"] = "full"):
+        return conditional_snapshot(request, snapshot_payload(app.state.projects.view(project_id, version), projection))
 
     @app.post("/api/projects/{project_id}/analyze", status_code=202)
     async def analyze_project(project_id: str, request: AnalyzeProjectRequest):
@@ -238,18 +248,22 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
         return await app.state.projects.cancel(project_id, request.version)
 
     @app.get("/api/projects/{project_id}/results")
-    async def project_results(project_id: str, version: int | None = None):
-        return project_snapshot(app.state.projects, app.state.store, project_id, version)
+    async def project_results(project_id: str, request: Request, version: int | None = None,
+                              projection: Literal["full", "ui"] = "full"):
+        return conditional_snapshot(request,
+            project_snapshot(app.state.projects, app.state.store, project_id, version, projection=projection))
 
     @app.get("/api/projects/{project_id}/events")
-    async def project_events(request: Request, project_id: str, version: int | None = None):
-        initial = project_snapshot(app.state.projects, app.state.store, project_id, version)
+    async def project_events(request: Request, project_id: str, version: int | None = None,
+                             projection: Literal["full", "ui"] = "full"):
+        initial = project_snapshot(app.state.projects, app.state.store, project_id, version, projection=projection)
         initial_revision = app.state.store.connection.total_changes
         # Pin an omitted version to the version visible when the stream opens.
         pinned = (initial.get("version") or {}).get("version", version)
         return StreamingResponse(result_events(request,
-            lambda: project_snapshot(app.state.projects, app.state.store, project_id, pinned),
-            lambda: app.state.store.connection.total_changes, initial, initial_revision=initial_revision), media_type="text/event-stream",
+            lambda: project_snapshot(app.state.projects, app.state.store, project_id, pinned, projection=projection),
+            lambda: app.state.store.connection.total_changes, initial, initial_revision=initial_revision,
+            explicit_heartbeat=True), media_type="text/event-stream",
             headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"})
 
     @app.post("/api/search-jobs", status_code=202)
@@ -279,21 +293,22 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
         return result
 
     @app.get("/api/search-jobs/{job_id}/results")
-    async def get_results(job_id: str):
-        results = job_snapshot(app.state.service, app.state.store, job_id)
+    async def get_results(job_id: str, request: Request, projection: Literal["full", "ui"] = "full"):
+        results = job_snapshot(app.state.service, app.state.store, job_id, projection=projection)
         if results is None:
             raise HTTPException(404, detail="任务不存在")
-        return results
+        return conditional_snapshot(request, results)
 
     @app.get("/api/search-jobs/{job_id}/events")
-    async def job_events(request: Request, job_id: str):
-        initial = job_snapshot(app.state.service, app.state.store, job_id)
+    async def job_events(request: Request, job_id: str, projection: Literal["full", "ui"] = "full"):
+        initial = job_snapshot(app.state.service, app.state.store, job_id, projection=projection)
         initial_revision = app.state.store.connection.total_changes
         if initial is None:
             raise HTTPException(404, detail="任务不存在")
         return StreamingResponse(result_events(request,
-            lambda: job_snapshot(app.state.service, app.state.store, job_id),
-            lambda: app.state.store.connection.total_changes, initial, initial_revision=initial_revision), media_type="text/event-stream",
+            lambda: job_snapshot(app.state.service, app.state.store, job_id, projection=projection),
+            lambda: app.state.store.connection.total_changes, initial, initial_revision=initial_revision,
+            explicit_heartbeat=True), media_type="text/event-stream",
             headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"})
 
     frontend = Path(__file__).resolve().parents[2] / "frontend" / "dist"

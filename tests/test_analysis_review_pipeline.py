@@ -10,6 +10,7 @@ from backend.app.config import Settings
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer
 from backend.app.project_models import AnalysisDocument
 from tests.test_project_analysis import flat_analysis_fixture as analysis_fixture, settings, request, response
+from tests.professional_contract_support import coverage_completion, semantic_review_pass_for_payload
 
 
 def configured():
@@ -22,7 +23,7 @@ FAIL = {"passed": False, "issues": [{"severity": "medium", "code": "numeric_boun
 
 
 @pytest.mark.asyncio
-async def test_valid_terms_use_one_call_even_with_legacy_review_setting():
+async def test_valid_terms_finish_once_even_with_legacy_review_setting():
     from tests.professional_contract_support import projected_once
     assert Settings().project_semantic_review_enabled is True  # historical config remains readable
     result, calls = await projected_once(analysis_fixture(), request(), configured())
@@ -31,14 +32,14 @@ async def test_valid_terms_use_one_call_even_with_legacy_review_setting():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("last_review,success", [(PASS, True), (FAIL, False)])
-async def test_structural_failure_uses_one_repair_and_never_a_third_call(last_review, success):
+async def test_structural_failure_uses_one_repair_and_delivers_only_valid_output(last_review, success):
     from tests.professional_contract_support import assert_v1_projection
     # Keep both outcomes covered: success after a repair and terminal schema error.
     calls = []
     replies = [{}, analysis_fixture() if success else {}]
     def respond(req):
         calls.append(json.loads(req.content))
-        assert len(calls) <= 2
+        assert len(calls) <= len(replies)
         return response(replies[len(calls)-1])
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         analyzer = ProjectAnalyzer(configured(), client)
@@ -50,7 +51,7 @@ async def test_structural_failure_uses_one_repair_and_never_a_third_call(last_re
             assert failure.value.code == "schema"
             assert failure.value.diagnostics[0]["type"] == "missing"
     assert len(calls) == 2
-    assert [c["max_tokens"] for c in calls] == [6000, 12000]
+    assert [c["max_tokens"] for c in calls] == [6000, 8000]
     repair = json.loads(calls[1]["messages"][1]["content"])
     assert repair["validation_feedback"][0]["type"] == "missing"
     assert repair["project"] == request().model_dump()
@@ -74,7 +75,7 @@ async def test_generation_transport_or_schema_failure_never_becomes_a_valid_prop
             await ProjectAnalyzer(configured(), client).analyze(request())
     expected = "schema" if failure is ValueError else "unavailable" if failure is httpx.ConnectTimeout else "timeout"
     assert raised.value.code == expected
-    assert len(calls) == (1 if failure is httpx.ReadTimeout else 2)
+    assert len(calls) == (2 if failure is ValueError else 1)
     assert "private-offline-token" not in raised.value.message
     assert "untrusted failure" not in json.dumps(raised.value.diagnostics)
 

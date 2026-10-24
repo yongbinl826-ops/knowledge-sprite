@@ -57,6 +57,7 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
   const [cancelledSearchKey, setCancelledSearchKey] = useState<string | null>(null);
   const [draftStatus, setDraftStatus] = useState(device ? '正在读取本机草稿' : '');
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const inputSaveRevision = useRef(0);
   const view = project.view;
   const version = view?.version || null;
   const analyzing = version?.status === 'analyzing';
@@ -81,6 +82,7 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
     return () => query.removeEventListener('change', update);
   }, []);
   useEffect(() => {
+    inputSaveRevision.current += 1;
     if (view) { setInput(version?.input || view.input); setDraftStatus(device ? '输入已可靠保存在本机' : ''); }
     else if (!project.loading) setInput(device?.inputDraft || (device ? { ...emptyProjectInput, preferred_platforms: ['bilibili', 'icourse163'] as Platform[] } : readInputDraft()));
     setScreen(null); setValidation(''); setTopic('all');
@@ -102,8 +104,9 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
   const changeInput = (patch: Partial<ProjectInput>) => {
     const next = { ...input, ...patch }; setInput(next);
     if (device) {
+      const revision = ++inputSaveRevision.current;
       setDraftStatus('正在保存到本机…');
-      void device.saveInputDraft(next).then(() => setDraftStatus('草稿已保存在本机')).catch(() => setDraftStatus('本次输入尚未可靠保存，请检查存储后重试'));
+      void device.saveInputDraft(next).then(() => { if (revision === inputSaveRevision.current) setDraftStatus('草稿已保存在本机'); }).catch(() => { if (revision === inputSaveRevision.current) setDraftStatus('本次输入尚未可靠保存，请检查存储后重试'); });
     } else {
       try { localStorage.setItem(inputDraftKey, JSON.stringify(next)); setDraftStatus(''); }
       catch { setDraftStatus('浏览器存储不可用，请保留当前页面'); }

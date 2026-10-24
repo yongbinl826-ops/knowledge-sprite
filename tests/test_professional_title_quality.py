@@ -7,6 +7,7 @@ import pytest
 from backend.app import project_analysis as module
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer
 from backend.app.project_models import ProjectInput
+from tests.professional_contract_support import unrepaired_quality_response
 from tests.test_professional_knowledge_contract import body, config, project, response
 
 
@@ -23,13 +24,13 @@ async def test_whole_course_or_micro_title_gets_one_controlled_quality_repair(ti
     calls = []
     bad = body()
     bad["knowledge_points"][0]["name"] = title
+    # An input explicitly naming a broad course is not a title-quality exemption.
+    source = ProjectInput(name="Python基础", requirements="用 Python 学习必要知识，完成本地表格读取和统计")
 
     def reply(req):
         calls.append(json.loads(req.content))
         return response(bad if len(calls) == 1 else body())
 
-    # An input explicitly naming a broad course is not a title-quality exemption.
-    source = ProjectInput(name="Python基础", requirements="用 Python 学习必要知识，完成本地表格读取和统计")
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         document = await ProjectAnalyzer(config(), client).analyze(source)
     assert len(calls) == 2 and document.knowledge_points[0].name == body()["knowledge_points"][0]["name"]
@@ -71,14 +72,16 @@ async def test_repeated_title_or_selection_failure_is_quality_with_safe_diagnost
     calls = []
     def reply(req):
         calls.append(req)
-        return response(sample)
+        payload = json.loads(json.loads(req.content)["messages"][1]["content"])
+        return response(unrepaired_quality_response(payload, sample, project()))
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         with pytest.raises(AnalysisError) as error:
             await ProjectAnalyzer(config(), client).analyze(project())
     assert len(calls) == 2 and error.value.code == "quality"
     assert "结构校验失败" not in error.value.message
     history = error.value.diagnostics[-1]["attempts"]
-    assert [row["category"] for row in history] == ["quality", "quality"]
+    assert [row["category"] for row in history] == ["quality"] * 2
+    assert [row["phase"] for row in history] == ["generation", "repair"]
     assert history[0]["issues"][0]["code"] == expected
     assert history[0]["issues"][0]["location"] == ["knowledge_points", 0]
     assert "previous_analysis" not in json.dumps(error.value.diagnostics)

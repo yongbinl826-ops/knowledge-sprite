@@ -4,8 +4,10 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import inspect
 import time
 from collections import Counter
+from .snapshot_transport import snapshot_payload
 
 
 ACTIVE = {"queued", "running"}
@@ -59,7 +61,7 @@ def attempts_limited(attempts):
         for attempt in attempts)
 
 
-def job_snapshot(service, store, job_id):
+def job_snapshot(service, store, job_id, *, projection="full"):
     result = service.results(job_id)
     job = store.get_job(job_id)
     if result is None or job is None:
@@ -67,10 +69,10 @@ def job_snapshot(service, store, job_id):
     terminal = job["status"] not in ACTIVE and job.get("phase") != "awaiting_followup"
     summary = pipeline(result.get("groups", []), [job], terminal=terminal)
     summary["source_limited"] |= attempts_limited(result.get("search_attempts", []))
-    return {**result, "job": job, "pipeline": summary}
+    return snapshot_payload({**result, "job": job, "pipeline": summary}, projection)
 
 
-def project_snapshot(projects, store, project_id, version=None):
+def project_snapshot(projects, store, project_id, version=None, *, projection="full"):
     result = projects.results(project_id, version)
     data = result.get("version") or {}
     if data.get("fast_video_search"):
@@ -81,7 +83,7 @@ def project_snapshot(projects, store, project_id, version=None):
                  for rows in recommendations.values() for row in rows}
         terminal = data.get("status") not in {"analyzing", "running"}
         catalog_status = (fast.get("catalog_enrichment") or {}).get("status")
-        return {**result, "pipeline": {
+        return snapshot_payload({**result, "pipeline": {
             "stage": "complete" if terminal else "searching", "terminal": terminal,
             "catalog_pending": catalog_status == "running", "catalog_status": catalog_status,
             "search_requests": progress.get("search_requests", 0),
@@ -91,7 +93,7 @@ def project_snapshot(projects, store, project_id, version=None):
             "total_points": len(recommendations), "model_calls": progress.get("model_calls", 0),
             "filtered": 0, "unknown": 0, "source_limited": False,
             "elapsed_seconds": fast.get("elapsed_seconds", 0),
-            "counts_scope": "unique recommended courses; title/snippet relevance with optional observed chapters; no playback verification"}}
+            "counts_scope": "unique recommended courses; title/snippet relevance with optional observed chapters; no playback verification"}}, projection)
     job_ids = list(dict.fromkeys(batch["job_id"] for batch in data.get("batches", []) if batch.get("job_id")))
     jobs = [job for job_id in job_ids if (job := store.get_job(job_id))]
     active = data.get("status") in {"analyzing", "running"} or any(job["status"] in ACTIVE for job in jobs)
@@ -100,16 +102,17 @@ def project_snapshot(projects, store, project_id, version=None):
     summary["source_limited"] |= any(attempts_limited(store.attempts(job_id)) for job_id in job_ids)
     if not jobs:
         summary["search_budget"] = (data.get("budgets") or {}).get("reserved_search_requests", 0)
-    return {**result, "pipeline": summary}
+    return snapshot_payload({**result, "pipeline": summary}, projection)
 
 
 def event(name, value):
     content = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
-    digest = hashlib.sha256(content.encode()).hexdigest()[:20]
+    digest = value.get("snapshot_revision") or hashlib.sha256(content.encode()).hexdigest()[:20]
     return f"id: {digest}\nevent: {name}\ndata: {content}\n\n"
 
 
-async def result_events(request, read_snapshot, revision, initial, *, initial_revision=None, interval=.35, heartbeat=15):
+async def result_events(request, read_snapshot, revision, initial, *, initial_revision=None, interval=.35,
+                        heartbeat=15, explicit_heartbeat=False):
     """Coalesce DB changes, emit only changed snapshots, and release on disconnect.
 
     The SQLite change counter avoids rebuilding all course assessments when the
@@ -139,10 +142,12 @@ async def result_events(request, read_snapshot, revision, initial, *, initial_re
             return
         if revision() != seen_revision:
             snapshot = read_snapshot()
+            if inspect.isawaitable(snapshot):
+                snapshot = await snapshot
             seen_revision = revision()
             if snapshot is None:
                 yield event("error", {"message": "任务已不可用，请刷新列表。"})
                 return
         elif time.monotonic() - last_sent >= heartbeat:
-            yield ": keep-alive\n\n"
+            yield event("heartbeat", {}) if explicit_heartbeat else ": keep-alive\n\n"
             last_sent = time.monotonic()

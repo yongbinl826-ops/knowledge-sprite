@@ -6,7 +6,7 @@ import json
 
 import httpx
 import pytest
-from tests.professional_contract_support import flat_proposal
+from tests.professional_contract_support import unrepaired_quality_response, flat_proposal
 from pydantic import ValidationError
 
 from backend.app.config import Settings
@@ -69,8 +69,8 @@ async def test_generation_repairs_task_bundle_once_without_model_count_growth():
     assert any(i["code"] == "task_bundle_name" for i in repair["validation_feedback"])
     assert repair["previous_analysis"]["knowledge_points"][0]["name"] == "窗口创建+循环"
     assert "learning_skills" not in repair["output_schema"]["$defs"]["GeneratedConcept"]["properties"]
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
-    assert "The student only decides which concepts" in SYSTEM_PROMPT
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
+    assert "The server supplies IDs and selection" in SYSTEM_PROMPT
 
 
 @pytest.mark.asyncio
@@ -78,12 +78,18 @@ async def test_repeated_bundle_is_quality_failure_not_silently_rewritten():
     calls = []
     def reply(req):
         calls.append(req)
-        return response(flat_proposal(document("矩形绘制+挡板移动")))
+        payload = json.loads(json.loads(req.content)["messages"][1]["content"])
+        body = flat_proposal(document("矩形绘制+挡板移动"))
+        return response(unrepaired_quality_response(payload, body, payload["project"]))
     cfg = Settings(llm_provider="openai_compatible", llm_base_url="https://offline.invalid/v1", llm_api_key="synthetic", llm_model="synthetic")
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply), trust_env=False) as client:
         with pytest.raises(AnalysisError) as exc:
             await ProjectAnalyzer(cfg, client).analyze(ProjectInput(name="Game", requirements="Use pygame"))
     assert len(calls) == 2 and exc.value.code == "quality"
+    final_payload = json.loads(json.loads(calls[-1].content)["messages"][1]["content"])
+    assert "semantic_review" not in final_payload
+    assert any(issue["code"] == "task_bundle_name" for issue in final_payload["validation_feedback"])
+    assert final_payload["previous_analysis"]["knowledge_points"][0]["name"] == "矩形绘制+挡板移动"
 
 
 @pytest.mark.asyncio

@@ -210,21 +210,38 @@ async def test_already_searched_legacy_confirmation_keeps_technology_scope_guard
     await projects.stop();store.close()
 
 
-def test_capabilities_advertise_conditional_repair_and_no_legacy_critic(tmp_path):
+@pytest.mark.parametrize('legacy_review_enabled', [False, True])
+@pytest.mark.parametrize('completion_tokens', [12000, 16000])
+def test_capabilities_advertise_local_checks_and_shared_optional_repair_budget(tmp_path, legacy_review_enabled, completion_tokens):
     config,store,jobs,projects,provider=setup(tmp_path)
+    projects.settings=replace(config, project_semantic_review_enabled=legacy_review_enabled,
+                              project_analysis_normalization_max_output_tokens=completion_tokens)
     capability=projects.capabilities()
     analysis=capability['project_analysis']
     assert analysis['mode']=='professional_knowledge_points'
     assert analysis['max_model_calls']==2
     assert analysis['semantic_review_enabled'] is False
-    assert analysis['review_max_calls']==analysis['review_max_output_tokens']==0
+    assert analysis['review_max_calls']==0
+    assert analysis['review_max_output_tokens']==0
+    assert analysis['semantic_correction_max_calls']==0
+    assert analysis['semantic_correction_max_output_tokens']==0
+    assert analysis['review_model'] is None
+    assert analysis['review_thinking_mode'] is None
+    assert analysis['review_reasoning_effort'] is None
     assert analysis['concept_normalization_enabled'] is False
     assert analysis['normalization_max_calls']==0
     assert analysis['conditional_repair_enabled'] is True
     assert analysis['repair_max_calls']==1
-    assert analysis['repair_max_output_tokens']==12000
-    assert analysis['generation_stages']==['generation','repair_if_needed']
+    assert analysis['repair_max_output_tokens']==completion_tokens
+    assert analysis['generation_stages']==['compact_generation','conditional_repair_if_needed']
+    assert analysis['coverage_review_enabled'] is False
+    assert analysis['implementation_inventory_enabled'] is False
+    assert analysis['coverage_completion_max_calls']==0
+    assert analysis['coverage_completion_max_output_tokens']==0
+    assert analysis['repair_shares_coverage_completion'] is False
+    assert analysis['repair_shares_total_deadline'] is True
     assert analysis['accepted_draft_immediate'] is True
+    assert analysis['local_checks_enabled'] and not analysis['semantic_completeness_certified']
     assert analysis['concept_naming_policy']=='established_textbook_terms_v2'
     assert capability['project_search']['mode']=='professional_terms_v1'
     store.close()
