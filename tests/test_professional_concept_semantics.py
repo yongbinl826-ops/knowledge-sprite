@@ -58,6 +58,11 @@ def synthetic_repair():
     result = deepcopy(observed()["analysis"])
     result["knowledge_points"] = [p for p in result["knowledge_points"] if p["id"] != "K10"]
     for p in result["knowledge_points"]:
+        if p["id"] == "K1":
+            # Repair only this synthetic response; the retained live bytes and
+            # their original frame-duration misconception remain unchanged.
+            p["description"] = ("pygame 程序由初始化、事件处理、状态更新、绘制与屏幕刷新组成的主循环驱动，"
+                                "并用 Clock.tick 设置帧率上限；处理耗时较短时等待，不保证每帧耗时的上限。")
         if p["id"] == "K7":
             p["prerequisite_ids"] = []
         if p["id"] == "K4":
@@ -191,6 +196,9 @@ def test_synthetic_correction_does_not_add_scope_or_change_original_requirements
     repaired = synthetic_repair()
     assert repaired["functions"] == observed()["analysis"]["functions"]
     assert repaired["scope"] == observed()["analysis"]["scope"]
+    assert "限制每帧时长" in observed()["analysis"]["knowledge_points"][0]["description"]
+    assert "不保证每帧耗时的上限" in repaired["knowledge_points"][0]["description"]
+    assert hashlib.sha256(FIXTURE.read_bytes()).hexdigest() == LIVE_SHA
     assert not issues(AnalysisDocument.model_validate(repaired))
 
 

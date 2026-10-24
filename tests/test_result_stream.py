@@ -19,6 +19,30 @@ class Connection:
 
 
 @pytest.mark.asyncio
+async def test_terminal_recommendations_keep_stream_for_late_catalog_and_reconnect():
+    initial = {"pipeline": {"terminal": True, "catalog_pending": True}, "title": "课程"}
+    state = {"revision": 0, "value": initial}
+    stream = result_events(Connection(), lambda: deepcopy(state["value"]), lambda: state["revision"],
+                           deepcopy(initial), initial_revision=0, interval=.001, heartbeat=.002)
+    assert "event: snapshot" in await anext(stream)
+    assert await anext(stream) == ": keep-alive\n\n"  # Not prematurely complete.
+    state["value"] = {"pipeline": {"terminal": True, "catalog_pending": True}, "title": "课程 · 第三章"}
+    state["revision"] += 1
+    assert '课程 · 第三章' in await anext(stream)
+    await stream.aclose()
+    # GET reconnection reads current data and continues metadata updates only.
+    stream = result_events(Connection(), lambda: deepcopy(state["value"]), lambda: state["revision"],
+                           deepcopy(state["value"]), initial_revision=1, interval=.001)
+    assert "event: snapshot" in await anext(stream)
+    state["value"]["pipeline"]["catalog_pending"] = False
+    state["revision"] += 1
+    assert '"catalog_pending":false' in await anext(stream)
+    assert "event: complete" in await anext(stream)
+    with pytest.raises(StopAsyncIteration):
+        await anext(stream)
+
+
+@pytest.mark.asyncio
 async def test_stream_yields_candidates_before_completion_and_skips_idle_reads():
     state = {"revision": 0, "reads": 0, "value": {"pipeline": {"terminal": False}, "cards": []}}
 

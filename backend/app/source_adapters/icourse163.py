@@ -223,6 +223,12 @@ def extract_embedded_course_facts(soup: BeautifulSoup, url: str) -> SourceFacts:
     requested_term = identity["term_id"]
     if requested_term is not None and str(payload["termDto"].get("id")) != requested_term:
         return result
+    # The literal course/term identity already binds this image container to
+    # the requested course. A missing outline does not invalidate its cover.
+    cover = soup.select_one("#j-courseImg img.img[src]")
+    thumbnail = safe_thumbnail_url(cover.get("src"), page_url) if cover else None
+    if thumbnail:
+        result.fields.append(FieldFact("thumbnail_url", thumbnail, "html.icourse163.course_cover"))
     outline_dto = payload["termDto"].get("outLineDto")
     if not isinstance(outline_dto, dict) or not isinstance(outline_dto.get("outLine"), str):
         return result

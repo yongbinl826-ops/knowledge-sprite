@@ -56,7 +56,7 @@ async def test_coherent_professional_terms_are_not_rejected_or_expanded(title, m
         return response(supplied)
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         document = await ProjectAnalyzer(config(), client).analyze(project())
-    assert len(calls) == 2 and document.knowledge_points[0].name == title
+    assert len(calls) == 1 and document.knowledge_points[0].name == title
     assert not document.knowledge_points[0].learning_skills and document.learner_profile is None
 
 

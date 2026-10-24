@@ -69,9 +69,9 @@ export function useDeviceProject(service: LocalProjectService, configurationErro
   return {
     view, projects: snapshot?.projects || [], busy, loading, error, notice: notice || service.store.recoveryNotice,
     analyze: (input: ProjectInput) => perform(signal => service.analyze(input, signal), '输入已在本机保存；临时分析任务仅在明确操作后提交。', true),
-    save: (analysis: ProjectAnalysis) => perform(() => service.save(analysis), '已保存到本机新版本，可离线查看。'),
+    save: (analysis: ProjectAnalysis) => perform(signal => service.save(analysis, signal), '已保存到本机新版本，可离线查看。'),
     confirmAndSearch: (analysis: ProjectAnalysis, dirty: boolean) => !navigator.onLine || !!configurationError
-      ? perform(() => service.confirmLocal(analysis, dirty), '选择已在本机确认；未开始课程检索。联网并配置服务后，需再次明确点击查找视频。')
+      ? perform(signal => service.confirmLocal(analysis, dirty, signal), '选择已在本机确认；未开始课程检索。联网并配置服务后，需再次明确点击查找视频。')
       : perform(signal => service.confirmAndSearch(analysis, dirty, signal), '选择已保存在设备；正在读取本次视频任务。', analysis.knowledge_points.some(p => p.selection === 'learn')),
     retrySearch: () => perform(signal => service.retrySearch(signal), '已明确创建新版本与新临时任务；旧结果保留。', true),
     cancel: () => perform(signal => service.cancel(signal), '取消状态已保存到本机。', true),

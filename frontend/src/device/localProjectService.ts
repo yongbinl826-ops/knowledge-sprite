@@ -7,7 +7,9 @@ import { reviewedTopicTechnologies } from '../reviewedTopicTechnologies.ts';
 
 const stamp = () => new Date().toISOString();
 const activeTicket = (ticket?: TaskTicket) => !!ticket && ['prepared', 'submitted', 'uncertain'].includes(ticket.phase);
-const finalTask = (task: MobileTask) => !['queued', 'running'].includes(task.status);
+// Retain the same read capability while a completed recommendation receives
+// optional catalog updates; recovery must never submit another search.
+const finalTask = (task: MobileTask) => !['queued', 'running'].includes(task.status) && task.result?.pipeline?.catalog_pending !== true;
 const requestInput = (input: ProjectInput) => structuredClone(input);
 function localView(project: LocalProject, version?: number): ProjectView {
   const number = version || project.summary.current_version;
@@ -75,13 +77,27 @@ export class LocalProjectService {
   private noActive(project: LocalProject) {
     if (activeTicket(project.ticket) && Date.parse(project.ticket!.expiresAt) > Date.now()) throw new Error('上次任务结果尚未确认。请先重新读取状态；不会重复提交。');
   }
-  async save(analysis: ProjectAnalysis) {
+  private async stopCatalogBeforeMutation(signal?: AbortSignal) {
+    const { state, project } = await this.snapshot();
+    if (!project) return;
+    this.current(state);
+    const ticket = project.ticket;
+    const pipeline = project.views.find(view => view.version?.version === ticket?.version)?.pipeline;
+    if (activeTicket(ticket) && Date.parse(ticket!.expiresAt) > Date.now() && pipeline?.terminal && pipeline.catalog_pending) {
+      // A new explicit action may replace completed recommendations. First
+      // release their optional work; ordinary polling never enters this path.
+      await this.cancel(signal);
+    }
+  }
+  async save(analysis: ProjectAnalysis, signal?: AbortSignal) {
+    await this.stopCatalogBeforeMutation(signal);
     await this.commit(state => { const project = this.current(state); this.noActive(project);
       addVersion(project, project.input, analysis, 'analyzed'); state.selected.version = project.summary.current_version;
     });
     return (await this.snapshot()).view!;
   }
-  private async prepare(body: MobileTaskBody, analysis: ProjectAnalysis | null, input: ProjectInput, reuseCurrent = false) {
+  private async prepare(body: MobileTaskBody, analysis: ProjectAnalysis | null, input: ProjectInput, reuseCurrent = false, signal?: AbortSignal) {
+    await this.stopCatalogBeforeMutation(signal);
     let ticket!: TaskTicket;
     await this.commit(state => {
       let project = state.projects[state.selected.id];
@@ -108,9 +124,10 @@ export class LocalProjectService {
     catch (error) { await this.noteFailure(ticket, error); throw new Error('提交结果尚未确认，输入和任务凭据已保存在本机。请重新读取状态，不会自动再次提交。'); }
     return (await this.snapshot()).view!;
   }
-  async analyze(input: ProjectInput, signal?: AbortSignal) { return this.send(await this.prepare({ kind: 'analysis', input: requestInput(input) }, null, input), signal); }
-  async confirmLocal(analysis: ProjectAnalysis, dirty: boolean) {
-    if (dirty) await this.save(analysis);
+  async analyze(input: ProjectInput, signal?: AbortSignal) { return this.send(await this.prepare({ kind: 'analysis', input: requestInput(input) }, null, input, false, signal), signal); }
+  async confirmLocal(analysis: ProjectAnalysis, dirty: boolean, signal?: AbortSignal) {
+    await this.stopCatalogBeforeMutation(signal);
+    if (dirty) await this.save(analysis, signal);
     await this.commit(state => {
       const project = this.current(state); this.noActive(project);
       const latest = project.views.at(-1)!;
@@ -127,25 +144,25 @@ export class LocalProjectService {
   }
   async confirmAndSearch(analysis: ProjectAnalysis, dirty: boolean, signal?: AbortSignal) {
     const snapshot = await this.snapshot(); if (!snapshot.project || !snapshot.view?.version) throw new Error('请先分析本机项目。');
-    if (dirty) await this.save(analysis);
+    if (dirty) await this.save(analysis, signal);
     if (!analysis.knowledge_points.some(point => point.selection === 'learn')) {
-      return this.confirmLocal(analysis, false);
+      return this.confirmLocal(analysis, false, signal);
     }
     const latest = await this.snapshot();
     const reuseAnalyzedVersion = !latest.view?.version?.confirmation;
-    const ticket = await this.prepare(searchBody(snapshot.project, analysis), analysis, snapshot.project.input, reuseAnalyzedVersion);
+    const ticket = await this.prepare(searchBody(snapshot.project, analysis), analysis, snapshot.project.input, reuseAnalyzedVersion, signal);
     return this.send(ticket, signal);
   }
   async retrySearch(signal?: AbortSignal) {
     const { view, project } = await this.snapshot(); if (!view?.version?.analysis || !project) throw new Error('本机尚无分析结果。');
     const analysis = view.version.analysis;
-    return this.send(await this.prepare(searchBody(project, analysis), analysis, project.input), signal);
+    return this.send(await this.prepare(searchBody(project, analysis), analysis, project.input, false, signal), signal);
   }
   async directSearch(request: SearchRequest, signal?: AbortSignal) {
     const input: ProjectInput = { ...request, name: request.knowledge_points.join('、').slice(0, 160), requirements: '直接检索专业知识点' };
     const analysis: ProjectAnalysis = { analysis_format: 'concept_list_v1', scope: input.requirements, technical_plan: '', assumptions: [], knowledge_points: request.knowledge_points.map((name, index) => ({ id: `direct-${index + 1}`, name, description: '', technology: '', selection: 'learn' })) };
     await this.select('');
-    return this.send(await this.prepare({ kind: 'direct_search', request: structuredClone(request) }, analysis, input), signal);
+    return this.send(await this.prepare({ kind: 'direct_search', request: structuredClone(request) }, analysis, input, false, signal), signal);
   }
   private async apply(ticket: TaskTicket, task: MobileTask) {
     const kind = (JSON.parse(ticket.body) as MobileTaskBody).kind;

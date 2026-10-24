@@ -39,6 +39,22 @@ function result(rows: DiscoveredVideo[] = [], completed = false): SearchResults 
     request: { ...input, knowledge_points: ['pandas 分组聚合'] }, progress: { queries_planned: 12, queries_completed: 2, search_requests: 2, search_successes: 2, search_failures: 0, candidates_discovered: 5, resources_discovered: 5, details_attempted: 1, details_completed: completed ? 1 : 0, cache_hits: 0 }, budgets: { max_search_requests: 12, max_detail_pages: 12, deadline_seconds: 180 }, warnings: [], errors: [], knowledge_points: [{ knowledge_point_id: 'p1', text: 'pandas 分组聚合' }] };
   return { job_id: job.job_id, status: job.status, job, pipeline: pipeline(rows.length, completed), warnings: [], groups: project(rows).points!.map(point => point.result!), search_attempts: [] };
 }
+function catalogProject(pending: boolean, withChapter = false): ProjectView {
+  const rows = [video('CATALOG'), video('CATALOG-MOOC', true)];
+  const view = project([], 2, true);
+  view.pipeline = { ...view.pipeline!, catalog_pending: pending, catalog_status: pending ? 'running' : 'completed' };
+  view.points![0].result = {
+    knowledge_point_id: 'p1', text: 'pandas 分组聚合', total_matches: rows.length, items: [], recommendation_policy: 'helpful-video-v1',
+    video_recommendations: rows.map(({ resource }) => ({
+      resource, origin: 'search', added_at: time, elapsed_seconds: 3, score: 80,
+      matched_chapters: withChapter && resource.resource_id === 'CATALOG' ? [{
+        chapter_id: 'catalog-groupby', title: '第 3 章 分组与聚合', index: 3,
+        url: `${resource.url}?p=3`, source_url: resource.url, source_kind: 'html.bilibili.initial_state.pages', observed_at: time,
+      }] : [],
+    })),
+  };
+  return view;
+}
 async function setup(page: Page) {
   const streams: { path: string; response: ServerResponse; closed: boolean }[] = [];
   const server = createServer((request, response) => {
@@ -216,6 +232,87 @@ test('changing project version closes the old stream and ignores late frames', a
     await expect.poll(() => context.streams[0].closed).toBe(true);
     context.send(project([video('LATE')]));
     await expect(page.locator('[data-resource-id="LATEST"],[data-resource-id="LATE"]')).toHaveCount(0);
+    await expect(page.getByLabel('查看版本', { exact: true })).toHaveValue('1');
+    expect(context.streams).toHaveLength(1); assertClean(context.diagnostics);
+  } finally { await context.cleanup(); }
+});
+
+test('recommendations finish promptly while the same stream updates catalog titles and keeps filters and cards', async ({ page }, info) => {
+  const context = await setup(page);
+  try {
+    await page.goto('/?project=stream-project&version=2');
+    await expect.poll(() => context.streams.length).toBe(1);
+    const progress = page.getByRole('status', { name: '搜索与匹配进度' });
+    await expect(progress).toBeVisible();
+    context.send(catalogProject(true));
+    await expect(page.locator('.video-cover-card')).toHaveCount(2);
+    await expect(progress).toHaveCount(0);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
+    expect(context.streams[0].closed).toBe(false);
+    const initialReads = context.state.projectReads;
+    await page.getByRole('navigation', { name: '已选知识点' }).getByRole('button', { name: 'pandas 分组聚合', exact: true }).click();
+    await page.getByLabel('视频来源', { exact: true }).selectOption('bilibili');
+    const card = page.locator('[data-resource-id="CATALOG"]');
+    await expect(card).toBeVisible();
+    await card.evaluate(element => element.setAttribute('data-existing-card', 'retained'));
+    context.send(catalogProject(true, true));
+    await expect(card.locator('[data-chapter-id="catalog-groupby"]')).toContainText('第 3 章 分组与聚合');
+    await expect(card).toHaveAttribute('data-existing-card', 'retained');
+    await expect(page.locator('.video-cover-card')).toHaveCount(1);
+    await expect(page.getByLabel('视频来源', { exact: true })).toHaveValue('bilibili');
+    await expect(page.getByRole('button', { name: 'pandas 分组聚合', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(progress).toHaveCount(0);
+    context.send(catalogProject(false, true), 'complete');
+    await expect.poll(() => context.streams[0].closed).toBe(true);
+    await expect(card).toHaveAttribute('data-existing-card', 'retained');
+    expect(context.streams).toHaveLength(1); expect(context.state.projectReads).toBe(initialReads);
+    await expect(page).toHaveTitle('项目制学习引导小精灵 · 课程与视频发现');
+    await expect(page.locator('vite-error-overlay')).toHaveCount(0);
+    await page.screenshot({ path: info.outputPath('catalog-late-title-desktop.png'), animations: 'disabled' });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(card).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: info.outputPath('catalog-late-title-mobile.png'), animations: 'disabled' });
+    assertClean(context.diagnostics);
+  } finally { await context.cleanup(); }
+});
+
+test('a terminal recommendation loaded again retains catalog updates through GET fallback without another search', async ({ page }) => {
+  const context = await setup(page);
+  context.state.project = catalogProject(true);
+  try {
+    await page.goto('/?project=stream-project&version=2');
+    await expect.poll(() => context.streams.length).toBe(1);
+    await expect(page.locator('.video-cover-card')).toHaveCount(2);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
+    const initialReads = context.state.projectReads;
+    context.streams[0].response.end();
+    await expect.poll(() => context.state.projectReads).toBeGreaterThan(initialReads);
+    await expect(page.locator('.video-cover-card')).toHaveCount(2);
+    context.state.project = catalogProject(false, true);
+    await expect(page.locator('[data-chapter-id="catalog-groupby"]')).toBeVisible();
+    const finalReads = context.state.projectReads;
+    await page.waitForTimeout(1700); // Prove the completed catalog stops the 1.5s fallback timer.
+    expect(context.state.projectReads).toBe(finalReads);
+    expect(context.streams).toHaveLength(1);
+    await expect(page.locator('.project-progress')).toHaveCount(0);
+    assertClean(context.diagnostics);
+  } finally { await context.cleanup(); }
+});
+
+test('switching versions while only catalog work remains closes its stream and rejects late chapter updates', async ({ page }) => {
+  const context = await setup(page);
+  context.state.project = catalogProject(true);
+  try {
+    await page.goto('/?project=stream-project&version=2');
+    await expect.poll(() => context.streams.length).toBe(1);
+    await expect(page.locator('[data-resource-id="CATALOG"]')).toBeVisible();
+    await page.getByRole('button', { name: '我的项目' }).click();
+    await page.getByLabel('查看版本', { exact: true }).selectOption('1');
+    await expect(page.locator('[data-resource-id="HISTORY"]')).toBeVisible();
+    await expect.poll(() => context.streams[0].closed).toBe(true);
+    context.send(catalogProject(false, true), 'complete');
+    await expect(page.locator('[data-resource-id="CATALOG"], [data-chapter-id="catalog-groupby"]')).toHaveCount(0);
     await expect(page.getByLabel('查看版本', { exact: true })).toHaveValue('1');
     expect(context.streams).toHaveLength(1); assertClean(context.diagnostics);
   } finally { await context.cleanup(); }

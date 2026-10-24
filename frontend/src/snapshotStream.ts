@@ -7,11 +7,11 @@ export function openSnapshotStream<T>({ url, signal, onSnapshot, onComplete, onF
 }): () => void {
   let source: EventSource | null = null;
   let stopped = false;
-  let openingTimer: ReturnType<typeof setTimeout> | undefined;
+  let dataTimer: ReturnType<typeof setTimeout> | undefined;
   const close = () => {
     if (stopped) return;
     stopped = true;
-    clearTimeout(openingTimer);
+    clearTimeout(dataTimer);
     source?.close();
     signal.removeEventListener('abort', close);
   };
@@ -19,16 +19,25 @@ export function openSnapshotStream<T>({ url, signal, onSnapshot, onComplete, onF
     if (stopped || signal.aborted) return;
     close(); onFallback();
   };
+  const awaitData = (milliseconds: number) => {
+    clearTimeout(dataTimer);
+    if (!stopped && !signal.aborted) dataTimer = setTimeout(fallback, milliseconds);
+  };
   if (signal.aborted) return close;
   signal.addEventListener('abort', close, { once: true });
   if (typeof EventSource === 'undefined') { fallback(); return close; }
   try {
     source = new EventSource(url);
-    openingTimer = setTimeout(fallback, 15_000);
-    source.addEventListener('open', () => clearTimeout(openingTimer));
+    // An open connection can still buffer every frame. Require actual data,
+    // then allow quiet catalog work before falling back to saved-state reads.
+    // SSE heartbeat comments do not reach EventSource listeners.
+    awaitData(15_000);
     source.addEventListener('snapshot', event => {
       if (stopped || signal.aborted) return;
-      try { onSnapshot(JSON.parse((event as MessageEvent<string>).data) as T); }
+      try {
+        onSnapshot(JSON.parse((event as MessageEvent<string>).data) as T);
+        awaitData(60_000);
+      }
       catch { fallback(); }
     });
     source.addEventListener('complete', event => {

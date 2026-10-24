@@ -181,7 +181,7 @@ def test_comparison_or_quit_cannot_excuse_real_restart_stop(text):
 
 
 def test_generation_version_names_the_professional_term_contract():
-    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
+    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
 
 
 @pytest.mark.parametrize("text", ["按Esc退出主循环后等待R", "Exit the main game loop when Escape is pressed then wait for R key"])

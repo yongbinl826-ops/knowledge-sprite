@@ -12,10 +12,13 @@ import { nativeMotionAvailable, useMotionValue } from '../motion';
 import { hasRelatedRecommendationPolicy, recommendationUrlKey, relatedRecommendations, verifiedReferenceChapterTarget } from '../relatedRecommendations';
 import { isVerifiedVideoPage, type VideoPageFacts } from '../verifiedVideoPage';
 import { hasEligibleReferenceLink, referenceLinkLabel } from '../relatedReferenceLink';
+import { hasHelpfulVideoPolicy, helpfulVideoCovers, type HelpfulGalleryChapter } from '../helpfulVideoRecommendations';
 
 type GalleryVideo = {
   id: string; title: string; image?: string | null; href: string;
-  source: 'recommendation' | 'related-topic' | 'discovery' | 'related-reference'; notice?: string; label?: string;
+  source: 'recommendation' | 'related-topic' | 'discovery' | 'related-reference' | 'helpful-video'; notice?: string; label?: string;
+  knowledgePointIds: string[]; recommendedAt?: string;
+  chapters?: HelpfulGalleryChapter[];
 };
 type CoverResource = Pick<Resource, 'resource_id' | 'title' | 'url' | 'canonical_url' | 'thumbnail_url' | 'platform'> & VideoPageFacts;
 
@@ -24,9 +27,9 @@ function GalleryCover({ video, index }: { video: GalleryVideo; index: number }) 
   // concurrently transparent CSS entrance would crossfade to an empty snapshot.
   // Keep this choice for this mounted card so later stream updates never replay it.
   const [nativeEntry] = useState(() => !!document.documentElement.dataset.motionKind);
-  return <article className={`video-cover-card${nativeEntry ? ' motion-native-entry' : ''}`} data-resource-id={video.id} data-source-kind={video.source} title={video.notice} style={{ '--reveal-index': Math.min(index, 4) } as CSSProperties}>
+  return <article className={`video-cover-card${nativeEntry ? ' motion-native-entry' : ''}`} data-resource-id={video.id} data-source-kind={video.source} data-knowledge-point-ids={video.knowledgePointIds.join(' ')} data-recommended-at={video.recommendedAt} title={video.notice} style={{ '--reveal-index': Math.min(index, 4) } as CSSProperties}>
     <CourseCover title={video.title} image={video.image} href={video.href} action={video.notice ? `${video.notice} 在原平台打开` : '在原平台打开'} coverOnly/>
-    <h2 className="video-cover-title"><a href={video.href} target="_blank" rel="noopener noreferrer">{video.title}</a></h2>
+    <h2 className="video-cover-title"><a href={video.href} target="_blank" rel="noopener noreferrer">{video.title}</a>{video.chapters?.map(chapter => <span key={chapter.chapter_id} data-chapter-id={chapter.chapter_id}>｜{chapter.href ? <a href={chapter.href} target="_blank" rel="noopener noreferrer">{chapter.title}</a> : chapter.title}</span>)}</h2>
     {video.label ? <span className="video-reference-label">{video.label}</span> : null}
   </article>;
 }
@@ -37,7 +40,7 @@ export function ProjectVideoGallery({ version, points, capabilities, topic, pipe
   const displayedTopic = useMotionValue(topic, 'topic');
   const [sourceFilter, setSourceFilter] = useState('all');
   const discoveryMode = capabilities?.teaching_match_enabled === false;
-  const referencePolicy = points.some(point => point.result && hasRelatedRecommendationPolicy(point.result));
+  const referencePolicy = points.some(point => point.result && !hasHelpfulVideoPolicy(point.result) && hasRelatedRecommendationPolicy(point.result));
   const byId = new Map(points.map(point => [point.project_knowledge_point_id, point]));
   const selected = (version.analysis?.knowledge_points || [])
     .filter(point => point.selection === 'learn' && (displayedTopic === 'all' || point.id === displayedTopic));
@@ -51,6 +54,7 @@ export function ProjectVideoGallery({ version, points, capabilities, topic, pipe
       ...groupItems(result).map(item => item.resource.platform),
       ...Object.keys(result.related_platform_recommendations || {}),
       ...(result.related_recommendations || []).map(entry => entry.resource.platform),
+      ...(result.video_recommendations || []).map(entry => entry.resource.platform),
       ...Object.keys(result.discovery_platform_items || {}),
       ...(result.discovery_items || []).map(entry => entry.resource.platform),
       ...(result.related_topic_pointers || []).map(entry => entry?.resource?.platform),
@@ -69,25 +73,28 @@ export function ProjectVideoGallery({ version, points, capabilities, topic, pipe
     return () => { stale = true; };
   }, [evidenceKey]);
 
-  const covers = new Map<string, GalleryVideo>();
-  const addCover = (resource: CoverResource, source: GalleryVideo['source'], target = resource.url, notice?: string, label?: string) => {
+  const covers = new Map<string, GalleryVideo>(helpfulVideoCovers(groups.map(({ planned, result }) => ({ pointId: planned.id, result })), sourceFilter));
+  const addCover = (pointId: string, resource: CoverResource, source: GalleryVideo['source'], target = resource.url, notice?: string, label?: string) => {
     if (source !== 'related-reference' && !isVerifiedVideoPage(resource)) return;
     if (sourceFilter !== 'all' && resource.platform !== sourceFilter) return;
     const href = externalUrl(target);
     if (!href) return;
     const key = recommendationUrlKey(resource) || href;
     const previous = covers.get(key);
+    const knowledgePointIds = [...new Set([...(previous?.knowledgePointIds || []), pointId])];
     if (!previous || source === 'recommendation' && previous.source !== 'recommendation') covers.set(key, {
-      id: resource.resource_id, title: resource.title || '视频', image: resource.thumbnail_url, href, source, notice, label,
+      id: resource.resource_id, title: resource.title || '视频', image: resource.thumbnail_url, href, source, notice, label, knowledgePointIds,
     });
+    else previous.knowledgePointIds = knowledgePointIds;
   };
   for (const { planned, result } of groups) {
+    if (hasHelpfulVideoPolicy(result)) continue;
     const references = relatedRecommendations(result, sourceFilter);
     const rows = visibleGroupItems(result, sourceFilter, 'learning', result.section_limit || capabilities?.limits.max_results_per_point || 5);
     for (const { item, status } of rows) {
       if (discoveryMode && !referencePolicy || status === 'supported' || status === 'partial') {
         const chapter = references.map(entry => verifiedReferenceChapterTarget(item.resource, entry, result.knowledge_point_id)).find(Boolean);
-        addCover(item.resource, 'recommendation', chapter || item.resource.url);
+        addCover(planned.id, item.resource, 'recommendation', chapter || item.resource.url);
       }
     }
     for (const entry of references) {
@@ -96,15 +103,15 @@ export function ProjectVideoGallery({ version, points, capabilities, topic, pipe
         const notice = entry.reference.link_eligible === true
           ? `${label || '相关参考'}；精确讲授未验证。${entry.reference.basis.every(kind => !['page', 'catalog'].includes(kind)) ? '页面未核验。' : ''}`
           : entry.accessibleReason;
-        addCover(entry.resource, 'related-reference', entry.href, notice, label);
+        addCover(planned.id, entry.resource, 'related-reference', entry.href, notice, label);
       }
     }
     // Keep the existing proof checks before showing a related chapter's cover.
     if (discoveryMode && !referencePolicy) {
       for (const entry of relatedTopicPointers(planned, result, sourceFilter, digests.key === evidenceKey ? digests.values : new Map())) {
-        addCover(entry.resource, 'related-topic', entry.targetUrl);
+        addCover(planned.id, entry.resource, 'related-topic', entry.targetUrl);
       }
-      for (const entry of visibleDiscoveredVideos(result, sourceFilter)) addCover(entry.resource, 'discovery');
+      for (const entry of visibleDiscoveredVideos(result, sourceFilter)) addCover(planned.id, entry.resource, 'discovery');
     }
   }
   const displayedCount = covers.size;

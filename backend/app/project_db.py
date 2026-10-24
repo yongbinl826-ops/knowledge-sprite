@@ -105,6 +105,11 @@ class ProjectStore:
         return [(row[0], row[1]) for row in self.connection.execute(
             "SELECT project_id,version FROM project_versions WHERE status='running'")]
 
+    def pending_catalogs(self) -> list[tuple[str, int]]:
+        return [(row[0], row[1]) for row in self.connection.execute(
+            "SELECT project_id,version FROM project_versions "
+            "WHERE json_extract(data, '$.fast_video_search.catalog_enrichment.status')='running'")]
+
     def recover_analysis(self):
         for row in self.connection.execute("SELECT project_id,data FROM project_versions WHERE status='analyzing'").fetchall():
             data = json.loads(row["data"])

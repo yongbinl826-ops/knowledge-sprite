@@ -6,6 +6,8 @@ export type SearchPipeline = {
   stage: string; search_requests: number; search_budget: number; candidates: number;
   checking: number; displayed: number; filtered: number; unknown: number;
   terminal: boolean; source_limited: boolean;
+  // Recommendation progress can finish before optional native catalogs arrive.
+  catalog_pending?: boolean; catalog_status?: string;
 };
 export type SearchRequest = {
   knowledge_points: string[];
@@ -140,6 +142,26 @@ export type ResultGroup = {
   related_platform_recommendations?: Record<string, RelatedRecommendation[]>;
   total_related_recommendations?: number;
   recommendation_policy?: string;
+  video_recommendations?: HelpfulVideoRecommendation[];
+};
+export type HelpfulVideoChapter = {
+  chapter_id: string;
+  title: string;
+  index: number;
+  url?: string | null;
+  source_url: string;
+  source_kind: string;
+  observed_at: string | null;
+};
+export type HelpfulVideoRecommendation = {
+  resource: Pick<Resource, 'resource_id' | 'title' | 'url' | 'platform'> &
+    Partial<Pick<Resource, 'canonical_url' | 'thumbnail_url' | 'language' | 'requires_payment' | 'description' | 'fetch_status' | 'video_evidence_status' | 'playback_verified'>>;
+  origin: 'search' | 'ai' | 'technology';
+  added_at: string;
+  elapsed_seconds: number;
+  score: number;
+  relevance?: 'targeted' | 'general';
+  matched_chapters?: HelpfulVideoChapter[];
 };
 export type RelatedRecommendation = {
   resource: DiscoveredVideo['resource'] & Partial<Pick<Resource, 'cache' | 'resolved_url' | 'requires_login' | 'requires_payment' | 'requires_enrollment'>> & { access_notice?: string | null };

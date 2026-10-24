@@ -35,7 +35,7 @@ export type ProjectView = {
   version: ProjectVersion | null; points?: ProjectPointResult[]; functions?: ProjectFunction[];
 };
 export type ProjectAnalysisCapability = Capability & { model?: string; prompt_version?: string; max_functions: number; max_knowledge_points: number };
-export type ProjectSearchCapability = { max_batches: number; max_search_requests: number; max_detail_pages: number; deadline_seconds: number; batch_size: number };
+export type ProjectSearchCapability = { recommendation_policy?: 'helpful-video-v1' | 'related-reference-v1'; max_batches: number; max_search_requests: number; max_detail_pages: number; deadline_seconds: number; batch_size: number };
 export const emptyProjectInput: ProjectInput = { name: '', requirements: '', student_level: 'any', language: 'zh', project_context: '', technical_version: '', preferred_platforms: ['bilibili', 'icourse163'] as Platform[] };
 export const projectStatusNames: Record<string, string> = {
   draft: '待分析', analyzing: '正在分析', analyzed: '待确认', analysis_failed: '分析失败', confirmed: '已确认',

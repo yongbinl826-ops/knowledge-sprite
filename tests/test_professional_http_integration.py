@@ -86,7 +86,7 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
         generated=deepcopy(V1)
         generated['knowledge_points'][1]['name']='pandas 缺失值处理'
         generated=flat_proposal(generated)
-        assert len(model_calls)<=2,'Generation and normalization share the existing call budget'
+        assert len(model_calls)==1,'A valid first proposal is delivered without another model call'
         return httpx.Response(200,json={'choices':[{'finish_reason':'stop','message':{'content':json.dumps(generated,ensure_ascii=False)}}]})
     async with httpx.AsyncClient(transport=httpx.MockTransport(model_response)) as model_client:
         analyzer=ProjectAnalyzer(config,model_client)
@@ -109,23 +109,26 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 view=await poll(api,f'/api/projects/{pid}',lambda b:b['version']['status']!='analyzing')
                 assert view['version']['status']=='analyzed'
                 assert view['original_input']==view['version']['input']==original|{'technical_version':''}
-                assert len(model_calls)==2
+                assert len(model_calls)==1
                 assert [(entry['phase'],entry['outcome']) for entry in view['version']['analysis_attempts']]==[
-                    ('generation','draft'),('normalization','accepted')]
+                    ('generation','accepted')]
                 assert not view['version'].get('rejected_analysis_attempts')
-                normalization=json.loads(model_calls[1]['messages'][1]['content'])
-                assert normalization['normalization_required'] is True
-                assert normalization['project']==original|{'technical_version':''}
-                assert normalization['previous_analysis']['knowledge_points'][1]['name']=='pandas 缺失值处理'
+                generated_payload=json.loads(model_calls[0]['messages'][1]['content'])
+                assert 'repair_required' not in generated_payload
+                assert generated_payload['project']==original|{'technical_version':''}
                 assert all(not point.get('learning_skills') and not point.get('concepts') for point in view['version']['analysis']['knowledge_points'])
                 capability=(await api.get('/api/capabilities')).json()['project_analysis']
                 assert capability['mode']=='professional_knowledge_points'
                 assert capability['max_model_calls']==2 and capability['semantic_review_enabled'] is False
                 assert capability['review_max_calls']==0
-                assert capability['concept_normalization_enabled'] is True
-                assert capability['normalization_max_calls']==1
-                assert capability['normalization_max_output_tokens']==12000
-                assert capability['generation_stages']==['generation','normalization']
+                assert capability['concept_normalization_enabled'] is False
+                assert capability['normalization_max_calls']==0
+                assert capability['conditional_repair_enabled'] is True
+                assert capability['repair_max_calls']==1
+                assert capability['repair_max_output_tokens']==12000
+                assert capability['generation_stages']==['generation','repair_if_needed']
+                assert capability['accepted_draft_immediate'] is True
+                assert capability['concept_naming_policy']=='established_textbook_terms_v2'
 
                 edited=deepcopy(view['version']['analysis'])
                 # A current flat analysis lets students select concepts directly.
@@ -213,7 +216,7 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 assert (await api.post(f'/api/projects/{pid}/search',json={'version':2})).status_code==202
                 assert (await api.post(f'/api/projects/{pid}/edit',json={'expected_version':1,'analysis':edited})).status_code==409
                 assert app.state.store.connection.total_changes==before
-                assert len(provider.calls)==calls_before and len(model_calls)==2 and no_llm.calls==[]
+                assert len(provider.calls)==calls_before and len(model_calls)==1 and no_llm.calls==[]
                 assert config.llm_api_key not in json.dumps([result,historic,first,empty_search.json(),capability],ensure_ascii=False)
 
 

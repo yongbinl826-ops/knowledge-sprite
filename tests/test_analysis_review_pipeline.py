@@ -22,11 +22,11 @@ FAIL = {"passed": False, "issues": [{"severity": "medium", "code": "numeric_boun
 
 
 @pytest.mark.asyncio
-async def test_valid_terms_use_generation_and_normalization_even_with_legacy_review_setting():
+async def test_valid_terms_use_one_call_even_with_legacy_review_setting():
     from tests.professional_contract_support import projected_once
     assert Settings().project_semantic_review_enabled is True  # historical config remains readable
     result, calls = await projected_once(analysis_fixture(), request(), configured())
-    assert result.knowledge_points and len(calls) == 2
+    assert result.knowledge_points and len(calls) == 1
 
 
 @pytest.mark.asyncio
@@ -55,7 +55,7 @@ async def test_structural_failure_uses_one_repair_and_never_a_third_call(last_re
     assert repair["validation_feedback"][0]["type"] == "missing"
     assert repair["project"] == request().model_dump()
     assert "previous_analysis" not in repair  # invalid schema is never retained as a valid proposal
-    assert repair["normalization_required"] is True
+    assert repair["repair_required"] is True
 
 
 @pytest.mark.asyncio

@@ -161,7 +161,7 @@ def test_new_skill_layer_cannot_bypass_existing_behavior_guards(source, skill, c
 
 def test_prompt_schema_omits_expanded_fields_while_storage_keeps_safe_optional_history():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
     assert_simple_generation_schema()
     storage = AnalysisDocument.model_json_schema()["$defs"]["ProjectKnowledgePoint"]
     assert "learning_skills" not in storage.get("required", [])
@@ -177,7 +177,7 @@ async def test_missing_legacy_skills_need_no_repair_or_concept_fallback():
     body = document_slice()
     body["knowledge_points"][0].pop("learning_skills")
     result, calls = await projected_once(body, ProjectInput(**SLICES["review_cards"]["project"]), settings(), concept_names={"k1": "数组索引"})
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert result.knowledge_points[0].learning_skills == []
     assert result.knowledge_points[0].concepts == []
 
@@ -188,7 +188,7 @@ async def test_absent_skills_remain_absent_through_required_normalization():
     body = document_slice()
     body["knowledge_points"][0].pop("learning_skills")
     result, calls = await projected_once(body, ProjectInput(**SLICES["review_cards"]["project"]), settings(), concept_names={"k1": "数组索引"})
-    assert len(calls) == 2 and result.knowledge_points[0].learning_skills == []
+    assert len(calls) == 1 and result.knowledge_points[0].learning_skills == []
 
 
 def test_professional_term_prompt_is_specific_without_compulsory_skill_or_practice_layers():

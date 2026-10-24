@@ -210,7 +210,7 @@ async def test_already_searched_legacy_confirmation_keeps_technology_scope_guard
     await projects.stop();store.close()
 
 
-def test_capabilities_advertise_bounded_generation_normalization_and_no_legacy_critic(tmp_path):
+def test_capabilities_advertise_conditional_repair_and_no_legacy_critic(tmp_path):
     config,store,jobs,projects,provider=setup(tmp_path)
     capability=projects.capabilities()
     analysis=capability['project_analysis']
@@ -218,10 +218,14 @@ def test_capabilities_advertise_bounded_generation_normalization_and_no_legacy_c
     assert analysis['max_model_calls']==2
     assert analysis['semantic_review_enabled'] is False
     assert analysis['review_max_calls']==analysis['review_max_output_tokens']==0
-    assert analysis['concept_normalization_enabled'] is True
-    assert analysis['normalization_max_calls']==1
-    assert analysis['normalization_max_output_tokens']==12000
-    assert analysis['generation_stages']==['generation','normalization']
+    assert analysis['concept_normalization_enabled'] is False
+    assert analysis['normalization_max_calls']==0
+    assert analysis['conditional_repair_enabled'] is True
+    assert analysis['repair_max_calls']==1
+    assert analysis['repair_max_output_tokens']==12000
+    assert analysis['generation_stages']==['generation','repair_if_needed']
+    assert analysis['accepted_draft_immediate'] is True
+    assert analysis['concept_naming_policy']=='established_textbook_terms_v2'
     assert capability['project_search']['mode']=='professional_terms_v1'
     store.close()
 

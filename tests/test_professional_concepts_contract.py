@@ -69,7 +69,7 @@ async def test_generation_repairs_task_bundle_once_without_model_count_growth():
     assert any(i["code"] == "task_bundle_name" for i in repair["validation_feedback"])
     assert repair["previous_analysis"]["knowledge_points"][0]["name"] == "窗口创建+循环"
     assert "learning_skills" not in repair["output_schema"]["$defs"]["GeneratedConcept"]["properties"]
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
     assert "The student only decides which concepts" in SYSTEM_PROMPT
 
 
@@ -102,7 +102,7 @@ async def test_ordinary_conjunctions_do_not_trigger_repair_or_rewrite_the_topic(
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply), trust_env=False) as client:
         result = await ProjectAnalyzer(cfg, client).analyze(ProjectInput(
             name="Synthetic project", requirements="Implement the requested local interaction"))
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert result.knowledge_points[0].name == name
     assert result.knowledge_points[0].description == source["knowledge_points"][0]["description"]
 

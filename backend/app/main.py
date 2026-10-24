@@ -217,6 +217,22 @@ def create_app(settings: Settings | None = None, provider=None, fetcher=None, ll
                                 status_code=429, headers={"Retry-After": "5"})
         return app.state.projects.search(project_id, request.version)
 
+    @app.post("/api/projects/{project_id}/catalogs", status_code=202)
+    async def continue_project_catalogs(project_id: str, request: ProjectVersionRequest):
+        pending = [key for key, task in app.state.projects.tasks.items() if not task.done()]
+        if (project_id, request.version) not in pending and len(pending) >= settings.max_pending_project_searches:
+            return JSONResponse({"detail": "目录等待队列已满，请稍后重试。", "code": "catalog_queue_full"},
+                                status_code=429, headers={"Retry-After": "5"})
+        return app.state.projects.resume_catalogs(project_id, request.version)
+
+    @app.post("/api/projects/{project_id}/covers", status_code=202)
+    async def continue_project_covers(project_id: str, request: ProjectVersionRequest):
+        pending = [key for key, task in app.state.projects.tasks.items() if not task.done()]
+        if (project_id, request.version) not in pending and len(pending) >= settings.max_pending_project_searches:
+            return JSONResponse({"detail": "封面等待队列已满，请稍后重试。", "code": "cover_queue_full"},
+                                status_code=429, headers={"Retry-After": "5"})
+        return app.state.projects.resume_covers(project_id, request.version)
+
     @app.post("/api/projects/{project_id}/cancel")
     async def cancel_project(project_id: str, request: ProjectVersionRequest):
         return await app.state.projects.cancel(project_id, request.version)

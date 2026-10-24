@@ -7,7 +7,7 @@ from tests.professional_contract_support import assert_simple_generation_schema
 
 
 def test_names_describe_one_reusable_topic_without_duplicate_or_unrelated_bundles():
-    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
+    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
     assert "one point represents one coherent reusable mechanism" in module.SYSTEM_PROMPT
     assert "Merge duplicate concepts" in module.SYSTEM_PROMPT
     assert "Never split or merge merely to reach a count" in module.SYSTEM_PROMPT

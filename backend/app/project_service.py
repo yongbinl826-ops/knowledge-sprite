@@ -1,4 +1,4 @@
-"""Project analysis/confirmation orchestration; all discovery stays in JobService."""
+"""Versioned project analysis and bounded, streaming video recommendations."""
 from __future__ import annotations
 from .learning_support import summarize_learning_support
 from .platform_search import platform_budget
@@ -22,6 +22,7 @@ from .service import AdmissionRejected, JobService
 from .technical_prefix import canonical_search_name, leading_technical_owner
 from .professional_concepts import generated_context, bound_generated_context, reviewed_technologies
 from .ranking import summarize_collection_coverage
+from .helpful_video_chapters import MAX_CATALOG_RESOURCES, MAX_CATALOG_HTTP_REQUESTS
 
 
 class ProjectError(Exception):
@@ -40,6 +41,10 @@ class ProjectService:
 
     def start(self):
         self.db.recover_analysis()
+        for project_id, version in self.db.pending_catalogs():
+            data = self.db.version(project_id, version)
+            self._finish_catalog(data, "interrupted")
+            self.db.save(project_id, data)
         for project_id, version in self.db.running():
             # Recovery is a persistence transition, never new paid source work.
             # JobService has interrupted old queued/running jobs already. Do not
@@ -53,9 +58,25 @@ class ProjectService:
                 if batch["status"] == "pending":
                     batch.update(status="interrupted", error=error)
             data.update(status="interrupted", error=error)
+            if data.get("fast_video_search"):
+                data["fast_video_search"].update(status="interrupted", finished_at=now())
             if error["message"] not in data["warnings"]:
                 data["warnings"].append(error["message"])
             self.db.save(project_id, data)
+
+    @staticmethod
+    def _catalog_pending(data):
+        return (data.get("fast_video_search") or {}).get("catalog_enrichment", {}).get("status") == "running"
+
+    @staticmethod
+    def _finish_catalog(data, status):
+        catalog = (data.get("fast_video_search") or {}).get("catalog_enrichment", {})
+        if catalog.get("status") == "running":
+            stamp = now()
+            catalog.update(status=status, finished_at=stamp)
+            if catalog.get("started_at"):
+                catalog["elapsed_seconds"] = round(max(0, (datetime.fromisoformat(stamp) -
+                    datetime.fromisoformat(catalog["started_at"])).total_seconds()), 3)
 
     def _recover_batch_mapping(self, data, batch):
         """Reconnect a previously committed job; never create or resume one."""
@@ -89,8 +110,10 @@ class ProjectService:
         self.analysis_tasks.clear()
 
     def capabilities(self) -> dict:
+        from .fast_video_search import MAX_CATALOG_MODEL_CALLS, catalog_background_limits
+        catalog = catalog_background_limits(self.settings)
         configured = bool(getattr(self.analyzer, "available", False))
-        normalization = concept_normalization_settings(self.settings)
+        repair = concept_normalization_settings(self.settings)
         return {"project_analysis": {"status": "configured" if configured else "unconfigured",
                     "model": self.settings.llm_model or None, "prompt_version": ANALYSIS_PROMPT_VERSION,
                     "max_functions": 12, "max_knowledge_points": 24,
@@ -100,25 +123,48 @@ class ProjectService:
                     "prerequisites_generated": False,
                     "learning_order_generated": False,
                     "semantic_review_enabled": False,
-                    "concept_normalization_enabled": True,
-                    "normalization_max_calls": 1,
-                    "normalization_thinking_mode": normalization.llm_thinking_mode,
-                    "normalization_reasoning_effort": normalization.llm_reasoning_effort,
-                    "normalization_max_output_tokens": normalization.llm_max_output_tokens,
-                    "generation_stages": ["generation", "normalization"],
+                    "concept_normalization_enabled": False,
+                    "normalization_max_calls": 0,
+                    "conditional_repair_enabled": True,
+                    "repair_max_calls": 1,
+                    "repair_thinking_mode": repair.llm_thinking_mode,
+                    "repair_reasoning_effort": repair.llm_reasoning_effort,
+                    "repair_max_output_tokens": repair.llm_max_output_tokens,
+                    "generation_stages": ["generation", "repair_if_needed"],
+                    "accepted_draft_immediate": True,
+                    "concept_naming_policy": "established_textbook_terms_v2",
                     "max_model_calls": 2,
                     "review_max_calls": 0,
                     "review_max_output_tokens": 0,
                     "message": "项目分析使用独立提示词；内容需学生检查确认" if configured else "项目分析不可用：服务端未配置模型；仍可直接搜索知识点"},
-                "project_search": {"max_batches": self.settings.project_max_batches,
+                "project_search": {"recommendation_policy": "helpful-video-v1" if self.settings.fast_video_recommendations_enabled else "related-reference-v1",
+                    "match_policy": "targeted-video-v2" if self.settings.fast_video_recommendations_enabled else "related-reference-v1",
+                    "max_batches": 1 if self.settings.fast_video_recommendations_enabled else self.settings.project_max_batches,
                     "max_search_requests": self.settings.project_max_search_requests,
-                    "max_detail_pages": self.settings.project_max_detail_pages,
-                    "deadline_seconds": self.settings.project_deadline_seconds,
-                    "batch_size": min(5, self.settings.max_knowledge_points),
+                    "max_detail_pages": 0 if self.settings.fast_video_recommendations_enabled else self.settings.project_max_detail_pages,
+                    "optional_catalog_resources": catalog["resources"] if self.settings.fast_video_recommendations_enabled else 0,
+                    "catalog_http_requests": catalog["http_requests"] if self.settings.fast_video_recommendations_enabled else 0,
+                    "recommendation_phase_catalog_resources": MAX_CATALOG_RESOURCES,
+                    "recommendation_phase_catalog_http_requests": MAX_CATALOG_HTTP_REQUESTS,
+                    "recommendation_phase_catalog_model_calls": MAX_CATALOG_MODEL_CALLS,
+                    "catalog_required_for_recommendation": False,
+                    "catalog_tail_wait_seconds": 0,
+                    "catalog_background_seconds": catalog["seconds"],
+                    "catalog_model_calls": catalog["model_calls"],
+                    "catalog_resume_enabled": True,
+                    "cover_resume_enabled": True,
+                    "cover_resume_resources": catalog["resources"],
+                    "cover_resume_http_requests": catalog["http_requests"],
+                    "cover_resume_model_calls": 0,
+                    "cover_resume_seconds": catalog["seconds"],
+                    "catalog_cache_enabled": True,
+                    "catalog_resource_budget_scope": "network_only",
+                    "deadline_seconds": self.settings.fast_video_deadline_seconds if self.settings.fast_video_recommendations_enabled else self.settings.project_deadline_seconds,
+                    "batch_size": 24 if self.settings.fast_video_recommendations_enabled else min(5, self.settings.max_knowledge_points),
                     "mode": "professional_terms_v1",
-                    "budget_policy": "按每批完整单任务上限预留；超预算整体拒绝，不截断知识点",
-                    "deadline_policy": "预留各批完整执行时限之和；墙钟时限控制新批次启动，已提交共享任务继续至原任务时限",
-                    "cancel_policy": "停止未提交批次并取消仅本项目使用的任务；共享或历史归属未知的任务继续，保留其结果"}}
+                    "budget_policy": "全部知识点共用检索预算，推荐数量不截断" if self.settings.fast_video_recommendations_enabled else "按每批完整单任务上限预留；超预算整体拒绝，不截断知识点",
+                    "deadline_policy": "全部平台和知识点共用一次墙钟时限，边搜边展示" if self.settings.fast_video_recommendations_enabled else "预留各批完整执行时限之和；墙钟时限控制新批次启动，已提交共享任务继续至原任务时限",
+                    "cancel_policy": "取消本版本正在进行的搜索和匹配，保留已展示推荐" if self.settings.fast_video_recommendations_enabled else "停止未提交批次并取消仅本项目使用的任务；共享或历史归属未知的任务继续，保留其结果"}}
 
     def _project(self, project_id):
         project = self.db.project(project_id)
@@ -168,6 +214,9 @@ class ProjectService:
         if current and current["status"] == "analyzing" and current["input"] == source:
             return self.view(project_id)
         data = self._new_version(project, source, status="analyzing")
+        data["analysis_timing"] = {"started_at": data["created_at"], "finished_at": None,
+                                   "queue_wait_seconds": None, "processing_seconds": None,
+                                   "elapsed_seconds": None}
         self.db.save(project_id, data, new=True)
         key = project_id, data["version"]
         task = asyncio.create_task(self._analyze(project_id, data["version"]))
@@ -177,6 +226,9 @@ class ProjectService:
 
     async def _analyze(self, project_id: str, version: int):
         _, data = self._version(project_id, version)
+        data.setdefault("analysis_timing", {"started_at": data["created_at"], "finished_at": None,
+                                           "queue_wait_seconds": None, "processing_seconds": None,
+                                           "elapsed_seconds": None})
 
         def retain_rejection(entry: dict):
             # Version-private untrusted proposals, separate from usable analysis
@@ -187,14 +239,20 @@ class ProjectService:
             self.db.save(project_id, data)
 
         def retain_attempt(entry: dict):
-            # Keep both model responses for diagnosis, including the draft that
-            # passed local checks but was not yet normalized or delivered.
+            # Retain each attempted model response and its validation outcome.
+            # A valid first draft is accepted without a second model call.
             data.setdefault("analysis_attempts", []).append(
                 {**deepcopy(entry), "project_id": project_id, "version": version})
             self.db.save(project_id, data)
 
         try:
             async with self.analysis_slots:
+                processing_started = now()
+                data["analysis_timing"]["processing_started_at"] = processing_started
+                data["analysis_timing"]["queue_wait_seconds"] = round((
+                    datetime.fromisoformat(processing_started) -
+                    datetime.fromisoformat(data["analysis_timing"]["started_at"])).total_seconds(), 6)
+                self.db.save(project_id, data)
                 audit_options = ({"on_rejected_attempt": retain_rejection, "on_analysis_attempt": retain_attempt}
                                  if isinstance(self.analyzer, ProjectAnalyzer) else {})
                 analysis = await self.analyzer.analyze(ProjectInput.model_validate(data["input"]), **audit_options)
@@ -210,6 +268,13 @@ class ProjectService:
                 data["error"]["diagnostics"] = exc.diagnostics
         except Exception:
             data.update(status="analysis_failed", error={"code": "analysis_failed", "message": "项目分析失败，输入已保留；请稍后重试或使用直接知识点搜索。"})
+        finished_at = now()
+        timing = data["analysis_timing"]
+        timing.update(finished_at=finished_at, elapsed_seconds=round((
+            datetime.fromisoformat(finished_at) - datetime.fromisoformat(timing["started_at"])).total_seconds(), 6))
+        if timing.get("processing_started_at"):
+            timing["processing_seconds"] = round((datetime.fromisoformat(finished_at) -
+                datetime.fromisoformat(timing["processing_started_at"])).total_seconds(), 6)
         self.db.save(project_id, data)
 
     def edit(self, project_id: str, expected_version: int, analysis: AnalysisDocument, input_data: ProjectInput | None = None):
@@ -229,6 +294,29 @@ class ProjectService:
         return self.view(project_id)
 
     def _budget(self, points: list[dict], platforms=None):
+        if self.settings.fast_video_recommendations_enabled:
+            from .fast_video_search import MAX_MODEL_CALLS, MAX_CATALOG_MODEL_CALLS, catalog_background_limits
+            catalog = catalog_background_limits(self.settings)
+            count = int(bool(points))
+            return {"batch_size": max(1, len(points)), "batch_count": count,
+                    "selected_count": len(points), "max_batches": 1,
+                    "reserved_search_requests": self.settings.project_max_search_requests if points else 0,
+                    "reserved_detail_pages": 0,
+                    "reserved_model_calls": MAX_MODEL_CALLS + catalog["model_calls"] if points else 0,
+                    "reserved_recommendation_model_calls": MAX_MODEL_CALLS if points else 0,
+                    "reserved_catalog_model_calls": catalog["model_calls"] if points else 0,
+                    "catalog_background_seconds": catalog["seconds"] if points else 0,
+                    "reserved_task_seconds": self.settings.fast_video_deadline_seconds if points else 0,
+                    "max_search_requests": self.settings.project_max_search_requests, "max_detail_pages": 0,
+                    "optional_catalog_resources": catalog["resources"] if points else 0,
+                    "catalog_http_requests": catalog["http_requests"] if points else 0,
+                    "recommendation_phase_catalog_resources": MAX_CATALOG_RESOURCES if points else 0,
+                    "recommendation_phase_catalog_http_requests": MAX_CATALOG_HTTP_REQUESTS if points else 0,
+                    "recommendation_phase_catalog_model_calls": MAX_CATALOG_MODEL_CALLS if points else 0,
+                    "deadline_seconds": self.settings.fast_video_deadline_seconds,
+                    "per_batch_search_requests": self.settings.project_max_search_requests,
+                    "per_batch_detail_pages": 0, "per_batch_deadline_seconds": self.settings.fast_video_deadline_seconds,
+                    "search_policy": "helpful-video-v1", "first_pass_before_followups": False}
         size = min(5, self.settings.max_knowledge_points)
         count = (len(points) + size - 1) // size
         batch_requests = []
@@ -348,6 +436,18 @@ class ProjectService:
         snapshot["search_mode"] = "professional_terms_v1"
         data["budgets"] = budget
         data["search_started_at"] = now()
+        if self.settings.fast_video_recommendations_enabled:
+            data["fast_video_search"] = {
+                "policy": "helpful-video-v1", "status": "running" if selected else "completed",
+                "started_at": data["search_started_at"], "finished_at": None, "elapsed_seconds": 0,
+                "recommendations": {point["id"]: [] for point in selected},
+                "progress": {"search_requests": 0, "model_calls": 0, "candidates": 0, "covered_points": 0},
+                "diagnostics": {}}
+            data["status"] = "running" if selected else "completed"
+            self.db.save(project_id, data)
+            if selected:
+                self._schedule(project_id, version)
+            return self.view(project_id, version)
         if not selected:
             data["status"] = "completed"
             data["warnings"].append("没有勾选知识点；已保存确认结果，没有创建检索任务。")
@@ -369,7 +469,97 @@ class ProjectService:
             return
         task = asyncio.create_task(self._run_guarded(project_id, version))
         self.tasks[key] = task
-        task.add_done_callback(lambda _: self.tasks.pop(key, None))
+        task.add_done_callback(lambda finished: self.tasks.pop(key, None)
+                               if self.tasks.get(key) is finished else None)
+
+    def resume_catalogs(self, project_id: str, version: int):
+        return self._resume_metadata(project_id, version)
+
+    def resume_covers(self, project_id: str, version: int):
+        return self._resume_metadata(project_id, version, cover_only=True)
+
+    def _resume_metadata(self, project_id: str, version: int, *, cover_only=False):
+        project, data = self._version(project_id, version)
+        self._expect_current(project, version)
+        fast = data.get("fast_video_search") or {}
+        if not fast or not data.get("confirmation") or not any(fast.get("recommendations", {}).values()):
+            raise ProjectError("catalog_results_required", "当前版本没有可继续补目录的视频", 409)
+        key = project_id, version
+        if key in self.tasks and not self.tasks[key].done():
+            return self.view(project_id, version)
+        if data["status"] in {"running", "analyzing", "cancelled"}:
+            raise ProjectError("catalog_search_not_finished", "请先等待视频推荐完成", 409)
+        run_id = str(uuid4())
+        catalog = fast.setdefault("catalog_enrichment", {})
+        catalog.update(status="running", run_id=run_id, started_at=now(), finished_at=None,
+                       elapsed_seconds=0.0, mode="covers_only" if cover_only else "catalog_only")
+        data["cancel_requested"] = False
+        confirmation = data["confirmation"]
+        selected_ids = set(confirmation["selected_ids"])
+        selected = [point for point in confirmation["analysis"]["knowledge_points"] if point["id"] in selected_ids]
+        current_budget = self._budget(selected, confirmation["input"].get("preferred_platforms"))
+        # Existing video reservations and all actual counters stay untouched.
+        if cover_only:
+            data["budgets"].update(reserved_cover_resources=current_budget["optional_catalog_resources"],
+                reserved_cover_http_requests=current_budget["catalog_http_requests"], reserved_cover_model_calls=0,
+                cover_background_seconds=current_budget["catalog_background_seconds"])
+        else:
+            for field in ("reserved_model_calls", "reserved_catalog_model_calls", "catalog_background_seconds",
+                          "optional_catalog_resources", "catalog_http_requests", "recommendation_phase_catalog_resources",
+                          "recommendation_phase_catalog_http_requests", "recommendation_phase_catalog_model_calls"):
+                data["budgets"][field] = current_budget[field]
+        self.db.save(project_id, data)
+        task = asyncio.create_task(self._run_catalogs_guarded(project_id, version, run_id, cover_only=cover_only))
+        self.tasks[key] = task
+        task.add_done_callback(lambda finished: self.tasks.pop(key, None)
+                               if self.tasks.get(key) is finished else None)
+        return self.view(project_id, version)
+
+    async def _run_catalogs_guarded(self, project_id, version, run_id, *, cover_only=False):
+        from .fast_video_search import resume_video_catalogs, resume_video_covers
+        from .native_catalog_cache import NativeCatalogCache
+        _, data = self._version(project_id, version)
+        confirmation = data["confirmation"]
+        points = [deepcopy(point) for point in confirmation["analysis"]["knowledge_points"]
+                  if point["id"] in confirmation["selected_ids"]]
+        for point in points:
+            point["technology"] = confirmation.get("topic_technologies", {}).get(
+                canonical_search_name(point["name"]), point.get("technology", ""))
+
+        def publish(snapshot):
+            latest = self.db.version(project_id, version)
+            prior = (latest or {}).get("fast_video_search") or {}
+            catalog = prior.get("catalog_enrichment") or {}
+            owner = self.tasks.get((project_id, version))
+            if (not latest or latest.get("cancel_requested") or catalog.get("run_id") != run_id
+                    or catalog.get("status") != "running" or (owner is not None and owner.cancelling())):
+                return
+            snapshot = deepcopy(snapshot)
+            for field in ("status", "started_at", "finished_at", "elapsed_seconds"):
+                snapshot[field] = prior.get(field)
+            latest["fast_video_search"] = snapshot
+            self.db.save(project_id, latest)
+
+        try:
+            resume = resume_video_covers if cover_only else resume_video_catalogs
+            await resume(self.settings, points, data["fast_video_search"], publish=publish,
+                catalog_cache=NativeCatalogCache(self.store, ttl_seconds=self.settings.page_cache_ttl,
+                    page_lookup=self.jobs._page_cache,
+                    shared_library_enabled=self.settings.shared_course_library_enabled))
+        except asyncio.CancelledError:
+            latest = self.db.version(project_id, version)
+            if latest and ((latest.get("fast_video_search") or {}).get("catalog_enrichment") or {}).get("run_id") == run_id:
+                catalog = latest["fast_video_search"]["catalog_enrichment"]
+                if catalog.get("status") in {"running", "cancelled"}:
+                    catalog.update(status="cancelled" if latest.get("cancel_requested") else "interrupted", finished_at=now())
+                    self.db.save(project_id, latest)
+            raise
+        except Exception:
+            with suppress(Exception):
+                latest = self.db.version(project_id, version)
+                if latest and ((latest.get("fast_video_search") or {}).get("catalog_enrichment") or {}).get("run_id") == run_id:
+                    self._finish_catalog(latest, "failed")
+                    self.db.save(project_id, latest)
 
     @staticmethod
     def _has_results(group):
@@ -408,18 +598,81 @@ class ProjectService:
 
     async def _run_guarded(self, project_id, version):
         try:
-            await self._run(project_id, version)
+            _, data = self._version(project_id, version)
+            if data.get("fast_video_search"):
+                await self._run_fast(project_id, version)
+            else:
+                await self._run(project_id, version)
         except asyncio.CancelledError:
+            with suppress(Exception):
+                _, data = self._version(project_id, version)
+                if self._catalog_pending(data):
+                    self._finish_catalog(data, "cancelled" if data.get("cancel_requested") else "interrupted")
+                    self.db.save(project_id, data)
+                elif not data.get("cancel_requested"):
+                    catalog = (data.get("fast_video_search") or {}).get("catalog_enrichment", {})
+                    if catalog.get("status") == "cancelled":
+                        catalog["status"] = "interrupted"
+                        self.db.save(project_id, data)
             raise
         except Exception:
             with suppress(Exception):
                 _, data = self._version(project_id, version)
                 if data["status"] == "running":
                     data.update(status="failed", error={"code": "scheduler_failed", "message": "项目调度失败，已保存的检索任务和结果保留；未自动重复提交。"})
+                    self._finish_catalog(data, "failed")
                     for batch in data["batches"]:
                         if batch["status"] == "pending":
                             batch.update(status="failed", error=data["error"])
                     self.db.save(project_id, data)
+                elif self._catalog_pending(data):
+                    self._finish_catalog(data, "failed")
+                    self.db.save(project_id, data)
+
+    async def _run_fast(self, project_id: str, version: int):
+        from .fast_video_search import run_fast_video_search
+        from .native_catalog_cache import NativeCatalogCache
+        _, data = self._version(project_id, version)
+        confirmation = data["confirmation"]
+        selected_ids = set(confirmation["selected_ids"])
+        points = [deepcopy(point) for point in confirmation["analysis"]["knowledge_points"]
+                  if point["id"] in selected_ids]
+        # Reviewed technical context stays bound to this immutable version.
+        for point in points:
+            point["technology"] = confirmation.get("topic_technologies", {}).get(
+                canonical_search_name(point["name"]), point.get("technology", ""))
+        started = datetime.fromisoformat(data["search_started_at"])
+        limit = min(data["budgets"]["deadline_seconds"], self.settings.fast_video_deadline_seconds)
+        remaining = max(0, limit - (datetime.now(timezone.utc) - started).total_seconds())
+
+        def publish(snapshot):
+            latest = self.db.version(project_id, version)
+            if not latest or latest.get("cancel_requested"):
+                return
+            prior = latest.get("fast_video_search") or {}
+            already_finished = latest["status"] != "running"
+            if already_finished and not self._catalog_pending(latest):
+                return
+            snapshot = deepcopy(snapshot)
+            snapshot["started_at"] = data["search_started_at"]
+            if already_finished:
+                # Chapter updates belong to this immutable search version. They
+                # cannot restart its progress bar or change recommendation timing.
+                for field in ("status", "finished_at", "elapsed_seconds"):
+                    snapshot[field] = prior.get(field)
+            else:
+                end = datetime.fromisoformat(snapshot["finished_at"]) if snapshot.get("finished_at") else datetime.now(timezone.utc)
+                snapshot["elapsed_seconds"] = round(max(0, (end - started).total_seconds()), 3)
+            latest["fast_video_search"] = snapshot
+            latest["status"] = snapshot["status"]
+            self.db.save(project_id, latest)
+
+        await run_fast_video_search(self.settings, points, confirmation["input"],
+                                    publish=publish, deadline_seconds=remaining,
+                                    catalog_cache=NativeCatalogCache(
+                                        self.store, ttl_seconds=self.settings.page_cache_ttl,
+                                        page_lookup=self.jobs._page_cache,
+                                        shared_library_enabled=self.settings.shared_course_library_enabled))
 
     async def _run(self, project_id: str, version: int):
         while True:
@@ -534,6 +787,20 @@ class ProjectService:
 
     async def cancel(self, project_id: str, version: int):
         _, data = self._version(project_id, version)
+        if data.get("fast_video_search") and (data["status"] == "running" or self._catalog_pending(data)):
+            # Persist cancellation first so in-flight callbacks cannot revive it.
+            data["cancel_requested"] = True
+            if data["status"] == "running":
+                data["status"] = "cancelled"
+                data["fast_video_search"].update(status="cancelled", finished_at=now())
+            self._finish_catalog(data, "cancelled")
+            self.db.save(project_id, data)
+            task = self.tasks.get((project_id, version))
+            if task:
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+            return self.view(project_id, version)
         if data["status"] in {"running", "confirmed"}:
             data.update(cancel_requested=True, status="cancelled")
             for batch in data["batches"]:
@@ -555,6 +822,8 @@ class ProjectService:
         job_results = {}
         view = self.view(project_id, version, _job_results=job_results)
         data = view["version"]
+        if data and data.get("fast_video_search"):
+            return self._fast_results(view)
         analysis = (data or {}).get("analysis") or {}
         batches = (data or {}).get("batches", [])
         point_to_batch = {point_id: batch for batch in batches for point_id in batch["project_knowledge_point_ids"]}
@@ -603,4 +872,42 @@ class ProjectService:
             points.append({"project_knowledge_point_id": point["id"], "name": point["name"], "selection": point["selection"],
                 "status": status, "batch_id": (batch or {}).get("batch_id"), "job_id": (batch or {}).get("job_id"),
                 "knowledge_point_id": (mapping or {}).get("knowledge_point_id"), "result": result})
+        return {**view, "points": points, "functions": analysis.get("functions", [])}
+
+    @staticmethod
+    def _fast_results(view):
+        """Read-only projection; no model calls, fetches, or source submissions."""
+        data = view["version"]
+        fast = data["fast_video_search"]
+        analysis = data.get("analysis") or {}
+        selected = set((data.get("confirmation") or {}).get("selected_ids", []))
+        points = []
+        for point in analysis.get("knowledge_points", []):
+            rows = fast.get("recommendations", {}).get(point["id"], []) if point["id"] in selected else []
+            status = (point["selection"] if point["id"] not in selected else "running" if data["status"] == "running"
+                      else "completed" if rows else data["status"] if data["status"] in {"cancelled", "failed", "interrupted"}
+                      else "no_results")
+            group = {"knowledge_point_id": point["id"], "text": point["name"],
+                     "technology": point.get("technology", ""), "recommendation_policy": "helpful-video-v1",
+                     "video_recommendations": rows, "section_limit": len(rows),
+                     "items": [], "partial_items": [], "review_items": [],
+                     "platform_items": {}, "partial_platform_items": {}, "review_platform_items": {},
+                     "total_matches": 0, "total_partial_matches": 0, "total_review_matches": 0}
+            points.append({"project_knowledge_point_id": point["id"], "name": point["name"],
+                           "selection": point["selection"], "status": status, "batch_id": None,
+                           "job_id": None, "knowledge_point_id": point["id"],
+                           "result": group if point["id"] in selected else None})
+        data["budgets"].update(actual_search_requests=fast.get("progress", {}).get("search_requests", 0),
+                               actual_detail_pages=0, actual_model_calls=fast.get("progress", {}).get("model_calls", 0))
+        catalog = fast.get("diagnostics", {}).get("chapters", {})
+        data["budgets"].update(actual_catalog_resources=catalog.get("fetch_attempts", 0),
+                               actual_catalog_model_calls=fast.get("progress", {}).get("catalog_model_calls", 0),
+                               actual_recommendation_model_calls=fast.get("progress", {}).get("recommendation_model_calls", fast.get("progress", {}).get("model_calls", 0)),
+                               actual_catalog_cache_hits=catalog.get("cache_hits", 0),
+                               actual_catalog_http_requests=catalog.get("http_requests", 0))
+        covers = fast.get("diagnostics", {}).get("covers", {})
+        data["budgets"].update(actual_cover_resources=covers.get("fetch_attempts", 0),
+                               actual_cover_http_requests=covers.get("http_requests", 0),
+                               actual_cover_model_calls=0,
+                               actual_cover_cache_hits=covers.get("cache_hits", 0))
         return {**view, "points": points, "functions": analysis.get("functions", [])}

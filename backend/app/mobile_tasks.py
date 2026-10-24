@@ -207,7 +207,8 @@ class MobileTasks:
             if record["kind"] == "analysis":
                 result = self.projects.view(record["project_id"], 1)
             else:
-                result = self.projects.results(record["project_id"], 1)
+                from .result_stream import project_snapshot
+                result = project_snapshot(self.projects, self.store, record["project_id"], 1)
             raw_error = (result.get("version") or {}).get("error")
             if raw_error:
                 error = {"code": raw_error.get("code", "task_failed"), "message": "任务处理失败，请保留本机内容后手动重试。"}
@@ -245,6 +246,10 @@ class MobileTasks:
             budget = self.projects._budget(selected, payload.input.preferred_platforms)
             costs["search_requests"] = budget["reserved_search_requests"]
             costs["detail_pages"] = budget["reserved_detail_pages"]
+            if budget.get("search_policy") == "helpful-video-v1":
+                costs["model_calls"] = budget["reserved_model_calls"]
+                costs["detail_http"] = budget["catalog_http_requests"]
+                return costs
             costs["model_calls"] = 2 * len(selected)
             fallback_batches = budget["batch_count"]
             fallback_platforms = payload.input.preferred_platforms
@@ -339,14 +344,19 @@ class MobileTasks:
         await self.cleanup_once()
         async with self.lock:
             record = self._auth(identifier, digest)
-            if self._status(record) in {"queued", "running"}:
+            data = self.projects.db.version(record["project_id"], 1) if record.get("project_id") else None
+            if self._status(record) in {"queued", "running"} or (data and self.projects._catalog_pending(data)):
                 await self._cancel(record)
-                record["cancelled"] = True
+                if self._status(record) in {"queued", "running", "cancelled", "failed"}:
+                    record["cancelled"] = True
             return self._view(record)
 
     async def _cancel(self, record):
         pid = record.get("project_id")
         if pid:
+            data = self.projects.db.version(pid, 1)
+            if data and data.get("fast_video_search"):
+                await self.projects.cancel(pid, 1)
             for mapping in (self.projects.analysis_tasks, self.projects.tasks):
                 pending = mapping.get((pid, 1))
                 if pending and not pending.done():

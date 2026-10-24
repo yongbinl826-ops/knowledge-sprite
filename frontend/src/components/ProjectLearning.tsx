@@ -35,7 +35,10 @@ export function ProjectConfirmation({ projectId, version, current, busy, inputDi
       void onDraftChange(next).catch(reason => setError((reason as Error).message)).finally(() => setSaving(value => value - 1));
     } else { try { sessionStorage.setItem(draftKey, JSON.stringify(next)); } catch { /* Explicit save remains available. */ } }
   };
-  const batchSize = Math.max(1, Math.min(5, capabilities?.limits.max_knowledge_points || 5, capabilities?.project_search?.batch_size || 5));
+  const helpfulPolicy = capabilities?.project_search?.recommendation_policy === 'helpful-video-v1';
+  const batchSize = helpfulPolicy
+    ? Math.max(1, Math.min(capabilities?.project_analysis?.max_knowledge_points || 24, capabilities?.project_search?.batch_size || 24))
+    : Math.max(1, Math.min(5, capabilities?.limits.max_knowledge_points || 5, capabilities?.project_search?.batch_size || 5));
   const overBudget = Math.ceil(learned.length / batchSize) > (capabilities?.project_search?.max_batches || Infinity);
   const submit = async (confirm: boolean) => {
     if (analysis.knowledge_points.some(point => !point.name.trim())) { setError('请填写知识点的专业名称。'); return; }

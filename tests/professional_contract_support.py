@@ -4,8 +4,7 @@ import json
 
 import httpx
 
-from backend.app.project_analysis import ProjectAnalyzer, generation_schema, SYSTEM_PROMPT, NORMALIZATION_PROMPT
-from backend.app.project_analysis import GeneratedConceptList
+from backend.app.project_analysis import ProjectAnalyzer, generation_schema, SYSTEM_PROMPT
 
 
 def flat_proposal(raw):
@@ -50,7 +49,7 @@ def concept_proposal(raw, names):
 
 
 async def projected_once(raw, project, configured, *, concept_names=None):
-    """Keep the historical helper name while exercising both bounded stages."""
+    """A valid proposal is delivered after its first locally validated response."""
     from tests.test_project_analysis import response
     before = deepcopy(raw)
     proposal = flat_proposal(concept_proposal(raw, concept_names) if concept_names is not None else raw)
@@ -58,7 +57,7 @@ async def projected_once(raw, project, configured, *, concept_names=None):
 
     def respond(req):
         calls.append(json.loads(req.content))
-        assert len(calls) <= 2, "Generation and normalization must share the existing two-call limit"
+        assert len(calls) == 1, "A valid first proposal must not trigger another model call"
         return response(proposal)
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
@@ -69,16 +68,9 @@ async def projected_once(raw, project, configured, *, concept_names=None):
     assert payload["project"] == project.model_dump()
     assert payload["output_schema"] == generation_schema()
     assert "validation_feedback" not in payload
-    assert len(calls) == 2
-    normalized = json.loads(calls[1]["messages"][1]["content"])
-    assert normalized["project"] == project.model_dump()
-    assert normalized["output_schema"] == generation_schema()
-    assert normalized["normalization_required"] is True
-    assert normalized["previous_analysis"] == GeneratedConceptList.model_validate(proposal).model_dump()
-    assert not normalized.get("validation_feedback")
+    assert len(calls) == 1
     assert calls[0]["messages"][0]["content"] == SYSTEM_PROMPT
-    assert calls[1]["messages"][0]["content"] == NORMALIZATION_PROMPT
-    assert [c["max_tokens"] for c in calls] == [6000, 12000]
+    assert [c["max_tokens"] for c in calls] == [6000]
     return result, calls
 
 

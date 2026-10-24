@@ -14,6 +14,7 @@ import { visibleGroupItems } from '../topicEvidence';
 import { externalUrl } from '../safeUrls';
 import type { useDeviceProject } from '../device/useDeviceProject';
 import { visibleTopicTechnology } from '../reviewedTopicTechnologies';
+import { hasHelpfulVideoPolicy, helpfulVideoRecommendations } from '../helpfulVideoRecommendations';
 
 type Stage = 1 | 2 | 3;
 const inputDraftKey = 'knowledge-guide-project-input-v1';
@@ -143,7 +144,7 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
   const partialScopes = capabilities?.teaching_match_enabled === false ? [] : selected
     .filter(point => topic === 'all' || topic === point.id).flatMap(point => {
       const result = view?.points?.find(row => row.project_knowledge_point_id === point.id);
-      if (!result?.result || hasProjectScopeMismatch(result)) return [];
+      if (!result?.result || hasProjectScopeMismatch(result) || hasHelpfulVideoPolicy(result.result)) return [];
       const rows = projectSubtopicSummary(result.result, capabilities?.limits.max_results_per_point || 5);
       return rows.some(row => !row.supported) ? [{ point, rows }] : [];
     });
@@ -151,6 +152,7 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
   const noMatchedVideo = capabilities?.teaching_match_enabled !== false && activePoints.length > 0 && activePoints.every(planned => {
     const point = view?.points?.find(row => row.project_knowledge_point_id === planned.id);
     if (!point || hasProjectScopeMismatch(point) || !resultTerminalStatuses.has(point.status)) return false;
+    if (point.result && hasHelpfulVideoPolicy(point.result)) return helpfulVideoRecommendations(point.result).length === 0;
     if (point.result && relatedRecommendations(point.result).length) return false;
     return !point.result || !visibleGroupItems(point.result, 'all', 'learning', point.result.section_limit || capabilities?.limits.max_results_per_point || 5)
       .some(({ item, status }) => status !== 'needs_review' && !!externalUrl(item.resource.url));
@@ -164,7 +166,7 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
         ? '部分匹配不等于单门课程完整覆盖，请核对课程内容。'
         : '当前材料的完整讲授范围尚待核对，请结合课程详情判断。'}</p>
     </section>)}
-    {!progressPipeline && noMatchedVideo && <p className="project-empty-message" role="status">当前知识点暂无通过匹配的视频。可重新检索或调整知识点。</p>}
+    {!progressPipeline && noMatchedVideo && <p className="project-empty-message" role="status">当前知识点暂无推荐视频。可重新检索或调整知识点。</p>}
     {!progressPipeline && project.notice && <p className="action-notice" role="status">{project.notice}</p>}
     {project.error && <div className="notice error-notice" role="alert">{project.error}<button className="text-button" onClick={project.refresh}>重新读取</button></div>}
     {error && <div className="notice error-notice" role="alert">{error}</div>}

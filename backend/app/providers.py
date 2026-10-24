@@ -441,9 +441,19 @@ class SearXNGProvider(HTTPProvider):
                 raise
             except SearchError as exc:
                 # Authentication, service-wide denial and rate limiting are hard stops.
-                if exc.code not in {"search_timeout", "search_unavailable"} or index == len(groups) - 1:
+                # A concurrent request can pause this specific group while we
+                # wait for the shared send lock. No HTTP was sent in that case;
+                # continue to the already configured disjoint backup group,
+                # just as we do when the pause is visible before queuing.
+                paused_while_queued = (exc.code == "upstream_engine_failed" and active
+                    and any(time.monotonic() < self.engine_pauses.get(engine, 0) for engine in active))
+                if (exc.code not in {"search_timeout", "search_unavailable"} and not paused_while_queued
+                        or index == len(groups) - 1):
                     raise
-                self.last_warnings.append({"code": exc.code, "engine": ",".join(active) or "instance_defaults", "message": exc.message})
+                warning = {"code": exc.code, "engine": ",".join(active) or "instance_defaults", "message": exc.message}
+                if paused_while_queued:
+                    warning.update(reason_code="paused_while_queued", network_attempted=False)
+                self.last_warnings.append(warning)
                 continue
             failures = self._failures(body)
             engine_health = self._observe_engine_timeouts(failures, active)

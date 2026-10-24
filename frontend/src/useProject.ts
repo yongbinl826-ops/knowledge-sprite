@@ -6,7 +6,9 @@ import { reviewedTopicTechnologies } from './reviewedTopicTechnologies';
 
 const pointerKey = 'knowledge-guide-project-v1';
 const activeStatuses = new Set(['analyzing', 'running']);
-const isActive = (value: ProjectView) => value.pipeline ? !value.pipeline.terminal : activeStatuses.has(value.version?.status || '')
+// Keep reading optional catalog updates after the recommendation progress ends.
+// This controls the watcher only; visible progress continues to use terminal.
+const isActive = (value: ProjectView) => value.pipeline ? !value.pipeline.terminal || value.pipeline.catalog_pending === true : activeStatuses.has(value.version?.status || '')
   || !!value.version?.batches.some(batch => batch.status === 'submitted' || ['queued', 'running'].includes(batch.job_status || ''));
 function savedProject() {
   const query = new URLSearchParams(location.search);

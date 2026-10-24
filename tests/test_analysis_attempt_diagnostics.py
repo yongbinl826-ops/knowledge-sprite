@@ -19,6 +19,18 @@ def history(error):
     return rows[0]["attempts"]
 
 
+def without_timing(row):
+    """Inspect fixed diagnostic fields while retaining the new timing envelope."""
+    timing_fields = {
+        "started_at", "finished_at", "elapsed_seconds", "model_started_at", "model_finished_at",
+        "model_elapsed_seconds", "validation_started_at", "validation_finished_at",
+        "validation_elapsed_seconds", "max_output_tokens", "thinking_mode", "reasoning_effort",
+    }
+    assert timing_fields <= row.keys()
+    assert row["started_at"] and row["finished_at"] and row["elapsed_seconds"] >= 0
+    return {key: value for key, value in row.items() if key not in timing_fields}
+
+
 async def run_failure(replies, *, review=False):
     calls = []
 
@@ -44,7 +56,7 @@ async def test_json_then_schema_keeps_both_reasons_and_json_coordinates():
     try:
         json.loads(invalid)
     except json.JSONDecodeError as expected:
-        assert rows[0] == {"attempt": 1, "phase": "generation", "category": "invalid_json",
+        assert without_timing(rows[0]) == {"attempt": 1, "phase": "generation", "category": "invalid_json",
                            "exception_type": "JSONDecodeError", "line": expected.lineno,
                            "column": expected.colno, "position": expected.pos}
     assert rows[1]["category"] == "schema"
@@ -100,7 +112,7 @@ async def test_title_quality_then_json_repair_retains_both_generation_attempts()
     rows = history(error)
     assert error.code == "invalid_json" and len(calls) == 2
     assert [(r["attempt"], r["phase"], r["category"]) for r in rows] == [
-        (1, "generation", "quality"), (2, "normalization", "invalid_json")]
+        (1, "generation", "quality"), (2, "repair", "invalid_json")]
     repair = json.loads(calls[1]["messages"][1]["content"])
     assert repair["previous_analysis"]["knowledge_points"]
     assert repair["validation_feedback"][0]["code"] == "broad_subject"
@@ -115,7 +127,7 @@ async def test_two_title_rejections_keep_quality_code_and_two_generation_call_ca
     assert error.code == "quality" and len(calls) == 2
     assert error.diagnostics[0]["code"] == "broad_subject"
     assert [x["attempt"] for x in history(error)] == [1, 2]
-    assert [x["phase"] for x in history(error)] == ["generation", "normalization"]
+    assert [x["phase"] for x in history(error)] == ["generation", "repair"]
     assert [c["max_tokens"] for c in calls] == [6000, 12000]
 
 
@@ -124,7 +136,7 @@ async def test_retained_review_setting_does_not_invoke_auxiliary_transport():
     from tests.professional_contract_support import projected_once
     result, calls = await projected_once(analysis_fixture(), request(),
         replace(settings(), project_semantic_review_enabled=True))
-    assert result.knowledge_points and len(calls) == 2
+    assert result.knowledge_points and len(calls) == 1
 
 
 @pytest.mark.asyncio
@@ -132,7 +144,7 @@ async def test_configured_secret_echo_gets_only_fixed_invalid_analysis_summary()
     body = analysis_fixture()
     body["scope"] = "private-offline-token"
     error, calls = await run_failure([body, "invalid-json"])
-    assert history(error)[0] == {"attempt": 1, "phase": "generation", "category": "invalid_analysis"}
+    assert without_timing(history(error)[0]) == {"attempt": 1, "phase": "generation", "category": "invalid_analysis"}
     assert "private-offline-token" not in json.dumps(error.diagnostics)
     repair = json.loads(calls[1]["messages"][1]["content"])["validation_feedback"]
     message = repair[0]["message"]
@@ -206,9 +218,9 @@ def test_schema_summary_is_bounded_and_does_not_echo_unknown_fields():
 
 def test_prompt_contract_uses_professional_terms_and_untrusted_project_data():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
+    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
     assert "untrusted project data" in SYSTEM_PROMPT
-    assert "concise professional noun or technical term" in SYSTEM_PROMPT
+    assert "concise established textbook noun or technical term" in SYSTEM_PROMPT
     assert "Never invent courses, video links, chapters or source evidence" in SYSTEM_PROMPT
     assert "The student only decides which concepts to learn" in SYSTEM_PROMPT
     assert "Do not infer mastery" in SYSTEM_PROMPT

@@ -67,7 +67,7 @@ async def test_professional_topics_are_not_rejected_for_substrings_or_api_identi
         return response(supplied)
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         result = await ProjectAnalyzer(config(), client).analyze(project())
-    assert len(calls) == 2 and result.knowledge_points[0].name == title
+    assert len(calls) == 1 and result.knowledge_points[0].name == title
     assert result.knowledge_points[0].learning_skills == []
 
 
@@ -84,4 +84,4 @@ async def test_repeated_single_statement_is_quality_failure_with_no_third_call()
             await ProjectAnalyzer(config(), client).analyze(project())
     assert len(calls) == 2 and error.value.code == "quality"
     assert error.value.diagnostics[0]["code"] == "syntax_fragment"
-    assert [row["phase"] for row in error.value.diagnostics[-1]["attempts"]] == ["generation", "normalization"]
+    assert [row["phase"] for row in error.value.diagnostics[-1]["attempts"]] == ["generation", "repair"]

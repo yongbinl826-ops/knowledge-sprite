@@ -146,6 +146,14 @@ class Settings:
     llm_thinking_mode: str = "auto"
     ai_video_fallback_enabled: bool = True
     ai_video_search_provider: str = "auto"
+    # Programmatic callers can retain legacy jobs; normal app startup opts in.
+    fast_video_recommendations_enabled: bool = False
+    fast_video_deadline_seconds: int = 110
+    # Catalog work expands only after video recommendations are terminal.
+    catalog_background_seconds: int = 600
+    catalog_background_max_resources: int = 96
+    catalog_background_max_http_requests: int = 288
+    catalog_background_max_model_calls: int = 24
     teaching_match_max_calls_per_job: int = 2
     teaching_match_enabled: bool = True
     parallel_platform_search: bool = False
@@ -271,6 +279,20 @@ class Settings:
             raise ValueError("TEACHING_MATCH_ENABLED must be true or false")
         if not isinstance(self.ai_video_fallback_enabled, bool):
             raise ValueError("AI_VIDEO_FALLBACK_ENABLED must be true or false")
+        if not isinstance(self.fast_video_recommendations_enabled, bool):
+            raise ValueError("FAST_VIDEO_RECOMMENDATIONS_ENABLED must be true or false")
+        if (not isinstance(self.fast_video_deadline_seconds, int)
+                or isinstance(self.fast_video_deadline_seconds, bool)
+                or not 1 <= self.fast_video_deadline_seconds <= 120):
+            raise ValueError("FAST_VIDEO_DEADLINE_SECONDS must be an integer between 1 and 120")
+        for name, value, minimum, maximum in (
+            ("CATALOG_BACKGROUND_SECONDS", self.catalog_background_seconds, 1, 900),
+            ("CATALOG_BACKGROUND_MAX_RESOURCES", self.catalog_background_max_resources, 12, 96),
+            ("CATALOG_BACKGROUND_MAX_HTTP_REQUESTS", self.catalog_background_max_http_requests, 18, 384),
+            ("CATALOG_BACKGROUND_MAX_MODEL_CALLS", self.catalog_background_max_model_calls, 3, 32),
+        ):
+            if type(value) is not int or not minimum <= value <= maximum:
+                raise ValueError(f"{name} must be an integer between {minimum} and {maximum}")
         if self.ai_video_search_provider not in {"auto", "default", "serper", "tavily"}:
             raise ValueError("AI_VIDEO_SEARCH_PROVIDER must be auto, default, serper or tavily")
         if not isinstance(self.local_only, bool):
@@ -413,6 +435,12 @@ class Settings:
             llm_thinking_mode=os.getenv("LLM_THINKING_MODE", "auto").strip().lower(),
             ai_video_fallback_enabled=boolean("AI_VIDEO_FALLBACK_ENABLED", True),
             ai_video_search_provider=os.getenv("AI_VIDEO_SEARCH_PROVIDER", "auto").strip().lower(),
+            fast_video_recommendations_enabled=boolean("FAST_VIDEO_RECOMMENDATIONS_ENABLED", True),
+            fast_video_deadline_seconds=security_number("FAST_VIDEO_DEADLINE_SECONDS", 110, 1, 120),
+            catalog_background_seconds=security_number("CATALOG_BACKGROUND_SECONDS", 600, 1, 900),
+            catalog_background_max_resources=security_number("CATALOG_BACKGROUND_MAX_RESOURCES", 96, 12, 96),
+            catalog_background_max_http_requests=security_number("CATALOG_BACKGROUND_MAX_HTTP_REQUESTS", 288, 18, 384),
+            catalog_background_max_model_calls=security_number("CATALOG_BACKGROUND_MAX_MODEL_CALLS", 24, 3, 32),
             teaching_match_max_calls_per_job=security_number("TEACHING_MATCH_MAX_CALLS_PER_JOB", 2, 0, 2),
             teaching_match_enabled=boolean("TEACHING_MATCH_ENABLED", True),
             parallel_platform_search=boolean("PARALLEL_PLATFORM_SEARCH", True),

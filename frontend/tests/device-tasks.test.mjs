@@ -54,6 +54,99 @@ test('uncertain POST is never repeated, including a new service/cold start; reco
   assert.deepEqual(x.calls.map(c => c.options.method), ['POST', 'GET']); assert.equal(x.calls[0].options.headers.Authorization, x.calls[1].options.headers.Authorization);
   assert.equal((await restarted.snapshot()).project.ticket.phase, 'complete');
 });
+
+test('completed recommendations keep the original capability for late catalogs across restart and stop reads afterwards', async () => {
+  let finalCatalog = false;
+  const bodies = new Map();
+  const x = setup(({ url, options }) => {
+    const id = url.pathname.split('/').at(-1);
+    if (options.method === 'POST') bodies.set(id, JSON.parse(options.body));
+    const body = bodies.get(id);
+    const result = structuredClone(retained);
+    if (body.kind === 'search') {
+      result.version.status = 'completed';
+      result.pipeline = { terminal: true, catalog_pending: !finalCatalog, catalog_status: finalCatalog ? 'completed' : 'running' };
+      result.points = [{ project_knowledge_point_id: 'p1', result: { knowledge_point_id: 'p1', recommendation_policy: 'helpful-video-v1', video_recommendations: [{
+        resource: { resource_id: 'same-card', title: 'Python 教程', url: 'https://www.bilibili.com/video/BV1234567890/', platform: 'bilibili' },
+        matched_chapters: finalCatalog ? [{ chapter_id: 'ch3', title: '第 3 章 循环结构' }] : [],
+      }] } }];
+    }
+    return reply(id, body, 'completed', result);
+  });
+  await x.service.analyze(input);
+  await x.service.confirmAndSearch((await x.service.snapshot()).view.version.analysis, false);
+  const before = await x.service.snapshot();
+  assert.equal(before.view.pipeline.terminal, true);
+  assert.equal(before.project.ticket.phase, 'submitted');
+  assert(before.project.ticket.capability);
+  const restarted = new LocalProjectService(new DeviceStore(x.disk), x.api);
+  await restarted.poll();
+  assert.equal((await restarted.snapshot()).project.ticket.id, before.project.ticket.id);
+  finalCatalog = true;
+  await restarted.poll();
+  const after = await restarted.snapshot();
+  assert.equal(after.view.project_id, before.view.project_id);
+  assert.equal(after.view.version.version, before.view.version.version);
+  assert.equal(after.view.points[0].result.video_recommendations[0].resource.resource_id, 'same-card');
+  assert.equal(after.view.points[0].result.video_recommendations[0].matched_chapters[0].title, '第 3 章 循环结构');
+  assert.equal(after.project.ticket.phase, 'complete'); assert.equal(after.project.ticket.capability, '');
+  await restarted.poll();
+  assert.deepEqual(x.calls.map(call => call.options.method), ['POST', 'POST', 'GET', 'GET']);
+  assert.equal(x.calls[1].options.headers.Authorization, x.calls[2].options.headers.Authorization);
+  assert.equal(x.calls[1].options.headers.Authorization, x.calls[3].options.headers.Authorization);
+});
+
+function catalogMutationSetup(failCancel = false) {
+  const bodies = new Map();
+  const x = setup(({ url, options }) => {
+    const cancelling = url.pathname.endsWith('/cancel');
+    const id = url.pathname.split('/').at(cancelling ? -2 : -1);
+    if (!cancelling && options.method === 'POST') bodies.set(id, JSON.parse(options.body));
+    const body = bodies.get(id), result = structuredClone(retained);
+    if (cancelling && failCancel) return new Response('{"detail":"cancel unavailable"}', { status: 503 });
+    if (body.kind === 'search') {
+      result.version.status = 'completed';
+      result.pipeline = { terminal: true, catalog_pending: !cancelling, catalog_status: cancelling ? 'cancelled' : 'running' };
+    }
+    return reply(id, body, 'completed', result);
+  });
+  return x;
+}
+
+for (const action of ['retry', 'analyze', 'save']) test(`explicit ${action} cancels only pending catalogs before replacing a completed local version`, async () => {
+  const x = catalogMutationSetup();
+  await x.service.analyze(input);
+  await x.service.confirmAndSearch((await x.service.snapshot()).view.version.analysis, false);
+  const before = await x.service.snapshot(), oldTicket = before.project.ticket;
+  if (action === 'retry') await x.service.retrySearch();
+  else if (action === 'analyze') await x.service.analyze(input);
+  else await x.service.save(before.view.version.analysis);
+  const after = await x.service.snapshot();
+  assert.equal(new URL(x.calls[2].url).pathname, `/api/mobile/tasks/${oldTicket.id}/cancel`);
+  assert.equal(x.calls[2].options.headers.Authorization, `Bearer ${oldTicket.capability}`);
+  assert.equal(after.view.version.version, before.view.version.version + 1);
+  assert.equal(after.project.views.find(view => view.version.version === before.view.version.version).version.status, 'completed');
+  assert.equal(after.project.views.find(view => view.version.version === before.view.version.version).pipeline.catalog_pending, false);
+  assert.deepEqual(after.project.views.find(view => view.version.version === before.view.version.version).points, before.view.points);
+  assert.equal(x.calls.length, action === 'save' ? 3 : 4);
+  if (action !== 'save') assert.notEqual(after.project.ticket.id, oldTicket.id);
+});
+
+test('catalog cancellation failure keeps completed cards and blocks a second search submission', async () => {
+  const x = catalogMutationSetup(true);
+  await x.service.analyze(input);
+  await x.service.confirmAndSearch((await x.service.snapshot()).view.version.analysis, false);
+  const before = await x.service.snapshot();
+  await assert.rejects(x.service.retrySearch(), /取消状态尚未确认/);
+  const after = await x.service.snapshot();
+  assert.equal(after.project.ticket.id, before.project.ticket.id);
+  assert.equal(after.project.ticket.phase, 'uncertain');
+  assert.equal(after.view.version.version, before.view.version.version);
+  assert.equal(after.view.version.status, 'completed');
+  assert.deepEqual(after.view.points, before.view.points);
+  assert.equal(x.calls.length, 3);
+  assert(x.calls[2].url.endsWith('/cancel'));
+});
 test('result storage failure keeps ticket/cap and can recover by GET without a second POST', async () => {
   let body; const x = setup(({ url, options, disk }) => { body ||= JSON.parse(options.body); if (options.method === 'POST') disk.fail = true; return reply(url.pathname.split('/').at(-1), body); });
   await assert.rejects(x.service.analyze(input)); x.disk.fail = false;

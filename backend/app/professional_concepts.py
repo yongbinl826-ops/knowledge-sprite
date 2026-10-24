@@ -147,6 +147,137 @@ def concept_name_issues(name: str) -> list[tuple[str, str]]:
     return issues
 
 
+_OPERATION_TITLE_END = re.compile(
+    r".+(?:初始化|创建|配置|设置|更新|刷新|重置|清零|累加|赋值|绑定|销毁|定位|绘制)$|"
+    r".+\s+(?:initialization|creation|configuration|update|refresh|reset|increment|assignment|binding|destruction|positioning|drawing)$",
+    re.I,
+)
+_BOOKKEEPING_TITLE = re.compile(
+    r".*(?:计数器|计数变量|标志变量|累计值)(?:的)?(?:累加|递增|更新|重置|清零|赋值)$|"
+    r"(?:分数|得分)(?:的)?(?:积累|累计|累加|递增|更新|重置|清零|赋值)$|"
+    r".*(?:对象|实例|变量|组件)(?:的)?(?:状态|属性|字段|成员)(?:的)?(?:初始化|更新|重置|复位|清零|赋值)$|"
+    r"(?:可变|运行时|当前|初始)\s*(?:的\s*)?状态\s*(?:的\s*)?(?:初始化|更新|重置|复位|清零|赋值)$|"
+    r"(?:(?:runtime|current|initial)\s+)?(?:counter|flag|counter variable|flag variable)\s+(?:increment|update|reset|assignment)$|"
+    r"scores?\s+(?:accumulation|increment|update|reset|assignment)$|"
+    r"(?:mutable|runtime|current|initial)\s+state\s+(?:initialization|update|reset|assignment)$|"
+    r"(?:(?:runtime|current|initial)\s+)?(?:object|instance|variable|component)\s+(?:state|property|field)\s+(?:initialization|update|reset|assignment)$",
+    re.I,
+)
+_QUANTITY_BASED_ACTION_TITLE = re.compile(
+    r"(?:(?:基于|根据|按照|使用|利用).*)?(?:时间|时刻|帧|采样|位置|坐标|速度|数值)(?:的)?"
+    r"(?:增量|差值|变化量|差|间隔|步长)(?:驱动)?(?:的)?"
+    r"(?:(?:运动|移动|位移|变化|响应)(?:的)?(?:更新|计算|处理|控制|模拟)?|(?:位置|坐标|速度|状态|数值)?更新)$|"
+    r"(?:time|frame|sampling|position|coordinate|velocity|value)[ -](?:delta|difference|interval|step)[ -]"
+    r"(?:based|driven)\s+(?:(?:motion|movement)(?:\s+(?:updates?|calculation|simulation))?|updates?|(?:position|state|value)\s+updates?)$|"
+    r"(?:motion|movement|updates?)\s+based\s+on\s+(?:elapsed\s+time|time\s+delta|(?:frame|sampling)\s+intervals?)$",
+    re.I,
+)
+_REPRESENTATION_HEAD = re.compile(r".+(?:表示|表征|建模)$|.+\s+(?:representation|modelling|modeling)$", re.I)
+_CONSTRAINT_HEAD = re.compile(r".+(?:约束|限幅|限制)$|.+\s+(?:constraints?|clamping|limits?)$", re.I)
+_REPRESENTATION_USE = re.compile(
+    r".*(?:检测|匹配|输入|输出|显示|绘制|比较|检索|排序|筛选|转换|运算)$|"
+    r"(?:.+\s+)?(?:detection|matching|drawing|input|output|display|comparison|retrieval|sorting|filtering|conversion)$", re.I)
+_MECHANISM_HEAD = re.compile(
+    r".*(?:队列|缓冲区|渲染|序列化|反序列化|编码|解码|投影|聚合|归约|映射|校验)$|"
+    r"(?:.+\s+)?(?:queue|buffer|rendering|serialization|encoding|decoding|projection|aggregation)$", re.I)
+_APPLICATION_HEAD = re.compile(
+    r".+(?:输入|输出|显示|展示|保存|读取|收集|接收|发送|更新|处理)$|"
+    r".+\s+(?:input|output|display|presentation|storage|reading|collection|sending|updates?)$", re.I)
+_INSTRUMENT_HEAD = re.compile(
+    r".*(?:器|缓冲区|容器)$|(?:.+\s+)?(?:counter|accumulator|buffer|container|register|renderer)$", re.I)
+_BARE_IMPLEMENTATION_ACTION = re.compile(
+    r"(?:初始化|创建|配置|设置|更新|刷新|重置|清零|累加|递增|赋值|绑定|销毁|定位|绘制)|"
+    r"(?:initialization|creation|configuration|update|refresh|reset|increment|accumulation|assignment|binding|destruction|positioning|drawing)", re.I)
+_DOMAIN_STATE_OPERATION = re.compile(
+    r".*状态(?:初始化|更新|重置|复位|清零|赋值)$|"
+    r"(?:.+\s+)?state\s+(?:initialization|update|reset|assignment)$", re.I)
+_RESTORE_ACTION_TITLE = re.compile(
+    r".+(?:重置|复位|清零|还原|恢复|重新初始化)$|"
+    r".+\s+(?:reset|restoration|reinitialization)$", re.I)
+_PROGRAM_STATE = re.compile(
+    r"变量|字段|属性|对象|实例|计数|(?:可变|运行时|应用|业务)(?:的)?(?:状态|数据|值)|存储(?:的)?值|"
+    r"\b(?:variables?|fields?|properties|objects?|instances?|counters?)\b|"
+    r"(?:mutable|runtime|application|business)\s+(?:state|data|values?)", re.I)
+_INITIAL_VALUE_OPERATION = re.compile(
+    r"(?:初始值|初始数值|默认值|归零|清零)|"
+    r"(?:恢复|重置|设置|赋值|设定|设为).{0,36}(?:初始|默认|变量|字段|属性)|"
+    r"(?:initial|default)\s+values?|(?:set|reset|restore).{0,36}(?:zero|initial|default|variables?|fields?|properties)", re.I)
+
+
+def _representation_constraint_bundle(parts: list[str]) -> bool:
+    """Recognize two learning heads, not every joined noun or constraint term.
+
+    A representation/model and a separate restriction/limit warrant semantic
+    repair when both are named as complete clauses. The model decides whether
+    to split them or name an actual shared conventional concept. For example,
+    representation-and-reasoning and constraint representation-and-solving do
+    not match this grammar; neither a connector nor 'constraint' alone does.
+    """
+    if len(parts) < 2 or not all(parts):
+        return False
+    return any(_REPRESENTATION_HEAD.fullmatch(part) for part in parts) and any(
+        _CONSTRAINT_HEAD.fullmatch(part) for part in parts)
+
+
+def textbook_concept_name_issues(name: str) -> list[tuple[str, str]]:
+    """Additional naming feedback for newly generated textbook-style topics.
+
+    These deliberately bounded checks catch object-operation recipes,
+    bookkeeping labels, quantity-based action descriptions and combinations
+    of representation and separate constraints that the historical syntax
+    contract allowed. They do
+    not recognize an ontology, certify every unfamiliar term, or rewrite a
+    stored name. Ordinary conjunctions, term length, and action-like words
+    inside nouns are insufficient evidence on their own. The generation
+    prompt still owns the semantic choice of a conventional concept name.
+    """
+    value = unicodedata.normalize("NFKC", name).strip()
+    parts = [part.strip() for part in re.split(r"与|、|以及|并且|\s+and\s+", value, flags=re.I)]
+    if len(parts) > 1 and all(parts) and (
+            any(_OPERATION_TITLE_END.fullmatch(part) for part in parts)
+            or any(_INSTRUMENT_HEAD.fullmatch(part) for part in parts)
+            and any(_BARE_IMPLEMENTATION_ACTION.fullmatch(part) for part in parts)):
+        return [("textbook_operation_bundle",
+            "Use a conventional textbook concept as the name. This title appends an object-specific implementation operation to another topic; keep project operations in the description. Identify the actual shared mechanism, or separate genuinely independent concepts, without losing required behavior.")]
+    if _BOOKKEEPING_TITLE.fullmatch(value):
+        return [("textbook_operation_label",
+            "This name describes a counter/property/state update rather than the concept being learned. Name the underlying conventional concept and explain this operation in its description, or incorporate it into an existing concept teaching the same mechanism. Do not turn each assignment, increment or reset into a separate knowledge point.")]
+    if _QUANTITY_BASED_ACTION_TITLE.fullmatch(value):
+        return [("textbook_descriptive_name",
+            "This is a description of an action driven by a runtime quantity, not a conventional concept name. Identify the established mathematical, programming or domain principle actually taught, check its definition against the explanation, and retain the quantity and project behavior in the description. Do not repair this by swapping 'based on' for 'driven by', by removing a qualifier, or by inventing a technical-sounding term.")]
+    if _representation_constraint_bundle(parts):
+        return [("textbook_representation_constraint_bundle",
+            "This title combines a representation/model with a separate constraint or limit. Check their actual learning principles: split independent concepts using conventional textbook names, or use an established shared concept only if its definition covers both. Keep every required project use in the descriptions, including relevant foundations; do not merely delete the conjunction or broaden the title.")]
+    if len(parts) > 1 and all(parts) and (
+            any(_REPRESENTATION_HEAD.fullmatch(part) for part in parts)
+            and any(_REPRESENTATION_USE.fullmatch(part) for part in parts)
+            or any(_MECHANISM_HEAD.fullmatch(part) for part in parts)
+            and any(_APPLICATION_HEAD.fullmatch(part) for part in parts)):
+        return [("textbook_mechanism_application_bundle",
+            "This title appends an input/output application to a mechanism, or appends an operation to a representation. Determine what the description actually teaches: use the conventional concept name for one principle and keep its input/output/project uses in the description; split only genuinely independent principles with their own standard names. Do not turn a mechanism plus its application into a new combined textbook label or remove required behavior.")]
+    return []
+
+
+def textbook_concept_issues(points: list[dict]) -> list[dict]:
+    """Generation-only adapter; do not attach to stored-document validation."""
+    issues = []
+    for index, point in enumerate(points):
+        feedback = textbook_concept_name_issues(point["name"])
+        # A domain qualifier is not a mechanism. Use description evidence of
+        # assigning/restoring values rather than blacklisting domain words or
+        # rejecting genuine physical/protocol state operations by name alone.
+        description = point.get("description", "")
+        state_recipe = _DOMAIN_STATE_OPERATION.fullmatch(point["name"]) or (
+            _RESTORE_ACTION_TITLE.fullmatch(point["name"]) and _PROGRAM_STATE.search(description))
+        if not feedback and state_recipe and _INITIAL_VALUE_OPERATION.search(description):
+            feedback = [("textbook_operation_label",
+                "The description teaches restoring or assigning initial values, and the name only prefixes that implementation action with an application/domain state. Keep these uses under their actual established programming/state concept, or name a distinct standard mechanism if one is really taught. Do not invent a state-reset concept or omit the required restart/reset behavior.")]
+        issues.extend({"code": code, **({"point_id": point["id"]} if "id" in point else {}),
+                       "location": ["knowledge_points", index, "name"], "message": message}
+                      for code, message in feedback)
+    return issues[:24]
+
+
 def _independent_concept_family(name: str, technology: str) -> str | None:
     """Only simple mechanisms in the observed edge class; unknowns stay unknown.
 

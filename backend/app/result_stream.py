@@ -73,6 +73,25 @@ def job_snapshot(service, store, job_id):
 def project_snapshot(projects, store, project_id, version=None):
     result = projects.results(project_id, version)
     data = result.get("version") or {}
+    if data.get("fast_video_search"):
+        fast = data["fast_video_search"]
+        progress = fast.get("progress", {})
+        recommendations = fast.get("recommendations", {})
+        cards = {row["resource"].get("canonical_url") or row["resource"].get("url")
+                 for rows in recommendations.values() for row in rows}
+        terminal = data.get("status") not in {"analyzing", "running"}
+        catalog_status = (fast.get("catalog_enrichment") or {}).get("status")
+        return {**result, "pipeline": {
+            "stage": "complete" if terminal else "searching", "terminal": terminal,
+            "catalog_pending": catalog_status == "running", "catalog_status": catalog_status,
+            "search_requests": progress.get("search_requests", 0),
+            "search_budget": (data.get("budgets") or {}).get("reserved_search_requests", 0),
+            "candidates": progress.get("candidates", 0), "checking": 0, "checked": 0,
+            "displayed": len(cards - {None, ""}), "covered_points": sum(bool(rows) for rows in recommendations.values()),
+            "total_points": len(recommendations), "model_calls": progress.get("model_calls", 0),
+            "filtered": 0, "unknown": 0, "source_limited": False,
+            "elapsed_seconds": fast.get("elapsed_seconds", 0),
+            "counts_scope": "unique recommended courses; title/snippet relevance with optional observed chapters; no playback verification"}}
     job_ids = list(dict.fromkeys(batch["job_id"] for batch in data.get("batches", []) if batch.get("job_id")))
     jobs = [job for job_id in job_ids if (job := store.get_job(job_id))]
     active = data.get("status") in {"analyzing", "running"} or any(job["status"] in ACTIVE for job in jobs)
@@ -111,7 +130,7 @@ async def result_events(request, read_snapshot, revision, initial, *, initial_re
                 yield message
                 previous = message
                 last_sent = time.monotonic()
-            if snapshot["pipeline"]["terminal"]:
+            if snapshot["pipeline"]["terminal"] and not snapshot["pipeline"].get("catalog_pending"):
                 yield event("complete", snapshot)
                 return
             snapshot = None

@@ -128,12 +128,12 @@ def test_generation_schema_uses_v1_terms_without_removing_optional_historical_st
 
 
 def test_v4_prompt_uses_project_relevant_professional_names_and_modifiable_technology_assumptions():
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
     assert "Honor explicitly requested technologies" in SYSTEM_PROMPT
     assert "label it as a modifiable assumption" in SYSTEM_PROMPT
     assert "optional technology" in SYSTEM_PROMPT
     assert "Never invent courses, video links, chapters or source evidence" in SYSTEM_PROMPT
-    assert "concise professional noun or technical term" in SYSTEM_PROMPT
+    assert "concise established textbook noun or technical term" in SYSTEM_PROMPT
     assert "Analyze the full requested behavior and constraints" in SYSTEM_PROMPT
 
 
@@ -181,7 +181,7 @@ async def test_optional_missing_technology_needs_no_generation_repair(missing_al
     for point in affected:
         point.pop("technology")
     result, calls = await projected_once(body, case_input(CASES[0], "beginner"), settings())
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert all(point.technology == "" for point in result.knowledge_points[:len(affected)])
 
 
@@ -191,7 +191,7 @@ async def test_omitted_technology_is_not_invented_from_other_units_or_a_later_pr
     body = professional_fixture()
     body["knowledge_points"][0].pop("technology")
     result, calls = await projected_once(body, case_input(CASES[0], "beginner"), settings())
-    assert len(calls) == 2 and result.knowledge_points[0].technology == ""
+    assert len(calls) == 1 and result.knowledge_points[0].technology == ""
     assert [p.technology for p in result.knowledge_points[1:]] == [p["technology"] for p in body["knowledge_points"][1:]]
 
 
@@ -211,7 +211,7 @@ async def test_fresh_explicitly_general_target_remains_empty_without_repair():
         return response(body)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         result = await ProjectAnalyzer(settings(), client).analyze(case_input(CASES[0], "beginner"))
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert result.knowledge_points[0].technology == ""
 
 
@@ -282,7 +282,7 @@ async def test_absent_expanded_profile_and_task_are_not_new_generation_errors():
     body.pop("learner_profile")
     body["knowledge_points"][0].pop("project_task")
     result, calls = await projected_once(body, case_input(CASES[0], "beginner"), settings())
-    assert len(calls) == 2 and result.learner_profile is None
+    assert len(calls) == 1 and result.learner_profile is None
     assert all(p.project_task is None and p.concepts == [] and p.learning_skills == [] for p in result.knowledge_points)
 
 
@@ -332,11 +332,14 @@ async def test_live_harness_stops_at_the_provider_request_budget(monkeypatch):
     evidence = await harness.run(Namespace(live=True, case=None, levels=["beginner"],
         env_file=Path("unused.env"), max_cases=4, max_requests=1))
     assert evidence["provider_requests"] == 1
-    assert len(evidence["records"]) == 1
-    assert evidence["records"][0]["status"] == "failed"
-    assert evidence["records"][0]["error_code"] == "request_budget_exhausted"
+    assert len(evidence["records"]) == 2
+    assert evidence["records"][0]["status"] == "completed"
     assert evidence["records"][0]["provider_requests"] == 1
-    assert "analysis" not in evidence["records"][0]  # First draft cannot bypass normalization.
+    assert evidence["records"][0]["analysis"]  # A validated first response is usable within one call.
+    assert evidence["records"][1]["status"] == "failed"
+    assert evidence["records"][1]["error_code"] == "request_budget_exhausted"
+    assert evidence["records"][1]["provider_requests"] == 0
+    assert "analysis" not in evidence["records"][1]
     assert not evidence["automated_passed"]
 
 
@@ -387,8 +390,8 @@ async def test_expanded_analysis_uses_the_final_configured_token_limit():
     configured = replace(settings(), llm_max_output_tokens=3210)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         document = await ProjectAnalyzer(configured, client).analyze(case_input(CASES[0], "beginner"))
-    assert len(calls) == 2
-    assert [call["max_tokens"] for call in calls] == [3210, 12000]
+    assert len(calls) == 1
+    assert [call["max_tokens"] for call in calls] == [3210]
     assert len(document.knowledge_points) == 4
 
 
@@ -496,7 +499,7 @@ async def test_legacy_restart_fixture_is_projected_without_claiming_new_semantic
     # The known contradiction remains in this archived semantic example.
     # The restored term generator does not certify or silently fix that behavior.
     document, calls = await projected_once(body, restart_project(), settings(), concept_names={"k1": "事件循环", "k2": "二维坐标系", "k3": "按键状态", "k4": "碰撞检测", "k5": "文本渲染", "k6": "状态机"})
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert "functions" not in document.model_dump()
     assert body["functions"][4]["acceptance_criteria"] == "球越过挡板底部后停止游戏循环，并显示游戏结束提示。"
 

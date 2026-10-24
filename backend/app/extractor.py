@@ -348,6 +348,15 @@ class MetadataExtractor:
         # text, while explicit JSON-LD fields retain their established priority.
         for fact in source_facts.fields:
             if fact.field in {"title", "description", "author", "thumbnail_url"}:
+                if (fact.field == "thumbnail_url" and fact.source == "html.icourse163.course_cover"
+                        and safe_thumbnail_url(fact.value, url)
+                        and metadata.get("field_provenance", {}).get("thumbnail_url", {}).get("source", "").startswith("jsonld.")):
+                    # The observed native course-cover container is stronger
+                    # than a generic JSON-LD node that may describe a related
+                    # course. Keep its old evidence record, but bind the field
+                    # to the actual course cover, including when URLs coincide.
+                    metadata.pop("thumbnail_url", None)
+                    metadata["field_provenance"].pop("thumbnail_url", None)
                 put(fact.field, fact.value, fact.source, fact.excerpt)
         for tag in soup.select('meta[property="og:image"], meta[property="og:image:secure_url"]')[:10]:
             put("thumbnail_url", safe_thumbnail_url(tag.get("content"), url), "meta." + str(tag.get("property")))
@@ -410,7 +419,9 @@ class MetadataExtractor:
             metadata["evidence"] = [row for row in metadata["evidence"] if row.get("kind") != "catalog"]
             metadata["metadata_evidence_level"] = "page"
         visible = soup.get_text(" ", strip=True)
-        if len(visible) < 80 and not metadata.get("description") and not primary and not embedded_video_facts.fields:
+        native_course_cover = metadata.get("field_provenance", {}).get("thumbnail_url", {}).get("source") == "html.icourse163.course_cover"
+        if (len(visible) < 80 and not metadata.get("description") and not primary
+                and not embedded_video_facts.fields and not native_course_cover):
             metadata["fetch_status"] = "javascript_required"
         metadata.setdefault("video_evidence_status", "none")
         if video_leads and metadata.get("fetch_status") == "fetched" and metadata["video_evidence_status"] == "page_verified":

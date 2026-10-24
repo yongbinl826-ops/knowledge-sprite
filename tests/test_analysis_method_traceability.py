@@ -55,14 +55,14 @@ async def test_legacy_reuse_examples_keep_graph_and_background_without_filled_ne
     from tests.professional_contract_support import projected_once
     result, calls = await projected_once(case["before"], ProjectInput.model_validate(case["project"]),
         replace(settings(), project_semantic_review_enabled=True), concept_names=MOCK_CONCEPT_NAMES[case["id"]])
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert all(k.selection == "learn" for k in result.knowledge_points)
     assert all("prerequisite_ids" not in p for p in result.model_dump()["knowledge_points"])
 
 
 def test_active_prompt_selects_relevant_terms_without_compulsory_method_traceability():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert analysis_module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.17-thorough-concept-normalization"
+    assert analysis_module.ANALYSIS_PROMPT_VERSION == "project-analysis-v5.22-program-state-description-checks"
     prompt = analysis_module.SYSTEM_PROMPT
     assert "Analyze the full requested behavior and constraints" in prompt
     assert "Honor explicitly requested technologies" in prompt

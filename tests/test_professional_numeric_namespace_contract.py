@@ -206,7 +206,7 @@ def test_nonweb_project_and_saved_legacy_analysis_are_not_rewritten():
 
 
 def test_prompt_preserves_numeric_and_ecosystem_contract_without_expanded_fields():
-    assert module.ANALYSIS_PROMPT_VERSION=="project-analysis-v5.17-thorough-concept-normalization"
+    assert module.ANALYSIS_PROMPT_VERSION=="project-analysis-v5.22-program-state-description-checks"
     assert "Preserve numeric contracts" in module.SYSTEM_PROMPT
     assert "different interfaces' input/output domains" in module.SYSTEM_PROMPT
     assert "Keep canonical concept and technical context separate" in module.SYSTEM_PROMPT

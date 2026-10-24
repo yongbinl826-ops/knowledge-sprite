@@ -67,7 +67,7 @@ async def test_rejected_full_document_survives_successful_repair_and_persistence
         assert "learner_profile" not in version["analysis"]
         attempts = version["analysis_attempts"]
         assert [(row["phase"], row["outcome"]) for row in attempts] == [
-            ("generation", "rejected"), ("normalization", "accepted")]
+            ("generation", "rejected"), ("repair", "accepted")]
         assert [row["analysis"] for row in attempts] == [bad, analysis_fixture()]
         assert all(row["project_id"] == project_id and row["version"] == 1 for row in attempts)
         assert service.db.version(project_id, 1)["analysis_attempts"] == attempts

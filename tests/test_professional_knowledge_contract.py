@@ -79,7 +79,7 @@ async def test_flat_payload_works_without_expanded_fields_or_critic(monkeypatch)
 
     monkeypatch.setattr(module, "learning_quality_issues", forbidden)
     result, calls = await analyze_replies([body(), body()])
-    assert len(calls) == 2 and result.learner_profile is None
+    assert len(calls) == 1 and result.learner_profile is None
     assert result.knowledge_points[0].technology == ""
     assert all(p.learning_skills == [] and p.concepts == [] and p.project_task is None and p.practice_check is None
                for p in result.knowledge_points)
@@ -88,7 +88,7 @@ async def test_flat_payload_works_without_expanded_fields_or_critic(monkeypatch)
     assert calls[0]["messages"][0]["content"] == module.SYSTEM_PROMPT
     assert calls[0]["max_tokens"] == config().llm_max_output_tokens
     assert module.ANALYSIS_MAX_MODEL_CALLS == module.ANALYSIS_MAX_ATTEMPTS == 2
-    assert "professional noun or technical term" in module.SYSTEM_PROMPT
+    assert "established textbook noun or technical term" in module.SYSTEM_PROMPT
     assert "Use a reusable mechanism" in module.SYSTEM_PROMPT
 
 
@@ -98,7 +98,7 @@ async def test_professional_term_names_are_accepted_without_mandatory_tool_or_sk
     sample = body()
     sample["knowledge_points"][0]["name"] = name
     result, calls = await analyze_replies([sample, sample])
-    assert result.knowledge_points[0].name == name and len(calls) == 2
+    assert result.knowledge_points[0].name == name and len(calls) == 1
 
 
 @pytest.mark.asyncio
@@ -106,7 +106,7 @@ async def test_technology_is_optional_but_supported_when_explicit():
     sample = body()
     sample["knowledge_points"][0]["technology"] = "pandas"
     result, calls = await analyze_replies([sample, sample])
-    assert len(calls) == 2 and result.knowledge_points[0].technology == "pandas"
+    assert len(calls) == 1 and result.knowledge_points[0].technology == "pandas"
 
 
 @pytest.mark.parametrize("extra", sorted(EXPANDED) + ["learner_profile"])

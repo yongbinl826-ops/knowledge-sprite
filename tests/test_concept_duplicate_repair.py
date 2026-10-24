@@ -88,5 +88,5 @@ async def test_different_validation_mechanisms_and_cohesive_term_remain_independ
     ])
     calls = install(monkeypatch, [body, body])
     result = await ProjectAnalyzer(settings()).analyze(request())
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert [p.name for p in result.knowledge_points] == [p["name"] for p in body["knowledge_points"]]
