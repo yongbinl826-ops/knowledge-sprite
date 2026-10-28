@@ -193,9 +193,10 @@ async def test_capabilities_describe_compact_checks_without_claiming_semantic_re
     _, store, _, projects = setup(tmp_path)
     try:
         capability = projects.capabilities()["project_analysis"]
-        assert capability["generation_stages"] == ["compact_generation", "conditional_repair_if_needed"]
-        assert capability["max_model_calls"] == 2 and capability["repair_max_calls"] == 1
-        assert capability["local_checks_enabled"] and capability["coverage_self_check"] == "generation_prompt"
+        assert capability["generation_stages"] == ["compact_generation"]
+        assert capability["max_model_calls"] == 1 and capability["repair_max_calls"] == 0
+        assert not capability["local_checks_enabled"] and capability["coverage_self_check"] == "disabled"
+        assert capability["schema_safety_checks_enabled"]
         assert not capability["semantic_completeness_certified"]
         assert not any(capability[key] for key in (
             "semantic_review_enabled", "coverage_review_enabled", "implementation_inventory_enabled"))

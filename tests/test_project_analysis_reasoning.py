@@ -97,7 +97,7 @@ def test_environment_opt_in_is_explicit_and_preserves_exact_budget(monkeypatch):
         monkeypatch.delenv(name, raising=False)
     defaults = Settings.from_env()
     assert defaults.project_analysis_reasoning_effort == "inherit"
-    assert defaults.project_analysis_max_output_tokens == 8000
+    assert defaults.project_analysis_max_output_tokens == 16000
     monkeypatch.setenv("PROJECT_ANALYSIS_REASONING_EFFORT", " LOW ")
     monkeypatch.setenv("PROJECT_ANALYSIS_MAX_OUTPUT_TOKENS", "4096")
     monkeypatch.setenv("LLM_PROVIDER", "openai_compatible")
@@ -120,24 +120,23 @@ async def test_analysis_alone_enables_low_and_telemetry_records_actual_settings(
     calls, audit = [], []
     def respond(req):
         calls.append(json.loads(req.content))
-        replies = [{}, flat_analysis_fixture(), {"ok": True}]
+        replies = [flat_analysis_fixture(), {"ok": True}]
         return response(replies[len(calls) - 1])
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         result = await ProjectAnalyzer(original, client).analyze(request(), on_analysis_attempt=audit.append)
         assert await complete_json(original, "Unchanged shared search fixture", {}, client) == {"ok": True}
-    assert len(result.knowledge_points) == 2 and len(calls) == 3
-    repair_payload = json.loads(calls[1]["messages"][1]["content"])
-    assert repair_payload["repair_required"] is True
-    assert repair_payload["validation_feedback"]
-    assert "implementation_inventory" not in repair_payload
+    assert len(result.knowledge_points) == 2 and len(calls) == 2
+    generation_payload = json.loads(calls[0]["messages"][1]["content"])
+    assert "repair_required" not in generation_payload and "validation_feedback" not in generation_payload
+    assert "implementation_inventory" not in generation_payload
     assert all("implementation_inventory" not in row for row in audit)
-    assert [call["max_tokens"] for call in calls] == [9000, 4096, 2048]
-    for call in calls[:2]:
-        assert call["thinking"] == {"type": "enabled"} and call["reasoning_effort"] == "low"
-    assert calls[2]["thinking"] == {"type": "disabled"} and "reasoning_effort" not in calls[2]
-    assert [row["max_output_tokens"] for row in audit] == [9000, 4096]
-    assert [row["thinking_mode"] for row in audit] == ["enabled", "enabled"]
-    assert [row["reasoning_effort"] for row in audit] == ["low", "low"]
+    assert [call["max_tokens"] for call in calls] == [9000, 2048]
+    assert calls[0]["thinking"] == {"type": "enabled"} and calls[0]["reasoning_effort"] == "low"
+    assert calls[1]["thinking"] == {"type": "disabled"} and "reasoning_effort" not in calls[1]
+    assert [row["max_output_tokens"] for row in audit] == [9000]
+    assert [row["thinking_mode"] for row in audit] == ["enabled"]
+    assert [row["reasoning_effort"] for row in audit] == ["low"]
+    assert audit[0]["validation_scope"] == "schema_safety_limits"
     assert all(row["elapsed_seconds"] >= 0 and row["model_elapsed_seconds"] >= 0 for row in audit)
 
 
@@ -153,12 +152,12 @@ async def test_low_does_not_accept_or_repair_truncated_even_valid_json():
             await ProjectAnalyzer(configured(project_analysis_reasoning_effort="low"), client).analyze(
                 request(), on_analysis_attempt=audit.append)
     assert exc.value.code == "output_truncated" and len(calls) == 1
-    assert calls[0]["max_tokens"] == 8000
+    assert calls[0]["max_tokens"] == 16000
     assert len(audit) == 1 and audit[0]["outcome"] == "rejected" and audit[0]["analysis"] is None
 
 
 @pytest.mark.asyncio
-async def test_low_skips_repair_when_remaining_budget_is_below_minimum(monkeypatch):
+async def test_low_schema_failure_stops_without_repair_regardless_of_remaining_budget(monkeypatch):
     calls = []
     async def complete(_settings, *_args, **kwargs):
         calls.append(kwargs["timeout_seconds"])
@@ -173,12 +172,11 @@ async def test_low_skips_repair_when_remaining_budget_is_below_minimum(monkeypat
         await ProjectAnalyzer(original).analyze(request())
     assert exc.value.code == "schema" and len(calls) == 1
     assert calls[0] <= 1
-    assert any(item.get("type") == "repair_skipped" and item.get("reason") == "insufficient_remaining_time"
-               for item in exc.value.diagnostics)
+    assert not any(item.get("type") == "repair_skipped" for item in exc.value.diagnostics)
 
 
 @pytest.mark.asyncio
-async def test_legacy_pro_wait_budget_is_clamped_to_sixty_seconds_including_repair(monkeypatch):
+async def test_legacy_pro_wait_budget_is_clamped_to_sixty_seconds_for_one_generation(monkeypatch):
     from types import SimpleNamespace
     from backend.app import project_analysis as module
     # Advance only the analyzer's elapsed-time source, without a real model call.
@@ -192,11 +190,8 @@ async def test_legacy_pro_wait_budget_is_clamped_to_sixty_seconds_including_repa
     async def complete(call_settings, _prompt, payload, *_args, **kwargs):
         calls.append((kwargs["timeout_seconds"], call_settings.llm_max_output_tokens,
                       call_settings.llm_model, call_settings.llm_reasoning_effort))
-        assert len(calls) <= 2
-        if len(calls) == 1:
-            clock.elapsed = 40.0
-            return {}
-        assert payload["repair_required"] is True
+        assert len(calls) == 1
+        assert "repair_required" not in payload
         assert "implementation_inventory" not in payload
         clock.elapsed = 58.0
         return proposal
@@ -208,8 +203,7 @@ async def test_legacy_pro_wait_budget_is_clamped_to_sixty_seconds_including_repa
     original.validate()
     result = await ProjectAnalyzer(original).analyze(request())
     assert result.knowledge_points
-    assert calls == [(60, 16000, "deepseek-v4-pro", "low"),
-                     (20, 12000, "deepseek-v4-pro", "low")]
+    assert calls == [(60, 16000, "deepseek-v4-pro", "low")]
     assert original.llm_model == "deepseek-flash"
 
 
@@ -225,7 +219,10 @@ async def test_capabilities_publish_project_policy_and_effective_budgets(tmp_pat
         assert capability["repair_max_output_tokens"] == 4096
         assert capability["generation_thinking_mode"] == capability["repair_thinking_mode"] == "enabled"
         assert capability["generation_reasoning_effort"] == capability["repair_reasoning_effort"] == "low"
-        assert capability["max_model_calls"] == 2 and capability["repair_max_calls"] == 1
+        assert capability["max_model_calls"] == 1 and capability["repair_max_calls"] == 0
+        assert capability["generation_stages"] == ["compact_generation"]
+        assert capability["local_checks_enabled"] is False and capability["schema_safety_checks_enabled"] is True
+        assert capability["conditional_repair_enabled"] is False
         assert capability["total_timeout_seconds"] <= 60
     finally:
         await projects.stop()

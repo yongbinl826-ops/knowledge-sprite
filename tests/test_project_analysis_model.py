@@ -87,8 +87,8 @@ async def test_pro_requests_metadata_and_audit_agree_while_flash_search_and_hist
     calls = []
     def respond(req):
         calls.append(json.loads(req.content))
-        # First version passes directly; the second uses its one schema repair.
-        replies = [flat_analysis_fixture(), {}, flat_analysis_fixture(), {"ok": True}]
+        # The malformed second generation stops without a repair request.
+        replies = [flat_analysis_fixture(), {}, {"ok": True}]
         return response(replies[len(calls) - 1])
     try:
         async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
@@ -109,21 +109,22 @@ async def test_pro_requests_metadata_and_audit_agree_while_flash_search_and_hist
             assert pending["version"]["model"] == "deepseek-v4-pro"
             await asyncio.gather(*projects.analysis_tasks.values())
             latest = projects.view(pid, 2)["version"]
-            assert latest["model"] == "deepseek-v4-pro" and latest["status"] == "analyzed"
-            assert len(latest["analysis_attempts"]) == 2 and len(latest["rejected_analysis_attempts"]) == 1
+            assert latest["model"] == "deepseek-v4-pro" and latest["status"] == "analysis_failed"
+            assert latest["error"]["code"] == "schema"
+            assert len(latest["analysis_attempts"]) == 1 and len(latest["rejected_analysis_attempts"]) == 1
             assert all(row["model"] == "deepseek-v4-pro" for row in latest["analysis_attempts"] + latest["rejected_analysis_attempts"])
-            assert [row["max_output_tokens"] for row in latest["analysis_attempts"]] == [16000, 12000]
+            assert [row["max_output_tokens"] for row in latest["analysis_attempts"]] == [16000]
             assert projects.view(pid, 1)["version"] == historical
             assert store.connection.execute(
                 "SELECT data FROM project_versions WHERE project_id=? AND version=1", (pid,)).fetchone()[0] == historical_raw
             assert await complete_json(effective_config, "Shared search fixture", {}, client) == {"ok": True}
-        assert [call["model"] for call in calls] == ["deepseek-flash", "deepseek-v4-pro", "deepseek-v4-pro", "deepseek-flash"]
-        for call in calls[:3]:
+        assert [call["model"] for call in calls] == ["deepseek-flash", "deepseek-v4-pro", "deepseek-flash"]
+        for call in calls[:2]:
             assert call["thinking"] == {"type": "enabled"} and call["reasoning_effort"] == "low"
-        assert calls[3]["thinking"] == {"type": "disabled"} and "reasoning_effort" not in calls[3]
+        assert calls[2]["thinking"] == {"type": "disabled"} and "reasoning_effort" not in calls[2]
         assert effective_config.llm_model == settings.llm_model == jobs.settings.llm_model == "deepseek-flash"
         assert settings.project_analysis_model == "" and effective_config.project_analysis_model == "deepseek-v4-pro"
-        assert [call["max_tokens"] for call in calls] == [16000, 16000, 12000, 6000]
+        assert [call["max_tokens"] for call in calls] == [16000, 16000, 6000]
     finally:
         await projects.stop()
         store.close()

@@ -81,46 +81,49 @@ def attempt_rows(error):
 
 
 @pytest.mark.asyncio
-async def test_title_quality_then_bad_json_retains_safe_first_location_not_draft():
+async def test_wellformed_title_and_content_are_delivered_once_without_repair(monkeypatch):
     body = flat_proposal(analysis_fixture())
     body["knowledge_points"][1]["name"] = "Python基础"
     body["knowledge_points"][1]["description"] = "untrusted-draft-marker"
-    replies = [body, '{"untrusted-response-marker":}']
-    calls = []
+    calls, audits = [], []
+    def forbidden(*_args, **_kwargs):
+        pytest.fail("Runtime must not judge naming/content or create a repair")
+    monkeypatch.setattr(module, "_local_quality_issues", forbidden)
+    monkeypatch.setattr(module, "_name_repair_context", forbidden)
     def respond(req):
         calls.append(req)
-        return response(replies[len(calls)-1])
+        assert len(calls) == 1
+        return response(body)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        with pytest.raises(module.AnalysisError) as error:
-            await module.ProjectAnalyzer(settings(), client).analyze(game_request())
-    assert len(calls) == 2 and error.value.code == "invalid_json"
-    rows = attempt_rows(error.value)
-    assert rows[0]["issues"] == [{"code": "broad_subject", "severity": "medium", "location": ["knowledge_points", 1]}]
-    retained = json.dumps(error.value.diagnostics)
-    assert "untrusted-draft-marker" not in retained and "untrusted-response-marker" not in retained
-    assert "message" not in rows[0]["issues"][0]
-    assert "untrusted-draft-marker" in calls[1].content.decode()  # Bounded quality repair retains the accepted schema draft.
+        result = await module.ProjectAnalyzer(settings(), client).analyze(game_request(), on_analysis_attempt=audits.append)
+    assert len(calls) == len(audits) == 1
+    assert result.knowledge_points[1].name == "Python基础"
+    assert result.knowledge_points[1].description == "untrusted-draft-marker"
+    assert audits[0]["outcome"] == "accepted" and audits[0]["analysis"] == body
+    assert audits[0]["validation_scope"] == "schema_safety_limits"
+    assert "issues" not in audits[0] and "advisories" not in audits[0]
 
 
 @pytest.mark.asyncio
-async def test_mastery_then_bad_json_retains_fixed_code_and_safe_location_only():
+async def test_extra_model_owned_mastery_fields_fail_schema_once_with_safe_locations():
     body = flat_proposal(analysis_fixture())
     body["knowledge_points"][1]["selection"] = "mastered"
     body["knowledge_points"][1]["project_task"] = "untrusted-review-message-marker"
-    replies = [body, "bad-json"]
     calls = []
     def respond(req):
         calls.append(req)
-        return response(replies[len(calls)-1])
+        assert len(calls) == 1
+        return response(body)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         with pytest.raises(module.AnalysisError) as error:
             await module.ProjectAnalyzer(replace(settings(), project_semantic_review_enabled=True), client).analyze(
                 ProjectInput(name="成绩分析", requirements="读取本地 Excel 成绩并统计平均分"))
-    assert len(calls) == 2 and error.value.code == "invalid_json"
+    assert len(calls) == 1 and error.value.code == "schema"
     rows = attempt_rows(error.value)
+    assert len(rows) == 1
     assert rows[0]["category"] == "schema"
     assert any(row["type"] == "extra_forbidden" for row in rows[0]["errors"])
-    retained = json.dumps(error.value.diagnostics) + calls[1].content.decode()
+    retained = json.dumps(error.value.diagnostics)
     assert "untrusted-review-message-marker" not in retained
     assert all("message" not in row for row in rows[0]["errors"])
 
@@ -148,9 +151,9 @@ def test_history_is_bounded_and_does_not_echo_unknown_rule_or_code():
     assert "untrusted" not in json.dumps(details) and "private" not in json.dumps(details)
 
 
-def test_two_generation_budget_preserves_complete_json_and_closed_schema():
+def test_one_generation_budget_preserves_complete_json_and_closed_schema():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert module.ANALYSIS_MAX_ATTEMPTS == 2 and module.ANALYSIS_MAX_MODEL_CALLS == 2
+    assert module.ANALYSIS_MAX_ATTEMPTS == 1 and module.ANALYSIS_MAX_MODEL_CALLS == 1
     assert settings().project_analysis_total_timeout_seconds == 60
     assert "Return one JSON object" in module.SYSTEM_PROMPT
     assert "without Markdown" in module.SYSTEM_PROMPT
@@ -160,8 +163,8 @@ def test_two_generation_budget_preserves_complete_json_and_closed_schema():
 def test_generation_scope_excludes_compulsory_expanded_breakdown_and_critic():
     from tests.professional_contract_support import assert_simple_generation_schema
     assert "Each point contains only name, description and optional technology" in module.SYSTEM_PROMPT
-    assert "Do not output this check" in module.SYSTEM_PROMPT
-    assert module.ANALYSIS_MAX_ATTEMPTS == 2 and module.ANALYSIS_MAX_MODEL_CALLS == 2
+    assert "Do not add a separate review" in module.SYSTEM_PROMPT
+    assert module.ANALYSIS_MAX_ATTEMPTS == 1 and module.ANALYSIS_MAX_MODEL_CALLS == 1
     assert_simple_generation_schema()
 
 
@@ -181,7 +184,7 @@ def test_comparison_or_quit_cannot_excuse_real_restart_stop(text):
 
 
 def test_generation_version_names_the_professional_term_contract():
-    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
+    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v9-textbook-single-generation"
 
 
 @pytest.mark.parametrize("text", ["按Esc退出主循环后等待R", "Exit the main game loop when Escape is pressed then wait for R key"])

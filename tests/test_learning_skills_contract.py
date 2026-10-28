@@ -161,7 +161,7 @@ def test_new_skill_layer_cannot_bypass_existing_behavior_guards(source, skill, c
 
 def test_prompt_schema_omits_expanded_fields_while_storage_keeps_safe_optional_history():
     from tests.professional_contract_support import assert_simple_generation_schema
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v9-textbook-single-generation"
     assert_simple_generation_schema()
     storage = AnalysisDocument.model_json_schema()["$defs"]["ProjectKnowledgePoint"]
     assert "learning_skills" not in storage.get("required", [])
@@ -169,7 +169,7 @@ def test_prompt_schema_omits_expanded_fields_while_storage_keeps_safe_optional_h
     assert storage["properties"]["learning_skills"]["items"]["maxLength"] == 120
     assert "Each point contains only name, description and optional technology" in SYSTEM_PROMPT
     assert "Do not output graphs, learning order, functions, learner profiles, review fields" in SYSTEM_PROMPT
-    assert ANALYSIS_MAX_ATTEMPTS == 2 and ANALYSIS_MAX_MODEL_CALLS == 2
+    assert ANALYSIS_MAX_ATTEMPTS == 1 and ANALYSIS_MAX_MODEL_CALLS == 1
 
 
 @pytest.mark.asyncio
@@ -193,11 +193,12 @@ async def test_absent_skills_remain_absent_without_required_normalization():
 
 
 def test_professional_term_prompt_is_specific_without_compulsory_skill_or_practice_layers():
-    assert "rather than task instructions, business labels, isolated API calls or whole disciplines" in SYSTEM_PROMPT
+    assert "Do not turn the implementation plan into the knowledge-point headings" in SYSTEM_PROMPT
     assert "Do not split by variable, field, parameter, API call or workflow step" in SYSTEM_PROMPT
     assert "Work backwards from each required behavior to the mechanisms it depends on" in SYSTEM_PROMPT
     assert "Honor its technologies and constraints" in SYSTEM_PROMPT
-    assert "interfaces, types, units, ordering, identity matching and data roles" in SYSTEM_PROMPT
+    assert "Generate the requested analysis once" in SYSTEM_PROMPT
+    assert "Do not add a separate review, naming critique, correction round" in SYSTEM_PROMPT
     assert "Each point contains only name, description and optional technology" in SYSTEM_PROMPT
 
 

@@ -180,8 +180,8 @@ class Settings:
     project_analysis_total_timeout_seconds: int = 60
     project_analysis_reasoning_effort: str = "inherit"
     project_analysis_model: str = ""
-    project_analysis_max_output_tokens: int = 8000
-    project_analysis_normalization_max_output_tokens: int = 8000
+    project_analysis_max_output_tokens: int = 16000
+    project_analysis_normalization_max_output_tokens: int = 16000
     project_semantic_review_enabled: bool = True
     search_timeout_seconds: int = 12
     search_max_retries: int = 1
@@ -491,8 +491,8 @@ class Settings:
             project_analysis_total_timeout_seconds=security_number("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", 60, 1, 600),
             project_analysis_reasoning_effort=os.getenv("PROJECT_ANALYSIS_REASONING_EFFORT", "inherit").strip().lower(),
             project_analysis_model=os.getenv("PROJECT_ANALYSIS_MODEL", "").strip(),
-            project_analysis_max_output_tokens=security_number("PROJECT_ANALYSIS_MAX_OUTPUT_TOKENS", 8000, 256, 16000),
-            project_analysis_normalization_max_output_tokens=security_number("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", 8000, 256, 16000),
+            project_analysis_max_output_tokens=security_number("PROJECT_ANALYSIS_MAX_OUTPUT_TOKENS", 16000, 256, 16000),
+            project_analysis_normalization_max_output_tokens=security_number("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", 16000, 256, 16000),
             project_semantic_review_enabled=semantic_review_setting(),
             search_timeout_seconds=number("SEARCH_TIMEOUT_SECONDS", 12, 1, 30),
             search_max_retries=number("SEARCH_MAX_RETRIES", 1, 0, 1),

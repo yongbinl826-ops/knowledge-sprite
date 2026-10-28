@@ -53,7 +53,7 @@ def test_project_steps_and_bundles_are_not_professional_names(name):
 
 
 @pytest.mark.asyncio
-async def test_generation_repairs_task_bundle_once_without_model_count_growth():
+async def test_generation_retains_task_shaped_names_without_a_quality_repair():
     calls = []
     bad, good = flat_proposal(document("窗口创建+循环")), flat_proposal(document("事件循环"))
     def reply(req):
@@ -62,19 +62,19 @@ async def test_generation_repairs_task_bundle_once_without_model_count_growth():
     cfg = Settings(llm_provider="openai_compatible", llm_base_url="https://offline.invalid/v1", llm_api_key="synthetic", llm_model="synthetic")
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply), trust_env=False) as client:
         result = await ProjectAnalyzer(cfg, client).analyze(ProjectInput(name="Local game", requirements="Use pygame for a simple moving interaction"))
-    assert result.knowledge_points[0].name == "事件循环" and result.knowledge_points[0].technology == "pygame"
-    assert len(calls) == 2
-    assert [c["max_tokens"] for c in calls] == [cfg.llm_max_output_tokens, cfg.project_analysis_normalization_max_output_tokens]
-    repair = json.loads(calls[1]["messages"][1]["content"])
-    assert any(i["code"] == "task_bundle_name" for i in repair["validation_feedback"])
-    assert repair["previous_analysis"]["knowledge_points"][0]["name"] == "窗口创建+循环"
-    assert "learning_skills" not in repair["output_schema"]["$defs"]["GeneratedConcept"]["properties"]
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
+    assert result.knowledge_points[0].name == "窗口创建+循环" and result.knowledge_points[0].technology == "pygame"
+    assert result.knowledge_points[0].description == bad["knowledge_points"][0]["description"]
+    assert len(calls) == 1
+    assert [c["max_tokens"] for c in calls] == [cfg.llm_max_output_tokens]
+    sent = json.loads(calls[0]["messages"][1]["content"])
+    assert "validation_feedback" not in sent and "previous_analysis" not in sent
+    assert "learning_skills" not in sent["output_schema"]["$defs"]["GeneratedConcept"]["properties"]
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v9-textbook-single-generation"
     assert "The server supplies IDs and selection" in SYSTEM_PROMPT
 
 
 @pytest.mark.asyncio
-async def test_repeated_bundle_is_quality_failure_not_silently_rewritten():
+async def test_bundle_is_delivered_once_without_automatic_rewrite_or_advisory():
     calls = []
     def reply(req):
         calls.append(req)
@@ -82,14 +82,17 @@ async def test_repeated_bundle_is_quality_failure_not_silently_rewritten():
         body = flat_proposal(document("矩形绘制+挡板移动"))
         return response(unrepaired_quality_response(payload, body, payload["project"]))
     cfg = Settings(llm_provider="openai_compatible", llm_base_url="https://offline.invalid/v1", llm_api_key="synthetic", llm_model="synthetic")
+    audit = []
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply), trust_env=False) as client:
-        with pytest.raises(AnalysisError) as exc:
-            await ProjectAnalyzer(cfg, client).analyze(ProjectInput(name="Game", requirements="Use pygame"))
-    assert len(calls) == 2 and exc.value.code == "quality"
+        result = await ProjectAnalyzer(cfg, client).analyze(
+            ProjectInput(name="Game", requirements="Use pygame"), on_analysis_attempt=audit.append)
+    assert len(calls) == len(audit) == 1
+    assert result.knowledge_points[0].name == "矩形绘制+挡板移动"
+    assert audit[0]["outcome"] == "accepted" and audit[0]["validation_scope"] == "schema_safety_limits"
+    assert not audit[0].get("advisories")
     final_payload = json.loads(json.loads(calls[-1].content)["messages"][1]["content"])
     assert "semantic_review" not in final_payload
-    assert any(issue["code"] == "task_bundle_name" for issue in final_payload["validation_feedback"])
-    assert final_payload["previous_analysis"]["knowledge_points"][0]["name"] == "矩形绘制+挡板移动"
+    assert "validation_feedback" not in final_payload and "previous_analysis" not in final_payload
 
 
 @pytest.mark.asyncio

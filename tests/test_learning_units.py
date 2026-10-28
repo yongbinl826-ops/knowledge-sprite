@@ -1,4 +1,4 @@
-"""Learning contract/guard tests. Synthetic fixtures are not live integration."""
+"""Legacy rubric helpers and current single-pass integration; offline fixtures only."""
 import json
 import asyncio
 import time
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import httpx
 import pytest
-from tests.professional_contract_support import draft_with_inventory, flat_proposal
+from tests.professional_contract_support import draft_with_inventory, flat_proposal, successful_analysis_response
 from pydantic import ValidationError
 
 from backend.app.config import Settings
@@ -128,7 +128,7 @@ def test_generation_schema_uses_v1_terms_without_removing_optional_historical_st
 
 
 def test_compact_prompt_uses_project_relevant_names_and_modifiable_technology_assumptions():
-    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
+    assert ANALYSIS_PROMPT_VERSION == "project-analysis-v9-textbook-single-generation"
     assert "Honor its technologies and constraints" in SYSTEM_PROMPT
     assert "label necessary unspecified choices as modifiable assumptions" in SYSTEM_PROMPT
     assert "optional technology" in SYSTEM_PROMPT
@@ -288,28 +288,31 @@ async def test_absent_expanded_profile_and_task_are_not_new_generation_errors():
 
 
 @pytest.mark.asyncio
-async def test_quality_repair_gets_controlled_feedback_and_returns_specific_units():
-    original = flat_proposal(professional_fixture())
-    invalid = deepcopy(original)
-    invalid["knowledge_points"][0]["name"] = "Python基础"
-    invalid["knowledge_points"][0]["description"] = "UNTRUSTED_PRIVATE_VALUE"
+async def test_original_title_and_description_are_delivered_without_quality_repair():
+    supplied = flat_proposal(professional_fixture())
+    supplied["knowledge_points"][0]["name"] = "Python基础"
+    supplied["knowledge_points"][0]["description"] = "UNTRUSTED_PRIVATE_VALUE"
+    before = deepcopy(supplied)
     project = case_input(CASES[0], "beginner")
-    calls = []
+    calls, audit = [], []
     def respond(req):
         calls.append(json.loads(req.content))
-        return response([invalid, original][len(calls) - 1])
+        assert len(calls) == 1
+        return response(supplied)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        result = await ProjectAnalyzer(settings(), client).analyze(project)
-    assert len(calls) == 2
-    assert result.knowledge_points[0].name == original["knowledge_points"][0]["name"]
-    feedback = json.loads(calls[1]["messages"][1]["content"])["validation_feedback"]
-    assert feedback[0]["code"] == "broad_subject"
-    assert "UNTRUSTED_PRIVATE_VALUE" not in json.dumps(feedback)
-    # The validated draft is now supplied as untrusted proposal data so the
-    # model can correct that exact plan. It never becomes repair instructions.
-    repair = json.loads(calls[1]["messages"][1]["content"])
-    assert "project_task" not in repair["previous_analysis"]["knowledge_points"][0]
-    assert repair["previous_analysis"]["knowledge_points"][0]["description"] == "UNTRUSTED_PRIVATE_VALUE"
+        result = await ProjectAnalyzer(settings(), client).analyze(project, on_analysis_attempt=audit.append)
+    assert len(calls) == len(audit) == 1
+    assert result.knowledge_points[0].name == "Python基础"
+    assert audit[0]["analysis"] == before == supplied
+    assert audit[0]["validation_scope"] == "schema_safety_limits"
+    assert "advisories" not in audit[0] and "issues" not in audit[0]
+    sent = json.loads(calls[0]["messages"][1]["content"])
+    assert not {"validation_feedback", "repair_targets", "previous_analysis"} & set(sent)
+    assert [point.description for point in result.knowledge_points] == [
+        point["description"] for point in supplied["knowledge_points"]]
+    assert [point.technology for point in result.knowledge_points] == [
+        point.get("technology", "") for point in supplied["knowledge_points"]]
+    assert len(result.knowledge_points) == len(supplied["knowledge_points"])
 
 
 @pytest.mark.asyncio
@@ -336,34 +339,33 @@ async def test_live_harness_stops_at_the_provider_request_budget(monkeypatch):
     evidence = await harness.run(Namespace(live=True, case=None, levels=["beginner"],
         env_file=Path("unused.env"), max_cases=4, max_requests=1))
     assert evidence["provider_requests"] == 1
-    assert len(evidence["records"]) == 1
+    assert len(evidence["records"]) == 2
     assert evidence["records"][0]["status"] == "failed"
-    assert evidence["records"][0]["error_code"] == "request_budget_exhausted"
+    assert evidence["records"][0]["error_code"] == "schema"
+    assert evidence["records"][1]["error_code"] == "request_budget_exhausted"
+    assert evidence["records"][1]["provider_requests"] == 0
     assert evidence["records"][0]["provider_requests"] == 1
     assert "analysis" not in evidence["records"][0]  # A rejected legacy wrapper is never delivered.
     assert not evidence["automated_passed"]
 
 
 @pytest.mark.asyncio
-async def test_repair_uses_remaining_total_budget_instead_of_a_second_full_timeout(monkeypatch):
+async def test_malformed_response_stops_once_even_when_repair_time_remains(monkeypatch):
     import backend.app.project_analysis as analysis
     monkeypatch.setattr(analysis, "ANALYSIS_TIMEOUT_SECONDS", 0.2)
     monkeypatch.setattr(analysis, "ANALYSIS_TOTAL_TIMEOUT_SECONDS", 0.3)
-    # Scale the optional-repair admission margin with the tiny test deadline.
-    monkeypatch.setattr(analysis, "ANALYSIS_MIN_REPAIR_SECONDS", 0.05)
     seen_timeouts = []
     async def slow_response(*args, **kwargs):
         seen_timeouts.append(kwargs["timeout_seconds"])
         await asyncio.sleep(0.16)
-        return {}  # First result needs a structural repair.
+        return {}
     monkeypatch.setattr(analysis, "complete_json", slow_response)
     started = time.monotonic()
     with pytest.raises(AnalysisError) as exc:
         await ProjectAnalyzer(settings()).analyze(case_input(CASES[0], "beginner"))
-    assert exc.value.code == "timeout"
-    assert len(seen_timeouts) == 2
-    assert seen_timeouts[0] == pytest.approx(0.2)
-    assert 0 < seen_timeouts[1] < 0.16
+    assert exc.value.code == "schema"
+    assert seen_timeouts == [pytest.approx(0.2)]
+    assert len(exc.value.diagnostics[-1]["attempts"]) == 1
     assert time.monotonic() - started < 0.6
 
 

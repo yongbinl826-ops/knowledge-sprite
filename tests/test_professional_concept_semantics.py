@@ -1,17 +1,15 @@
-"""Offline concept/dependency checks; retained live v5.2 is not a new pass."""
+"""Legacy checker units and single-pass replay; retained v5.2 is not a new pass."""
 from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
 
-import httpx
 import pytest
 from tests.professional_contract_support import flat_proposal
 
-from backend.app.config import Settings
 from backend.app.professional_concepts import concept_name_issues
 from backend.app.project_analysis import (
-    AnalysisError, ProjectAnalyzer, SYSTEM_PROMPT, generation_schema,
+    SYSTEM_PROMPT, generation_schema,
     professional_contract_issues,
 )
 from backend.app.project_models import AnalysisDocument, ProjectInput
@@ -214,46 +212,36 @@ def test_prompt_is_about_concepts_and_real_dependencies_not_mastery_or_mandatory
 
 
 @pytest.mark.asyncio
-async def test_actual_old_findings_use_existing_two_generation_repair_budget_only():
-    calls = []
-    def reply(request):
-        calls.append(json.loads(request.content))
-        body = observed()["analysis"] if len(calls) == 1 else synthetic_repair()
-        generated = flat_proposal(body)
-        return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {
-            "content": json.dumps(generated, ensure_ascii=False)}}]})
-    settings = Settings(llm_provider="openai_compatible", llm_base_url="https://offline.invalid/v1",
-                        llm_api_key="synthetic", llm_model="synthetic")
-    async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
-        result = await ProjectAnalyzer(settings, client).analyze(ProjectInput.model_validate(observed()["input"]))
-    assert len(calls) == 2
-    feedback = calls[1]["messages"][1]["content"]
-    assert "implementation_detail_as_concept" in feedback
+async def test_actual_old_findings_do_not_trigger_judgement_or_repair(monkeypatch):
+    from backend.app import project_analysis as module
+    from tests.test_professional_title_quality import generate_once
+    source = observed()
+    generated = flat_proposal(source["analysis"])
+    def forbidden(*_args, **_kwargs):
+        pytest.fail("Naming/content judgement must not run")
+    monkeypatch.setattr(module, "_local_quality_issues", forbidden)
+    result, calls = await generate_once(generated, ProjectInput.model_validate(source["input"]))
+    assert len(calls) == 1
+    assert result.knowledge_points[9].name == "游戏计数变量"
+    assert "限制每帧时长" in result.knowledge_points[0].description
     assert "prerequisite_ids" not in result.model_dump()["knowledge_points"][0]
     assert "functions" not in result.model_dump()
     assert all(p.selection == "learn" for p in result.knowledge_points)
+    assert hashlib.sha256(FIXTURE.read_bytes()).hexdigest() == LIVE_SHA
 
 
 @pytest.mark.asyncio
-async def test_persistent_semantic_findings_fail_quality_with_safe_coordinates():
-    from tests.professional_contract_support import unrepaired_quality_response
-    count = 0
-    def reply(request):
-        nonlocal count
-        count += 1
-        assert count <= 2
-        generated = flat_proposal(observed()["analysis"])
-        payload = json.loads(json.loads(request.content)["messages"][1]["content"])
-        generated = unrepaired_quality_response(payload, generated, observed()["input"])
-        return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {
-            "content": json.dumps(generated, ensure_ascii=False)}}]})
-    settings = Settings(llm_provider="openai_compatible", llm_base_url="https://offline.invalid/v1",
-                        llm_api_key="synthetic", llm_model="synthetic")
-    async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
-        with pytest.raises(AnalysisError) as caught:
-            await ProjectAnalyzer(settings, client).analyze(ProjectInput.model_validate(observed()["input"]))
-    assert count == 2 and caught.value.code == "quality"
-    history = next(q for q in caught.value.diagnostics if q.get("type") == "attempt_history")
-    codes = {q["code"] for a in history["attempts"] for q in a.get("issues", [])}
-    assert {"implementation_detail_as_concept"} <= codes
-    assert "游戏计数变量" not in json.dumps(history, ensure_ascii=False)
+async def test_synthetic_alternative_is_not_needed_to_accept_original_content(monkeypatch):
+    from backend.app import project_analysis as module
+    from tests.test_professional_title_quality import generate_once
+    original = flat_proposal(observed()["analysis"])
+    alternative = flat_proposal(synthetic_repair())
+    assert original != alternative
+    def forbidden(*_args, **_kwargs):
+        pytest.fail("Independent semantic or naming checks must not run")
+    monkeypatch.setattr(module, "professional_contract_issues", forbidden)
+    result, calls = await generate_once(original, ProjectInput.model_validate(observed()["input"]))
+    assert len(calls) == 1
+    assert len(result.knowledge_points) == len(original["knowledge_points"])
+    assert len(result.knowledge_points) != len(alternative["knowledge_points"])
+    assert hashlib.sha256(FIXTURE.read_bytes()).hexdigest() == LIVE_SHA

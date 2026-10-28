@@ -301,7 +301,7 @@ def test_model_budget_defaults_and_exact_environment_overrides(monkeypatch, per_
         monkeypatch.delenv(name, raising=False)
     defaults = Settings.from_env()
     assert (defaults.project_analysis_timeout_seconds, defaults.project_analysis_total_timeout_seconds,
-            defaults.llm_max_output_tokens, defaults.project_analysis_normalization_max_output_tokens) == (60, 60, 6000, 8000)
+            defaults.llm_max_output_tokens, defaults.project_analysis_normalization_max_output_tokens) == (60, 60, 6000, 16000)
     monkeypatch.setenv("PROJECT_ANALYSIS_TIMEOUT_SECONDS", str(per_call))
     monkeypatch.setenv("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", str(total))
     monkeypatch.setenv("LLM_MAX_OUTPUT_TOKENS", "2048")
@@ -361,30 +361,24 @@ async def test_model_output_token_budget_is_sent_to_upstream():
 
 
 @pytest.mark.asyncio
-async def test_project_analysis_schema_retry_shares_total_deadline(monkeypatch):
+async def test_project_analysis_schema_failure_never_retries(monkeypatch):
     import backend.app.project_analysis as module
-    calls, cancelled = [], []
+    calls = []
 
     async def respond(*_args, **kwargs):
         calls.append(kwargs["timeout_seconds"])
-        if len(calls) == 1:
-            await asyncio.sleep(0.6)
-            return {}  # Triggers the real schema repair path.
-        try:
-            await asyncio.Event().wait()
-        finally:
-            cancelled.append(True)
+        assert len(calls) == 1
+        await asyncio.sleep(0.05)
+        return {}
 
     monkeypatch.setattr(module, "complete_json", respond)
-    # Scale the minimum repair budget for this 1-second transport cancellation test.
-    monkeypatch.setattr(module, "ANALYSIS_MIN_REPAIR_SECONDS", .1)
     settings = model_settings(project_analysis_timeout_seconds=1, project_analysis_total_timeout_seconds=1)
     started = time.monotonic()
     with pytest.raises(module.AnalysisError) as error:
         await module.ProjectAnalyzer(settings).analyze(module.ProjectInput(name="CSV count", requirements="Read a CSV and print its row count"))
-    assert error.value.code == "timeout" and len(calls) == 2
-    assert 0 < calls[1] < 0.5 and calls[0] <= 1
-    assert cancelled and time.monotonic() - started < 1.8
+    assert error.value.code == "schema" and len(calls) == 1
+    assert 0 < calls[0] <= 1
+    assert time.monotonic() - started < 1
 
 
 class CountingModelStream(httpx.AsyncByteStream):

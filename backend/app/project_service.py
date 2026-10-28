@@ -22,10 +22,18 @@ from .project_analysis import (ANALYSIS_PROMPT_VERSION, ANALYSIS_MAX_MODEL_CALLS
 from .project_search import searchable_unit_name
 from .service import AdmissionRejected, JobService
 from .technical_prefix import canonical_search_name, leading_technical_owner
-from .professional_concepts import generated_context, bound_generated_context, reviewed_technologies
+from .professional_concepts import generated_context, bound_generated_context, reviewed_technologies, clean_topic_technology
 from .ranking import summarize_collection_coverage
 from .helpful_video_chapters import MAX_CATALOG_RESOURCES, MAX_CATALOG_HTTP_REQUESTS
 from .snapshot_updates import CoalescedPublisher
+
+
+def _safe_search_technology(value):
+    """Keep query syntax safe without judging or rewriting saved analysis."""
+    try:
+        return clean_topic_technology(value)
+    except (ValueError, TypeError):
+        return ""
 
 
 # Leave time for the terminal status write inside the advertised overall budget.
@@ -138,8 +146,9 @@ class ProjectService:
                     "implementation_inventory_enabled": False,
                     "coverage_completion_max_calls": 0,
                     "coverage_completion_max_output_tokens": 0,
-                    "local_checks_enabled": True,
-                    "coverage_self_check": "generation_prompt",
+                    "local_checks_enabled": False,
+                    "schema_safety_checks_enabled": True,
+                    "coverage_self_check": "disabled",
                     "semantic_completeness_certified": False,
                     "total_timeout_seconds": total_timeout,
                     "timeout_includes_queue": True,
@@ -151,16 +160,18 @@ class ProjectService:
                     "generation_thinking_mode": generation.llm_thinking_mode,
                     "generation_reasoning_effort": generation.llm_reasoning_effort,
                     "generation_max_output_tokens": generation.llm_max_output_tokens,
-                    "conditional_repair_enabled": True,
+                    "conditional_repair_enabled": False,
                     "repair_shares_coverage_completion": False,
-                    "repair_shares_total_deadline": True,
-                    "repair_max_calls": 1,
+                    "repair_shares_total_deadline": False,
+                    "repair_max_calls": 0,
                     "repair_thinking_mode": repair.llm_thinking_mode,
                     "repair_reasoning_effort": repair.llm_reasoning_effort,
                     "repair_max_output_tokens": repair.llm_max_output_tokens,
-                    "generation_stages": ["compact_generation", "conditional_repair_if_needed"],
+                    "generation_stages": ["compact_generation"],
                     "accepted_draft_immediate": True,
-                    "concept_naming_policy": "established_textbook_terms_v2",
+                    "concept_naming_policy": "generation_only",
+                    "naming_advisories_preserved": False,
+                    "repair_formats": [],
                     "max_model_calls": ANALYSIS_MAX_MODEL_CALLS,
                     "review_max_calls": 0,
                     "review_model": None,
@@ -169,7 +180,7 @@ class ProjectService:
                     "review_max_output_tokens": 0,
                     "semantic_correction_max_calls": 0,
                     "semantic_correction_max_output_tokens": 0,
-                    "message": "项目分析按实际实现路线覆盖必要基础；本地检查发现问题时至多修正一次，排队与分析共用不超过一分钟的预算。内容仍需学生检查确认" if configured else "项目分析不可用：服务端未配置模型；仍可直接搜索知识点"},
+                    "message": "项目分析只生成一次，不进行名称或内容评判、不自动修正；排队与生成共用不超过一分钟的预算。" if configured else "项目分析不可用：服务端未配置模型；仍可直接搜索知识点"},
                 "project_search": {"recommendation_policy": "helpful-video-v1" if self.settings.fast_video_recommendations_enabled else "related-reference-v1",
                     "match_policy": "targeted-video-v2" if self.settings.fast_video_recommendations_enabled else "related-reference-v1",
                     "max_batches": 1 if self.settings.fast_video_recommendations_enabled else self.settings.project_max_batches,
@@ -583,8 +594,8 @@ class ProjectService:
         points = [deepcopy(point) for point in confirmation["analysis"]["knowledge_points"]
                   if point["id"] in confirmation["selected_ids"]]
         for point in points:
-            point["technology"] = confirmation.get("topic_technologies", {}).get(
-                canonical_search_name(point["name"]), point.get("technology", ""))
+            point["technology"] = _safe_search_technology(confirmation.get("topic_technologies", {}).get(
+                canonical_search_name(point["name"]), point.get("technology", "")))
 
         def publish(snapshot):
             latest = self.db.version(project_id, version)
@@ -702,8 +713,8 @@ class ProjectService:
                   if point["id"] in selected_ids]
         # Reviewed technical context stays bound to this immutable version.
         for point in points:
-            point["technology"] = confirmation.get("topic_technologies", {}).get(
-                canonical_search_name(point["name"]), point.get("technology", ""))
+            point["technology"] = _safe_search_technology(confirmation.get("topic_technologies", {}).get(
+                canonical_search_name(point["name"]), point.get("technology", "")))
         started = datetime.fromisoformat(data["search_started_at"])
         limit = min(data["budgets"]["deadline_seconds"], self.settings.fast_video_deadline_seconds)
         remaining = max(0, limit - (datetime.now(timezone.utc) - started).total_seconds())

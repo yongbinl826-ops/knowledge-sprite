@@ -1,4 +1,4 @@
-"""Offline inventory integrity tests; no claim of semantic completeness."""
+"""Historical inventory helper tests; active single-pass analysis rejects wrappers."""
 from copy import deepcopy
 import json
 
@@ -230,9 +230,9 @@ def test_prompt_requires_source_first_inventory_not_posthoc_point_copy_or_reason
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("defect", ["malformed_inventory", "invalid_source_quote", "sensitive_inventory"])
-async def test_legacy_inventory_is_rejected_then_repaired_as_flat_output_without_private_inventory(defect):
+async def test_legacy_inventory_wrapper_fails_format_once_without_repair(defect):
     import httpx
-    from backend.app.project_analysis import ProjectAnalyzer
+    from backend.app.project_analysis import AnalysisError, ProjectAnalyzer
     from tests.professional_contract_support import draft_with_inventory
     from tests.test_project_analysis import flat_analysis_fixture, request, response, settings
 
@@ -250,31 +250,22 @@ async def test_legacy_inventory_is_rejected_then_repaired_as_flat_output_without
 
     def reply(req):
         calls.append(json.loads(req.content))
-        assert len(calls) <= 2
-        if len(calls) == 1:
-            return response(first)
-        payload = json.loads(calls[-1]["messages"][1]["content"])
-        assert payload["project"] == project.model_dump()
-        assert payload["repair_required"] is True and payload["validation_feedback"]
-        assert "reconstruction_required" not in payload
-        assert "implementation_inventory" not in payload
-        assert "previous_analysis" not in payload and "rejected_inventory" not in payload
-        assert "not present in the project" not in json.dumps(payload)
-        assert configured.llm_api_key not in json.dumps(payload)
-        return response(final)
+        assert len(calls) == 1
+        return response(first)
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
-        result = await ProjectAnalyzer(configured, client).analyze(project, on_analysis_attempt=audits.append)
-    assert len(calls) == 2
-    assert [row["outcome"] for row in audits] == ["rejected", "accepted"]
-    assert audits[-1]["analysis"] == final
+        with pytest.raises(AnalysisError) as error:
+            await ProjectAnalyzer(configured, client).analyze(project, on_analysis_attempt=audits.append)
+    assert error.value.code == "schema" and "未自动重试" in error.value.message
+    assert len(calls) == 1
+    assert [row["outcome"] for row in audits] == ["rejected"]
     assert all("implementation_inventory" not in row for row in audits)
-    assert len(result.knowledge_points) == len(final["knowledge_points"])
+    assert "not present in the project" not in json.dumps(error.value.diagnostics)
     assert first == original_first
     if defect == "sensitive_inventory":
         assert audits[0]["analysis"] is None
         assert "implementation_inventory" not in audits[0]
-        assert configured.llm_api_key not in json.dumps(audits)
+        assert configured.llm_api_key not in json.dumps(audits) + json.dumps(error.value.diagnostics)
     else:
         # A legacy envelope remains complete untrusted audit data, never an
         # accepted analysis or privileged implementation inventory.
@@ -284,7 +275,7 @@ async def test_legacy_inventory_is_rejected_then_repaired_as_flat_output_without
 @pytest.mark.asyncio
 async def test_valid_legacy_inventory_does_not_make_an_invalid_analysis_acceptable():
     import httpx
-    from backend.app.project_analysis import ProjectAnalyzer
+    from backend.app.project_analysis import AnalysisError, ProjectAnalyzer
     from tests.professional_contract_support import draft_with_inventory
     from tests.test_project_analysis import flat_analysis_fixture, request, response, settings
 
@@ -299,21 +290,15 @@ async def test_valid_legacy_inventory_does_not_make_an_invalid_analysis_acceptab
 
     def reply(req):
         calls.append(json.loads(req.content))
-        assert len(calls) <= 2
-        if len(calls) == 1:
-            return response(first)
-        payload = json.loads(calls[-1]["messages"][1]["content"])
-        assert payload["project"] == project.model_dump()
-        assert payload["repair_required"] is True and payload["validation_feedback"]
-        assert "reconstruction_required" not in payload and "implementation_inventory" not in payload
-        assert "previous_analysis" not in payload
-        assert "PRIVATE_INVENTORY_OBLIGATION" not in json.dumps(payload)
-        return response(final)
+        assert len(calls) == 1
+        return response(first)
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
-        await ProjectAnalyzer(settings(), client).analyze(project, on_analysis_attempt=audits.append)
-    assert len(calls) == 2
-    assert [row["outcome"] for row in audits] == ["rejected", "accepted"]
+        with pytest.raises(AnalysisError) as error:
+            await ProjectAnalyzer(settings(), client).analyze(project, on_analysis_attempt=audits.append)
+    assert error.value.code == "schema" and len(calls) == 1
+    assert [row["outcome"] for row in audits] == ["rejected"]
     assert first == original_first and first["inventory"] == frozen
-    assert audits[0]["analysis"] == original_first and audits[1]["analysis"] == final
+    assert audits[0]["analysis"] == original_first
+    assert "PRIVATE_INVENTORY_OBLIGATION" not in json.dumps(error.value.diagnostics)
     assert all("implementation_inventory" not in row and "coverage_review" not in row for row in audits)

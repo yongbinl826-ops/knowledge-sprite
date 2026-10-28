@@ -1,0 +1,113 @@
+{
+  "provenance": "Saved v4 candidate, read-only export; no model generation. Repair responses in tests are separately handwritten synthetic fixtures.",
+  "input": {
+    "name": "用Python做一个接球小游戏",
+    "requirements": "用方向键移动挡板，接住下落的小球记录分数，漏接后可以重新开始",
+    "student_level": "any",
+    "language": "zh",
+    "project_context": "",
+    "technical_version": "",
+    "preferred_platforms": [
+      "bilibili",
+      "icourse163"
+    ]
+  },
+  "analysis": {
+    "scope": "本项目实现一个 Python + pygame 桌面接球小游戏：挡板由左右方向键控制，小球从顶部随机横坐标下落，接住加分，漏接后进入结束状态并可重新开始。路线限定为单球、无外部素材、固定窗口和实时游戏循环，重点讲清输入事件、位置更新、碰撞判定、分数与状态重置如何协同。",
+    "technical_plan": "采用 pygame 单窗口路线。启动时 import pygame、random、sys，pygame.init() 后创建 800×600 窗口；挡板为 100×20 的 Rect，底部居中；球半径 10，浮点圆心从 y=-10 开始，vy=300 像素/秒向下，x 在 [10, 790] 内随机。主循环每帧先处理事件：收到 QUIT 退出；GAME_OVER 状态下按 R 或空格调用重置函数。随后读取 pygame.key.get_pressed()，用 (右-左)*400*dt 移动挡板，并将挡板 left 限制在 [0, 700]。仅在 PLAYING 状态更新球心 y += vy*dt；由圆心和半径构造球的外接 Rect，调用 paddle.colliderect(ball_rect)。碰撞为真则 score 加 1，把球移回顶部并重新随机 x；若球顶超过窗口高度则切换到 GAME_OVER。绘制顺序为：fill 背景、draw.rect 挡板、draw.circle 球、font.render 分数并 blit、display.flip。clock.tick(60) 返回毫秒并换算 dt 秒。重启时 score=0、挡板居中、球置顶随机 x、vy 恢复正值、state=PLAYING。窗口关闭时 pygame.quit()。",
+    "assumptions": [
+      "运行环境预装 Python 3 和 pygame，项目不依赖网络或外部图片、音频素材。",
+      "窗口固定为 800×600 像素，挡板 100×20，球半径 10，球速约 300 像素/秒。",
+      "只实现单球、直线下落；不加入多球、关卡、音效、最高分持久化等未要求功能。",
+      "挡板位于窗口底部附近，左右方向键控制水平移动，移动速度约 400 像素/秒。",
+      "游戏结束时按 R 或空格重新开始，游戏中不响应重启键。",
+      "分数只统计接住次数，每次接住加 1 分；漏接后保留并显示最终分数。"
+    ],
+    "knowledge_points": [
+      {
+        "name": "Pygame 初始化与显示表面",
+        "description": "pygame.init() 初始化各子模块；pygame.display.set_mode((w,h)) 返回窗口显示 Surface，后续绘制都写入该对象，pygame.quit() 释放资源。项目在启动时创建 800×600 窗口并保留 screen 引用，收到退出事件后清理。",
+        "technology": "pygame"
+      },
+      {
+        "name": "游戏主循环",
+        "description": "游戏主循环是 while 循环，每轮按事件处理、状态更新、绘制、刷新显示的固定顺序执行；循环条件由运行标志控制。项目用它让挡板、球和分数持续更新，直到窗口关闭。"
+      },
+      {
+        "name": "屏幕坐标系与像素单位",
+        "description": "窗口坐标以左上角为原点，x 向右、y 向下，单位是像素；矩形位置和尺寸都用整数像素表示，越靠下 y 越大。项目据此把挡板放在底部，用 y 超过窗口高度判断球漏接，并按像素范围限制挡板。",
+        "technology": "pygame"
+      },
+      {
+        "name": "事件队列与事件对象",
+        "description": "pygame.event.get() 返回本帧待处理的事件列表，每个事件有 type 字段，按键事件还有 key 字段；程序遍历列表，按字段分支处理。项目用它识别 QUIT 和 GAME_OVER 状态下的 R/空格重启键，而不是直接调用按键处理函数。",
+        "technology": "pygame"
+      },
+      {
+        "name": "持续按键状态与挡板移动",
+        "description": "pygame.key.get_pressed() 返回按键盘索引的布尔序列，表示当前仍被按住的键，适合每帧读取；它不同于只触发一次的 KEYDOWN 事件。项目每帧读取左右方向键，合成为 -1、0、1 的方向值，再按速度和时间移动挡板。",
+        "technology": "pygame"
+      },
+      {
+        "name": "帧时钟与时间步长",
+        "description": "pygame.time.Clock.tick(fps) 等待并返回上一帧到本帧经过的毫秒数，除以 1000 得到秒单位的 dt；用速度乘 dt 更新位置可使运动不随帧率改变。项目以 60 FPS 调用它，并用 dt 同时驱动球的下落和挡板移动。",
+        "technology": "pygame"
+      },
+      {
+        "name": "矩形 Rect 的定位与派生",
+        "description": "pygame.Rect 用 left、top、width、height 四个整数描述轴对齐矩形，并提供 center、right 等派生属性；修改属性会改变矩形覆盖的像素区域。项目用 Rect 表示挡板，并由球的浮点圆心和半径 round 后派生出包围矩形供碰撞使用。",
+        "technology": "pygame"
+      },
+      {
+        "name": "浮点位置与速度积分",
+        "description": "实体的位置可用浮点数保存以避免像素取整累积误差，速度用像素/秒表示；每帧执行 y += vy*dt（向下为正）完成位置积分，绘制或碰撞前再转成整数坐标。项目用浮点圆心保存球的位置，vy 取正值让球下落。"
+      },
+      {
+        "name": "轴对齐矩形碰撞检测",
+        "description": "colliderect(other) 比较两个 Rect 在 x、y 轴上的投影是否同时重叠，返回布尔值；重叠计算由 pygame 完成，不需要手写边界比较。项目每帧在球移动后调用 paddle.colliderect(ball_rect)，为接住球和加分提供判定。",
+        "technology": "pygame"
+      },
+      {
+        "name": "圆形绘制与包围盒近似",
+        "description": "pygame.draw.circle 以整数圆心和半径绘制圆；若碰撞使用边长为 2r 的外接正方形 Rect，则圆与挡板的接触会被近似为轴对齐矩形相交。项目用这种方式绘制小球，并接受包围盒近似带来的轻微边缘误差。",
+        "technology": "pygame"
+      },
+      {
+        "name": "随机数生成球的横坐标",
+        "description": "random.uniform(a,b) 返回区间内的浮点随机数，random.randint(a,b) 返回整数；取值需落在有效范围内才能保证对象不越界。项目每次发球或接住后，在 [radius, 窗口宽-radius] 内随机选择球心 x，使球从顶部不同位置下落。",
+        "technology": "random"
+      },
+      {
+        "name": "数值截断与边界约束",
+        "description": "将数值限制在 [lo, hi] 内可用 min(max(value, lo), hi) 实现，防止对象移出允许区域。项目在挡板按方向移动后把其 left 限制在 0 到窗口宽减挡板宽之间，保证挡板始终完整可见。"
+      },
+      {
+        "name": "有限状态机与游戏状态",
+        "description": "用有限个状态（如 PLAYING、GAME_OVER）表示当前允许的行为，状态转移由明确条件触发；更新和输入处理按状态分支。项目只在 PLAYING 时移动球和检测碰撞，漏接后进入 GAME_OVER，重启键再把状态切回 PLAYING。"
+      },
+      {
+        "name": "得分累加与碰撞响应",
+        "description": "分数是程序维护的整数状态，碰撞响应应在一次接触中只执行一次；接住后立即把球移回顶部并重新随机横坐标，可避免下一帧仍重叠而重复加分。项目在 colliderect 为真时 score += 1，并重置球的 y 和 x，保持下落速度继续游戏。"
+      },
+      {
+        "name": "漏接判定与游戏结束",
+        "description": "当球的包围盒顶部（或圆心减半径）超过窗口底部时，表示球已从挡板下方漏过；该条件只在 PLAYING 状态检查。项目据此把状态设为 GAME_OVER 并停止更新球的位置，保留最终分数供显示。"
+      },
+      {
+        "name": "重启时的状态重置",
+        "description": "重新开始需要把分数、实体位置、速度和状态全部恢复到初始值，而不只是隐藏结束画面；重置顺序要保证下一帧从合法状态开始。项目在 GAME_OVER 下按 R 或空格时把 score 归零、挡板居中、球置于顶部随机 x、vy 恢复正值并切回 PLAYING。"
+      },
+      {
+        "name": "绘制顺序与显示刷新",
+        "description": "每帧先用背景色 fill 清除 Surface，再按从远到近的顺序绘制挡板、球和分数，最后 display.flip() 把完整帧呈现到窗口；清屏可避免上一帧残影。项目按此顺序组织绘制，保证球和分数覆盖在背景之上。",
+        "technology": "pygame"
+      },
+      {
+        "name": "字体文本渲染为表面",
+        "description": "pygame.font.Font(None, size) 创建默认字体对象，render(text, antialias, color) 返回包含文本的新 Surface，再通过 blit 放到目标坐标；分数需先转成字符串。项目每帧把 score 渲染成文本并放在左上角显示。",
+        "technology": "pygame"
+      }
+    ]
+  },
+  "recorded_total_seconds": 57.716753
+}

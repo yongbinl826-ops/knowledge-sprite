@@ -1,11 +1,11 @@
-"""Actual retained failure replays + synthetic boundaries; no paid/network calls."""
+"""Historical content replay and legacy checker units; no paid/network calls."""
 from copy import deepcopy
 import json
 from pathlib import Path
 
 import httpx
 import pytest
-from tests.professional_contract_support import unrepaired_quality_response, flat_proposal
+from tests.professional_contract_support import flat_proposal
 
 from backend.app import project_analysis as module
 from backend.app.config import Settings
@@ -52,60 +52,60 @@ def response(value):
     ("browser_flashcards_intermediate","ambiguous_tool_namespace",["knowledge_points",2,"name"]),
 ])
 @pytest.mark.asyncio
-async def test_actual_failure_gets_one_repair_on_real_professional_branch(case,code,location):
-    actual=retained(case);bad=deepcopy(actual["analysis"])
-    # Missing-context control: the actual retained JavaScript technology now
-    # legitimately disambiguates a canonical keyboard concept.
-    if case.startswith('browser'):
-        bad['knowledge_points'][2]['technology']=''
-    good=corrected(case,bad);calls=[]
-    def reply(request):
-        calls.append(json.loads(request.content))
-        proposal = flat_proposal(bad if len(calls)==1 else good)
-        return response(proposal)
-    project=ProjectInput.model_validate(actual["project"])
-    async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
-        result=await module.ProjectAnalyzer(config(),client).analyze(project)
-    assert len(calls)==2
-    repair=json.loads(calls[1]["messages"][1]["content"])
-    assert repair["project"]==actual["project"]
-    assert repair["previous_analysis"]["technical_plan"]==bad["technical_plan"]
-    issue=next(row for row in repair["validation_feedback"] if row["code"]==code)
-    assert issue["location"]==location
+async def test_historical_numeric_and_namespace_findings_preserve_original_content(case, code, location, monkeypatch):
+    from tests.test_professional_title_quality import generate_once
+    actual = retained(case)
+    original = deepcopy(actual["analysis"])
+    if case.startswith("browser"):
+        original["knowledge_points"][2]["technology"] = ""
+    proposal = flat_proposal(original)
+    def forbidden(*_args, **_kwargs):
+        pytest.fail("Numeric or namespace judgement must not run")
+    monkeypatch.setattr(module, "professional_contract_issues", forbidden)
+    result, calls = await generate_once(proposal, ProjectInput.model_validate(actual["project"]))
+    assert len(calls) == 1
+    sent = json.loads(calls[0]["messages"][1]["content"])
+    assert sent["project"] == actual["project"]
+    assert result.technical_plan == original["technical_plan"]
     assert not result.knowledge_points[0].learning_skills and result.learner_profile is None
-    assert "learner_profile" not in repair["output_schema"]["properties"]
-    assert not {"project_task","concepts","learning_skills","practice_check"}&repair["output_schema"]["$defs"]["GeneratedConcept"]["properties"].keys()
+    assert "learner_profile" not in sent["output_schema"]["properties"]
+    assert not {"project_task", "concepts", "learning_skills", "practice_check"} & sent["output_schema"]["$defs"]["GeneratedConcept"]["properties"].keys()
     if case.startswith("arduino"):
-        assert result.technical_plan==good["technical_plan"]
-        assert result.knowledge_points[5].name=="按键消抖"
+        assert "PWM 引脚与 ADC 均为板载 10 位" in result.technical_plan
     else:
-        assert result.knowledge_points[2].name=="键盘事件"
-        assert result.knowledge_points[2].technology=="JavaScript"
-    assert actual==retained(case) # The retained fixture and input are never rewritten.
+        assert result.knowledge_points[2].technology == ""
+    # Acceptance is a format/safety decision, not proof these claims are true.
+    assert actual == retained(case)
 
 
 @pytest.mark.parametrize("case,code",[("arduino_pot_button_beginner","numeric_api_contract"),("browser_flashcards_intermediate","ambiguous_tool_namespace")])
 @pytest.mark.asyncio
-async def test_repeated_actual_failure_stops_bounded_with_safe_coordinates(case,code):
-    actual=retained(case);calls=[];bad=deepcopy(actual['analysis'])
-    if case.startswith('browser'):
-        bad['knowledge_points'][2]['technology']=''
+async def test_malformed_schema_still_fails_once_with_safe_diagnostics(case, code):
+    actual = retained(case)
+    proposal = flat_proposal(actual["analysis"])
+    del proposal["knowledge_points"][0]["description"]
+    calls, audit, rejected = [], [], []
     def reply(request):
-        calls.append(request)
-        payload = json.loads(json.loads(request.content)["messages"][1]["content"])
-        proposal = flat_proposal(bad)
-        return response(unrepaired_quality_response(payload, proposal, actual["project"]))
+        calls.append(json.loads(request.content))
+        assert len(calls) == 1, "Schema failure must not start a repair request"
+        return response(proposal)
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         with pytest.raises(module.AnalysisError) as error:
-            await module.ProjectAnalyzer(config(),client).analyze(ProjectInput.model_validate(actual["project"]))
-    assert len(calls)==2 and error.value.code=="quality"
-    assert any(row.get("code")==code for row in error.value.diagnostics)
-    serialized=json.dumps(error.value.diagnostics,ensure_ascii=False)
+            await module.ProjectAnalyzer(config(), client).analyze(
+                ProjectInput.model_validate(actual["project"]),
+                on_analysis_attempt=audit.append, on_rejected_attempt=rejected.append)
+    assert len(calls) == len(audit) == len(rejected) == 1
+    assert error.value.code == "schema"
+    assert audit[0]["validation_scope"] == "schema_safety_limits"
+    assert audit[0]["analysis"] == rejected[0]["analysis"] == proposal
+    assert "advisories" not in audit[0]
+    serialized = json.dumps(error.value.diagnostics, ensure_ascii=False)
     assert "previous_analysis" not in serialized and "均为板载" not in serialized and "SYNTHETIC_NOT_A_KEY" not in serialized
-    history=error.value.diagnostics[-1]["attempts"]
-    assert [row["phase"] for row in history] == ["generation", "repair"]
-    assert [row["category"] for row in history] == ["quality", "quality"]
-    assert all(any(issue["code"]==code for issue in row["issues"]) for row in history)
+    history = error.value.diagnostics[-1]["attempts"]
+    assert [row["phase"] for row in history] == ["generation"]
+    assert [row["category"] for row in history] == ["schema"]
+    assert code not in serialized
+    assert actual == retained(case)
 
 
 @pytest.mark.parametrize("text",[
@@ -206,19 +206,21 @@ def test_nonweb_project_and_saved_legacy_analysis_are_not_rewritten():
     project=ProjectInput(name="Qt 桌面程序",requirements="使用PySide和Qt事件处理输入。")
     assert not module.professional_contract_issues(project,document)
     assert document.model_dump()==snapshot
-    # Loading saved v1 data still accepts the historical text. The new rule is
-    # invoked by fresh ProjectAnalyzer generation only, never model validation.
+    # Loading saved v1 data still accepts the historical text. This legacy
+    # helper is available to direct tests, but fresh generation no longer calls it.
     ar=retained("arduino_pot_button_beginner");saved=AnalysisDocument.model_validate(ar["analysis"])
     before=saved.model_dump();assert module.professional_contract_issues(ProjectInput.model_validate(ar["project"]),saved)
     assert saved.model_dump()==before and AnalysisDocument.model_validate(before).model_dump()==before
 
 
 def test_prompt_preserves_numeric_and_ecosystem_contract_without_expanded_fields():
-    assert module.ANALYSIS_PROMPT_VERSION=="project-analysis-v8-compact-foundations"
+    assert module.ANALYSIS_PROMPT_VERSION=="project-analysis-v9-textbook-single-generation"
     assert "types/units" in module.SYSTEM_PROMPT
-    assert "relevant input/output conditions" in module.SYSTEM_PROMPT
-    assert "interfaces, types, units, ordering, identity matching and data roles" in module.SYSTEM_PROMPT
+    assert "necessary input/output conditions" in module.SYSTEM_PROMPT
+    assert "Work backwards from each required behavior to the mechanisms it depends on" in module.SYSTEM_PROMPT
+    assert "Generate the requested analysis once" in module.SYSTEM_PROMPT
+    assert "Do not add a separate review, naming critique, correction round" in module.SYSTEM_PROMPT
     assert "technology is one short actual language/tool/framework identifier" in module.SYSTEM_PROMPT
     assert "or an empty string for a general concept" in module.SYSTEM_PROMPT
-    assert module.ANALYSIS_MAX_MODEL_CALLS==2
-    assert module.ANALYSIS_MAX_ATTEMPTS==2
+    assert module.ANALYSIS_MAX_MODEL_CALLS == 1
+    assert module.ANALYSIS_MAX_ATTEMPTS == 1

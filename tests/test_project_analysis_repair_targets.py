@@ -1,4 +1,4 @@
-"""Offline checks for explicit candidate coordinates in the single repair call."""
+"""Historical repair-coordinate helpers and current single-generation boundaries."""
 from copy import deepcopy
 
 import pytest
@@ -6,7 +6,7 @@ import pytest
 from backend.app.config import Settings
 from backend.app.project_analysis import GeneratedConceptList, ProjectAnalyzer, _quality_repair_targets
 from backend.app.project_models import ProjectInput
-from tests.professional_contract_support import coverage_completion, draft_with_inventory, is_semantic_review_payload, semantic_review_pass_for_payload
+from tests.professional_contract_support import coverage_completion, draft_with_inventory, is_semantic_review_payload, semantic_review_pass_for_payload, successful_analysis_response, unrepaired_quality_response
 
 
 PROJECT = ProjectInput(name="本地图表", requirements="按类别统计数据并显示柱状图")
@@ -76,11 +76,12 @@ async def run_analyzer(monkeypatch, responses, quality_issues=None):
         if is_semantic_review_payload(payload):
             assert len(calls) == 2
             return semantic_review_pass_for_payload(payload)
-        return deepcopy(responses[len(calls) - 1])
+        return successful_analysis_response(payload, responses[len(calls) - 1], PROJECT)
     monkeypatch.setattr("backend.app.project_analysis.complete_json", complete)
     if quality_issues is not None:
-        issues = iter([quality_issues, [], []])
-        monkeypatch.setattr("backend.app.project_analysis.professional_contract_issues", lambda *_: next(issues))
+        def forbidden_quality_gate(*_args, **_kwargs):
+            pytest.fail("Single-generation analysis must not run a content quality gate")
+        monkeypatch.setattr("backend.app.project_analysis.professional_contract_issues", forbidden_quality_gate)
     settings = Settings(llm_provider="openai_compatible", llm_base_url="https://offline.invalid/v1",
                         llm_api_key="offline-test-token", llm_model="offline-model")
     result = await ProjectAnalyzer(settings).analyze(PROJECT)
@@ -98,27 +99,37 @@ async def test_valid_first_draft_needs_no_extra_call_or_repair_targets(monkeypat
 
 
 @pytest.mark.asyncio
-async def test_repair_payload_locates_actual_rejected_name_without_rewriting_it(monkeypatch):
+async def test_generation_retains_a_formerly_rejected_name_without_repair_payload(monkeypatch):
     rejected = proposal()
     rejected["knowledge_points"][0]["name"] = "Python入门"
     draft = draft_with_inventory(rejected, PROJECT)
     result, calls = await run_analyzer(monkeypatch, [rejected, proposal()])
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert "repair_targets" not in calls[0]
-    assert calls[1]["previous_analysis"] == rejected
-    assert "implementation_inventory" not in calls[1]
-    assert any(target["location"] == ["knowledge_points", 0, "name"]
-               and target["current_value"] == "Python入门" and target["code"] == "broad_subject"
-               for target in calls[1]["repair_targets"])
-    assert result.knowledge_points[0].name == "数组"
+    assert "previous_analysis" not in calls[0] and "validation_feedback" not in calls[0]
+    assert "implementation_inventory" not in calls[0]
+    assert result.knowledge_points[0].name == "Python入门"
+    assert result.knowledge_points[0].description == rejected["knowledge_points"][0]["description"]
 
 
 @pytest.mark.asyncio
-async def test_unlocatable_issue_remains_in_original_feedback_without_an_invented_target(monkeypatch):
+async def test_generation_does_not_invoke_legacy_content_issues_or_invent_feedback(monkeypatch):
     issue = {"code": "numeric_api_contract", "point_id": "k99", "message": "Original static feedback."}
     draft = draft_with_inventory(proposal(), PROJECT)
     _, calls = await run_analyzer(monkeypatch, [proposal(), proposal()], [issue])
-    assert len(calls) == 2
-    assert calls[1]["validation_feedback"] == [{"type": "knowledge_term_quality", **issue}]
-    assert calls[1]["repair_targets"] == []
-    assert calls[1]["previous_analysis"] == proposal()
+    assert len(calls) == 1
+    assert "validation_feedback" not in calls[0]
+    assert "repair_targets" not in calls[0]
+    assert "previous_analysis" not in calls[0]
+
+
+def test_successful_name_patch_fixture_changes_only_authorized_names():
+    original, repaired = proposal(), proposal()
+    original["knowledge_points"][0]["name"] = "Python入门"
+    repaired["knowledge_points"][2]["name"] = "未授权名称不会进入补丁"
+    payload = {"repair_format": "name_patch", "previous_analysis": original,
+               "allowed_indices": [0, 1], "required_indices": [0]}
+    assert successful_analysis_response(payload, repaired, PROJECT) == {"name_repairs": [
+        {"index": 0, "original_name": "Python入门", "name": "数组"}]}
+    assert unrepaired_quality_response(payload, repaired, PROJECT) == {"name_repairs": [
+        {"index": 0, "original_name": "Python入门", "name": "Python入门"}]}

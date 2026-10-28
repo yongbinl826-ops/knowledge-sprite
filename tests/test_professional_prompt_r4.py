@@ -7,7 +7,7 @@ from tests.professional_contract_support import assert_simple_generation_schema
 
 
 def test_names_describe_one_reusable_topic_without_duplicate_or_unrelated_bundles():
-    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v8-compact-foundations"
+    assert module.ANALYSIS_PROMPT_VERSION == "project-analysis-v9-textbook-single-generation"
     assert "one point teaches one reusable principle" in module.SYSTEM_PROMPT
     assert "combine its repeated project uses" in module.SYSTEM_PROMPT
     assert "Never split, merge or pad to reach a preferred count" in module.SYSTEM_PROMPT
@@ -38,11 +38,12 @@ def test_mechanism_first_protocol_reaches_prompt_and_schema_without_extra_output
 
 
 def test_new_name_guidance_adds_no_critic_teaching_gate_or_extra_model_call():
-    assert module.ANALYSIS_MAX_ATTEMPTS == 2 and module.ANALYSIS_MAX_MODEL_CALLS == 2
+    assert module.ANALYSIS_MAX_ATTEMPTS == 1 and module.ANALYSIS_MAX_MODEL_CALLS == 1
     assert "There is no target count or preferred range" in module.SYSTEM_PROMPT
     assert "Never split, merge or pad to reach a preferred count" in module.SYSTEM_PROMPT
     assert "Each point contains only name, description and optional technology" in module.SYSTEM_PROMPT
-    assert "Do not output this check, an inventory, evidence ledger or a claim of verified completeness" in module.SYSTEM_PROMPT
+    assert "Do not add a separate review, naming critique, correction round" in module.SYSTEM_PROMPT
+    assert "Internally check" not in str(module.generation_schema())
     tree = ast.parse(Path(module.__file__).read_text(encoding="utf-8"))
     analyzer = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "ProjectAnalyzer")
     calls = [n for n in ast.walk(analyzer) if isinstance(n, ast.Call)]

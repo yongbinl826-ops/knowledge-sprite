@@ -179,7 +179,7 @@ async def test_wall_clock_timeout_bounds_slow_response(monkeypatch):
 
 @pytest.mark.parametrize("invalid,expected", [("```json\n{}\n```", "invalid_json"), ({"scope": "字段不足"}, "schema"), (["wrong-root"], "schema")])
 @pytest.mark.asyncio
-async def test_invalid_response_only_one_repair(invalid, expected):
+async def test_invalid_response_never_retries(invalid, expected):
     calls = []
     def respond(req):
         calls.append(json.loads(req.content))
@@ -188,12 +188,12 @@ async def test_invalid_response_only_one_repair(invalid, expected):
         with pytest.raises(AnalysisError) as exc:
             await ProjectAnalyzer(settings(), client).analyze(request())
     assert exc.value.code == expected
-    assert len(calls) == ANALYSIS_MAX_ATTEMPTS == 2
-    assert "validation_feedback" in json.loads(calls[1]["messages"][1]["content"])
+    assert len(calls) == ANALYSIS_MAX_ATTEMPTS == 1
+    assert "validation_feedback" not in json.loads(calls[0]["messages"][1]["content"])
 
 
 @pytest.mark.asyncio
-async def test_structural_repair_succeeds_without_trusting_error_values():
+async def test_structural_failure_stops_without_leaking_error_values():
     calls = []
     def respond(req):
         calls.append(json.loads(req.content))
@@ -203,18 +203,13 @@ async def test_structural_repair_succeeds_without_trusting_error_values():
             return response(body)
         return response(flat_analysis_fixture())
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        result = await ProjectAnalyzer(settings(), client).analyze(request())
-    assert len(result.knowledge_points) == 2
-    assert "private-provider-field" not in calls[1]["messages"][1]["content"]
-    from backend.app.project_analysis import NORMALIZATION_PROMPT
-    assert calls[1]["messages"][0]["content"] == NORMALIZATION_PROMPT
-    repaired_payload = json.loads(calls[1]["messages"][1]["content"])
-    assert repaired_payload["repair_required"] is True
-    assert "previous_analysis" not in repaired_payload
-    assert repaired_payload["limits"] == {"knowledge_points": 30}
-    assert repaired_payload["output_schema"]["properties"]["knowledge_points"]["maxItems"] == 30
-    assert "The hard ceiling is 30 knowledge points" in NORMALIZATION_PROMPT
-    assert "separate genuinely independent principles" in NORMALIZATION_PROMPT
+        with pytest.raises(AnalysisError) as exc:
+            await ProjectAnalyzer(settings(), client).analyze(request())
+    assert exc.value.code == "schema" and len(calls) == 1
+    assert "private-provider-field" not in json.dumps(exc.value.diagnostics)
+    sent = json.loads(calls[0]["messages"][1]["content"])
+    assert "repair_required" not in sent and "previous_analysis" not in sent
+    assert sent["limits"] == {"knowledge_points": 30}
 
 
 @pytest.mark.parametrize("mutation", [
@@ -333,22 +328,22 @@ async def test_excess_model_response_length_reports_server_configuration(envelop
     (lambda d: d.update(scope="private-offline-token"), "schema"),
 ])
 @pytest.mark.asyncio
-async def test_model_cannot_mark_mastery_emit_secret_or_use_broad_subject(mutate, expected):
+async def test_model_identity_and_secret_guards_remain_but_titles_are_not_judged(mutate, expected):
     body = flat_analysis_fixture()
     mutate(body)
     calls = []
     def respond(req):
         calls.append(req)
-        if expected == "quality":
-            assert len(calls) <= 4
-            payload = json.loads(json.loads(req.content)["messages"][1]["content"])
-            return response(unrepaired_quality_response(payload, body, request()))
-        return response(draft_with_inventory(body, request()) if len(calls) == 1 else coverage_completion(body, request()))
+        return response(body)
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+        if expected == "quality":
+            result = await ProjectAnalyzer(settings(), client).analyze(request())
+            assert result.knowledge_points[0].name == "Python" and len(calls) == 1
+            return
         with pytest.raises(AnalysisError) as exc:
             await ProjectAnalyzer(settings(), client).analyze(request())
     assert exc.value.code == expected
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert "private-offline-token" not in exc.value.message
 
 
@@ -369,7 +364,7 @@ async def test_analysis_prompt_is_independent_and_injection_remains_user_data():
         await ProjectAnalyzer(settings(), client).analyze(ProjectInput(name="成绩工具", requirements=attack))
         expanded = await OpenAICompatibleLLM(settings(), client).expand("Excel", "本地统计")
     assert expanded == ["Excel 读取"]
-    assert "knowledge needed to implement a project" in calls[0]["messages"][0]["content"]
+    assert "textbook-style list of the professional concepts needed to implement a project" in calls[0]["messages"][0]["content"]
     assert "classify untrusted course text" not in calls[0]["messages"][0]["content"]
     assert attack in calls[0]["messages"][1]["content"]
     assert attack not in calls[0]["messages"][0]["content"]

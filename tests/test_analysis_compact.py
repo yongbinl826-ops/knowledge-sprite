@@ -8,7 +8,7 @@ import httpx
 import pytest
 
 from backend.app import project_analysis as module
-from backend.app.analysis_compact import COMPACT_REPAIR_PROMPT, COMPACT_SYSTEM_PROMPT
+from backend.app.analysis_compact import COMPACT_SYSTEM_PROMPT
 from backend.app.config import Settings
 from backend.app.llm import complete_json
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer
@@ -18,7 +18,8 @@ from tests.test_project_analysis import flat_analysis_fixture, request, response
 
 def configured(**changes):
     base = Settings(llm_provider="openai_compatible", llm_base_url="https://api.deepseek.com/v1",
-                    llm_model="deepseek-flash", llm_api_key="offline-compact-token")
+                    llm_model="deepseek-flash", llm_api_key="offline-compact-token",
+                    project_analysis_reasoning_effort="low", project_analysis_max_output_tokens=16000)
     return replace(base, **changes)
 
 
@@ -31,11 +32,20 @@ def fake_clock(monkeypatch):
     return state
 
 
+@pytest.fixture(autouse=True)
+def forbid_semantic_review_or_repair(monkeypatch):
+    def forbidden(*_args, **_kwargs):
+        pytest.fail("Single-pass analysis must not judge names/content or repair the response")
+    for name in ("_local_quality_issues", "_partition_quality_issues", "_name_repair_context",
+                 "learning_quality_issues", "textbook_concept_issues", "professional_contract_issues",
+                 "apply_name_repairs"):
+        monkeypatch.setattr(module, name, forbidden, raising=False)
+
+
 def test_prompt_is_flat_conditional_and_independent_of_the_dashboard():
     assert module.SYSTEM_PROMPT == module.GENERATION_PROMPT == COMPACT_SYSTEM_PROMPT
-    assert module.NORMALIZATION_PROMPT == COMPACT_REPAIR_PROMPT
-    assert module.ANALYSIS_PROMPT_VERSION.startswith("project-analysis-v8")
-    assert module.ANALYSIS_MAX_MODEL_CALLS == 2
+    assert module.ANALYSIS_PROMPT_VERSION.startswith("project-analysis-v9")
+    assert module.ANALYSIS_MAX_MODEL_CALLS == module.ANALYSIS_MAX_ATTEMPTS == 1
     assert "30 knowledge points" in COMPACT_SYSTEM_PROMPT
     assert "no target count" in COMPACT_SYSTEM_PROMPT
     assert "conditional checks" in COMPACT_SYSTEM_PROMPT
@@ -43,6 +53,7 @@ def test_prompt_is_flat_conditional_and_independent_of_the_dashboard():
     assert "parameters, return values or side effects" in COMPACT_SYSTEM_PROMPT
     assert "receiving, parsing and readiness" in COMPACT_SYSTEM_PROMPT
     assert "Mentioning it only in technical_plan" in COMPACT_SYSTEM_PROMPT
+    assert "Generate the requested analysis once" in COMPACT_SYSTEM_PROMPT
     for dashboard_specific in ("520d138a", "就业数据", "ECharts", "GeoJSON", "ResizeObserver"):
         assert dashboard_specific not in COMPACT_SYSTEM_PROMPT
     schema = module.generation_schema()
@@ -70,37 +81,42 @@ async def test_first_valid_flat_response_is_delivered_without_review_calls():
     assert all(point.selection == "learn" for point in result.knowledge_points)
     assert audit[0]["outcome"] == "accepted" and audit[0]["phase"] == "generation"
     assert audit[0]["analysis"]["knowledge_points"] == flat_analysis_fixture()["knowledge_points"]
+    assert audit[0]["validation_scope"] == "schema_safety_limits"
+    assert "advisories" not in audit[0]
+    assert calls[0]["max_tokens"] == 16000
+    assert calls[0]["thinking"] == {"type": "enabled"}
+    assert calls[0]["reasoning_effort"] == "low"
+    assert not {"repair_required", "repair_targets", "validation_feedback", "previous_analysis"} & payload.keys()
 
 
-@pytest.mark.parametrize("invalid_kind", ["schema", "quality"])
+@pytest.mark.parametrize("invalid_kind", ["schema", "invalid_json"])
 @pytest.mark.asyncio
-async def test_only_a_detected_problem_uses_one_flat_repair(invalid_kind):
+async def test_unreadable_output_fails_once_without_retry(invalid_kind):
     calls, audit, rejected = [], [], []
     bad = flat_analysis_fixture()
     if invalid_kind == "schema":
         bad.pop("technical_plan")
     else:
-        bad["knowledge_points"][0]["name"] = "Python基础"
+        bad = '{"scope":'
 
     def respond(req):
         calls.append(json.loads(req.content))
-        return response(bad if len(calls) == 1 else flat_analysis_fixture())
+        assert len(calls) == 1
+        return response(bad)
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        result = await ProjectAnalyzer(configured(), client).analyze(
-            request(), on_analysis_attempt=audit.append, on_rejected_attempt=rejected.append)
-    assert len(calls) == len(audit) == 2 and len(rejected) == 1
-    assert len(result.knowledge_points) == 2
-    assert calls[1]["messages"][0]["content"] == COMPACT_REPAIR_PROMPT
-    repair = json.loads(calls[1]["messages"][1]["content"])
-    assert repair["repair_required"] is True and repair["validation_feedback"]
-    assert set(repair["output_schema"]["properties"]) == {"scope", "technical_plan", "assumptions", "knowledge_points"}
-    assert [entry["outcome"] for entry in audit] == ["rejected", "accepted"]
+        with pytest.raises(AnalysisError) as caught:
+            await ProjectAnalyzer(configured(), client).analyze(
+                request(), on_analysis_attempt=audit.append, on_rejected_attempt=rejected.append)
+    assert caught.value.code == invalid_kind
+    assert "未自动重试" in caught.value.message
+    assert len(calls) == len(audit) == len(rejected) == 1
+    assert [entry["outcome"] for entry in audit] == ["rejected"]
     assert rejected[0]["category"] == invalid_kind
 
 
 @pytest.mark.asyncio
-async def test_failed_repair_never_starts_a_third_call_or_returns_the_draft():
+async def test_incomplete_schema_never_starts_another_call_or_returns_the_draft():
     calls = []
 
     def respond(req):
@@ -110,15 +126,14 @@ async def test_failed_repair_never_starts_a_third_call_or_returns_the_draft():
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         with pytest.raises(AnalysisError) as exc:
             await ProjectAnalyzer(configured(), client).analyze(request())
-    assert exc.value.code == "schema" and len(calls) == 2
+    assert exc.value.code == "schema" and len(calls) == 1
 
 
 @pytest.mark.parametrize("count", [1, 2, 30])
 @pytest.mark.asyncio
-async def test_point_count_has_no_padding_or_preferred_count(monkeypatch, count):
+async def test_point_count_has_no_padding_or_preferred_count(count):
     # Isolate the count/transport boundary; these numbered fixtures are not
     # evidence of semantic completeness or good concept names.
-    monkeypatch.setattr(module, "_local_quality_issues", lambda *_: [])
     source = flat_analysis_fixture()
     source["knowledge_points"] = [{"name": f"离线容量概念 {i}", "description": "仅用于容量边界测试。"}
                                   for i in range(count)]
@@ -192,26 +207,25 @@ async def test_legacy_large_settings_cannot_extend_the_total_deadline(monkeypatc
 
 
 @pytest.mark.asyncio
-async def test_repair_receives_only_the_shared_remaining_budget(monkeypatch):
+async def test_single_generation_receives_only_the_shared_remaining_budget(monkeypatch):
     clock, calls = fake_clock(monkeypatch), []
+    deadline = clock.now + 60
+    clock.now += 41  # Represents queue/admission time already spent.
 
     async def complete(*args, **kwargs):
         calls.append(kwargs["timeout_seconds"])
-        if len(calls) == 1:
-            clock.now += 41
-            return {}
         clock.now += 1
         return flat_analysis_fixture()
 
     monkeypatch.setattr(module, "complete_json", complete)
     result = await ProjectAnalyzer(configured(project_analysis_timeout_seconds=180,
-        project_analysis_total_timeout_seconds=600)).analyze(request())
-    assert result.knowledge_points and len(calls) == 2
-    assert 0 < calls[0] <= 60 and 0 < calls[1] <= 19
+        project_analysis_total_timeout_seconds=600)).analyze(request(), deadline=deadline)
+    assert result.knowledge_points and len(calls) == 1
+    assert 0 < calls[0] <= 19
 
 
 @pytest.mark.asyncio
-async def test_insufficient_repair_budget_does_not_start_a_second_request(monkeypatch):
+async def test_late_invalid_schema_does_not_start_a_second_request(monkeypatch):
     clock, calls = fake_clock(monkeypatch), []
 
     async def complete(*args, **kwargs):
@@ -289,7 +303,7 @@ async def test_callback_time_cannot_result_in_a_late_success(monkeypatch):
         await ProjectAnalyzer(configured()).analyze(request(), on_analysis_attempt=record)
     assert exc.value.code == "timeout"
     assert len(audit) == 1
-    assert audit[0]["validation_scope"] == "local_checks"
+    assert audit[0]["validation_scope"] == "schema_safety_limits"
 
 
 @pytest.mark.asyncio
@@ -314,7 +328,7 @@ async def test_effective_policy_and_usage_are_audited_without_mutating_search_se
     assert len(audit) == 1
     row = audit[0]
     assert row["model"] == "deepseek-v4-pro" and row["reasoning_effort"] == "low"
-    assert row["max_output_tokens"] == 6000 and row["prompt_version"].startswith("project-analysis-v8")
+    assert row["max_output_tokens"] == 6000 and row["prompt_version"].startswith("project-analysis-v9")
     assert row["elapsed_seconds"] >= row["model_elapsed_seconds"] >= 0
     assert row["completion"]["usage"]["total_tokens"] == 150
     assert row["completion"]["status"] == "completed" and row["outcome"] == "accepted"

@@ -145,6 +145,15 @@ def is_semantic_review_payload(payload):
 
 def successful_analysis_response(payload, proposal, project):
     """Route an explicitly valid fixture by phase; never repairs invalid responses."""
+    if payload.get("repair_format") == "name_patch":
+        original = payload["previous_analysis"]["knowledge_points"]
+        repaired = proposal["knowledge_points"]
+        assert len(original) == len(repaired), "A name-only fixture cannot change point count"
+        return {"name_repairs": [
+            {"index": index, "original_name": original[index]["name"], "name": repaired[index]["name"]}
+            for index in payload["allowed_indices"]
+            if repaired[index]["name"] != original[index]["name"]
+        ]}
     properties = payload.get("output_schema", {}).get("properties", {})
     if "knowledge_points" in properties:
         return deepcopy(proposal)
@@ -167,8 +176,14 @@ def unchanged_quality_correction(payload):
 
 
 def unrepaired_quality_response(payload, proposal, project):
-    """Four-stage negative fixture; a passing review cannot approve local defects."""
-    if "resolutions" in payload["output_schema"]["properties"]:
+    """Explicit negative fixture; leave local-quality defects unrepaired."""
+    if payload.get("repair_format") == "name_patch":
+        points = payload["previous_analysis"]["knowledge_points"]
+        return {"name_repairs": [
+            {"index": index, "original_name": points[index]["name"], "name": points[index]["name"]}
+            for index in payload["required_indices"]
+        ]}
+    if "resolutions" in payload.get("output_schema", {}).get("properties", {}):
         return unchanged_quality_correction(payload)
     return successful_analysis_response(payload, proposal, project)
 

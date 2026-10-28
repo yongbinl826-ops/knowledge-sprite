@@ -219,7 +219,7 @@ def test_capabilities_advertise_local_checks_and_shared_optional_repair_budget(t
     capability=projects.capabilities()
     analysis=capability['project_analysis']
     assert analysis['mode']=='professional_knowledge_points'
-    assert analysis['max_model_calls']==2
+    assert analysis['max_model_calls']==1
     assert analysis['semantic_review_enabled'] is False
     assert analysis['review_max_calls']==0
     assert analysis['review_max_output_tokens']==0
@@ -230,19 +230,19 @@ def test_capabilities_advertise_local_checks_and_shared_optional_repair_budget(t
     assert analysis['review_reasoning_effort'] is None
     assert analysis['concept_normalization_enabled'] is False
     assert analysis['normalization_max_calls']==0
-    assert analysis['conditional_repair_enabled'] is True
-    assert analysis['repair_max_calls']==1
+    assert analysis['conditional_repair_enabled'] is False
+    assert analysis['repair_max_calls']==0
     assert analysis['repair_max_output_tokens']==completion_tokens
-    assert analysis['generation_stages']==['compact_generation','conditional_repair_if_needed']
+    assert analysis['generation_stages']==['compact_generation']
     assert analysis['coverage_review_enabled'] is False
     assert analysis['implementation_inventory_enabled'] is False
     assert analysis['coverage_completion_max_calls']==0
     assert analysis['coverage_completion_max_output_tokens']==0
     assert analysis['repair_shares_coverage_completion'] is False
-    assert analysis['repair_shares_total_deadline'] is True
+    assert analysis['repair_shares_total_deadline'] is False
     assert analysis['accepted_draft_immediate'] is True
-    assert analysis['local_checks_enabled'] and not analysis['semantic_completeness_certified']
-    assert analysis['concept_naming_policy']=='established_textbook_terms_v2'
+    assert not analysis['local_checks_enabled'] and not analysis['semantic_completeness_certified']
+    assert analysis['concept_naming_policy']=='generation_only'
     assert capability['project_search']['mode']=='professional_terms_v1'
     store.close()
 

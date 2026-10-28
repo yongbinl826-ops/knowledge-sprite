@@ -1,4 +1,4 @@
-"""Finite cross-domain oracles, not a vocabulary-based ontology certificate."""
+"""Legacy checker oracles and unjudged single-pass generation across domains."""
 import asyncio
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -8,9 +8,8 @@ import os
 from pathlib import Path
 import sys
 
-import httpx
 import pytest
-from tests.professional_contract_support import flat_proposal, unrepaired_quality_response
+from tests.professional_contract_support import flat_proposal
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path(os.environ.get("PROFESSIONAL_CONCEPT_SOURCE_ROOT", ROOT)).resolve()
@@ -99,29 +98,17 @@ def test_cross_domain_oracles_preserve_requirements_and_detached_context(case):
 
 
 @pytest.mark.parametrize("name", ORACLE["invalid_quality_names"])
-def test_generation_rejects_broad_subjects_and_single_statement_fragments(name):
-    from backend.app.project_analysis import ProjectAnalyzer, AnalysisError
+def test_generation_preserves_broad_subjects_and_statement_fragments_without_judgement(name, monkeypatch):
+    from backend.app import project_analysis as module
     from backend.app.project_models import ProjectInput
-    from backend.app.config import Settings
-    async def execute():
-        count = 0
-        async def respond(request):
-            nonlocal count
-            count += 1
-            assert count <= 2
-            payload = json.loads(json.loads(request.content)["messages"][-1]["content"])
-            body = flat_proposal(document([{"name": name}]))
-            project_data = {"name": "Local project", "requirements": "Read local data"}
-            body = unrepaired_quality_response(payload, body, project_data)
-            return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {
-                "content": json.dumps(body, ensure_ascii=False)}}]})
-        settings = Settings(llm_provider="openai_compatible", llm_base_url="https://synthetic.invalid/v1",
-                            llm_api_key="synthetic-not-a-secret", llm_model="synthetic")
-        async with httpx.AsyncClient(transport=httpx.MockTransport(respond), trust_env=False) as client:
-            with pytest.raises(AnalysisError) as error:
-                await ProjectAnalyzer(settings, client).analyze(ProjectInput(name="Local project", requirements="Read local data"))
-        assert error.value.code == "quality" and count == 2
-    asyncio.run(execute())
+    from tests.test_professional_title_quality import generate_once
+    def forbidden(*_args, **_kwargs):
+        pytest.fail("Naming/content judgement must not run")
+    monkeypatch.setattr(module, "_local_quality_issues", forbidden)
+    body = flat_proposal(document([{"name": name}]))
+    result, calls = asyncio.run(generate_once(body, ProjectInput(name="Local project", requirements="Read local data")))
+    assert len(calls) == 1 and len(result.knowledge_points) == 1
+    assert result.knowledge_points[0].name == name
 
 
 def test_schema_does_not_restore_skills_tasks_or_student_order_selection():
@@ -130,7 +117,9 @@ def test_schema_does_not_restore_skills_tasks_or_student_order_selection():
     props = schema["$defs"]["GeneratedConcept"]["properties"]
     assert not set(props) & {"project_task", "concepts", "learning_skills", "practice_check"}
     assert "learner_profile" not in schema["properties"]
-    assert ANALYSIS_MAX_MODEL_CALLS == 2
+    assert ANALYSIS_MAX_MODEL_CALLS == 1
+    assert "Generate the requested analysis once" in SYSTEM_PROMPT
+    assert "Do not add a separate review, naming critique, correction round" in SYSTEM_PROMPT
     assert "Do not output graphs, learning order" in SYSTEM_PROMPT
 
 

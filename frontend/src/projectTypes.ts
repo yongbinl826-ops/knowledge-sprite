@@ -15,6 +15,10 @@ export type ProjectKnowledgePoint = {
 };
 export type ProjectAnalysis = { analysis_format?: 'concept_list_v1'; scope: string; technical_plan: string; assumptions: string[]; readonly functions?: ProjectFunction[]; knowledge_points: ProjectKnowledgePoint[]; learner_profile?: { student_level: string; assumed_knowledge: string[]; adjustment_note: string } | null };
 export type ProjectBatch = { batch_id: string; status: string; project_knowledge_point_ids: string[]; job_id?: string | null; job_status?: string; error?: string | { message?: string; code?: string } | null; warnings?: string[]; errors?: { message: string; code?: string }[] };
+export type ProjectAnalysisAdvisory = {
+  code: string; location: ['knowledge_points', number, 'name']; severity: 'low';
+  disposition: 'advisory'; evidence: 'title_heuristic';
+};
 export type ProjectVersion = {
   version: number; status: string; input: ProjectInput; analysis: ProjectAnalysis | null;
   confirmation: { version?: number; confirmed_at?: string; [key: string]: unknown } | null;
@@ -22,6 +26,8 @@ export type ProjectVersion = {
   budgets?: { max_batches?: number; max_search_requests?: number; max_detail_pages?: number; deadline_seconds?: number };
   created_at: string; model?: string; prompt_version?: string;
   warnings?: string[];
+  // Retained historical metadata; never used to judge or label names in the UI.
+  analysis_advisories?: ProjectAnalysisAdvisory[];
 };
 export type ProjectSummary = { project_id: string; name: string; current_version: number; created_at: string; updated_at: string };
 export type ProjectPointResult = { project_knowledge_point_id: string; name: string; selection: ProjectSelection; status: string; batch_id: string | null; job_id: string | null; knowledge_point_id: string | null; result: ResultGroup | null };

@@ -115,7 +115,7 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 assert [(entry['phase'],entry['outcome']) for entry in view['version']['analysis_attempts']]==[
                     ('generation','accepted')]
                 first_attempt=view['version']['analysis_attempts'][0]
-                assert first_attempt['validation_scope']=='local_checks'
+                assert first_attempt['validation_scope']=='schema_safety_limits'
                 assert 'implementation_inventory' not in first_attempt and 'coverage_review' not in first_attempt
                 assert not view['version'].get('rejected_analysis_attempts')
                 generated_payload=json.loads(model_calls[0]['messages'][1]['content'])
@@ -124,19 +124,19 @@ async def test_http_create_real_analyze_edit_optional_ack_two_platform_search_hi
                 assert all(not point.get('learning_skills') and not point.get('concepts') for point in view['version']['analysis']['knowledge_points'])
                 capability=(await api.get('/api/capabilities')).json()['project_analysis']
                 assert capability['mode']=='professional_knowledge_points'
-                assert capability['max_model_calls']==2 and capability['semantic_review_enabled'] is False
+                assert capability['max_model_calls']==1 and capability['semantic_review_enabled'] is False
                 assert capability['review_max_calls']==0
                 assert capability['review_max_output_tokens']==0
                 assert capability['semantic_correction_max_calls']==0
                 assert capability['concept_normalization_enabled'] is False
                 assert capability['normalization_max_calls']==0
-                assert capability['conditional_repair_enabled'] is True
-                assert capability['repair_max_calls']==1
+                assert capability['conditional_repair_enabled'] is False
+                assert capability['repair_max_calls']==0
                 assert capability['repair_max_output_tokens']==config.project_analysis_normalization_max_output_tokens
-                assert capability['generation_stages']==['compact_generation','conditional_repair_if_needed']
+                assert capability['generation_stages']==['compact_generation']
                 assert capability['accepted_draft_immediate'] is True
-                assert capability['local_checks_enabled'] and not capability['semantic_completeness_certified']
-                assert capability['concept_naming_policy']=='established_textbook_terms_v2'
+                assert not capability['local_checks_enabled'] and not capability['semantic_completeness_certified']
+                assert capability['concept_naming_policy']=='generation_only'
 
                 edited=deepcopy(view['version']['analysis'])
                 # A current flat analysis lets students select concepts directly.

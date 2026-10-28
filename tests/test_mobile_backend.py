@@ -90,8 +90,8 @@ async def settle(client, path, headers):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("limited_counter", ["analysis_calls", "model_calls"])
-async def test_analysis_reserves_generation_and_optional_repair_once_before_admission(tmp_path, limited_counter):
-    app, _, _, analyzer = setup(tmp_path, **{"mobile_daily_" + limited_counter: 2})
+async def test_analysis_reserves_one_generation_before_admission(tmp_path, limited_counter):
+    app, _, _, analyzer = setup(tmp_path, **{"mobile_daily_" + limited_counter: 1})
     payload = {"kind": "analysis", "input": {"name": "Local report", "requirements": "Read list values"}}
     async with app.router.lifespan_context(app):
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app), base_url="http://127.0.0.1") as client:
@@ -101,8 +101,8 @@ async def test_analysis_reserves_generation_and_optional_repair_once_before_admi
             connection = app.state.mobile.public.connection
             before = [tuple(row) for row in connection.execute("SELECT * FROM mobile_daily_budget")]
             row = connection.execute("SELECT tasks, analysis_calls, model_calls FROM mobile_daily_budget").fetchone()
-            assert tuple(row) == (1, 2, 2)
-            assert analyzer.calls == 1  # One business invocation, at most generation plus one repair.
+            assert tuple(row) == (1, 1, 1)
+            assert analyzer.calls == 1
             assert (await client.post(path, headers=headers, json=payload)).status_code == 202
             another_path, another_headers = ticket()
             denied = await client.post(another_path, headers=another_headers, json=payload)

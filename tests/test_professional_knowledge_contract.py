@@ -15,7 +15,6 @@ from backend.app.llm import LLMCompletionTruncated, LLMResponseTooLarge
 from backend.app.project_analysis import AnalysisError, ProjectAnalyzer, generation_schema
 from backend.app.project_models import AnalysisDocument, ProjectInput
 from tests.professional_contract_support import flat_proposal, assert_simple_generation_schema
-from tests.professional_contract_support import unrepaired_quality_response
 
 
 FIXTURE = json.loads((Path(__file__).parent / "fixtures/professional_knowledge/original_v1_fixture.json").read_text(encoding="utf-8"))
@@ -53,17 +52,15 @@ def response(value):
 
 async def analyze_replies(replies, *, settings=None):
     calls = []
-
     def reply(req):
         calls.append(json.loads(req.content))
-        assert len(calls) <= 2
-        item = replies[len(calls) - 1]
+        assert len(calls) == 1, "Single-pass generation must not retry or repair"
+        item = replies[0]
         if isinstance(item, Exception):
             raise item
         if isinstance(item, httpx.Response):
             return item
         return response(item)
-
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         result = await ProjectAnalyzer(settings or config(), client).analyze(project())
     return result, calls
@@ -88,7 +85,7 @@ async def test_flat_payload_works_without_expanded_fields_or_critic(monkeypatch)
     assert sent["output_schema"] == generation_schema() and sent["project"] == project().model_dump()
     assert calls[0]["messages"][0]["content"] == module.GENERATION_PROMPT
     assert calls[0]["max_tokens"] == config().llm_max_output_tokens
-    assert module.ANALYSIS_MAX_MODEL_CALLS == 2 and module.ANALYSIS_MAX_ATTEMPTS == 2
+    assert module.ANALYSIS_MAX_MODEL_CALLS == 1 and module.ANALYSIS_MAX_ATTEMPTS == 1
     assert "concise established concept names" in module.SYSTEM_PROMPT
     assert "one point teaches one reusable principle" in module.SYSTEM_PROMPT
 
@@ -112,19 +109,20 @@ async def test_technology_is_optional_but_supported_when_explicit():
 
 @pytest.mark.parametrize("extra", sorted(EXPANDED) + ["learner_profile"])
 @pytest.mark.asyncio
-async def test_unrequested_known_legacy_fields_are_rejected_not_projected_out(extra):
+async def test_unrequested_known_legacy_fields_are_rejected_once_not_projected_out(extra):
     sample = body()
     if extra == "learner_profile":
         sample[extra] = None
     else:
         sample["knowledge_points"][0][extra] = [] if extra in {"concepts", "learning_skills"} else "旧的项目任务拆解"
-    result, calls = await analyze_replies([sample, body()])
-    assert len(calls) == 2 and result.knowledge_points
-    feedback = json.loads(calls[1]["messages"][1]["content"])["validation_feedback"]
-    assert any(item["type"] == "extra_forbidden" for item in feedback)
-    assert "learner_profile" not in result.model_dump()
-    assert all(set(p) == {"id", "name", "description", "technology", "selection"}
-               for p in result.model_dump()["knowledge_points"])
+    original = deepcopy(sample)
+    with pytest.raises(AnalysisError) as error:
+        await analyze_replies([sample, body()])
+    assert error.value.code == "schema"
+    attempts = error.value.diagnostics[-1]["attempts"]
+    assert len(attempts) == 1 and attempts[0]["phase"] == "generation"
+    assert any(item["type"] == "extra_forbidden" for item in attempts[0]["errors"])
+    assert sample == original
 
 
 
@@ -134,9 +132,11 @@ async def test_unsafe_known_legacy_fields_cannot_hide_behind_projection(extra):
     sample = body()
     value = "https://untrusted.example/course"
     sample["knowledge_points"][0][extra] = [value] if extra in {"concepts", "learning_skills"} else value
-    result, calls = await analyze_replies([sample, body()])
-    assert len(calls) == 2 and result.knowledge_points
-    assert value not in json.dumps(result.model_dump())
+    with pytest.raises(AnalysisError) as error:
+        await analyze_replies([sample, body()])
+    assert error.value.code == "schema"
+    assert len(error.value.diagnostics[-1]["attempts"]) == 1
+    assert value not in json.dumps(error.value.diagnostics)
 
 
 def historical_document():
@@ -180,7 +180,7 @@ def test_history_and_edit_keep_reference_and_range_protections(kind):
 
 @pytest.mark.parametrize("kind", ["url", "model_secret", "search_secret", "model_mastery", "broad_subject", "unknown_field", "invalid_graph"])
 @pytest.mark.asyncio
-async def test_unsafe_or_invalid_generation_is_repaired_within_two_calls(kind):
+async def test_safety_and_schema_fail_once_while_title_quality_is_not_judged(kind):
     sample = body()
     if kind == "url": sample["knowledge_points"][0]["description"] = "https://invalid.example/course"
     elif kind == "model_secret": sample["scope"] = config().llm_api_key
@@ -189,31 +189,33 @@ async def test_unsafe_or_invalid_generation_is_repaired_within_two_calls(kind):
     elif kind == "broad_subject": sample["knowledge_points"][0]["name"] = "Python"
     elif kind == "invalid_graph": sample["knowledge_points"][0]["prerequisite_ids"] = ["k2"]
     else: sample["opaque-user-injected-field"] = "opaque-user-injected-value"
-    result, calls = await analyze_replies([sample, body()])
-    assert len(calls) == 2 and result.knowledge_points[0].selection == "learn"
-    repair = calls[1]["messages"][1]["content"]
-    assert all(x not in repair for x in [config().llm_api_key, config().tavily_api_key,
-                                       "opaque-user-injected-field", "opaque-user-injected-value"])
+    if kind == "broad_subject":
+        result, calls = await analyze_replies([sample, body()])
+        assert len(calls) == 1 and result.knowledge_points[0].name == "Python"
+        assert result.knowledge_points[0].description == sample["knowledge_points"][0]["description"]
+    else:
+        with pytest.raises(AnalysisError) as error:
+            await analyze_replies([sample, body()])
+        assert error.value.code == "schema" and len(error.value.diagnostics[-1]["attempts"]) == 1
+        retained = json.dumps(error.value.diagnostics)
+        assert all(x not in retained for x in [config().llm_api_key, config().tavily_api_key,
+            "opaque-user-injected-field", "opaque-user-injected-value"])
 
 
 @pytest.mark.parametrize("field,value", [("name", "Python"), ("selection", "mastered"), ("selection", "skip")])
 @pytest.mark.asyncio
-async def test_title_rejection_is_final_while_invalid_mastery_stops_before_review(field, value):
+async def test_names_are_preserved_while_model_selection_is_a_schema_error(field, value):
     sample = body()
     sample["knowledge_points"][0][field] = value
-    calls = []
-    def reply(req):
-        calls.append(req)
-        assert len(calls) <= 2
-        if field == "name":
-            payload = json.loads(json.loads(req.content)["messages"][1]["content"])
-            return response(unrepaired_quality_response(payload, sample, project()))
-        return response(sample)
-    async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
+    if field == "name":
+        result, calls = await analyze_replies([sample])
+        assert len(calls) == 1 and result.knowledge_points[0].name == value
+        assert result.knowledge_points[0].selection == "learn"
+    else:
         with pytest.raises(AnalysisError) as error:
-            await ProjectAnalyzer(config(), client).analyze(project())
-    assert len(calls) == 2
-    assert error.value.code == ("quality" if field == "name" else "schema")
+            await analyze_replies([sample])
+        assert error.value.code == "schema"
+        assert len(error.value.diagnostics[-1]["attempts"]) == 1
 
 
 @pytest.mark.parametrize("status", [400, 401, 403, 429, 500])
@@ -263,15 +265,15 @@ async def test_shared_total_deadline_still_bounds_the_generation(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_schema_repair_never_exceeds_two_attempts_and_does_not_echo_raw_values():
+async def test_invalid_schema_stops_once_without_echoing_raw_values():
     calls = []
     def reply(req):
         calls.append(json.loads(req.content))
-        assert len(calls) <= 2
+        assert len(calls) == 1
         return response({"untrusted-extra-name": "untrusted-extra-value"})
     async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as client:
         with pytest.raises(AnalysisError) as error:
             await ProjectAnalyzer(config(), client).analyze(project())
-    assert error.value.code == "schema" and len(calls) == 2
-    retained = json.dumps(error.value.diagnostics) + calls[1]["messages"][1]["content"]
+    assert error.value.code == "schema" and len(calls) == 1
+    retained = json.dumps(error.value.diagnostics)
     assert "untrusted-extra-name" not in retained and "untrusted-extra-value" not in retained

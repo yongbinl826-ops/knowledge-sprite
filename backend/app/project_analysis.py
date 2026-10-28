@@ -21,14 +21,16 @@ from .project_models import (
     MAX_PROJECT_KNOWLEDGE_POINTS, ProjectInput, normalized_name,
 )
 from .professional_concepts import concept_semantic_issues, textbook_concept_issues
+from .analysis_name_repair import (NAME_REPAIR_PROMPT, NameRepairNeedsContent,
+                                   apply_name_repairs, name_repair_schema)
 from .models import now
 
-ANALYSIS_PROMPT_VERSION = "project-analysis-v8-compact-foundations"
-# A single shared wall-clock budget, including optional local-error repair.
+ANALYSIS_PROMPT_VERSION = "project-analysis-v9-textbook-single-generation"
+# A single generation inside the shared queue/processing wall-clock budget.
 ANALYSIS_TIMEOUT_SECONDS = 60
 ANALYSIS_TOTAL_TIMEOUT_SECONDS = 60
-ANALYSIS_MAX_ATTEMPTS = 2
-ANALYSIS_MAX_MODEL_CALLS = 2
+ANALYSIS_MAX_ATTEMPTS = 1
+ANALYSIS_MAX_MODEL_CALLS = 1
 ANALYSIS_MIN_REPAIR_SECONDS = 5
 # Retained for reading/testing historical review contracts, never scheduled.
 SEMANTIC_REVIEW_MAX_OUTPUT_TOKENS = 16000
@@ -483,16 +485,17 @@ class GeneratedConcept(AnalysisTextModel):
     """Model-facing content only; identity and selection belong to the product."""
     allow_empty_analysis_fields = frozenset({"technology"})
     name: str = Field(min_length=1, max_length=80,
-        description="Concise established textbook concept or technical noun derived from the learning mechanism in description. Internally check its conventional definition matches that mechanism. Include necessary foundational concepts without assumed mastery. Put project uses, quantity-based action descriptions and initialization/creation/update/display steps in description, never in a procedural title. Decide independence by the actual principle or operation, not conjunctions, tools or workflow stages.")
+        description="Established textbook concept, principle or standard method derived from the learning mechanism, named as a familiar subject noun phrase. Include necessary foundational concepts without assumed mastery. Project objects, purposes, API calls and execution steps belong in description, not this name. Keep established teaching combinations together; do not invent a title by joining concept and project use.")
     description: str = Field(min_length=1, max_length=800,
-        description="Mechanism first, application second: explain the transferable principle, representation or operation to learn, then all project uses it supports. A correctness goal alone is not a mechanism. Combine repeated uses across fields and stages; retain distinct mechanisms and relevant constraints without a task checklist.")
+        description="Mechanism first, application second, in two compact sentences: define the named textbook concept and explain how it works, then its concrete project uses. Combine repeated uses; include essential conditions and tool/API details here when needed. Aim for 60-120 Chinese characters or similarly concise wording in other languages, expanding for essential detail without dropping concepts.")
     technology: str = Field(default="", max_length=48,
         description="One short literal tool/language identifier, or empty for a general concept. Use a single name such as HTML, CSS or JavaScript; never combine names as HTML/CSS or HTML+CSS. No instructions, URLs, prose or joined tools.")
 
 
 class GeneratedConceptList(AnalysisTextModel):
-    scope: str = Field(min_length=1, max_length=1600)
-    technical_plan: str = Field(min_length=1, max_length=2000)
+    scope: str = Field(min_length=1, max_length=1600, description="One short statement of the requested scope.")
+    technical_plan: str = Field(min_length=1, max_length=2000,
+        description="Two short sentences naming the chosen route and essential interfaces. No code listing or repeated per-point explanations.")
     assumptions: list[Annotated[str, Field(min_length=1, max_length=500)]] = Field(max_length=8)
     knowledge_points: list[GeneratedConcept] = Field(min_length=1, max_length=MAX_PROJECT_KNOWLEDGE_POINTS)
 
@@ -565,7 +568,8 @@ def _schema_field_names(schema: object) -> frozenset[str]:
 
 
 _DIAGNOSTIC_SCHEMA_FIELDS = (_schema_field_names(AnalysisDocument.model_json_schema()) |
-                             _schema_field_names(generation_schema()))
+                             _schema_field_names(generation_schema()) |
+                             _schema_field_names(name_repair_schema()))
 _DIAGNOSTIC_ERROR_TYPES = frozenset(get_args(ErrorType))
 
 
@@ -675,10 +679,10 @@ def _quality_repair_targets(issues: list[dict], previous_analysis: dict,
     return targets
 
 
-def _safe_quality_issue_details(issues: list[dict], document: AnalysisDocument) -> list[dict]:
+def _safe_quality_issue_details(issues: list[dict], document: AnalysisDocument, *, limit: int = 20) -> list[dict]:
     """Bounded diagnostic coordinates, never rejected drafts/messages/values."""
     details = []
-    for issue in issues[:20]:
+    for issue in issues[:min(limit, MAX_PROJECT_KNOWLEDGE_POINTS)]:
         code = issue.get("code")
         if code not in _QUALITY_DIAGNOSTIC_CODES:
             code = "quality_issue"
@@ -697,8 +701,58 @@ def _safe_quality_issue_details(issues: list[dict], document: AnalysisDocument) 
                   "location": _safe_issue_location(location, document)}
         if issue.get("rule") == "whole_game_loop_stop":
             detail["rule"] = "whole_game_loop_stop"
+        if issue.get("disposition") in {"blocking", "advisory"}:
+            detail["disposition"] = issue["disposition"]
+        if issue.get("evidence") in {"title_heuristic", "explicit_bookkeeping_label", "state_assignment_description"}:
+            detail["evidence"] = issue["evidence"]
         details.append(detail)
     return details
+
+
+_ADVISORY_NAME_CODES = frozenset({
+    "textbook_operation_bundle", "textbook_descriptive_name",
+    "textbook_representation_constraint_bundle", "textbook_mechanism_application_bundle",
+})
+
+
+def _partition_quality_issues(issues: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Only known, locally produced title heuristics are nonblocking.
+
+    Missing/unknown evidence fails closed. Facts, explicit task syntax,
+    duplicates and structural errors cannot be downgraded by severity alone.
+    """
+    blocking, advisory = [], []
+    for issue in issues:
+        is_advisory = (issue.get("code") in _ADVISORY_NAME_CODES and
+                       issue.get("disposition") == "advisory" and
+                       issue.get("evidence") == "title_heuristic")
+        (advisory if is_advisory else blocking).append(issue)
+    return blocking, advisory
+
+
+def _name_repair_context(blocking: list[dict], advisory: list[dict],
+                         draft: dict, document: AnalysisDocument) -> dict | None:
+    """A small output contract only for complete drafts with localized names.
+
+    Problems explicitly requiring a merge/split or a factual/content change
+    retain the full repair path. The name-only model may also decline when
+    the existing explanation cannot support an honest replacement name.
+    """
+    if not blocking or any(issue.get("code") in {
+            "duplicate_concept_name", "task_bundle_name", "compound_concept_name",
+            "implementation_detail_as_concept"} for issue in blocking):
+        return None
+    targets = _quality_repair_targets(blocking, draft, document)
+    if len(targets) != len(blocking) or any(
+            len(t["location"]) != 3 or t["location"][0] != "knowledge_points" or
+            t["location"][2] != "name" for t in targets):
+        return None
+    optional = _quality_repair_targets(advisory, draft, document)
+    optional = [t for t in optional if len(t["location"]) == 3 and
+                t["location"][0] == "knowledge_points" and t["location"][2] == "name"]
+    required = {t["location"][1] for t in targets}
+    allowed = required | {t["location"][1] for t in optional}
+    return {"draft": deepcopy(draft), "required": required, "allowed": allowed}
 
 
 def _local_quality_issues(project: ProjectInput, result: AnalysisDocument) -> list[dict]:
@@ -733,9 +787,9 @@ class ProjectAnalyzer:
     async def analyze(self, project: ProjectInput, *, deadline: float | None = None,
                       on_rejected_attempt: Callable[[dict], None] | None = None,
                       on_analysis_attempt: Callable[[dict], None] | None = None) -> AnalysisDocument:
-        """One flat generation; one optional repair inside the same 60s budget.
+        """One generation, with format/safety/limit checks only.
 
-        Local checks reject known defects; they do not certify completeness.
+        No naming/content judgement, advisory or automatic repair is run.
         An upstream service may shorten the deadline to include queue time.
         """
         if not self.available:
@@ -776,7 +830,7 @@ class ProjectAnalyzer:
             return {"attempt": attempt + 1, "phase": phase, "outcome": outcome,
                     **finish_attempt(), **details, "recorded_at": now(),
                     "prompt_version": ANALYSIS_PROMPT_VERSION, "model": call_settings.llm_model,
-                    "validation_scope": "local_checks",
+                    "validation_scope": "schema_safety_limits",
                     "analysis": deepcopy(candidate),
                     "source_sha256": source_hash,
                     "omitted_reason": omitted_reason if candidate is None else None}
@@ -793,7 +847,7 @@ class ProjectAnalyzer:
             if on_rejected_attempt is not None and not acceptance_recorded:
                 # Separate, explicitly untrusted version audit data, never an
                 # accepted analysis or public error diagnostic. Persist each
-                # rejection before repair so cancellation cannot lose it.
+                # rejection so cancellation cannot lose the diagnostic.
                 on_rejected_attempt({**deepcopy(entry), "recorded_at": now(),
                     "prompt_version": ANALYSIS_PROMPT_VERSION, "model": call_settings.llm_model,
                     "analysis": deepcopy(candidate),
@@ -806,18 +860,13 @@ class ProjectAnalyzer:
             return AnalysisError(code, message, diagnostics=retained)
 
         for attempt in range(ANALYSIS_MAX_ATTEMPTS):
-            if attempt and deadline - loop.time() < ANALYSIS_MIN_REPAIR_SECONDS:
-                if deadline <= loop.time():
-                    raise failure("timeout", "项目分析已达到时间上限，原始输入和历史版本已保留。")
-                feedback = [*feedback, {"type": "repair_skipped", "reason": "insufficient_remaining_time"}]
-                break
-            phase = "generation" if attempt == 0 else "repair"
+            phase = "generation"
             candidate = None
             acceptance_recorded = False
             omitted_reason = "no_complete_json_response"
             attempt_started_monotonic = loop.time()
             validation_started_monotonic = None
-            call_settings = generation_settings if attempt == 0 else concept_normalization_settings(self.settings)
+            call_settings = generation_settings
             timing = {"started_at": now(), "finished_at": None, "elapsed_seconds": None,
                       "model_started_at": None, "model_finished_at": None, "model_elapsed_seconds": None,
                       "validation_started_at": None, "validation_finished_at": None,
@@ -833,12 +882,11 @@ class ProjectAnalyzer:
                     raise TimeoutError
                 timeout = min(per_attempt, remaining)
                 async with asyncio.timeout(timeout):
-                    prompt = GENERATION_PROMPT if attempt == 0 else NORMALIZATION_PROMPT
                     model_started_monotonic = loop.time()
                     timing["model_started_at"] = now()
                     observation_token = LLM_OBSERVER.set(lambda value: timing.update(completion=value))
                     try:
-                        body = await complete_json(call_settings, prompt, payload, self.client,
+                        body = await complete_json(call_settings, GENERATION_PROMPT, payload, self.client,
                                                    timeout_seconds=timeout, max_content_chars=120_000)
                     finally:
                         LLM_OBSERVER.reset(observation_token)
@@ -871,23 +919,12 @@ class ProjectAnalyzer:
                 # as a new graph. Historical documents use their own read path.
                 proposal = GeneratedConceptList.model_validate(body)
                 result = proposal.to_document()
-                # Keep finite quality/accuracy guards without a mandatory model
-                # inventory, coverage ledger or independent reviewer round trip.
-                term_issues = _local_quality_issues(project, result)
+                # Deliver the model's original content. No semantic or naming
+                # validators, rewrite heuristics or advisory passes run here.
                 if loop.time() >= deadline:
                     raise TimeoutError
-                if term_issues:
-                    final_code = "quality"
-                    feedback = _safe_quality_issue_details(term_issues, result)
-                    record_failure(attempt, phase, "quality", issue_count=len(term_issues), issues=feedback)
-                    previous_analysis = proposal.model_dump()
-                    payload = {**payload, "validation_feedback": [
-                                   {"type": "knowledge_term_quality", **issue} for issue in term_issues[:20]],
-                               "previous_analysis": previous_analysis, "repair_required": True,
-                               "repair_targets": _quality_repair_targets(term_issues, previous_analysis, result)}
-                    continue
                 if on_analysis_attempt is not None:
-                    # Accepted here means local content validation, not task
+                    # Accepted here means readable/safe structure, not content
                     # delivery. A late audit save may still time out the task;
                     # never count the same provider request twice in that case.
                     acceptance_recorded = True
@@ -927,23 +964,16 @@ class ProjectAnalyzer:
                 final_code = "schema"
                 # Never send values or provider exceptions back as trusted repair
                 # instructions, and never expose their potentially sensitive text.
-                feedback = [{"location": list(error["loc"]), "type": error["type"], "message": error["msg"]}
-                            for error in exc.errors(include_input=False, include_context=False, include_url=False)][:20]
+                schema_feedback = [{"location": list(error["loc"]), "type": error["type"], "message": error["msg"]}
+                                   for error in exc.errors(include_input=False, include_context=False, include_url=False)][:20]
                 details = _safe_schema_error_details(exc)
-                for item, safe in zip(feedback, details):
+                for item, safe in zip(schema_feedback, details):
                     item.update(safe)
-                record_failure(attempt, phase, "schema", exception_type="ValidationError", errors=details)
+                feedback = schema_feedback
+                record_failure(attempt, phase, final_code, exception_type="ValidationError", errors=details)
             except (ValueError, TypeError, KeyError, IndexError):
                 final_code = "schema"
                 feedback = [{"type": "invalid_analysis", "message": "Follow the flat concept-list schema: scope, technical_plan, assumptions and knowledge_points; each point contains only name, description and optional technology."}]
                 record_failure(attempt, phase, "invalid_analysis")
-            if attempt + 1 < ANALYSIS_MAX_ATTEMPTS:
-                # Malformed/sensitive candidates stay in the private audit;
-                # the reviewer reconstructs from original input and safe feedback.
-                payload = {**payload, "validation_feedback": feedback, "repair_required": True}
-        message = ("知识点名称或内容未通过校验，原始输入已保留，可稍后重试。" if final_code == "quality" else
-                   "项目分析的需求覆盖检查未通过，未交付不完整草稿。原始输入和历史版本已保留，请稍后重试。" if final_code == "coverage_incomplete" else
-                   "项目分析结构校验失败，有限修正仍未通过。原始输入已保留，请调整需求后重试。")
-        # Only bounded title/selection or sanitized structural diagnostics reach
-        # this field, never provider output or an expanded learning-unit report.
+        message = "模型返回的分析格式无法读取，原始输入已保留，本次未自动重试。"
         raise failure(final_code, message, diagnostics=feedback)

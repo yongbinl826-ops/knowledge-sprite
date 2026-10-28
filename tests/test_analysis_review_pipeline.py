@@ -1,4 +1,4 @@
-"""Bounded review/repair pipeline, with offline transport explicitly isolated."""
+"""Single-generation boundaries with offline transport explicitly isolated."""
 import asyncio
 import json
 from dataclasses import replace
@@ -31,32 +31,25 @@ async def test_valid_terms_finish_once_even_with_legacy_review_setting():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("last_review,success", [(PASS, True), (FAIL, False)])
-async def test_structural_failure_uses_one_repair_and_delivers_only_valid_output(last_review, success):
-    from tests.professional_contract_support import assert_v1_projection
-    # Keep both outcomes covered: success after a repair and terminal schema error.
+@pytest.mark.parametrize("unused_later_reply", [analysis_fixture(), {}])
+async def test_structural_failure_stops_without_requesting_a_later_proposal(unused_later_reply):
     calls = []
-    replies = [{}, analysis_fixture() if success else {}]
+    replies = [{}, unused_later_reply]
     def respond(req):
         calls.append(json.loads(req.content))
         assert len(calls) <= len(replies)
         return response(replies[len(calls)-1])
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         analyzer = ProjectAnalyzer(configured(), client)
-        if success:
-            assert_v1_projection(await analyzer.analyze(request()), analysis_fixture())
-        else:
-            with pytest.raises(AnalysisError) as failure:
-                await analyzer.analyze(request())
-            assert failure.value.code == "schema"
-            assert failure.value.diagnostics[0]["type"] == "missing"
-    assert len(calls) == 2
-    assert [c["max_tokens"] for c in calls] == [6000, 8000]
-    repair = json.loads(calls[1]["messages"][1]["content"])
-    assert repair["validation_feedback"][0]["type"] == "missing"
-    assert repair["project"] == request().model_dump()
-    assert "previous_analysis" not in repair  # invalid schema is never retained as a valid proposal
-    assert repair["repair_required"] is True
+        with pytest.raises(AnalysisError) as failure:
+            await analyzer.analyze(request())
+        assert failure.value.code == "schema"
+        assert failure.value.diagnostics[0]["type"] == "missing"
+    assert len(calls) == 1
+    assert [c["max_tokens"] for c in calls] == [6000]
+    sent = json.loads(calls[0]["messages"][1]["content"])
+    assert sent["project"] == request().model_dump()
+    assert "previous_analysis" not in sent and "repair_required" not in sent
 
 
 @pytest.mark.asyncio
@@ -75,7 +68,7 @@ async def test_generation_transport_or_schema_failure_never_becomes_a_valid_prop
             await ProjectAnalyzer(configured(), client).analyze(request())
     expected = "schema" if failure is ValueError else "unavailable" if failure is httpx.ConnectTimeout else "timeout"
     assert raised.value.code == expected
-    assert len(calls) == (2 if failure is ValueError else 1)
+    assert len(calls) == 1
     assert "private-offline-token" not in raised.value.message
     assert "untrusted failure" not in json.dumps(raised.value.diagnostics)
 

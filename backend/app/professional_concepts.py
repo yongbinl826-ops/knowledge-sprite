@@ -222,7 +222,7 @@ def _representation_constraint_bundle(parts: list[str]) -> bool:
 def textbook_concept_name_issues(name: str) -> list[tuple[str, str]]:
     """Additional naming feedback for newly generated textbook-style topics.
 
-    These deliberately bounded checks catch object-operation recipes,
+    These deliberately bounded checks flag possible object-operation recipes,
     bookkeeping labels, quantity-based action descriptions and combinations
     of representation and separate constraints that the historical syntax
     contract allowed. They do
@@ -230,36 +230,59 @@ def textbook_concept_name_issues(name: str) -> list[tuple[str, str]]:
     stored name. Ordinary conjunctions, term length, and action-like words
     inside nouns are insufficient evidence on their own. The generation
     prompt still owns the semantic choice of a conventional concept name.
+    A returned title heuristic is feedback, not proof of a bad concept. The
+    point adapter below records whether its evidence can block generation.
     """
     value = unicodedata.normalize("NFKC", name).strip()
     parts = [part.strip() for part in re.split(r"与|、|以及|并且|\s+and\s+", value, flags=re.I)]
+    # Joining several definite bookkeeping labels does not weaken the
+    # evidence. Require every complete clause to match: one operation beside
+    # a mechanism is still only a title heuristic, not proof of a bad concept.
+    if len(parts) > 1 and all(_BOOKKEEPING_TITLE.fullmatch(part) for part in parts):
+        return [("textbook_operation_label",
+            "Every joined clause describes a counter/property/state assignment or update. Name the actual underlying concept and preserve these project operations in its description; do not promote each bookkeeping operation into a separate knowledge point.")]
     if len(parts) > 1 and all(parts) and (
             any(_OPERATION_TITLE_END.fullmatch(part) for part in parts)
             or any(_INSTRUMENT_HEAD.fullmatch(part) for part in parts)
             and any(_BARE_IMPLEMENTATION_ACTION.fullmatch(part) for part in parts)):
         return [("textbook_operation_bundle",
-            "Use a conventional textbook concept as the name. This title appends an object-specific implementation operation to another topic; keep project operations in the description. Identify the actual shared mechanism, or separate genuinely independent concepts, without losing required behavior.")]
+            "Review this operation-like title against its description before changing it. Use a conventional textbook concept as the name and keep project operations in the description. Preserve related facets of the same mechanism; separate genuinely independent concepts only when the explanation supports that distinction, without losing required behavior.")]
     if _BOOKKEEPING_TITLE.fullmatch(value):
         return [("textbook_operation_label",
             "This name describes a counter/property/state update rather than the concept being learned. Name the underlying conventional concept and explain this operation in its description, or incorporate it into an existing concept teaching the same mechanism. Do not turn each assignment, increment or reset into a separate knowledge point.")]
     if _QUANTITY_BASED_ACTION_TITLE.fullmatch(value):
         return [("textbook_descriptive_name",
-            "This is a description of an action driven by a runtime quantity, not a conventional concept name. Identify the established mathematical, programming or domain principle actually taught, check its definition against the explanation, and retain the quantity and project behavior in the description. Do not repair this by swapping 'based on' for 'driven by', by removing a qualifier, or by inventing a technical-sounding term.")]
+            "This wording may describe an action driven by a runtime quantity rather than name the principle being taught. Check the established mathematical, programming or domain definition against the explanation, and retain the quantity and project behavior in the description. Do not change a valid name merely to evade a wording pattern or invent a technical-sounding term.")]
     if _representation_constraint_bundle(parts):
         return [("textbook_representation_constraint_bundle",
-            "This title combines a representation/model with a separate constraint or limit. Check their actual learning principles: split independent concepts using conventional textbook names, or use an established shared concept only if its definition covers both. Keep every required project use in the descriptions, including relevant foundations; do not merely delete the conjunction or broaden the title.")]
+            "This title may combine a representation/model with a separate constraint or limit. Check their actual learning principles in the description: split independent concepts using conventional textbook names, or retain an established shared concept when its definition covers both. Keep every required project use, including relevant foundations; do not merely delete the conjunction or broaden the title.")]
     if len(parts) > 1 and all(parts) and (
             any(_REPRESENTATION_HEAD.fullmatch(part) for part in parts)
             and any(_REPRESENTATION_USE.fullmatch(part) for part in parts)
             or any(_MECHANISM_HEAD.fullmatch(part) for part in parts)
             and any(_APPLICATION_HEAD.fullmatch(part) for part in parts)):
         return [("textbook_mechanism_application_bundle",
-            "This title appends an input/output application to a mechanism, or appends an operation to a representation. Determine what the description actually teaches: use the conventional concept name for one principle and keep its input/output/project uses in the description; split only genuinely independent principles with their own standard names. Do not turn a mechanism plus its application into a new combined textbook label or remove required behavior.")]
+            "This title may append an input/output application to a mechanism, or an operation to a representation. Determine what the description actually teaches: use the conventional concept name for one principle and keep its input/output/project uses in the description; split only genuinely independent principles with their own standard names. Preserve valid related facets and every required behavior.")]
     return []
 
 
+_TITLE_HEURISTIC_CODES = frozenset({
+    "textbook_operation_bundle", "textbook_descriptive_name",
+    "textbook_representation_constraint_bundle", "textbook_mechanism_application_bundle",
+})
+
+
 def textbook_concept_issues(points: list[dict]) -> list[dict]:
-    """Generation-only adapter; do not attach to stored-document validation."""
+    """Generation-only feedback with explicit evidence and disposition.
+
+    Operation suffixes and joined topic labels cannot establish whether a
+    name teaches independent principles. Retain those findings as advisory,
+    rather than treating a name-only heuristic as a content error. Explicit
+    bookkeeping labels and description-backed state assignment recipes still
+    require repair. Other validators retain schema, imperative, duplicate and
+    content checks; this function neither accepts a document nor edits it.
+    Never attach it to stored-document validation.
+    """
     issues = []
     for index, point in enumerate(points):
         feedback = textbook_concept_name_issues(point["name"])
@@ -267,15 +290,26 @@ def textbook_concept_issues(points: list[dict]) -> list[dict]:
         # assigning/restoring values rather than blacklisting domain words or
         # rejecting genuine physical/protocol state operations by name alone.
         description = point.get("description", "")
+        description_evidence = False
         state_recipe = _DOMAIN_STATE_OPERATION.fullmatch(point["name"]) or (
             _RESTORE_ACTION_TITLE.fullmatch(point["name"]) and _PROGRAM_STATE.search(description))
         if not feedback and state_recipe and _INITIAL_VALUE_OPERATION.search(description):
+            description_evidence = True
             feedback = [("textbook_operation_label",
                 "The description teaches restoring or assigning initial values, and the name only prefixes that implementation action with an application/domain state. Keep these uses under their actual established programming/state concept, or name a distinct standard mechanism if one is really taught. Do not invent a state-reset concept or omit the required restart/reset behavior.")]
-        issues.extend({"code": code, **({"point_id": point["id"]} if "id" in point else {}),
-                       "location": ["knowledge_points", index, "name"], "message": message}
-                      for code, message in feedback)
-    return issues[:24]
+        for code, message in feedback:
+            advisory = code in _TITLE_HEURISTIC_CODES
+            issues.append({"code": code, **({"point_id": point["id"]} if "id" in point else {}),
+                           "location": ["knowledge_points", index, "name"], "message": message,
+                           "disposition": "advisory" if advisory else "blocking",
+                           "evidence": ("title_heuristic" if advisory else
+                                        "state_assignment_description" if description_evidence else
+                                        "explicit_bookkeeping_label"),
+                           "severity": "low" if advisory else "medium"})
+    # Every validated point (up to the document's 30-point ceiling) must take
+    # part in the decision. Presentation/audit limits are applied afterwards;
+    # early advisory findings must never hide a later blocking finding.
+    return issues
 
 
 def _independent_concept_family(name: str, technology: str) -> str | None:
@@ -330,8 +364,8 @@ def concept_semantic_issues(points: list[dict]) -> list[dict]:
 def topic_technologies(points: list[dict], names: dict[str, str]) -> dict[str, str]:
     """Use only the point's explicit safe context, never legacy concepts/plan.
 
-    Invalid old optional annotations do not block reading or a new confirmation.
-    Generation validates its own field separately and repairs it if invalid.
+    Invalid optional annotations do not block reading or a new confirmation.
+    The original generated or historical annotations remain unchanged.
     """
     result = {}
     for point in points:
@@ -371,14 +405,29 @@ def _context_fingerprint(analysis):
 
 
 def generated_context(analysis):
-    """Called only at a successful generation or explicitly derived edit."""
+    """Build a safe retrieval projection without judging generated concepts.
+
+    Unsafe optional technology text is omitted point by point, not repaired or
+    written back. A canonical name shared by multiple points cannot bind a
+    name-keyed retrieval context, so abstain on that name and retain other safe
+    entries. This projection is not a concept-quality or correctness check.
+    """
     from .technical_prefix import canonical_search_name
-    if any(concept_name_issues(p["name"]) for p in analysis["knowledge_points"]):
-        return None
+    points = analysis["knowledge_points"]
+    names = [canonical_search_name(point["name"]) for point in points]
+    identities = [name.casefold() for name in names]
+    mapping = {}
+    for point, name, identity in zip(points, names, identities):
+        if identities.count(identity) != 1:
+            continue
+        try:
+            technology = clean_topic_technology(point.get("technology", ""))
+        except ValueError:
+            continue
+        if technology and len(contextual_concept_name(name, technology)) <= 180:
+            mapping[name] = technology
     try:
-        mapping = {canonical_search_name(p["name"]): technology for p in analysis["knowledge_points"]
-                   if (technology := clean_topic_technology(p.get("technology", "")))}
-        mapping = reviewed_technologies(mapping, analysis["knowledge_points"])
+        mapping = reviewed_technologies(mapping, points)
     except ValueError:
         return None
     return {"version": CONCEPT_POLICY_VERSION, "analysis_fingerprint": _context_fingerprint(analysis),
@@ -388,7 +437,7 @@ def generated_context(analysis):
 def bound_generated_context(version):
     proof = version.get("validated_concept_context")
     analysis = version.get("analysis") or {}
-    if (not str(version.get("prompt_version") or "").startswith(("project-analysis-v5.", "project-analysis-v6.", "project-analysis-v7.", "project-analysis-v8-"))
+    if (not str(version.get("prompt_version") or "").startswith(("project-analysis-v5.", "project-analysis-v6.", "project-analysis-v7.", "project-analysis-v8-", "project-analysis-v9-"))
             or not isinstance(analysis.get("knowledge_points"), list)
             or not isinstance(proof, dict) or proof.get("version") != CONCEPT_POLICY_VERSION
             or proof.get("analysis_fingerprint") != _context_fingerprint(analysis)):
