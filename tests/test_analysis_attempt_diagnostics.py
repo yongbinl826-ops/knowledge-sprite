@@ -31,12 +31,13 @@ def without_timing(row):
     assert row["started_at"] and row["finished_at"] and row["elapsed_seconds"] >= 0
     completion = row["completion"]
     required = {"status", "usage", "http_status", "request_id_sha256", "duration_seconds"}
-    assert required <= completion.keys() <= required | {"error_type"}
+    assert required <= completion.keys() <= required | {"error_type", "transport_timing"}
     assert completion["status"] in {"completed", "failed", "cancelled"}
     duration = completion["duration_seconds"]
     assert type(duration) in {int, float} and math.isfinite(duration) and duration >= 0
     usage = completion["usage"]
-    assert set(usage) == {"input_tokens", "output_tokens", "total_tokens", "cached_input_tokens"}
+    assert set(usage) == {"input_tokens", "output_tokens", "total_tokens", "cached_input_tokens",
+                          "reasoning_tokens", "answer_tokens"}
     assert all(value is None or type(value) is int and value >= 0 for value in usage.values())
     status = completion["http_status"]
     assert status is None or type(status) is int and 100 <= status <= 599

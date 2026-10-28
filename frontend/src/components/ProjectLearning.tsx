@@ -49,7 +49,7 @@ export function ProjectConfirmation({ projectId, version, current, busy, inputDi
     if (next && !deviceMode) { try { sessionStorage.removeItem(draftKey); } catch { /* No draft remains. */ } }
   };
   return <section className="panel project-confirmation simple-knowledge-review" aria-labelledby="project-confirmation-title">
-    <div className="section-heading"><div><h2 id="project-confirmation-title" aria-label={`确认知识点 · v${version.version}`}>选择知识点</h2><p>可修改专业名称，勾选需要查找视频的知识点。</p></div><span className="job-status">{dirty ? '有未保存修改' : version.confirmation ? '本版本已确认' : '等待确认'}</span></div>
+    <div className="section-heading"><div><h2 id="project-confirmation-title">选择知识点</h2><p>可修改专业名称，勾选需要查找视频的知识点。</p></div></div>
     <div className={`simple-knowledge-list${nativeEntry ? ' motion-native-entry' : ''}`} aria-label="知识点列表">{analysis.knowledge_points.map((point, index) => <article className="simple-knowledge-point" key={point.id} data-point-id={point.id} style={{ '--reveal-index': Math.min(index, 4) } as CSSProperties}>
       <label className="sr-only" htmlFor={`simple-name-${point.id}`}>知识点名称：{point.name || '未命名知识点'}</label><input className="simple-point-name" id={`simple-name-${point.id}`} value={point.name} maxLength={160} disabled={readOnly} placeholder="例如：pygame 事件循环" onChange={event => updatePoint(point.id,{name:event.target.value})}/>
       <label className="simple-point-selection"><input type="checkbox" checked={point.selection === 'learn'} disabled={readOnly} onChange={event => updatePoint(point.id,{selection:event.target.checked ? 'learn' : 'skip'})}/>想学习<span className="sr-only">：{point.name}</span></label>

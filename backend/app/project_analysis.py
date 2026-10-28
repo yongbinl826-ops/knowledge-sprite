@@ -515,8 +515,15 @@ def generation_schema() -> dict:
 def project_analysis_settings(settings: Settings) -> Settings:
     """Explicit project-only policy; shared search calls retain global settings."""
     settings.validate_project_analysis_settings()
+    if settings.project_analysis_base_url:
+        settings = replace(settings, llm_provider="openai_compatible",
+                           llm_base_url=settings.project_analysis_base_url,
+                           llm_api_key=settings.project_analysis_api_key)
     if settings.project_analysis_model:
         settings = replace(settings, llm_model=settings.project_analysis_model)
+    if settings.project_analysis_thinking_mode == "disabled":
+        return replace(settings, llm_thinking_mode="disabled", llm_reasoning_effort="provider_default",
+                       llm_max_output_tokens=settings.project_analysis_max_output_tokens)
     if settings.project_analysis_reasoning_effort == "inherit":
         return settings
     return replace(settings, llm_thinking_mode="enabled", llm_reasoning_effort="low",
@@ -781,8 +788,9 @@ class ProjectAnalyzer:
 
     @property
     def available(self) -> bool:
-        return bool(self.settings.llm_provider == "openai_compatible" and
-                    self.settings.llm_base_url.strip() and (self.settings.project_analysis_model or self.settings.llm_model).strip() and self.settings.llm_api_key.strip())
+        effective = project_analysis_settings(self.settings)
+        return bool(effective.llm_provider == "openai_compatible" and effective.llm_base_url.strip()
+                    and effective.llm_model.strip() and effective.llm_api_key.strip())
 
     async def analyze(self, project: ProjectInput, *, deadline: float | None = None,
                       on_rejected_attempt: Callable[[dict], None] | None = None,
@@ -899,7 +907,9 @@ class ProjectAnalyzer:
                 serialized_body = json.dumps(body, ensure_ascii=False, separators=(",", ":"))
                 if any(secret and (secret in serialized_body or
                                    json.dumps(secret, ensure_ascii=False)[1:-1] in serialized_body) for secret in
-                       (self.settings.llm_api_key, self.settings.tavily_api_key, self.settings.tavily_backup_api_key, self.settings.serper_api_key)):
+                       (self.settings.llm_api_key, self.settings.project_analysis_api_key,
+                        generation_settings.llm_api_key, self.settings.tavily_api_key,
+                        self.settings.tavily_backup_api_key, self.settings.serper_api_key)):
                     omitted_reason = "sensitive_model_output"
                     raise ValueError("Sensitive model output")
                 # The transport is already bounded. Keep an independent bound

@@ -145,7 +145,7 @@ export function useProject() {
   const save = (analysis: ProjectAnalysis) => perform(signal => {
     if (!view?.version) throw new Error('请先完成项目分析。');
     return post(view.project_id, 'edit', { expected_version: view.version.version, analysis }, signal);
-  }, '修改已保存为新版本，需要重新确认。');
+  }, '修改已保存。');
   const confirmAndSearch = (analysis: ProjectAnalysis, dirty: boolean) => perform(async signal => {
     if (!view?.version) throw new Error('请先完成项目分析。');
     let current = view;
@@ -161,12 +161,12 @@ export function useProject() {
 
   const retrySearch = () => perform(async signal => {
     if (!view?.version?.analysis) throw new Error('请先完成项目分析。');
-    if (view.version.version !== view.current_version) throw new Error('历史版本仅供查看，请返回最新版本重新检索。');
+    if (view.version.version !== view.current_version) throw new Error('当前记录仅供查看，请返回当前项目重新检索。');
     // A retry gets a fresh version and budget; the previous evidence stays intact.
     let next = keepMutation(await post(view.project_id, 'edit', { expected_version: view.version.version, analysis: view.version.analysis }, signal), signal);
     next = keepMutation(await post(next.project_id, 'confirm', { version: next.version!.version, reviewed_topic_technologies: reviewedTopicTechnologies(next.version!.analysis!) }, signal), signal);
     return post(next.project_id, 'search', { version: next.version!.version }, signal);
-  }, '已创建新的检索版本；上次结果继续保留。');
+  }, '已开始重新检索，上次结果继续保留。');
 
   return { view, projects, busy, loading, error: error || pollError, notice, analyze, save, confirmAndSearch, cancel, retrySearch, selectProject,
     refresh: () => { setError(''); setPollError(''); setRevision(value => value + 1); }, newProject: () => selectProject('') };

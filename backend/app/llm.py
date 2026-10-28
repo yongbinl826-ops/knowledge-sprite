@@ -31,10 +31,16 @@ def _usage(envelope):
         return value if type(value) is int and value >= 0 else None
     details = usage.get("prompt_tokens_details")
     cached = details.get("cached_tokens") if isinstance(details, dict) else None
+    output = count(usage.get("completion_tokens", usage.get("output_tokens")))
+    output_details = usage.get("completion_tokens_details")
+    reasoning = count(output_details.get("reasoning_tokens")) if isinstance(output_details, dict) else None
+    # Unknown stays unknown; never infer zero reasoning from the requested mode.
+    answer = output - reasoning if output is not None and reasoning is not None and reasoning <= output else None
     return {"input_tokens": count(usage.get("prompt_tokens", usage.get("input_tokens"))),
-            "output_tokens": count(usage.get("completion_tokens", usage.get("output_tokens"))),
+            "output_tokens": output,
             "total_tokens": count(usage.get("total_tokens")),
-            "cached_input_tokens": count(usage.get("prompt_cache_hit_tokens", cached))}
+            "cached_input_tokens": count(usage.get("prompt_cache_hit_tokens", cached)),
+            "reasoning_tokens": reasoning, "answer_tokens": answer}
 
 
 class Expansion(BaseModel):
@@ -124,8 +130,12 @@ async def _complete_json(settings: Settings, system_prompt: str, data: dict,
         {"role": "user", "content": json.dumps(data, ensure_ascii=False)},
     ], "response_format": {"type": "json_object"}, "max_tokens": settings.llm_max_output_tokens}
     official_deepseek = settings.uses_official_deepseek_model()
+    official_qwen = settings.uses_official_bailian_qwen_model()
     thinking_mode = settings.llm_thinking_mode
-    if thinking_mode == "auto":
+    if official_qwen:
+        if thinking_mode in {"disabled", "auto", "enabled"}:
+            payload["enable_thinking"] = thinking_mode == "enabled"
+    elif thinking_mode == "auto":
         # These calls generate bounded JSON. Even low thinking can consume the
         # output allowance before the answer, so the exact known endpoint opts
         # out. Unknown compatible providers receive no inferred extension.
@@ -135,7 +145,10 @@ async def _complete_json(settings: Settings, system_prompt: str, data: dict,
         payload["thinking"] = {"type": thinking_mode}
     thinking_disabled = payload.get("thinking", {}).get("type") == "disabled"
     effort = settings.llm_reasoning_effort
-    if effort == "auto":
+    if official_qwen:
+        # Bailian uses enable_thinking, not DeepSeek's thinking/effort fields.
+        pass
+    elif effort == "auto":
         # Exact official endpoint and documented models only. Never guess API
         # extensions for third-party compatible gateways or unknown models.
         if official_deepseek and not thinking_disabled:
@@ -147,7 +160,12 @@ async def _complete_json(settings: Settings, system_prompt: str, data: dict,
 
     async def read_envelope(http_client, *, managed=False):
         options = {**kwargs, **({"timeout": httpx.Timeout(timeout_seconds, connect=5)} if managed else {})}
+        request_started = time.monotonic()
         async with http_client.stream("POST", settings.llm_base_url + "/chat/completions", **options) as response:
+            headers_at = time.monotonic()
+            stages = observation["transport_timing"] = {
+                "headers_seconds": round(headers_at - request_started, 6),
+                "body_read_seconds": None, "envelope_parse_seconds": None}
             observation["http_status"] = response.status_code
             request_id = response.headers.get("x-request-id")
             if request_id:
@@ -160,10 +178,16 @@ async def _complete_json(settings: Settings, system_prompt: str, data: dict,
                 if len(body) + len(chunk) > max_response_bytes:
                     raise LLMResponseTooLarge("LLM response too large")
                 body.extend(chunk)
+            stages["body_read_seconds"] = round(time.monotonic() - headers_at, 6)
             # Bounded error bodies can still be hashed by the acceptance
             # observer. No response text is included in our own exceptions.
             response.raise_for_status()
-            return json.loads(body)
+            parse_started = time.monotonic()
+            envelope = json.loads(body)
+            stages["envelope_parse_seconds"] = round(time.monotonic() - parse_started, 6)
+            # Headers/body timing is HTTP transport timing, not token TTFT or
+            # separate upstream thinking/generation time (not reported here).
+            return envelope
 
     # Idle read limits do not stop a slow stream. This also covers a borrowed
     # client's request without changing its configured HTTP timeout/redirects.

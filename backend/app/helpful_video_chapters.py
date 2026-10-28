@@ -12,6 +12,7 @@ import hashlib
 import math
 import re
 import time
+from contextlib import asynccontextmanager
 from urllib.parse import parse_qsl, urlsplit, urlunsplit
 
 from .fetcher import FETCH_DEADLINE_AT, NETWORK_OBSERVER, Fetcher, FetcherConfig, FetchStopped
@@ -281,7 +282,9 @@ class HelpfulVideoChapterEnricher:
                  max_match_chapters=240, max_semantic_batches=MAX_CATALOG_MODEL_CALLS,
                  background_mode=False):
         self.points = {p["id"]: dict(p) for p in points if isinstance(p, dict) and p.get("id")}
-        self.match = match
+        # Production callers only enrich missing covers. Even an accidentally
+        # supplied matcher must not revive removed chapter matching in this mode.
+        self.match = None if cover_only else match
         self.publish = publish or (lambda _resource_id, _point_id, _chapters: None)
         self.on_paid = on_paid or (lambda _resource_id: None)
         self.on_unavailable = on_unavailable or (lambda _resource_id: None)
@@ -299,10 +302,16 @@ class HelpfulVideoChapterEnricher:
         self.max_resources = max(0, min(int(max_resources), HARD_MAX_CATALOG_RESOURCES))
         self.max_http_requests = max(0, min(int(max_http_requests), HARD_MAX_CATALOG_HTTP_REQUESTS))
         self.max_match_chapters = max(1, min(int(max_match_chapters), 240))
-        self.max_semantic_batches = max(0, min(int(max_semantic_batches), HARD_MAX_CATALOG_MODEL_CALLS))
+        self.max_semantic_batches = (0 if self.cover_only else
+            max(0, min(int(max_semantic_batches), HARD_MAX_CATALOG_MODEL_CALLS)))
         self.background_mode = bool(background_mode)
-        self._slots = asyncio.Semaphore(max(1, min(int(concurrency), 5)))
-        self._host_slots = {}
+        self._concurrency = max(1, min(int(concurrency), 5))
+        self._per_host_concurrency = min(2, self._concurrency)
+        self._fetch_waiters = {}
+        self._fetch_sequence = 0
+        self._active_fetches = 0
+        self._active_hosts = {}
+        self._fetch_changed = asyncio.Event()
         self._records, self._tasks, self._budget_skipped = {}, set(), set()
         self._ever_budget_skipped = set()
         self._cached_lookups = {}
@@ -320,6 +329,9 @@ class HelpfulVideoChapterEnricher:
                             "cover_retry_skipped_budget": 0, "cover_retry_skipped_deadline": 0,
                             "cover_transient_unresolved": 0, "page_failures_unresolved": 0,
                             "cover_only": self.cover_only,
+                            "fetch_concurrency": self._concurrency,
+                            "per_host_concurrency": self._per_host_concurrency,
+                            "fetch_queue_policy": "missing_cover_first",
                             "http_requests": 0, "dns_requests": 0, "dns_cache_hits": 0, "matched_point_resources": 0,
                             "matched_chapters": 0, "semantic_calls": 0,
                             "semantic_budget_reached": False, "deadline_reached": False,
@@ -341,6 +353,7 @@ class HelpfulVideoChapterEnricher:
                 timeout_seconds=min(self.per_resource_timeout, getattr(settings, "fetch_timeout_seconds", self.per_resource_timeout)),
                 max_bytes=getattr(settings, "fetch_max_bytes", 1_000_000),
                 global_concurrency=getattr(settings, "global_concurrency", 5),
+                per_host_concurrency=self._per_host_concurrency,
                 phased_timeouts=getattr(settings, "fetch_phased_timeouts", False),
                 body_idle_timeout_seconds=getattr(settings, "fetch_body_idle_timeout_seconds", 5),
                 body_min_bytes_per_second=getattr(settings, "fetch_body_min_bytes_per_second", 32768),
@@ -359,6 +372,11 @@ class HelpfulVideoChapterEnricher:
                     record["diagnostic"]["dns_cache_hits"] += 1
             self._fetcher.resolver = _CatalogDNSCache(self._fetcher.resolver, cache_hit)
         self.fetch_catalog = fetch_catalog or self._fetch_native
+
+    @property
+    def native_fetcher(self):
+        """Share native-page pacing with pre-publication AI identity checks."""
+        return self._fetcher
 
     def _cover_fetch_resource(self, record):
         """Choose a retained public homepage only for an optional cover read."""
@@ -474,6 +492,7 @@ class HelpfulVideoChapterEnricher:
             prior["early_cover_promoted"] = True
             prior["cover_only"] = False
             prior["cover_fetch_only"] = False
+            self._fetch_changed.set()
             if prior["done"]:
                 metadata = prior.get("observed_metadata")
                 if not isinstance(metadata, dict):
@@ -602,6 +621,9 @@ class HelpfulVideoChapterEnricher:
         if record.get("cover") or record["paid"] or record["unavailable"]:
             return bool(record.get("cover"))
         record["cover_requested"] = True
+        # A queued catalog can become an urgent missing-cover request. Wake the
+        # scheduler so it can move ahead of catalogs which already have images.
+        self._fetch_changed.set()
         if record["done"] and self._cover_retry_eligible(record):
             record["cover_fetch_only"] = True
             record["cover_retry_pending"] = True
@@ -779,6 +801,56 @@ class HelpfulVideoChapterEnricher:
                 self._publish_cover_state(record, resource_id)
             self._state_changed.set()
 
+    @staticmethod
+    def _fetch_priority(record):
+        """Prioritize displayed missing covers, then speculative/missing images.
+
+        The priority is read when a slot opens, so a later cover request can
+        promote an existing queued catalog without adding another fetch.
+        """
+        if record.get("cover") or displayable_cover_url(record["resource"].get("thumbnail_url")):
+            return 2
+        if record.get("cover_requested") and not record.get("early_cover"):
+            return 0
+        return 1
+
+    @asynccontextmanager
+    async def _fetch_slot(self, record, host):
+        # Each course has one owned _load task. Only network attempts join this
+        # queue: retained metadata and retry backoff never occupy a fetch slot.
+        waiter = object()
+        self._fetch_sequence += 1
+        self._fetch_waiters[waiter] = (self._fetch_sequence, host, record)
+        acquired = False
+        self._fetch_changed.set()
+        try:
+            while not self._closed:
+                self._fetch_changed.clear()
+                if self._active_fetches < self._concurrency:
+                    eligible = [(self._fetch_priority(row[2]), row[0], key)
+                                for key, row in self._fetch_waiters.items()
+                                if self._active_hosts.get(row[1], 0) < self._per_host_concurrency]
+                    if eligible and min(eligible, key=lambda row: row[:2])[2] is waiter:
+                        self._fetch_waiters.pop(waiter)
+                        self._active_fetches += 1
+                        self._active_hosts[host] = self._active_hosts.get(host, 0) + 1
+                        acquired = True
+                        # Another host/course may still fit the remaining slots.
+                        self._fetch_changed.set()
+                        break
+                await self._fetch_changed.wait()
+            yield acquired
+        finally:
+            self._fetch_waiters.pop(waiter, None)
+            if acquired:
+                self._active_fetches -= 1
+                remaining = self._active_hosts[host] - 1
+                if remaining:
+                    self._active_hosts[host] = remaining
+                else:
+                    self._active_hosts.pop(host)
+            self._fetch_changed.set()
+
     async def _load_once(self, record):
         detail = record["diagnostic"]
         active_clock = None
@@ -803,14 +875,14 @@ class HelpfulVideoChapterEnricher:
                 record["cached_accepted"] = True
                 if not record["cover_refresh_requested"] or record["cover"] or record["paid"] or record["unavailable"]:
                     return
-            # Fetcher serializes requests per host and shares that host's robots
-            # probe. Queue before starting the per-course timer: three same-host
-            # jobs must not all spend their budget waiting for the first one.
-            # Host queuing is still bounded by the caller's job deadline/close().
+            # Choose the next eligible course when a slot opens, rather than
+            # committing every new course to a FIFO host lock. Missing covers
+            # can overtake queued catalogs; active reads are never preempted.
+            # Queue time remains outside the per-course network timeout.
             fetched_resource = self._cover_fetch_resource(record)
             host = urlsplit(fetched_resource["url"]).hostname
-            async with self._host_slots.setdefault(host, asyncio.Lock()), self._slots:
-                if self._closed:
+            async with self._fetch_slot(record, host) as admitted:
+                if not admitted or self._closed:
                     return
                 if record["cover_retry_used"] and not self._cover_retry_can_start(record, after_backoff=True):
                     return
@@ -1017,7 +1089,8 @@ class HelpfulVideoChapterEnricher:
         self.diagnostics["background_mode"] = True
         self.max_resources = max(self.max_resources, min(max(0, int(max_resources)), HARD_MAX_CATALOG_RESOURCES))
         self.max_http_requests = max(self.max_http_requests, min(max(0, int(max_http_requests)), HARD_MAX_CATALOG_HTTP_REQUESTS))
-        self.max_semantic_batches = max(self.max_semantic_batches, min(max(0, int(max_semantic_batches)), HARD_MAX_CATALOG_MODEL_CALLS))
+        if not self.cover_only:
+            self.max_semantic_batches = max(self.max_semantic_batches, min(max(0, int(max_semantic_batches)), HARD_MAX_CATALOG_MODEL_CALLS))
         self.update_deadline(deadline)
         self._refresh_semantic_diagnostics()
 
@@ -1252,6 +1325,7 @@ class HelpfulVideoChapterEnricher:
         self._closed = True
         self._admission_closed = True
         self._state_changed.set()
+        self._fetch_changed.set()
         for task in self._tasks:
             if not task.done():
                 task.cancel()

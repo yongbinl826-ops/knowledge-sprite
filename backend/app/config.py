@@ -2,10 +2,33 @@ from __future__ import annotations
 
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlsplit
 from dotenv import load_dotenv
+
+
+# Explicit provider/model contracts; never infer extensions for a proxy URL.
+BAILIAN_QWEN_MODELS = frozenset({
+    "qwen3.8-max", "qwen3.8-max-0902", "qwen3.8-max-2026-09-02", "qwen3.8-flash",
+})
+
+
+def official_bailian_endpoint(value: str) -> bool:
+    try:
+        endpoint = urlsplit(value)
+        host = endpoint.hostname or ""
+        supported_host = host in {
+            "dashscope.aliyuncs.com", "dashscope-intl.aliyuncs.com", "cn-hongkong.dashscope.aliyuncs.com",
+        } or bool(re.fullmatch(
+            r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.(?:cn-beijing|ap-southeast-1|us-east-1|cn-hongkong|ap-northeast-1)\.maas\.aliyuncs\.com", host))
+        return bool(endpoint.scheme == "https" and supported_host and endpoint.port in (None, 443)
+                    and endpoint.username is None and endpoint.password is None
+                    and endpoint.path.rstrip("/") == "/compatible-mode/v1"
+                    and not endpoint.query and not endpoint.fragment
+                    and not any(char.isspace() or ord(char) < 32 for char in value))
+    except (TypeError, ValueError):
+        return False
 
 
 def boolean(name: str, default: bool = False) -> bool:
@@ -179,7 +202,10 @@ class Settings:
     project_analysis_timeout_seconds: int = 60
     project_analysis_total_timeout_seconds: int = 60
     project_analysis_reasoning_effort: str = "inherit"
+    project_analysis_thinking_mode: str = "inherit"
     project_analysis_model: str = ""
+    project_analysis_base_url: str = ""
+    project_analysis_api_key: str = field(default="", repr=False)
     project_analysis_max_output_tokens: int = 16000
     project_analysis_normalization_max_output_tokens: int = 16000
     project_semantic_review_enabled: bool = True
@@ -238,22 +264,49 @@ class Settings:
         except ValueError:
             return False
 
+    def uses_official_bailian_qwen_model(self, model: str | None = None) -> bool:
+        return (official_bailian_endpoint(self.llm_base_url) and
+                (self.llm_model if model is None else model) in BAILIAN_QWEN_MODELS)
+
     def validate_project_analysis_settings(self) -> None:
-        if not isinstance(self.project_analysis_model, str) or self.project_analysis_model not in {"", "deepseek-flash", "deepseek-v4-pro"}:
-            raise ValueError("PROJECT_ANALYSIS_MODEL must be empty, deepseek-flash or deepseek-v4-pro")
+        if not isinstance(self.project_analysis_model, str) or self.project_analysis_model not in {"", "deepseek-flash", "deepseek-v4-pro", *BAILIAN_QWEN_MODELS}:
+            raise ValueError("PROJECT_ANALYSIS_MODEL must be empty or a documented DeepSeek/Bailian model")
         if not isinstance(self.project_analysis_reasoning_effort, str) or self.project_analysis_reasoning_effort not in {"inherit", "low"}:
             raise ValueError("PROJECT_ANALYSIS_REASONING_EFFORT must be inherit or low")
+        if not isinstance(self.project_analysis_thinking_mode, str) or self.project_analysis_thinking_mode not in {"inherit", "disabled"}:
+            raise ValueError("PROJECT_ANALYSIS_THINKING_MODE must be inherit or disabled")
+        if (not isinstance(self.project_analysis_base_url, str) or
+                not isinstance(self.project_analysis_api_key, str)):
+            raise ValueError("PROJECT_ANALYSIS_BASE_URL and PROJECT_ANALYSIS_API_KEY must be strings")
+        if bool(self.project_analysis_base_url) != bool(self.project_analysis_api_key):
+            raise ValueError("PROJECT_ANALYSIS_BASE_URL and PROJECT_ANALYSIS_API_KEY must be configured together; shared credentials are never sent to another endpoint")
+        if self.project_analysis_api_key and any(char.isspace() or ord(char) < 32 for char in self.project_analysis_api_key):
+            raise ValueError("PROJECT_ANALYSIS_API_KEY must be a nonblank single-line credential")
         if type(self.project_analysis_max_output_tokens) is not int or not 256 <= self.project_analysis_max_output_tokens <= 16000:
             raise ValueError("PROJECT_ANALYSIS_MAX_OUTPUT_TOKENS must be an integer between 256 and 16000")
-        if self.project_analysis_reasoning_effort == "inherit" and not self.project_analysis_model:
+        if (self.project_analysis_reasoning_effort == "inherit" and not self.project_analysis_model
+                and self.project_analysis_thinking_mode == "inherit" and not self.project_analysis_base_url):
             return
-        endpoint = urlsplit(self.llm_base_url)
+        base_url = self.project_analysis_base_url or self.llm_base_url
+        endpoint = urlsplit(base_url)
         model = self.project_analysis_model or self.llm_model
-        if (self.llm_provider != "openai_compatible" or not self.uses_official_deepseek_model(model)
-                or endpoint.path.rstrip("/") not in {"", "/v1"} or endpoint.query or endpoint.fragment):
+        provider = "openai_compatible" if self.project_analysis_base_url else self.llm_provider
+        deepseek = (endpoint.scheme == "https" and endpoint.hostname == "api.deepseek.com"
+                    and endpoint.port in (None, 443) and endpoint.username is None and endpoint.password is None
+                    and endpoint.path.rstrip("/") in {"", "/v1"} and not endpoint.query and not endpoint.fragment
+                    and not any(char.isspace() or ord(char) < 32 for char in base_url)
+                    and model in {"deepseek-flash", "deepseek-v4-pro"})
+        bailian = official_bailian_endpoint(base_url) and model in BAILIAN_QWEN_MODELS
+        if provider != "openai_compatible" or not (deepseek or bailian):
             if self.project_analysis_model:
-                raise ValueError("PROJECT_ANALYSIS_MODEL requires the documented official DeepSeek endpoint and model")
+                raise ValueError("PROJECT_ANALYSIS_MODEL requires the documented official DeepSeek or Bailian endpoint and matching model")
             raise ValueError("PROJECT_ANALYSIS_REASONING_EFFORT=low requires the documented official DeepSeek endpoint and model; use inherit for other providers")
+        # Explicit project-only disabled mode takes priority over the retained
+        # legacy low setting. Global/search options are not modified.
+        if self.project_analysis_thinking_mode == "disabled":
+            return
+        if self.project_analysis_reasoning_effort == "low" and not deepseek:
+            raise ValueError("PROJECT_ANALYSIS_REASONING_EFFORT=low requires the documented official DeepSeek endpoint and model; use disabled thinking or inherit for Bailian")
         if self.project_analysis_reasoning_effort == "low" and (self.llm_thinking_mode not in {"auto", "enabled"} or self.llm_reasoning_effort not in {"auto", "low"}):
             raise ValueError("PROJECT_ANALYSIS_REASONING_EFFORT=low conflicts with explicit global thinking/reasoning settings; use inherit or explicitly reconcile those settings")
 
@@ -490,7 +543,10 @@ class Settings:
             project_analysis_timeout_seconds=security_number("PROJECT_ANALYSIS_TIMEOUT_SECONDS", 60, 1, 180),
             project_analysis_total_timeout_seconds=security_number("PROJECT_ANALYSIS_TOTAL_TIMEOUT_SECONDS", 60, 1, 600),
             project_analysis_reasoning_effort=os.getenv("PROJECT_ANALYSIS_REASONING_EFFORT", "inherit").strip().lower(),
+            project_analysis_thinking_mode=os.getenv("PROJECT_ANALYSIS_THINKING_MODE", "inherit").strip().lower(),
             project_analysis_model=os.getenv("PROJECT_ANALYSIS_MODEL", "").strip(),
+            project_analysis_base_url=os.getenv("PROJECT_ANALYSIS_BASE_URL", "").strip().rstrip("/"),
+            project_analysis_api_key=os.getenv("PROJECT_ANALYSIS_API_KEY", ""),
             project_analysis_max_output_tokens=security_number("PROJECT_ANALYSIS_MAX_OUTPUT_TOKENS", 16000, 256, 16000),
             project_analysis_normalization_max_output_tokens=security_number("PROJECT_ANALYSIS_NORMALIZATION_MAX_OUTPUT_TOKENS", 16000, 256, 16000),
             project_semantic_review_enabled=semantic_review_setting(),

@@ -195,7 +195,8 @@ class ProjectService:
                     "catalog_tail_wait_seconds": 0,
                     "catalog_background_seconds": catalog["seconds"],
                     "catalog_model_calls": catalog["model_calls"],
-                    "catalog_resume_enabled": True,
+                    "catalog_resume_enabled": False,
+                    "chapter_matching_enabled": False,
                     "cover_resume_enabled": True,
                     "cover_resume_resources": catalog["resources"],
                     "cover_resume_http_requests": catalog["http_requests"],
@@ -544,7 +545,9 @@ class ProjectService:
                                if self.tasks.get(key) is finished else None)
 
     def resume_catalogs(self, project_id: str, version: int):
-        return self._resume_metadata(project_id, version)
+        # Existing clients may still use the catalog route. Chapter matching
+        # was removed; only missing covers can be continued.
+        return self._resume_metadata(project_id, version, cover_only=True)
 
     def resume_covers(self, project_id: str, version: int):
         return self._resume_metadata(project_id, version, cover_only=True)
@@ -554,7 +557,7 @@ class ProjectService:
         self._expect_current(project, version)
         fast = data.get("fast_video_search") or {}
         if not fast or not data.get("confirmation") or not any(fast.get("recommendations", {}).values()):
-            raise ProjectError("catalog_results_required", "当前版本没有可继续补目录的视频", 409)
+            raise ProjectError("catalog_results_required", "当前版本没有可补封面的视频", 409)
         key = project_id, version
         if key in self.tasks and not self.tasks[key].done():
             return self.view(project_id, version)

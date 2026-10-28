@@ -178,7 +178,7 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
       {current && version.status === 'running' && <button className="text-button" disabled={project.busy} onClick={() => void cancelSearch()}>取消项目检索</button>}
       {current && selected.length > 0 && ['completed', 'partial', 'failed', 'cancelled', 'interrupted', 'budget_exceeded', 'no_results', 'confirmed'].includes(version.status) && <button className="text-button" disabled={project.busy || retrying || inputDirty} onClick={() => void retrySearch()}>{device && version.confirmation?.local_only === true ? '查找视频' : '重新检索这些知识点'}</button>}
     </div>}
-    {!current && view && <button className="text-button" onClick={() => project.selectProject(view.project_id, view.current_version)}>返回最新版本</button>}
+    {!current && view && <button className="text-button" onClick={() => project.selectProject(view.project_id, view.current_version)}>返回当前项目</button>}
     {inputDirty && <p className="notice warning-notice">需求已有未保存修改，请先返回项目描述并重新分析。</p>}
   </div> : null;
   return <>
@@ -195,7 +195,6 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
     {showProjects && <section className="project-library" id="project-library" aria-label="我的项目">
       <div className="project-toolbar">
         <label>已保存项目<select aria-label="已保存项目" value={view?.project_id || ''} disabled={project.busy} onChange={event => project.selectProject(event.target.value)}><option value="">新项目</option>{project.projects.map(item => <option key={item.project_id} value={item.project_id}>{item.name}</option>)}</select></label>
-        {view && <label>查看版本<select aria-label="查看版本" value={version?.version || 0} disabled={project.busy} onChange={event => project.selectProject(view.project_id, Number(event.target.value))}><option value={0} disabled>尚无分析</option>{view.versions.map(item => <option key={item.version} value={item.version}>v{item.version} · {projectStatusNames[item.status] || item.status}</option>)}</select></label>}
         <button className="secondary-button" disabled={project.busy} onClick={() => { project.newProject(); changeInput({ ...emptyProjectInput, preferred_platforms: device ? ['bilibili', 'icourse163'] : emptyProjectInput.preferred_platforms }); setScreen(null); }}>新建项目</button>
         <button className="text-button" disabled={project.busy} onClick={project.refresh}>重新读取</button>
         {device && view && <button className="text-button" disabled={project.busy || !device.canRemove} onClick={() => setDeleteConfirm(true)}>删除本机项目</button>}
@@ -209,7 +208,7 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
         <p className="section-index">{stage === 1 ? '01 / PROJECT BRIEF' : stage === 2 ? '02 / LEARNING SCOPE' : '03 / CURATED LEARNING'}</p>
         <h1 id="stage-title" ref={titleRef} tabIndex={-1} aria-label={compactLayout ? stageLabels[stage - 1] : undefined}>{stage === 1 ? <>从一个想法，<br/>开始你的项目。</> : stage === 2 ? <>选择此刻，<br/>想学的知识。</> : <>让知识，<br/>走进你的项目。</>}</h1>
         <div className="stage-context">
-        <p className="stage-description">{stage === 1 ? <>描述你想实现的功能，<br/>让学习围绕项目展开。</> : stage === 2 ? <>围绕 {input.name}，<br/>确认要学习的专业知识点。</> : <><span className="stage-project-name">{input.name}</span><span className="stage-description-copy"><br/>从相关的视频与章节开始。</span></>}</p>
+        <p className="stage-description">{stage === 1 ? <>描述你想实现的功能，<br/>让学习围绕项目展开。</> : stage === 2 ? <>围绕 {input.name}，<br/>确认要学习的专业知识点。</> : <><span className="stage-project-name">{input.name}</span><span className="stage-description-copy"><br/>从相关的视频开始。</span></>}</p>
         <div className="stage-next">{stage === 1 ? <><span>下一步</span><p>梳理需要学习的知识点 <span aria-hidden="true">→</span></p></> : <button className="text-button" onClick={() => setScreen(stage === 2 ? 1 : 2)}>{stage === 2 ? '查看或修改项目描述' : '← 调整知识点'} <span aria-hidden="true">{stage === 2 ? '↗' : ''}</span></button>}</div>
         </div>
         {stage === 2 && <p className="selection-count">已选择 <strong>{selectedCount}</strong> 个知识点<span>勾选需要学习的知识点。</span></p>}
@@ -220,9 +219,8 @@ export function ProjectFlowView({ capabilities, capabilityError, onManual, proje
       <div className="stage-content" key={`content-${stage}`}>
         {stage !== 3 && project.error && <div className="notice error-notice" role="alert">{project.error}<button className="text-button" onClick={project.refresh}>重新读取</button></div>}
         {stage !== 3 && project.notice && <p className="action-notice" role="status">{project.notice}</p>}
-        {stage !== 3 && project.loading && <p className="notice" role="status">正在读取保存的项目与版本…</p>}
-        {stage !== 3 && version && <p className="project-version-label">{version.input.name} · v{version.version} · {projectStatusNames[version.status] || version.status} {!current && '（历史版本，仅查看）'}</p>}
-        {stage !== 3 && !current && view && <button className="secondary-button" onClick={() => project.selectProject(view.project_id, view.current_version)}>返回最新版本</button>}
+        {stage !== 3 && project.loading && <p className="notice" role="status">正在读取保存的项目…</p>}
+        {stage !== 3 && !current && view && <button className="secondary-button" onClick={() => project.selectProject(view.project_id, view.current_version)}>返回当前项目</button>}
         {stage === 1 && <div className="analysis-surface" data-analyzing={analysisWaiting}><section className="panel project-description" aria-label="项目描述" inert={analysisWaiting}><form onSubmit={event => void startAnalysis(event)}>
           <div className="field"><label htmlFor="project-name">项目名称</label><input id="project-name" autoComplete="off" value={input.name} disabled={project.busy || analyzing || !current || readingDevice} onChange={event => changeInput({ name: event.target.value })} maxLength={160} placeholder="例如：用 Python 做一个接球小游戏" required/></div>
           <div className="field"><label htmlFor="project-requirements">功能需求</label><textarea id="project-requirements" rows={7} value={input.requirements} disabled={project.busy || analyzing || !current || readingDevice} onChange={event => changeInput({ requirements: event.target.value })} maxLength={8000} placeholder={'说说它需要完成什么，例如：\n用方向键移动挡板，接住下落的小球\n记录分数，漏接后可以重新开始'} required aria-describedby="requirements-help"/><span className="field-help" id="requirements-help">直接描述功能，不需要先知道专业术语。<span>{input.requirements.length} / 8000</span></span></div>

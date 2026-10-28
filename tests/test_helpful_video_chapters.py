@@ -1113,10 +1113,10 @@ async def test_same_host_queue_wait_does_not_consume_each_course_timeout():
 
     enrich = service(fetch_catalog=fetch, per_resource_timeout=.08)
     try:
-        for number in range(3):
+        for number in range(5):
             enrich.enqueue(dict(RESOURCE, resource_id=str(number), url=f"https://www.bilibili.com/video/av{1000 + number}"), ["collision"])
         await enrich.drain(1)
-        assert enrich.diagnostics["catalogs_received"] == 3
+        assert enrich.diagnostics["catalogs_received"] == 5
         assert enrich.diagnostics["timeouts"] == 0
         assert enrich.diagnostics["resources"][-1]["queue_seconds"] >= .06
         assert all(row["status"] == "catalog_received" for row in enrich.diagnostics["resources"])

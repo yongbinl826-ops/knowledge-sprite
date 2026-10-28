@@ -68,7 +68,8 @@ async def test_actual_usage_and_hashed_request_id_are_observed(usage, expected):
             assert not client.is_closed
     finally:
         LLM_OBSERVER.reset(token)
-    assert tuple(observed[0]["usage"].values()) == expected
+    assert tuple(observed[0]["usage"][key] for key in (
+        "input_tokens", "output_tokens", "total_tokens", "cached_input_tokens")) == expected
     assert observed[0]["duration_seconds"] >= 0 and observed[0]["status"] == "completed"
     assert len(observed[0]["request_id_sha256"]) == 64
     assert "private-request-id" not in json.dumps(observed)

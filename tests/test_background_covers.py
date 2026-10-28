@@ -309,14 +309,14 @@ async def test_normal_run_refreshes_missing_cached_cover_during_matching_with_on
     assert result["elapsed_seconds"] == first["elapsed_seconds"]
     assert result["finished_at"] == first["finished_at"]
     assert result["progress"]["recommendation_model_calls"] == len(ordinary.calls) == 2
-    assert result["progress"]["catalog_model_calls"] == 1  # Existing directory matching, after admission.
+    assert result["progress"]["catalog_model_calls"] == 0
     assert result["diagnostics"]["chapters"]["network_scheduled_resources"] == 1
     assert result["diagnostics"]["chapters"]["fetch_attempts"] == 1
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("outcome", ["cover_only", "exception"])
-async def test_early_cover_response_preserves_cached_native_chapters(outcome):
+async def test_early_cover_response_does_not_copy_cached_chapters_into_new_cards(outcome):
     cover_ready = asyncio.Event()
     fetched = []
     class Cache:
@@ -346,11 +346,10 @@ async def test_early_cover_response_preserves_cached_native_chapters(outcome):
         chapter_enricher_factory=lambda *args, **kwargs: HelpfulVideoChapterEnricher(
             *args, **kwargs, fetch_catalog=fetch))
     card = result["recommendations"]["loop"][0]
-    assert [chapter["title"] for chapter in card["matched_chapters"]] == ["循环结构"]
-    assert card["matched_chapters"][0]["observed_at"] == "2026-10-23T10:00:00+00:00"
+    assert card["matched_chapters"] == []
     assert card["resource"]["thumbnail_url"] == (IMAGE if outcome == "cover_only" else None)
     assert card["resource"]["cover_status"] == ("ready" if outcome == "cover_only" else "failed")
-    assert result["diagnostics"]["chapters"]["resources"][0]["catalog_source"] == "retained_catalog"
+    assert result["progress"]["catalog_model_calls"] == 0
     assert len(fetched) == 1
 
 

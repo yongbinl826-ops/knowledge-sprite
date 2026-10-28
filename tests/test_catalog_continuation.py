@@ -42,7 +42,7 @@ def cards(snapshot):
 
 
 @pytest.mark.asyncio
-async def test_more_than_twelve_visible_courses_get_catalogs_after_video_terminal_without_search():
+async def test_more_than_twelve_missing_covers_continue_after_video_terminal_without_search():
     terminal, release = asyncio.Event(), asyncio.Event()
     snapshots, fetched, enrichers = [], [], []
     candidates = [video(2000 + n, title=f"Python 循环结构教程 {n}", snippet="循环结构") for n in range(16)]
@@ -55,7 +55,7 @@ async def test_more_than_twelve_visible_courses_get_catalogs_after_video_termina
 
     def make_enricher(*args, **kwargs):
         instance = HelpfulVideoChapterEnricher(*args, **kwargs, fetch_catalog=fetch)
-        assert (instance.max_resources, instance.max_http_requests, instance.max_semantic_batches) == (12, 18, 3)
+        assert (instance.max_resources, instance.max_http_requests, instance.max_semantic_batches) == (12, 18, 0)
         enrichers.append(instance)
         return instance
 
@@ -78,7 +78,7 @@ async def test_more_than_twelve_visible_courses_get_catalogs_after_video_termina
         release.set()
         result = await asyncio.wait_for(task, 1)
         assert len(fetched) == len(set(fetched)) == 16
-        assert len(cards(result)) == 16 and all(row["matched_chapters"] for row in cards(result))
+        assert len(cards(result)) == 16 and all(not row["matched_chapters"] for row in cards(result))
         assert len(provider.calls) == searches
         assert result["progress"]["recommendation_model_calls"] == model_calls
         assert {k: result[k] for k in ("status", "finished_at", "elapsed_seconds")} == {
@@ -90,7 +90,7 @@ async def test_more_than_twelve_visible_courses_get_catalogs_after_video_termina
 
 
 @pytest.mark.asyncio
-async def test_four_late_semantic_waves_continue_without_reusing_video_model_or_search_budget():
+async def test_four_late_metadata_waves_never_call_a_chapter_model():
     terminal = asyncio.Event()
     releases = [asyncio.Event() for _ in range(4)]
     snapshots, catalog_calls, submitted_pairs, fetch_order = [], [], [], []
@@ -102,6 +102,8 @@ async def test_four_late_semantic_waves_continue_without_reusing_video_model_or_
         wave = len(fetch_order)
         fetch_order.append(resource["url"])
         await releases[wave].wait()
+        if wave + 1 < len(releases):
+            releases[wave + 1].set()
         return catalog(resource, title="Iterative processing")
 
     async def model(config, prompt, data, **kwargs):
@@ -130,17 +132,17 @@ async def test_four_late_semantic_waves_continue_without_reusing_video_model_or_
         chapter_enricher_factory=lambda *args, **kwargs: HelpfulVideoChapterEnricher(
             *args, **kwargs, fetch_catalog=fetch))
     first = next(row for row in snapshots if row["status"] != "running")
-    assert len(catalog_calls) == 4
-    assert len(submitted_pairs) == len(set(submitted_pairs)) == 4
-    assert all(row["matched_chapters"] for row in cards(result))
-    assert result["progress"]["catalog_model_calls"] == 4
+    assert len(fetch_order) == 4
+    assert catalog_calls == submitted_pairs == []
+    assert all(not row["matched_chapters"] for row in cards(result))
+    assert result["progress"]["catalog_model_calls"] == 0
     assert result["progress"]["recommendation_model_calls"] == first["progress"]["recommendation_model_calls"]
     assert result["progress"]["search_requests"] == first["progress"]["search_requests"]
     assert result["catalog_enrichment"]["status"] == "completed"
 
 
 @pytest.mark.parametrize("resources,http_limit,model_limit", [(96, 288, 24), (20, 60, 8)])
-def test_project_confirmation_and_mobile_reserve_the_entire_background_catalog_budget(tmp_path, resources, http_limit, model_limit):
+def test_project_confirmation_and_mobile_reserve_cover_requests_but_no_chapter_models(tmp_path, resources, http_limit, model_limit):
     config, store, jobs, projects = project_setup(tmp_path)
     config = replace(config, catalog_background_max_resources=resources,
                      catalog_background_max_http_requests=http_limit, catalog_background_max_model_calls=model_limit)
@@ -153,11 +155,11 @@ def test_project_confirmation_and_mobile_reserve_the_entire_background_catalog_b
     try:
         budget = projects._budget(points, ["bilibili"])
         costs = manager._costs(payload, points)
-        assert budget["reserved_catalog_model_calls"] == model_limit
-        assert budget["reserved_model_calls"] == fast.MAX_MODEL_CALLS + model_limit
+        assert budget["reserved_catalog_model_calls"] == 0
+        assert budget["reserved_model_calls"] == fast.MAX_MODEL_CALLS
         assert budget["optional_catalog_resources"] == resources
         assert budget["catalog_http_requests"] == http_limit
-        assert costs["model_calls"] == fast.MAX_MODEL_CALLS + model_limit
+        assert costs["model_calls"] == fast.MAX_MODEL_CALLS
         assert costs["detail_http"] == http_limit
         assert costs["search_requests"] == config.project_max_search_requests
         assert costs["detail_pages"] == 0
@@ -200,10 +202,9 @@ async def test_resume_helper_only_enriches_existing_cards_and_keeps_discovery_hi
         chapter_enricher_factory=lambda *args, **kwargs: HelpfulVideoChapterEnricher(
             *args, **kwargs, fetch_catalog=fetch)), 2)
     assert fetched == [original["recommendations"]["loop"][0]["resource"]["url"]]
-    assert len(calls) == 1
-    assert all(row["point_ids"] == ["loop"] for call in calls for row in call["resources"])
+    assert calls == []
     assert set(result["recommendations"]) == {"loop"}
-    assert len(cards(result)) == 1 and cards(result)[0]["matched_chapters"]
+    assert len(cards(result)) == 1 and not cards(result)[0]["matched_chapters"]
     assert result["diagnostics"]["searches"] == original["diagnostics"]["searches"]
     for field in ("status", "started_at", "finished_at", "elapsed_seconds"):
         assert result[field] == original[field]
@@ -221,7 +222,7 @@ async def test_resume_reuses_remaining_version_allowance_instead_of_resetting_sp
     second["resource"].update(resource_id="r2", url="https://www.bilibili.com/video/av2299")
     cards(state).append(second)
     state["progress"].update(catalog_model_calls=23, model_calls=27)
-    state["diagnostics"]["chapters"].update(network_scheduled_resources=95, http_requests=287)
+    state["diagnostics"]["covers"] = {"network_scheduled_resources": 95, "http_requests": 287}
     options, fetched, calls = [], [], []
 
     async def fetch(resource):
@@ -241,18 +242,18 @@ async def test_resume_reuses_remaining_version_allowance_instead_of_resetting_sp
 
     result = await asyncio.wait_for(fast.resume_video_catalogs(settings(), POINTS, state,
         publish=lambda _: None, complete=model, chapter_enricher_factory=make_enricher), 2)
-    assert options == [{"max_resources": 1, "max_http_requests": 1, "max_semantic_batches": 1}]
-    assert len(fetched) == len(calls) == 1
-    assert len(cards(result)) == 2 and sum(bool(row["matched_chapters"]) for row in cards(result)) == 1
-    assert result["progress"]["catalog_model_calls"] == 24
-    assert result["progress"]["model_calls"] == 28
+    assert options == [{"max_resources": 1, "max_http_requests": 1, "max_semantic_batches": 0}]
+    assert len(fetched) == 1 and not calls
+    assert len(cards(result)) == 2 and not any(row["matched_chapters"] for row in cards(result))
+    assert result["progress"]["catalog_model_calls"] == 23
+    assert result["progress"]["model_calls"] == 27
     assert result["progress"]["search_requests"] == 23
-    assert result["diagnostics"]["chapters"]["network_scheduled_resources"] == 96
+    assert result["diagnostics"]["covers"]["network_scheduled_resources"] == 96
     assert result["catalog_enrichment"]["status"] == "partial"
 
 
 @pytest.mark.asyncio
-async def test_resume_keeps_existing_chapter_and_adds_other_matches_with_current_remaining_count():
+async def test_resume_keeps_existing_chapter_and_historical_pending_counts_without_new_matches():
     state = saved_state()
     resource = cards(state)[0]["resource"]
     raw = catalog(resource, "For statement", 2)
@@ -280,14 +281,14 @@ async def test_resume_keeps_existing_chapter_and_adds_other_matches_with_current
         publish=lambda _: None, complete=model,
         chapter_enricher_factory=lambda *args, **kwargs: HelpfulVideoChapterEnricher(
             *args, **kwargs, fetch_catalog=fetch)), 2)
-    assert fetched == [resource["url"]] and len(calls) == 1
+    assert fetched == [resource["url"]] and not calls
     chapters = cards(result)[0]["matched_chapters"]
-    assert [chapter["title"] for chapter in chapters] == ["For statement", "While statement"]
+    assert [chapter["title"] for chapter in chapters] == ["For statement"]
     assert chapters[0] == old_chapter
-    assert len({chapter["chapter_id"] for chapter in chapters}) == 2
-    assert result["diagnostics"]["chapters"]["semantic_chapters_omitted"] == 0
-    assert result["diagnostics"]["chapters"]["semantic_unprocessed_chapters"] == 0
-    assert result["diagnostics"]["chapters"]["semantic_unprocessed_pairs"] == 0
+    assert len({chapter["chapter_id"] for chapter in chapters}) == 1
+    assert result["diagnostics"]["chapters"]["semantic_chapters_omitted"] == 11
+    assert result["diagnostics"]["chapters"]["semantic_unprocessed_chapters"] == 11
+    assert result["diagnostics"]["chapters"]["semantic_unprocessed_pairs"] == 11
     assert {key: result[key] for key in ("status", "started_at", "finished_at", "elapsed_seconds")} == {
         key: state[key] for key in ("status", "started_at", "finished_at", "elapsed_seconds")}
     assert state["diagnostics"]["chapters"]["semantic_chapters_omitted"] == 11

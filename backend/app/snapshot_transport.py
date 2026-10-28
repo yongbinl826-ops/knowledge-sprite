@@ -20,8 +20,15 @@ def project_ui(value):
     version = result.get("version")
     if isinstance(version, dict):
         version = dict(version)
-        for field in ("analysis_attempts", "validated_concept_context", "updated_at"):
+        # Analysis timing/token observations are backend audit data, including
+        # the retained failure trace. UI polling/SSE should not carry or render
+        # them, and telemetry-only updates must not invalidate the UI revision.
+        for field in ("analysis_timing", "analysis_attempts", "rejected_analysis_attempts",
+                      "validated_concept_context", "updated_at"):
             version.pop(field, None)
+        error = version.get("error")
+        if isinstance(error, dict) and "diagnostics" in error:
+            version["error"] = {key: val for key, val in error.items() if key != "diagnostics"}
         fast = version.get("fast_video_search")
         if isinstance(fast, dict):
             version["fast_video_search"] = {key: val for key, val in fast.items() if key in FAST_UI_FIELDS}

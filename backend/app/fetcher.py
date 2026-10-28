@@ -49,6 +49,9 @@ class FetcherConfig:
     bilibili_public_metadata_max_bytes: int | None = None
     denied_hosts: tuple[str, ...] = ()
     global_concurrency: int = 5
+    # A caller must opt in to overlapping reads from the same host. Start
+    # pacing, robots rules and denial/Retry-After state remain shared.
+    per_host_concurrency: int = 1
     min_interval_seconds: float = 0.5
     robots_ttl_seconds: int = 3600
     dns_resolver: str = "system"
@@ -532,10 +535,14 @@ class Fetcher:
         bili_limit = self.config.bilibili_public_metadata_max_bytes
         if bili_limit is not None and (type(bili_limit) is not int or not 1 <= bili_limit <= 16_000_000):
             raise ValueError("bilibili_public_metadata_max_bytes must be an integer between 1 and 16000000")
+        if type(self.config.per_host_concurrency) is not int or not 1 <= self.config.per_host_concurrency <= 5:
+            raise ValueError("per_host_concurrency must be an integer between 1 and 5")
         self.resolver = resolver or (CloudflareDoHResolver() if self.config.dns_resolver == "cloudflare_doh" else public_addresses)
         self.http = http_client or PinnedHTTPClient(self.config)
         self.extractor = MetadataExtractor()
         self._global = asyncio.Semaphore(max(1, min(5, self.config.global_concurrency)))
+        self._host_inflight: dict[str, asyncio.Semaphore] = {}
+        # Only request admission/pacing owns this lock, never response reading.
         self._hosts: dict[str, asyncio.Lock] = {}
         self._robots_locks: dict[str, asyncio.Lock] = {}
         self._robots: dict[str, tuple[float, RobotsRules]] = {}
@@ -620,26 +627,17 @@ class Fetcher:
 
     async def _request_with_local_limits(self, url: str, max_bytes: int, *, kind: str = "page") -> HTTPResult:
         host = urlsplit(url).hostname or ""
-        async with self._hosts.setdefault(host, asyncio.Lock()):
+        slots = self._host_inflight.setdefault(host, asyncio.Semaphore(self.config.per_host_concurrency))
+        async with slots:
             configured_retries = min(1, max(0, self.config.max_retries))
             retries = min(configured_retries, (NETWORK_OBSERVER.get() or {}).get("max_retries", configured_retries))
             for attempt in range(retries + 1):
-                if host in self._blocked_hosts:
-                    self._trace("blocked_before_request", url, kind=kind, attempt=attempt)
-                    raise self._host_block_exception(self._blocked_hosts[host])
-                if self._paused_until.get(host, 0) > time.monotonic():
-                    self._trace("paused_before_request", url, kind=kind, attempt=attempt)
-                    raise FetchStopped("rate_limited", "该站点处于 Retry-After 暂停期")
-                remaining = self._last_request.get(host, -float("inf")) + self._host_interval(host) - time.monotonic()
-                if remaining > 30:
-                    raise FetchStopped("robots_delay", "站点抓取间隔超过本次等待预算")
-                if remaining > 0:
-                    self._trace("pacing_wait", url, kind=kind, attempt=attempt, seconds=remaining)
-                    await asyncio.sleep(remaining)
+                self._check_host_available(url, kind=kind, attempt=attempt)
                 self._trace("dns_started", url, kind=kind, attempt=attempt)
                 observer = NETWORK_OBSERVER.get() or {}
                 if observer.get("before_resolve"):
                     await observer["before_resolve"](url)
+                self._check_host_available(url, kind=kind, attempt=attempt)
                 try:
                     addresses = await self.resolver(url, self.config.timeout_seconds)
                     for address in addresses:
@@ -652,32 +650,49 @@ class Fetcher:
                     raise
                 self._trace("dns_completed", url, kind=kind, attempt=attempt, address_count=len(addresses))
                 try:
-                    response_limit = max_bytes
-                    if observer.get("response_byte_limit"):
-                        remaining_bytes = observer["response_byte_limit"]()
-                        if isinstance(remaining_bytes, bool) or not isinstance(remaining_bytes, int) or remaining_bytes <= 0:
-                            raise FetchStopped("budget_exceeded", "本次响应剩余字节预算不足")
-                        response_limit = min(response_limit, remaining_bytes)
-                    if observer.get("before_target_http"):
-                        await observer["before_target_http"]()
-                    self._last_request[host] = time.monotonic()
-                    self._trace("http_started", url, kind=kind, attempt=attempt)
+                    async with self._hosts.setdefault(host, asyncio.Lock()):
+                        # A preceding in-flight response can block the host
+                        # while this task waits for DNS, pacing or a budget hook.
+                        # Recheck after every such await before admitting HTTP.
+                        while True:
+                            self._check_host_available(url, kind=kind, attempt=attempt)
+                            remaining = (self._last_request.get(host, -float("inf"))
+                                         + self._host_interval(host) - time.monotonic())
+                            if remaining > 30:
+                                raise FetchStopped("robots_delay", "站点抓取间隔超过本次等待预算")
+                            if remaining <= 0:
+                                break
+                            self._trace("pacing_wait", url, kind=kind, attempt=attempt, seconds=remaining)
+                            await asyncio.sleep(remaining)
+                        response_limit = max_bytes
+                        if observer.get("response_byte_limit"):
+                            remaining_bytes = observer["response_byte_limit"]()
+                            if isinstance(remaining_bytes, bool) or not isinstance(remaining_bytes, int) or remaining_bytes <= 0:
+                                raise FetchStopped("budget_exceeded", "本次响应剩余字节预算不足")
+                            response_limit = min(response_limit, remaining_bytes)
+                        if observer.get("before_target_http"):
+                            await observer["before_target_http"]()
+                        self._check_host_available(url, kind=kind, attempt=attempt)
+                        self._last_request[host] = time.monotonic()
+                        self._trace("http_started", url, kind=kind, attempt=attempt)
                     def transport_trace(trace):
                         self._trace("http_transport", url, kind=kind, attempt=attempt, transport=trace)
                         if observer.get("transport_trace"):
                             observer["transport_trace"](trace)
-                    async def perform_request():
-                        token = NETWORK_OBSERVER.set({**observer, "transport_trace": transport_trace})
-                        try:
-                            return await self.http.request(url, addresses, response_limit)
-                        finally:
-                            NETWORK_OBSERVER.reset(token)
                     # Default behavior keeps its original whole-response bound.
                     # Phased transport has a first-response plus a non-sliding
                     # bounded-body deadline; retain an outer safeguard for injected
                     # transports and cancellation, independently of the job deadline.
                     total_seconds = self.config.timeout_seconds + (self.config.body_timeout_cap_seconds if self.config.phased_timeouts else 0)
-                    result = await asyncio.wait_for(perform_request(), total_seconds)
+                    # Enter the transport in this task: there is no scheduling
+                    # gap between admission above and the actual request start.
+                    # Cancellation/timeouts still close the transport context.
+                    token = NETWORK_OBSERVER.set({**observer, "transport_trace": transport_trace})
+                    try:
+                        async with asyncio.timeout(total_seconds):
+                            result = await self.http.request(url, addresses, response_limit)
+                    finally:
+                        NETWORK_OBSERVER.reset(token)
                     self._trace("http_completed", url, kind=kind, attempt=attempt, status_code=result.status_code, bytes_read=len(result.body))
                     if observer.get("response"):
                         observer["response"](result, kind)
@@ -686,7 +701,7 @@ class Fetcher:
                         raise self._host_block_exception(record)
                     if result.status_code == 429 or result.status_code == 503 and "retry-after" in result.headers:
                         seconds = retry_after_seconds(result.headers.get("retry-after", ""))
-                        self._paused_until[host] = time.monotonic() + seconds
+                        self._paused_until[host] = max(self._paused_until.get(host, 0), time.monotonic() + seconds)
                         self._trace("host_paused", url, kind=kind, attempt=attempt, status_code=result.status_code, retry_after_seconds=seconds)
                         raise FetchStopped("rate_limited", f"站点返回 {result.status_code}；已按 Retry-After 暂停")
                     return result
@@ -706,6 +721,15 @@ class Fetcher:
                     self._trace("http_cancelled", url, kind=kind, attempt=attempt)
                     raise
         raise FetchStopped("network_error", "页面请求未完成")
+
+    def _check_host_available(self, url: str, *, kind: str, attempt: int) -> None:
+        host = urlsplit(url).hostname or ""
+        if host in self._blocked_hosts:
+            self._trace("blocked_before_request", url, kind=kind, attempt=attempt)
+            raise self._host_block_exception(self._blocked_hosts[host])
+        if self._paused_until.get(host, 0) > time.monotonic():
+            self._trace("paused_before_request", url, kind=kind, attempt=attempt)
+            raise FetchStopped("rate_limited", "该站点处于 Retry-After 暂停期")
 
     async def _robots_for(self, url: str) -> RobotsRules:
         parts = urlsplit(url)

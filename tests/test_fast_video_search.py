@@ -217,17 +217,18 @@ async def test_semantic_aliases_reuse_across_points_and_do_not_truncate_at_five(
     assert all(row["resource"]["playback_verified"] is False for row in rows(result))
 
 
-async def test_ai_direct_links_and_rewritten_queries_are_used_before_technology_fallback():
+async def test_ai_rewritten_queries_find_source_backed_videos_without_direct_ai_cards():
     direct = video(30, title="Pygame 键盘控制教程")
     suggestions = [{"point_id": "keyboard", "queries": ["Pygame move paddle tutorial"],
                     "videos": [{"title": direct.title, "url": direct.url, "snippet": direct.snippet,
                                 "point_matches": bindings(["keyboard"], direct.title)}]}]
-    provider = Provider(lambda _: [])
+    provider = Provider(lambda call: [direct] if "move paddle" in call["query"] else [])
     result = await run_fast_video_search(settings(), POINTS, INPUT, publish=lambda _: None,
         deadline_seconds=.6, provider_factory=factory(provider), complete=completion(suggestions=suggestions))
     assert any(row["resource"]["url"].rstrip("/") == direct.url for row in rows(result))
     assert any("move paddle" in call["query"] for call in provider.calls)
-    assert all(row["origin"] != "technology" for row in rows(result, "keyboard"))
+    assert all(row["origin"] == "search" for row in rows(result, "keyboard"))
+    assert result["diagnostics"]["rejections"]["ungrounded_ai_video"] == 1
 
 
 async def test_technology_fallback_does_not_cross_into_unrelated_technology():
@@ -263,7 +264,7 @@ async def test_unsafe_or_non_video_links_are_never_recommended(url):
     assert not any(result["recommendations"].values())
 
 
-async def test_later_clear_payment_evidence_removes_earlier_ai_suggestion():
+async def test_ai_suggestion_is_never_published_before_source_payment_classification():
     candidate = video(70, title="Pygame 键盘控制教程", snippet="方向键输入与矩形相交测试")
     suggestions = [{"point_id": "keyboard", "queries": [],
                     "videos": [{"title": candidate.title, "url": candidate.url,
@@ -280,8 +281,8 @@ async def test_later_clear_payment_evidence_removes_earlier_ai_suggestion():
     result = await run_fast_video_search(settings(), POINTS, INPUT,
         publish=lambda snapshot: seen_before_payment_check.append(bool(rows(snapshot))),
         deadline_seconds=.5, provider_factory=factory(Provider(lambda _: [candidate])), complete=complete)
-    assert any(seen_before_payment_check), "The initial price-unknown AI suggestion may be shown"
-    assert not any(result["recommendations"].values()), "A later clear paid classification must remove the suggestion"
+    assert not any(seen_before_payment_check), "AI-only cards must never appear, even transiently"
+    assert not any(result["recommendations"].values()), "A source classified as paid must remain excluded"
 
 
 async def test_untrusted_malformed_point_ids_do_not_kill_matching_worker():
@@ -561,7 +562,7 @@ async def test_same_course_aliases_merge_topic_evidence_without_merging_differen
         assert any("键盘状态轮询" in row["snippet"] and "轴对齐包围盒相交测试" in row["snippet"] for row in seen)
 
 
-async def test_optional_catalog_arrives_after_first_card_and_adds_real_point_specific_chapters():
+async def test_native_catalog_cannot_add_chapters_or_expand_point_coverage():
     from backend.app.helpful_video_chapters import HelpfulVideoChapterEnricher
 
     first_card, catalog_visible = asyncio.Event(), asyncio.Event()
@@ -602,7 +603,7 @@ async def test_optional_catalog_arrives_after_first_card_and_adds_real_point_spe
             return [candidate]
         # A real search remains in flight while optional metadata arrives;
         # metadata is no longer allowed to extend the completed search's tail.
-        await catalog_visible.wait()
+        await asyncio.sleep(.05)
         return []
 
     result = await run_fast_video_search(settings(), points, INPUT, publish=publish,
@@ -612,14 +613,15 @@ async def test_optional_catalog_arrives_after_first_card_and_adds_real_point_spe
     assert rows(first)[0]["matched_chapters"] == []
     assert rows(first)[0]["added_at"] == rows(result)[0]["added_at"]
     assert rows(first)[0]["elapsed_seconds"] == rows(result)[0]["elapsed_seconds"]
-    assert [chapter["index"] for chapter in rows(result)[0]["matched_chapters"]] == [3, 8]
-    assert [chapter["index"] for chapter in rows(result, "collision")[0]["matched_chapters"]] == [5, 8]
+    assert rows(result)[0]["matched_chapters"] == []
+    assert not rows(result, "collision")
+    assert not catalog_visible.is_set()
     assert rows(result)[0]["resource"]["title"] == candidate.title
-    assert result["diagnostics"]["coverage"]["targeted_points"] == 2
+    assert result["diagnostics"]["coverage"]["targeted_points"] == 1
     assert result["diagnostics"]["coverage"]["general_fallback_points"] == 0
 
 
-async def test_catalog_semantics_has_three_independent_calls_without_spending_video_budget(monkeypatch):
+async def test_background_metadata_has_no_chapter_model_callable_or_budget(monkeypatch):
     monkeypatch.setattr(fast_search, "MAX_MODEL_CALLS", 4)
     calls = []
 
@@ -631,8 +633,7 @@ async def test_catalog_semantics_has_three_independent_calls_without_spending_vi
         def enqueue(self, *_args):
             return True
         async def run_background_match(self, **_kwargs):
-            for _ in range(4):
-                await self.match("catalog prompt", {"resources": []}, .2)
+            assert self.match is None
         async def close(self):
             pass
 
@@ -648,13 +649,13 @@ async def test_catalog_semantics_has_three_independent_calls_without_spending_vi
     result = await run_fast_video_search(settings(), POINTS, INPUT, publish=lambda _: None,
         deadline_seconds=.8, provider_factory=factory(Provider(lambda _: [video(700 + n) for n in range(73)])),
         complete=model, chapter_enricher_factory=Enricher)
-    assert len(calls) == result["progress"]["model_calls"] == 7
+    assert len(calls) == result["progress"]["model_calls"] == 4
     assert result["progress"]["recommendation_model_calls"] == 4
-    assert calls.count("match_video_chapters") == result["progress"]["catalog_model_calls"] == 3
+    assert calls.count("match_video_chapters") == result["progress"]["catalog_model_calls"] == 0
     assert calls.count("match_helpful_videos") == 3
     assert result["diagnostics"]["matching"]["budget_skipped_candidates"] == 0
-    assert result["diagnostics"]["catalog_model_budget_reached"]
-    assert result["catalog_enrichment"]["status"] == "partial"
+    assert not result["diagnostics"]["catalog_model_budget_reached"]
+    assert result["catalog_enrichment"]["status"] == "completed"
 
 
 async def test_late_part_evidence_is_rejudged_without_duplicating_or_retimestamping_first_card():
@@ -791,7 +792,7 @@ def test_genuine_description_is_retained_when_separated_from_catalog_or_sidebar(
     assert fast_search._clean_discovery_snippet(text) == expected
 
 
-async def test_second_match_can_bind_only_observed_chapter_ids_and_preserves_existing_chapters():
+async def test_injected_chapter_callback_cannot_reach_video_matcher_or_cards():
     first_visible = asyncio.Event()
     source_count, published_once = 0, False
     url = "https://www.bilibili.com/video/BV1VZ4y1G7YB"
@@ -828,6 +829,7 @@ async def test_second_match_can_bind_only_observed_chapter_ids_and_preserves_exi
             return {"suggestions": []}
         output = []
         for row in data["candidates"]:
+            assert "chapters" not in row
             assignment = bindings(["keyboard"], "键盘状态轮询")
             if row.get("chapters"):
                 assignment[0]["chapter_ids"] = ["native-3"]
@@ -843,11 +845,12 @@ async def test_second_match_can_bind_only_observed_chapter_ids_and_preserves_exi
     result = await run_fast_video_search(settings(), POINTS, INPUT, publish=publish,
         deadline_seconds=.6, provider_factory=factory(Provider(search)), complete=model,
         chapter_enricher_factory=Enricher)
-    assert [chapter["chapter_id"] for chapter in rows(result)[0]["matched_chapters"]] == ["native-3", "native-8"]
-    assert [chapter["chapter_id"] for chapter in rows(result, "collision")[0]["matched_chapters"]] == ["native-8"]
+    assert published_once
+    assert rows(result)[0]["matched_chapters"] == []
+    assert not rows(result, "collision")
 
 
-async def test_catalog_semantics_publishes_during_search_instead_of_waiting_for_a_tail():
+async def test_native_catalog_arriving_during_search_does_not_start_semantic_matching():
     from backend.app.helpful_video_chapters import HelpfulVideoChapterEnricher
 
     semantic_visible = asyncio.Event()
@@ -871,7 +874,7 @@ async def test_catalog_semantics_publishes_during_search_instead_of_waiting_for_
             return [candidate]
         searches_active += 1
         try:
-            await semantic_visible.wait()
+            await asyncio.sleep(.03)
             return []
         finally:
             searches_active -= 1
@@ -894,10 +897,10 @@ async def test_catalog_semantics_publishes_during_search_instead_of_waiting_for_
     result = await run_fast_video_search(settings(), POINTS, INPUT, publish=publish,
         deadline_seconds=.8, provider_factory=factory(Provider(search)), complete=model,
         chapter_enricher_factory=enricher)
-    assert semantic_calls_during_search == [True]
-    assert semantic_visible.is_set() and searches_active == 0
-    assert rows(result, "collision")[0]["matched_chapters"][0]["title"] == "矩形相交测试"
-    assert result["progress"]["model_calls"] == 3
+    assert semantic_calls_during_search == []
+    assert not semantic_visible.is_set() and searches_active == 0
+    assert not rows(result, "collision")
+    assert result["progress"]["model_calls"] == 2
     assert not result["diagnostics"]["deadline_reached"]
 
 
@@ -941,7 +944,7 @@ async def test_slow_metadata_does_not_delay_recommendation_terminal_and_leaves_n
     assert result["progress"]["model_calls"] == 2
 
 
-async def test_catalog_cache_is_injected_only_when_supplied_and_can_fill_chapters_without_fetching():
+async def test_catalog_cache_is_injected_only_when_supplied_and_only_fills_covers():
     from backend.app.helpful_video_chapters import HelpfulVideoChapterEnricher
 
     url = "https://www.bilibili.com/video/BV1VZ4y1G7YB"
@@ -971,7 +974,8 @@ async def test_catalog_cache_is_injected_only_when_supplied_and_can_fill_chapter
         deadline_seconds=.6, provider_factory=factory(Provider(lambda _: [video(870, url=url)])),
         complete=completion(), chapter_enricher_factory=enricher, catalog_cache=cache)
     assert any(kind == "lookup" for kind, _ in called)
-    assert rows(result)[0]["matched_chapters"][0]["title"] == POINTS[0]["name"]
+    assert rows(result)[0]["matched_chapters"] == []
+    assert rows(result)[0]["resource"]["thumbnail_url"] == "https://i0.hdslb.com/bfs/archive/cached-cover.jpg"
     assert result["diagnostics"]["page_requests"] == 0
 
 
@@ -992,14 +996,14 @@ async def test_generic_only_catalogs_do_not_reserve_an_unusable_model_call(monke
     result = await run_fast_video_search(settings(), POINTS, INPUT, publish=lambda _: None,
         deadline_seconds=2, provider_factory=factory(Provider(lambda _: [video(900 + n) for n in range(73)])),
         complete=model, chapter_enricher_factory=enricher)
-    assert result["diagnostics"]["chapters"]["catalogs_received"] > 0
+    assert result["diagnostics"]["chapters"]["catalogs_received"] == 0
     assert result["diagnostics"]["chapters"]["semantic_calls"] == 0
     assert result["progress"]["model_calls"] == len(model.calls) == 4
     assert result["diagnostics"]["matching"]["unjudged_candidates"] == 0
     assert result["diagnostics"]["matching"]["judged_candidates"] == 73
 
 
-async def test_late_catalog_semantics_updates_only_existing_cards_after_frozen_video_terminal():
+async def test_late_catalog_does_not_match_chapters_or_change_frozen_video_terminal():
     from backend.app.helpful_video_chapters import HelpfulVideoChapterEnricher
 
     terminal, release = asyncio.Event(), asyncio.Event()
@@ -1047,13 +1051,13 @@ async def test_late_catalog_semantics_updates_only_existing_cards_after_frozen_v
     await asyncio.sleep(.03)
     release.set()
     result = await asyncio.wait_for(task, .3)
-    assert catalog_calls == [True]
+    assert catalog_calls == []
     assert result["catalog_enrichment"]["status"] == "completed"
     assert result["catalog_enrichment"]["elapsed_seconds"] > result["elapsed_seconds"]
     assert len(provider.calls) == search_calls
     assert result["progress"]["recommendation_model_calls"] == 2
-    assert result["progress"]["catalog_model_calls"] == 1
-    assert result["progress"]["model_calls"] == 3
+    assert result["progress"]["catalog_model_calls"] == 0
+    assert result["progress"]["model_calls"] == 2
     frozen = {key: first_terminal[key] for key in ("status", "finished_at", "elapsed_seconds")}
     for snapshot in snapshots[snapshots.index(first_terminal):]:
         assert {key: snapshot[key] for key in frozen} == frozen
@@ -1064,7 +1068,7 @@ async def test_late_catalog_semantics_updates_only_existing_cards_after_frozen_v
                     "resource": {key: value for key, value in row["resource"].items()
                                  if key not in {"cover_status", "cover_error_code"}}}
         assert recommendation_identity(rows(snapshot)[0]) == recommendation_identity(rows(first_terminal)[0])
-    assert [chapter["index"] for chapter in rows(result)[0]["matched_chapters"]] == [3]
+    assert rows(result)[0]["matched_chapters"] == []
     assert all(child.done() for instance in instances for child in instance._tasks)
 
 
@@ -1098,7 +1102,7 @@ async def test_confirmed_paid_catalog_can_remove_existing_cards_after_video_term
     assert result["catalog_enrichment"]["status"] == "completed"
 
 
-@pytest.mark.parametrize("outcome", ["model_failure", "semantic_budget", "internal_deadline", "background_failure"])
+@pytest.mark.parametrize("outcome", ["page_failure", "resource_budget", "internal_deadline", "background_failure"])
 async def test_catalog_terminal_status_reports_partial_or_failed_without_harming_videos(outcome):
     closed = []
 
@@ -1113,12 +1117,11 @@ async def test_catalog_terminal_status_reports_partial_or_failed_without_harming
             self.finished.set()
         async def run_background_match(self, **_kwargs):
             await self.finished.wait()
-            if outcome == "model_failure":
-                with pytest.raises(RuntimeError, match="Catalog model completion failed"):
-                    await self.match("catalog prompt", {"resources": []}, .2)
+            if outcome == "page_failure":
+                assert self.match is None
                 self.diagnostics["errors"] = 1
-            elif outcome == "semantic_budget":
-                self.diagnostics["semantic_budget_reached"] = True
+            elif outcome == "resource_budget":
+                self.diagnostics["budget_skipped"] = 1
             elif outcome == "internal_deadline":
                 self.diagnostics["deadline_reached"] = True
             else:
@@ -1279,6 +1282,7 @@ async def test_confirmed_missing_catalog_retracts_after_terminal_and_only_reuses
 
 async def test_unavailable_course_cannot_be_readded_by_later_source_alias_or_matching():
     unavailable = asyncio.Event()
+    source_calls = 0
     url = "https://www.bilibili.com/video/BV1VZ4y1G7YB"
     direct = video(998, title="Pygame 游戏开发入门", snippet="键盘轮询与矩形碰撞检测", url=url + "?p=1")
     suggestions = [{"point_id": "keyboard", "queries": [], "videos": [{
@@ -1300,6 +1304,10 @@ async def test_unavailable_course_cannot_be_readded_by_later_source_alias_or_mat
             pass
 
     async def search(_call):
+        nonlocal source_calls
+        source_calls += 1
+        if source_calls == 1:
+            return [direct]
         await unavailable.wait()
         return [video(999, title=direct.title, snippet=direct.snippet, url=url.replace("www.", "") + "?p=8")]
 
@@ -1329,7 +1337,7 @@ async def test_legacy_catalog_factory_without_unavailable_callback_remains_compa
     assert all(result["recommendations"].values()) and closed == [True]
 
 
-async def test_background_missing_cover_fetch_precedes_new_covered_catalogs_on_same_host(monkeypatch):
+async def test_background_fetches_only_missing_covers_without_dropping_illustrated_courses(monkeypatch):
     from backend.app.helpful_video_chapters import HelpfulVideoChapterEnricher, MAX_CATALOG_RESOURCES
 
     # Keep model completion order deterministic; native catalog tasks still use
@@ -1376,15 +1384,13 @@ async def test_background_missing_cover_fetch_precedes_new_covered_catalogs_on_s
         publish=lambda _: None, deadline_seconds=2, catalog_deadline_seconds=.1,
         provider_factory=factory(provider), complete=completion(), chapter_enricher_factory=enricher)
 
-    assert fetched[:MAX_CATALOG_RESOURCES] == [item.url for item in initial]
-    assert fetched[MAX_CATALOG_RESOURCES:] == [missing.url, slow.url], (
-        "A new missing cover must acquire the same-host slot before an already illustrated slow directory")
+    assert fetched == [missing.url], "Illustrated cards must not trigger directory fetches"
     assert peak_active == 1 and active == 0
     assert [row["resource"]["url"] for row in rows(result)] == [item.url for item in candidates], (
         "Scheduling priority must not reorder or filter recommendations")
     backfilled = next(row["resource"] for row in rows(result) if row["resource"]["url"] == missing.url)
     assert backfilled["thumbnail_url"] == "https://i0.hdslb.com/backfilled.jpg"
     instance = instances[0]
-    assert instance.diagnostics["network_scheduled_resources"] == len(candidates)
+    assert instance.diagnostics["network_scheduled_resources"] == 1
     assert instance.max_resources == 96 and instance.max_http_requests == 288
     assert all(task.done() for task in instance._tasks)
